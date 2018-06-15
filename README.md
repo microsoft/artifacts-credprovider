@@ -1,3 +1,33 @@
+# MicrosoftCredentialProvider
+
+The configuration parameter in the examples below can be either Debug or Release
+
+## Building
+```
+dotnet build CredentialProvider.Microsoft --configuration Release
+```
+
+## Packing
+```
+dotnet pack CredentialProvider.Microsoft --configuration Release /p:NuspecFile=CredentialProvider.Microsoft.nuspec
+```
+For CI builds, you can append a pre-release version
+```
+dotnet pack CredentialProvider.Microsoft --configuration Release /p:NuspecFile=CredentialProvider.Microsoft.nuspec /p:NuspecProperties=VersionSuffix=-MyCustomVersion-2
+```
+
+# MicrosoftCredentialProvider VSIX
+## Building
+Build the solution in Visual Studio 2017, or using msbuild:
+```
+msbuild MicrosoftCredentialProvider.sln /p:Configuration=Release /t:restore,build
+```
+
+# Versioning
+Update the following files when modifying the version:
+- CredentialProvider.Microsoft\CredentialProvider.Microsoft.csproj
+- CredentialProvider.Microsoft\CredentialProvider.Microsoft.nuspec
+- MicrosoftCredentialProviderVSIX\bin\Debug\extension.vsixmanifest
 
 # Contributing
 
