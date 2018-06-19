@@ -1,0 +1,282 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <!-- 
+    Microsoft ResX Schema 
+    
+    Version 2.0
+    
+    The primary goals of this format is to allow a simple XML format 
+    that is mostly human readable. The generation and parsing of the 
+    various data types are done through the TypeConverter classes 
+    associated with the data types.
+    
+    Example:
+    
+    ... ado.net/XML headers & schema ...
+    <resheader name="resmimetype">text/microsoft-resx</resheader>
+    <resheader name="version">2.0</resheader>
+    <resheader name="reader">System.Resources.ResXResourceReader, System.Windows.Forms, ...</resheader>
+    <resheader name="writer">System.Resources.ResXResourceWriter, System.Windows.Forms, ...</resheader>
+    <data name="Name1"><value>this is my long string</value><comment>this is a comment</comment></data>
+    <data name="Color1" type="System.Drawing.Color, System.Drawing">Blue</data>
+    <data name="Bitmap1" mimetype="application/x-microsoft.net.object.binary.base64">
+        <value>[base64 mime encoded serialized .NET Framework object]</value>
+    </data>
+    <data name="Icon1" type="System.Drawing.Icon, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
+        <value>[base64 mime encoded string representing a byte array form of the .NET Framework object]</value>
+        <comment>This is a comment</comment>
+    </data>
+                
+    There are any number of "resheader" rows that contain simple 
+    name/value pairs.
+    
+    Each data row contains a name, and value. The row also contains a 
+    type or mimetype. Type corresponds to a .NET class that support 
+    text/value conversion through the TypeConverter architecture. 
+    Classes that don't support this are serialized and stored with the 
+    mimetype set.
+    
+    The mimetype is used for serialized objects, and tells the 
+    ResXResourceReader how to depersist the object. This is currently not 
+    extensible. For a given mimetype the value must be set accordingly:
+    
+    Note - application/x-microsoft.net.object.binary.base64 is the format 
+    that the ResXResourceWriter will generate, however the reader can 
+    read any of the formats listed below.
+    
+    mimetype: application/x-microsoft.net.object.binary.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Binary.BinaryFormatter
+            : and then encoded with base64 encoding.
+    
+    mimetype: application/x-microsoft.net.object.soap.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Soap.SoapFormatter
+            : and then encoded with base64 encoding.
+
+    mimetype: application/x-microsoft.net.object.bytearray.base64
+    value   : The object must be serialized into a byte array 
+            : using a System.ComponentModel.TypeConverter
+            : and then encoded with base64 encoding.
+    -->
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="metadata">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" />
+              </xsd:sequence>
+              <xsd:attribute name="name" use="required" type="xsd:string" />
+              <xsd:attribute name="type" type="xsd:string" />
+              <xsd:attribute name="mimetype" type="xsd:string" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="assembly">
+            <xsd:complexType>
+              <xsd:attribute name="alias" type="xsd:string" />
+              <xsd:attribute name="name" type="xsd:string" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
+              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
+              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="AADAuthorityNotFound" xml:space="preserve">
+    <value>Could not find AAD authority from headers, using default: {0}</value>
+  </data>
+  <data name="AADAuthorityOverrideFound" xml:space="preserve">
+    <value>Found AAD authority override: {0}</value>
+  </data>
+  <data name="AcquireSessionTokenFailed" xml:space="preserve">
+    <value>Failed to acquire session token: {0}</value>
+  </data>
+  <data name="AdalAcquireTokenDeviceFlowFailed" xml:space="preserve">
+    <value>Failed to acquire token using DeviceFlow</value>
+  </data>
+  <data name="AdalAcquireTokenDeviceFlowSuccess" xml:space="preserve">
+    <value>Acquired token using DeviceFlow</value>
+  </data>
+  <data name="AdalAcquireTokenSilentFailed" xml:space="preserve">
+    <value>Failed to acquire token from cache</value>
+  </data>
+  <data name="AdalAcquireTokenSilentSuccess" xml:space="preserve">
+    <value>Acquired token from ADAL cache</value>
+  </data>
+  <data name="AdalDeviceFlowMessage" xml:space="preserve">
+    <value>To sign in, use a web browser to open the page {0} and enter the code {1} to authenticate.</value>
+  </data>
+  <data name="AdalDeviceFlowRequestedResource" xml:space="preserve">
+    <value>DeviceFlow: {0}</value>
+  </data>
+  <data name="AdalFileCacheDisabled" xml:space="preserve">
+    <value>ADAL FileCache disabled by environment variable, using the DefaultShared TokenCache</value>
+  </data>
+  <data name="AdalFileCacheLocation" xml:space="preserve">
+    <value>ADAL FileCache location: {0}</value>
+  </data>
+  <data name="AdalTokenNotFound" xml:space="preserve">
+    <value>Could not find ADAL token for {0}</value>
+  </data>
+  <data name="AdalUsingAuthority" xml:space="preserve">
+    <value>Using AAD authority: {0}</value>
+  </data>
+  <data name="BearerTokenFailed" xml:space="preserve">
+    <value>Failed to acquire bearer token for VSTSSessionTokenClient</value>
+  </data>
+  <data name="BuildTaskEnvVarError" xml:space="preserve">
+    <value>This credential provider must be run under the Team Build tasks for NuGet</value>
+  </data>
+  <data name="BuildTaskIsRetry" xml:space="preserve">
+    <value>Failed to authenticate to {0} from your project collection</value>
+  </data>
+  <data name="BuildTaskMatchedPrefix" xml:space="preserve">
+    <value>Matched prefix: {0}</value>
+  </data>
+  <data name="BuildTaskNoPrefixMatch" xml:space="preserve">
+    <value>This provider only handles URIs from the build's Team Project Collection</value>
+  </data>
+  <data name="BuildTaskUriPrefixes" xml:space="preserve">
+    <value>URI Prefixes:</value>
+  </data>
+  <data name="CachedSessionTokenNotFound" xml:space="preserve">
+    <value>Could not find cached SessionToken for {0}</value>
+  </data>
+  <data name="CachingSessionToken" xml:space="preserve">
+    <value>Caching SessionToken for {0}</value>
+  </data>
+  <data name="CannotRetryWithNonInteractiveFlag" xml:space="preserve">
+    <value>Cannot retry with -IsNonInteractive flag</value>
+  </data>
+  <data name="CommandLineArgs" xml:space="preserve">
+    <value>Command-line: {0}</value>
+  </data>
+  <data name="CouldNotParseAADAuthorityOverride" xml:space="preserve">
+    <value>Could not parse AAD authority override: {0}</value>
+  </data>
+  <data name="CouldNotParseSessionTimeOverride" xml:space="preserve">
+    <value>Could not parse Session Time override: {0}</value>
+  </data>
+  <data name="CreateSessionTokenActivityId" xml:space="preserve">
+    <value>SPS CreateSessionToken Activity ID: {0}</value>
+  </data>
+  <data name="CreatingProgressReporter" xml:space="preserve">
+    <value>Creating a progress reporter with interval: {0}</value>
+  </data>
+  <data name="DPAPIUnavailableNonWindows" xml:space="preserve">
+    <value>DPAPI not available on non-Windows platforms, using the DefaultShared TokenCache</value>
+  </data>
+  <data name="FaultedOnMessage" xml:space="preserve">
+    <value>Faulted on message: {0}</value>
+  </data>
+  <data name="FoundAADAuthorityFromHeaders" xml:space="preserve">
+    <value>Found AAD Authority from 401 headers: {0}</value>
+  </data>
+  <data name="FoundCachedSessionToken" xml:space="preserve">
+    <value>Found cached SessionToken for {0}</value>
+  </data>
+  <data name="FoundHostsInEnvironment" xml:space="preserve">
+    <value>Found hosts in environment to add to {0}</value>
+  </data>
+  <data name="HandlingAuthRequest" xml:space="preserve">
+    <value>Handling auth request, Uri: {0}, IsRetry: {1}, IsNonInteractive: {2}</value>
+  </data>
+  <data name="HandlingRequest" xml:space="preserve">
+    <value>Handling '{0}' '{1}' - {2}</value>
+  </data>
+  <data name="InvalidatingCachedSessionToken" xml:space="preserve">
+    <value>Invalidating SessionToken cache for {0}</value>
+  </data>
+  <data name="IsRetry" xml:space="preserve">
+    <value>IsRetry: {0}</value>
+  </data>
+  <data name="Password" xml:space="preserve">
+    <value>Password</value>
+  </data>
+  <data name="PluginTimedOut" xml:space="preserve">
+    <value>Timed out waiting for plug-in operations to complete</value>
+  </data>
+  <data name="Redacted" xml:space="preserve">
+    <value>[REDACTED]</value>
+  </data>
+  <data name="RequestUriNull" xml:space="preserve">
+    <value>Request uri cannot be null</value>
+  </data>
+  <data name="RunningInPlugin" xml:space="preserve">
+    <value>Running in plug-in mode</value>
+  </data>
+  <data name="RunningInStandAlone" xml:space="preserve">
+    <value>Running in stand-alone mode</value>
+  </data>
+  <data name="SendingResponse" xml:space="preserve">
+    <value>Sending response: '{0}'</value>
+  </data>
+  <data name="SessionTokenCacheDisabled" xml:space="preserve">
+    <value>SessionToken cache disabled by environment</value>
+  </data>
+  <data name="SessionTokenCacheLocation" xml:space="preserve">
+    <value>SessionToken cache location: {0}</value>
+  </data>
+  <data name="SkippingCredentialProvider" xml:space="preserve">
+    <value>Skipping {0}, cannot provide credentials for {1}</value>
+  </data>
+  <data name="SPSAuthEndpointException" xml:space="preserve">
+    <value>Exception when fetching the authorization endpoint: {0}</value>
+  </data>
+  <data name="SPSAuthEndpointNotFound" xml:space="preserve">
+    <value>Could not find SPS authorization endpoint for {0}</value>
+  </data>
+  <data name="Uri" xml:space="preserve">
+    <value>URI: {0}</value>
+  </data>
+  <data name="Username" xml:space="preserve">
+    <value>Username</value>
+  </data>
+  <data name="VSTSCreateSessionException" xml:space="preserve">
+    <value>Exception trying to generate VSTS/TFS token: {0}, message: {1}, stack: {2}</value>
+  </data>
+  <data name="VSTSCredentialsNotFound" xml:space="preserve">
+    <value>Could not find credentials for {0}</value>
+  </data>
+  <data name="VSTSSessionTokenCreated" xml:space="preserve">
+    <value>Found SessionToken for {0}</value>
+  </data>
+  <data name="VSTSSessionTokenValidity" xml:space="preserve">
+    <value>Session time: {0}, valid until: {1} UTC</value>
+  </data>
+</root>
