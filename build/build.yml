@@ -1,0 +1,62 @@
+parameters:
+  push: false
+
+steps:
+- task: DotNetCoreCLI@2
+  displayName: dotnet restore
+  inputs:
+    command: restore
+    projects: 'CredentialProvider.Microsoft/CredentialProvider.Microsoft.csproj'
+    vstsFeed: '54754426-96db-4f6e-8a3a-64265d1cc147'
+    includeNuGetOrg: false
+  enabled: false
+
+- task: DotNetCoreCLI@2
+  displayName: dotnet restore NuGet.config
+  inputs:
+    command: restore
+    projects: 'CredentialProvider.Microsoft/CredentialProvider.Microsoft.csproj'
+    feedsToUse: config
+    nugetConfigPath: 'CredentialProvider.Microsoft/NuGet.config'
+
+- task: DotNetCoreCLI@2
+  displayName: dotnet build
+  inputs:
+    projects: 'CredentialProvider.Microsoft/CredentialProvider.Microsoft.csproj'
+    arguments: '--configuration $(BuildConfiguration)'
+
+- task: DotNetCoreCLI@2
+  displayName: dotnet test
+  inputs:
+    command: test
+    projects: 'CredentialProvider.Microsoft.Tests/CredentialProvider.Microsoft.Tests.csproj'
+
+- task: MSBuild@1
+  displayName: Build VSIX
+  inputs:
+    solution: 'MicrosoftCredentialProviderVSIX/MicrosoftCredentialProviderVSIX.csproj'
+    configuration: '$(BuildConfiguration)'
+    msbuildArguments: '/p:OutputPath=$(Build.ArtifactStagingDirectory)\$(BuildConfiguration)\vsix\'
+
+- task: DotNetCoreCLI@2
+  displayName: dotnet custom
+  inputs:
+    command: custom
+    projects: 'CredentialProvider.Microsoft/CredentialProvider.Microsoft.csproj'
+    custom: pack
+    arguments: '/p:NuspecFile=CredentialProvider.Microsoft.nuspec /p:NuspecProperties=VersionSuffix=-CI-$(Build.BuildNumber) --output $(Build.ArtifactStagingDirectory)\$(BuildConfiguration)'
+
+- ${{ if eq(parameters.push, 'true') }}:
+  - task: DotNetCoreCLI@2
+    displayName: dotnet push
+    inputs:
+      command: push
+      packagesToPush: '$(Build.ArtifactStagingDirectory)/$(BuildConfiguration)/*.nupkg'
+      publishVstsFeed: '54754426-96db-4f6e-8a3a-64265d1cc147'
+
+- ${{ if eq(parameters.push, 'true') }}:
+  - task: PublishBuildArtifacts@1
+    displayName: Publish Artifact $(Build.BuildNumber)
+    inputs:
+      PathtoPublish: '$(Build.ArtifactStagingDirectory)\$(BuildConfiguration)\'
+      ArtifactName: '$(Build.BuildNumber)'

@@ -8,4 +8,4 @@ variables:
 steps:
 - template: build/build.yml
   parameters:
-    push: true
+    push: false
