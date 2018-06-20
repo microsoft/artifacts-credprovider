@@ -1,5 +1,10 @@
 # MicrosoftCredentialProvider
 
+## Status
+| | Build & Test |
+|-|--------------|
+| **Windows** | [![Build status](https://mseng.visualstudio.com/_apis/public/build/definitions/b924d696-3eae-4116-8443-9a18392d8544/7110/badge)](https://mseng.visualstudio.com/VSOnline/_build/latest?definitionId=7110) |
+
 The configuration parameter in the examples below can be either Debug or Release
 
 ## Building
