@@ -1,15 +1,13 @@
 parameters:
   push: false
+  sign: false
+  nuspecProperties: ''
 
 steps:
-- task: DotNetCoreCLI@2
-  displayName: dotnet restore
+- task: DotNetCoreInstaller@0
+  displayName: Use .NET Core sdk 2.1.0
   inputs:
-    command: restore
-    projects: 'CredentialProvider.Microsoft/CredentialProvider.Microsoft.csproj'
-    vstsFeed: '54754426-96db-4f6e-8a3a-64265d1cc147'
-    includeNuGetOrg: false
-  enabled: false
+    version: 2.1.300
 
 - task: DotNetCoreCLI@2
   displayName: dotnet restore NuGet.config
@@ -19,17 +17,25 @@ steps:
     feedsToUse: config
     nugetConfigPath: 'CredentialProvider.Microsoft/NuGet.config'
 
-- task: DotNetCoreCLI@2
-  displayName: dotnet build
-  inputs:
-    projects: 'CredentialProvider.Microsoft/CredentialProvider.Microsoft.csproj'
-    arguments: '--configuration $(BuildConfiguration)'
+- ${{ if eq(parameters.sign, 'true') }}:
+  - task: ms-vseng.MicroBuildTasks.30666190-6959-11e5-9f96-f56098202fef.MicroBuildSigningPlugin@1
+    displayName: Install Signing Plugin
+    inputs:
+      signType: '$(SignType)'
 
-- task: DotNetCoreCLI@2
-  displayName: dotnet test
+- task: MSBuild@1
+  displayName: Build CredentialProvider
   inputs:
-    command: test
-    projects: 'CredentialProvider.Microsoft.Tests/CredentialProvider.Microsoft.Tests.csproj'
+    solution: 'CredentialProvider.Microsoft/CredentialProvider.Microsoft.csproj'
+    configuration: '$(BuildConfiguration)'
+    msbuildArguments: '/t:rebuild'
+
+- ${{ if ne(parameters.sign, 'true') }}:
+  - task: DotNetCoreCLI@2
+    displayName: dotnet test
+    inputs:
+      command: test
+      projects: 'CredentialProvider.Microsoft.Tests/CredentialProvider.Microsoft.Tests.csproj'
 
 - task: MSBuild@1
   displayName: Build VSIX
@@ -38,13 +44,13 @@ steps:
     configuration: '$(BuildConfiguration)'
     msbuildArguments: '/p:OutputPath=$(Build.ArtifactStagingDirectory)\$(BuildConfiguration)\vsix\'
 
-- task: DotNetCoreCLI@2
-  displayName: dotnet custom
+- task: NuGetCommand@2
+  displayName: NuGet pack
   inputs:
-    command: custom
-    projects: 'CredentialProvider.Microsoft/CredentialProvider.Microsoft.csproj'
-    custom: pack
-    arguments: '/p:NuspecFile=CredentialProvider.Microsoft.nuspec /p:NuspecProperties=VersionSuffix=-CI-$(Build.BuildNumber) --output $(Build.ArtifactStagingDirectory)\$(BuildConfiguration)'
+    command: pack
+    packagesToPack: 'CredentialProvider.Microsoft/CredentialProvider.Microsoft.nuspec'
+    packDestination: '$(Build.ArtifactStagingDirectory)\$(BuildConfiguration)'
+    buildProperties: '${{ parameters.nuspecProperties }}'
 
 - ${{ if eq(parameters.push, 'true') }}:
   - task: DotNetCoreCLI@2
@@ -54,9 +60,8 @@ steps:
       packagesToPush: '$(Build.ArtifactStagingDirectory)/$(BuildConfiguration)/*.nupkg'
       publishVstsFeed: '54754426-96db-4f6e-8a3a-64265d1cc147'
 
-- ${{ if eq(parameters.push, 'true') }}:
-  - task: PublishBuildArtifacts@1
-    displayName: Publish Artifact $(Build.BuildNumber)
-    inputs:
-      PathtoPublish: '$(Build.ArtifactStagingDirectory)\$(BuildConfiguration)\'
-      ArtifactName: '$(Build.BuildNumber)'
+- task: PublishBuildArtifacts@1
+  displayName: Publish Artifact $(Build.BuildNumber)
+  inputs:
+    PathtoPublish: '$(Build.ArtifactStagingDirectory)\$(BuildConfiguration)\'
+    ArtifactName: '$(Build.BuildNumber)'
