@@ -9,3 +9,4 @@ steps:
 - template: build/build.yml
   parameters:
     push: false
+    nuspecProperties: 'VersionSuffix=-PR-$(Build.BuildNumber)'
