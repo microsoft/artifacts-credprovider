@@ -15,23 +15,53 @@ namespace NuGetCredentialProvider.Util
     internal static class ExtensionMethods
     {
         /// <summary>
-        /// Writes a <see cref="TraceEventType.Error"/> event message to the trace listeners in the <see cref="TraceSource.Listeners" /> collection using the specified message.
+        /// Writes a <see cref="LogLevel.Error"/> event message to the <see cref="ILogger"/> using the specified message.
         /// </summary>
-        /// <param name="logger">A <see cref="ILogger"/> instance to write the event to.</param>
-        /// <param name="message">The error message.</param>
+        /// <param name="logger">A <see cref="ILogger"/> instance to write the message to.</param>
+        /// <param name="message">The message.</param>
         public static void Error(this ILogger logger, string message)
         {
             logger.Log(LogLevel.Error, message);
         }
 
         /// <summary>
-        /// Writes an <see cref="TraceEventType.Information"/> event message to the trace listeners in the <see cref="TraceSource.Listeners" /> collection using the specified message.
+        /// Writes a <see cref="LogLevel.Warning"/> event message to the <see cref="ILogger"/> using the specified message.
         /// </summary>
-        /// <param name="logger">A <see cref="ILogger"/> instance to write the event to.</param>
-        /// <param name="message">The message to write.</param>
+        /// <param name="logger">A <see cref="ILogger"/> instance to write the message to.</param>
+        /// <param name="message">The message.</param>
+        public static void Warning(this ILogger logger, string message)
+        {
+            logger.Log(LogLevel.Warning, message);
+        }
+
+        /// <summary>
+        /// Writes a <see cref="LogLevel.Minimal"/> event message to the <see cref="ILogger"/> using the specified message.
+        /// </summary>
+        /// <param name="logger">A <see cref="ILogger"/> instance to write the message to.</param>
+        /// <param name="message">The message.</param>
+        public static void Minimal(this ILogger logger, string message)
+        {
+            logger.Log(LogLevel.Minimal, message);
+        }
+
+        /// <summary>
+        /// Writes a <see cref="LogLevel.Information"/> event message to the <see cref="ILogger"/> using the specified message.
+        /// </summary>
+        /// <param name="logger">A <see cref="ILogger"/> instance to write the message to.</param>
+        /// <param name="message">The message.</param>
         public static void Info(this ILogger logger, string message)
         {
             logger.Log(LogLevel.Information, message);
+        }
+
+        /// <summary>
+        /// Writes a <see cref="LogLevel.Verbose"/> event message to the <see cref="ILogger"/> using the specified message.
+        /// </summary>
+        /// <param name="logger">A <see cref="ILogger"/> instance to write the message to.</param>
+        /// <param name="message">The message.</param>
+        public static void Verbose(this ILogger logger, string message)
+        {
+            logger.Log(LogLevel.Verbose, message);
         }
 
         /// <summary>
@@ -70,26 +100,6 @@ namespace NuGetCredentialProvider.Util
                         accessToken.Substring(start, length)
                             .PadRight(length + (length % 4), '=')))
                 : null;
-        }
-
-        /// <summary>
-        /// Writes a <see cref="TraceEventType.Verbose"/> event message to the trace listeners in the <see cref="TraceSource.Listeners" /> collection using the specified message.
-        /// </summary>
-        /// <param name="logger">A <see cref="ILogger"/> instance to write the event to.</param>
-        /// <param name="message">The message to write.</param>
-        public static void Verbose(this ILogger logger, string message)
-        {
-            logger.Log(LogLevel.Verbose, message);
-        }
-
-        /// <summary>
-        /// Writes a <see cref="TraceEventType.WArning"/> event message to the trace listeners in the <see cref="TraceSource.Listeners" /> collection using the specified message.
-        /// </summary>
-        /// <param name="logger">A <see cref="ILogger"/> instance to write the event to.</param>
-        /// <param name="message">The message to write.</param>
-        public static void Warning(this ILogger logger, string message)
-        {
-            logger.Log(LogLevel.Warning, message);
         }
     }
 }
