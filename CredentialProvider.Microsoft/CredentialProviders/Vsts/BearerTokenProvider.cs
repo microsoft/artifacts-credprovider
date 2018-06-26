@@ -75,8 +75,8 @@ namespace NuGetCredentialProvider.CredentialProviders.Vsts
                 adalToken = await adalTokenProvider.AcquireTokenWithDeviceFlowAsync(
                     (DeviceCodeResult deviceCodeResult) =>
                     {
-                        logger.Info(string.Format(Resources.AdalDeviceFlowRequestedResource, uri.ToString()));
-                        logger.Info(string.Format(Resources.AdalDeviceFlowMessage, deviceCodeResult.VerificationUrl, deviceCodeResult.UserCode));
+                        logger.Minimal(string.Format(Resources.AdalDeviceFlowRequestedResource, uri.ToString()));
+                        logger.Minimal(string.Format(Resources.AdalDeviceFlowMessage, deviceCodeResult.VerificationUrl, deviceCodeResult.UserCode));
 
                         return Task.CompletedTask;
                     },

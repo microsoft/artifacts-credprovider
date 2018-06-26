@@ -25,7 +25,7 @@ namespace NuGetCredentialProvider.Util
         public const string BuildTaskUriPrefixes = "VSS_NUGET_URI_PREFIXES";
         public const string BuildTaskAccessToken = "VSS_NUGET_ACCESSTOKEN";
 
-        private static readonly string LocalAppDataLocation = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "NuGet", "MicrosoftCredentialProvider");
+        private static readonly string LocalAppDataLocation = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "MicrosoftCredentialProvider");
 
         public static string AdalTokenCacheLocation { get; } = Path.Combine(LocalAppDataLocation, "ADALTokenCache.dat");
 
