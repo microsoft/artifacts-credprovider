@@ -72,6 +72,7 @@ namespace NuGetCredentialProvider
 
             List<ICredentialProvider> credentialProviders = new List<ICredentialProvider>
             {
+                new VstsBuildTaskExternalCredentialCredentialProvider(multiLogger),
                 new VstsBuildTaskCredentialProvider(multiLogger),
                 new VstsCredentialProvider(multiLogger),
             };
