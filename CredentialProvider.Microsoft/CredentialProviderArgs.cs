@@ -28,5 +28,10 @@ namespace NuGetCredentialProvider
 
         [ArgDescription("Prevents writing the password to standard output (for troubleshooting purposes)")]
         public bool RedactPassword { get; set; }
+
+        [ArgShortcut("?")]
+        [ArgShortcut("h")]
+        [ArgDescription("Prints this help message")]
+        public bool Help { get; set; }
     }
 }
