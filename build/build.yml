@@ -30,6 +30,16 @@ steps:
     configuration: '$(BuildConfiguration)'
     msbuildArguments: '/t:rebuild'
 
+- task: DotNetCoreCLI@2
+  displayName: dotnet publish netcoreapp2.1
+  inputs:
+    command: publish
+    publishWebProjects: false
+    projects: 'CredentialProvider.Microsoft/CredentialProvider.Microsoft.csproj'
+    arguments: '--no-build --framework netcoreapp2.1 --configuration $(BuildConfiguration)'
+    zipAfterPublish: false
+    modifyOutputPath: false
+
 - ${{ if ne(parameters.sign, 'true') }}:
   - task: DotNetCoreCLI@2
     displayName: dotnet test
