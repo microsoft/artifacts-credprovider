@@ -184,7 +184,7 @@
     <value>Cannot retry with -IsNonInteractive flag</value>
   </data>
   <data name="CommandLineArgs" xml:space="preserve">
-    <value>Command-line: {0}</value>
+    <value>Command-line v{0}: {1}</value>
   </data>
   <data name="CouldNotParseAADAuthorityOverride" xml:space="preserve">
     <value>Could not parse AAD authority override: {0}</value>
@@ -278,5 +278,62 @@
   </data>
   <data name="VSTSSessionTokenValidity" xml:space="preserve">
     <value>Session time: {0}, valid until: {1} UTC</value>
+  </data>
+  <data name="EnvironmentVariableHelp" xml:space="preserve">
+    <value>List of Environment Variables
+    The following is a list of environment variables that can be used to modify the
+    behavior of the credential provider. They may be used for workarounds but their
+    use is not supported. Use at your own risk.
+
+Log Path
+    {0}
+        Absolute path to a log file where the provider will write log messages.
+
+Session Token Cache Enabled
+    {1}
+        Boolean to enable/disable the Session Token cache.
+
+ADAL Authority
+    {2}
+        Set to override the authority used when fetching an ADAL token.
+        e.g. https://login.microsoftonline.com
+
+ADAL Token File Cache Enabled
+    {3}
+        Boolean to enable/disable the ADAL token cache.
+
+PPE ADAL Hosts
+    {4}
+        Semi-colon separated list of hosts that should use the PPE environment
+        when fetching ADAL tokens. Should only be used for testing/development
+        environments such as DevFabric.
+
+Supported Hosts
+    {5}
+        Semi-colon separated list of hosts that the ADAL provider supports.
+
+Session Token Time Validity
+    {6}
+        Time in minutes the generated Session Tokens will be valid for.
+
+Build Provider URI Prefixes
+    {7}
+        Semi-colon separated list of hosts the build provider supports.
+
+Build Provider Access Token
+    {8}
+        The Personal Access Token that will be returned as credentials by
+        the build provider.
+
+Cache Location
+    The Credential Provider uses the following paths to cache credentials. If
+    deleted, the credential provider will re-create them but any credentials
+    will need to be provided again.
+
+    ADAL Token Cache
+    {9}
+
+    Session Token Cache
+    {10}</value>
   </data>
 </root>

@@ -5,6 +5,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 using NuGet.Protocol.Plugins;
@@ -56,8 +57,31 @@ namespace NuGetCredentialProvider
                     { MessageMethod.SetCredentials, new SetCredentialsRequestHandler(multiLogger) },
                 };
 
-                // TODO: log version
-                multiLogger.Verbose(string.Format(Resources.CommandLineArgs, Environment.CommandLine));
+                var version = typeof(Program).GetTypeInfo().Assembly.GetCustomAttribute<AssemblyInformationalVersionAttribute>();
+                multiLogger.Verbose(string.Format(Resources.CommandLineArgs, version.InformationalVersion, Environment.CommandLine));
+
+                // Help
+                if (parsedArgs.Help)
+                {
+                    Console.WriteLine(string.Format(Resources.CommandLineArgs, version.InformationalVersion, Environment.CommandLine));
+                    Console.WriteLine(ArgUsage.GenerateUsageFromTemplate<CredentialProviderArgs>());
+                    Console.WriteLine(
+                        string.Format(
+                            Resources.EnvironmentVariableHelp,
+                            EnvUtil.LogPathEnvVar,
+                            EnvUtil.SessionTokenCacheEnvVar,
+                            EnvUtil.AuthorityEnvVar,
+                            EnvUtil.AdalFileCacheEnvVar,
+                            EnvUtil.PpeHostsEnvVar,
+                            EnvUtil.SupportedHostsEnvVar,
+                            EnvUtil.SessionTimeEnvVar,
+                            EnvUtil.BuildTaskUriPrefixes,
+                            EnvUtil.BuildTaskAccessToken,
+                            EnvUtil.AdalTokenCacheLocation,
+                            EnvUtil.SessionTokenCacheLocation
+                        ));
+                    return 0;
+                }
 
                 // Plug-in mode
                 if (parsedArgs.Plugin)

@@ -259,7 +259,7 @@ namespace NuGetCredentialProvider {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Command-line: {0}.
+        ///   Looks up a localized string similar to Command-line v{0}: {1}.
         /// </summary>
         internal static string CommandLineArgs {
             get {
@@ -309,6 +309,30 @@ namespace NuGetCredentialProvider {
         internal static string DPAPIUnavailableNonWindows {
             get {
                 return ResourceManager.GetString("DPAPIUnavailableNonWindows", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to List of Environment Variables
+        ///    The following is a list of environment variables that can be used to modify the
+        ///    behavior of the credential provider. They may be used for workarounds but their
+        ///    use is not supported. Use at your own risk.
+        ///
+        ///Log Path
+        ///    {0}
+        ///        Absolute path to a log file where the provider will write log messages.
+        ///
+        ///Session Token Cache Enabled
+        ///    {1}
+        ///        Boolean to enable/disable the Session Token cache.
+        ///
+        ///ADAL Authority
+        ///    {2}
+        ///        Set to override the autho [rest of string was truncated]&quot;;.
+        /// </summary>
+        internal static string EnvironmentVariableHelp {
+            get {
+                return ResourceManager.GetString("EnvironmentVariableHelp", resourceCulture);
             }
         }
         
