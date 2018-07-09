@@ -16,14 +16,15 @@ namespace NuGetCredentialProvider.CredentialProviders.VstsBuildTask
 {
     internal sealed class VstsBuildTaskCredentialProvider : CredentialProviderBase
     {
-        public const string Username = "VssSessionToken";
+        public override string Username { get; set; }
 
         public VstsBuildTaskCredentialProvider(ILogger logger)
             : base(logger)
         {
+            this.Username = "VssSessionToken";
         }
 
-        protected override string LoggingName => nameof(VstsBuildTaskCredentialProvider);
+        public override string LoggingName => nameof(VstsBuildTaskCredentialProvider);
 
         public override Task<bool> CanProvideCredentialsAsync(Uri uri)
         {
@@ -65,14 +66,14 @@ namespace NuGetCredentialProvider.CredentialProviders.VstsBuildTask
             if (isRetry)
             {
                 return this.GetResponse(
-                    Username,
+                    this.Username,
                     null,
                     string.Format(Resources.BuildTaskIsRetry, request.Uri.ToString()),
                     MessageResponseCode.Error);
             }
 
             return this.GetResponse(
-                    Username,
+                    this.Username,
                     accessToken,
                     null,
                     MessageResponseCode.Success);

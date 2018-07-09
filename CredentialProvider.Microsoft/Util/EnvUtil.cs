@@ -24,6 +24,7 @@ namespace NuGetCredentialProvider.Util
 
         public const string BuildTaskUriPrefixes = "VSS_NUGET_URI_PREFIXES";
         public const string BuildTaskAccessToken = "VSS_NUGET_ACCESSTOKEN";
+        public const string BuildTaskExternalEndpoints = "VSS_NUGET_EXTERNAL_FEED_ENDPOINTS";
 
         private static readonly string LocalAppDataLocation = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "MicrosoftCredentialProvider");
 

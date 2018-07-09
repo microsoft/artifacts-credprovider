@@ -268,6 +268,15 @@ namespace NuGetCredentialProvider {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Converting type.
+        /// </summary>
+        internal static string ConvertingType {
+            get {
+                return ResourceManager.GetString("ConvertingType", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Could not parse AAD authority override: {0}.
         /// </summary>
         internal static string CouldNotParseAADAuthorityOverride {
@@ -304,6 +313,15 @@ namespace NuGetCredentialProvider {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Failed to parse credentials.
+        /// </summary>
+        internal static string CredentialParseFailure {
+            get {
+                return ResourceManager.GetString("CredentialParseFailure", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to DPAPI not available on non-Windows platforms, using the DefaultShared TokenCache.
         /// </summary>
         internal static string DPAPIUnavailableNonWindows {
@@ -333,6 +351,32 @@ namespace NuGetCredentialProvider {
         internal static string EnvironmentVariableHelp {
             get {
                 return ResourceManager.GetString("EnvironmentVariableHelp", resourceCulture);
+                }
+        }
+
+        ///   Looks up a localized string similar to Checking credentials for endpoint: {0}.
+        /// </summary>
+        internal static string EndpointCredentialCheck {
+            get {
+                return ResourceManager.GetString("EndpointCredentialCheck", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Looking for matching external endpoint credentials.
+        /// </summary>
+        internal static string EndpointMatchLookup {
+            get {
+                return ResourceManager.GetString("EndpointMatchLookup", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Failed to parse endpoint.
+        /// </summary>
+        internal static string EndpointParseFailure {
+            get {
+                return ResourceManager.GetString("EndpointParseFailure", resourceCulture);
             }
         }
         
@@ -405,6 +449,33 @@ namespace NuGetCredentialProvider {
         internal static string IsRetry {
             get {
                 return ResourceManager.GetString("IsRetry", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to No provided endpoint matched the given uri.
+        /// </summary>
+        internal static string NoEndpointMatch {
+            get {
+                return ResourceManager.GetString("NoEndpointMatch", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to No feed endpoints found.
+        /// </summary>
+        internal static string NoEndpointsFound {
+            get {
+                return ResourceManager.GetString("NoEndpointsFound", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Parsing json.
+        /// </summary>
+        internal static string ParsingJson {
+            get {
+                return ResourceManager.GetString("ParsingJson", resourceCulture);
             }
         }
         

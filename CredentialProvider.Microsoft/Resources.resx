@@ -279,6 +279,7 @@
   <data name="VSTSSessionTokenValidity" xml:space="preserve">
     <value>Session time: {0}, valid until: {1} UTC</value>
   </data>
+<<<<<<< HEAD
   <data name="EnvironmentVariableHelp" xml:space="preserve">
     <value>List of Environment Variables
     The following is a list of environment variables that can be used to modify the
@@ -335,5 +336,29 @@ Cache Location
 
     Session Token Cache
     {10}</value>
+  </data>
+  <data name="ConvertingType" xml:space="preserve">
+    <value>Converting type</value>
+  </data>
+  <data name="CredentialParseFailure" xml:space="preserve">
+    <value>Failed to parse credentials</value>
+  </data>
+  <data name="EndpointCredentialCheck" xml:space="preserve">
+    <value>Checking credentials for endpoint: {0}</value>
+  </data>
+  <data name="EndpointMatchLookup" xml:space="preserve">
+    <value>Looking for matching external endpoint credentials</value>
+  </data>
+  <data name="EndpointParseFailure" xml:space="preserve">
+    <value>Failed to parse endpoint</value>
+  </data>
+  <data name="NoEndpointMatch" xml:space="preserve">
+    <value>No provided endpoint matched the given uri</value>
+  </data>
+  <data name="NoEndpointsFound" xml:space="preserve">
+    <value>No feed endpoints found</value>
+  </data>
+  <data name="ParsingJson" xml:space="preserve">
+    <value>Parsing json</value>
   </data>
 </root>

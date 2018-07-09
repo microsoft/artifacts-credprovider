@@ -35,7 +35,7 @@ namespace NuGetCredentialProvider.CredentialProviders
             Logger = logger;
         }
 
-        protected abstract string LoggingName { get; }
+        public abstract string LoggingName { get; }
 
         /// <summary>
         /// Gets a <see cref="ILogger"/> to use for logging.
@@ -52,6 +52,8 @@ namespace NuGetCredentialProvider.CredentialProviders
 
         /// <inheritdoc cref="ICredentialProvider.HandleRequestAsync"/>
         public abstract Task<GetAuthenticationCredentialsResponse> HandleRequestAsync(GetAuthenticationCredentialsRequest request, CancellationToken cancellationToken);
+
+        public abstract string Username { get; set; }
 
         protected void Error(string message)
         {
