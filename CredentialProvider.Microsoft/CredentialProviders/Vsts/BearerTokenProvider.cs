@@ -33,7 +33,7 @@ namespace NuGetCredentialProvider.CredentialProviders.Vsts
             this.authUtil = authUtil;
         }
 
-        public async Task<string> GetAsync(Uri uri, bool isRetry, bool isNonInteractive, CancellationToken cancellationToken)
+        public async Task<string> GetAsync(Uri uri, bool isRetry, bool isNonInteractive, bool canShowDialog, CancellationToken cancellationToken)
         {
             var authority = await authUtil.GetAadAuthorityUriAsync(uri, cancellationToken);
             logger.Verbose(string.Format(Resources.AdalUsingAuthority, authority));
@@ -61,17 +61,20 @@ namespace NuGetCredentialProvider.CredentialProviders.Vsts
             // Interactive flows if allowed
             if (!isNonInteractive)
             {
-#if NETFRAMEWORK
-                // Try UI prompt
-                adalToken = await adalTokenProvider.AcquireTokenWithUI(cancellationToken);
-
-                if (adalToken?.AccessToken != null)
+                if (!!canShowDialog)
                 {
-                    return adalToken.AccessToken;
-                }
-#endif
+#if NETFRAMEWORK
+                    // Try UI prompt
+                    adalToken = await adalTokenProvider.AcquireTokenWithUI(cancellationToken);
 
-                // Try device code
+                    if (adalToken?.AccessToken != null)
+                    {
+                        return adalToken.AccessToken;
+                    }
+#endif
+                }
+
+                // Try device flow
                 adalToken = await adalTokenProvider.AcquireTokenWithDeviceFlowAsync(
                     (DeviceCodeResult deviceCodeResult) =>
                     {

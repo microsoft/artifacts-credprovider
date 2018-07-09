@@ -54,12 +54,13 @@ namespace CredentialProvider.Microsoft.Tests.CredentialProviders.Vsts
             var source = new Uri("https://example.com/index.json");
             var isRetry = false;
             var isNonInteractive = false;
+            var canShowDialog = true;
 
             var adalToken = "TestADALToken";
             MockCachedToken(null);
             MockUIToken(adalToken);
 
-            var bearerToken = await bearerTokenProvider.GetAsync(source, isRetry, isNonInteractive, cancellationToken);
+            var bearerToken = await bearerTokenProvider.GetAsync(source, isRetry, isNonInteractive, canShowDialog, cancellationToken);
             bearerToken.Should().Be(adalToken);
 
             mockAdalTokenProvider
@@ -78,13 +79,14 @@ namespace CredentialProvider.Microsoft.Tests.CredentialProviders.Vsts
             var source = new Uri("https://example.com/index.json");
             var isRetry = false;
             var isNonInteractive = false;
+            var canShowDialog = true;
 
             var adalToken = "TestADALToken";
             MockCachedToken(null);
             MockUIToken(null);
             MockDeviceFlowToken(adalToken);
 
-            var bearerToken = await bearerTokenProvider.GetAsync(source, isRetry, isNonInteractive, cancellationToken);
+            var bearerToken = await bearerTokenProvider.GetAsync(source, isRetry, isNonInteractive, canShowDialog, cancellationToken);
             bearerToken.Should().Be(adalToken);
 
             mockAdalTokenProvider
@@ -103,11 +105,12 @@ namespace CredentialProvider.Microsoft.Tests.CredentialProviders.Vsts
             var source = new Uri("https://example.com/index.json");
             var isRetry = false;
             var isNonInteractive = false;
+            var canShowDialog = false;
 
             var adalToken = "TestADALToken";
             MockCachedToken(adalToken);
 
-            var bearerToken = await bearerTokenProvider.GetAsync(source, isRetry, isNonInteractive, cancellationToken);
+            var bearerToken = await bearerTokenProvider.GetAsync(source, isRetry, isNonInteractive, canShowDialog, cancellationToken);
             bearerToken.Should().Be(adalToken);
 
             mockAdalTokenProvider
@@ -126,12 +129,13 @@ namespace CredentialProvider.Microsoft.Tests.CredentialProviders.Vsts
             var source = new Uri("https://example.com/index.json");
             var isRetry = true;
             var isNonInteractive = false;
+            var canShowDialog = true;
 
             var adalToken = "TestADALToken";
             MockCachedToken("OldCachedToken");
             MockUIToken(adalToken);
 
-            var bearerToken = await bearerTokenProvider.GetAsync(source, isRetry, isNonInteractive, cancellationToken);
+            var bearerToken = await bearerTokenProvider.GetAsync(source, isRetry, isNonInteractive, canShowDialog, cancellationToken);
             bearerToken.Should().Be(adalToken);
 
             mockAdalTokenProvider
@@ -150,10 +154,11 @@ namespace CredentialProvider.Microsoft.Tests.CredentialProviders.Vsts
             var source = new Uri("https://example.com/index.json");
             var isRetry = false;
             var isNonInteractive = true;
+            var canShowDialog = false;
 
             MockCachedToken(null);
 
-            var bearerToken = await bearerTokenProvider.GetAsync(source, isRetry, isNonInteractive, cancellationToken);
+            var bearerToken = await bearerTokenProvider.GetAsync(source, isRetry, isNonInteractive, canShowDialog, cancellationToken);
             bearerToken.Should().BeNull();
 
             mockAdalTokenProvider
@@ -171,12 +176,13 @@ namespace CredentialProvider.Microsoft.Tests.CredentialProviders.Vsts
         {
             var source = new Uri("https://example.com/index.json");
             var isRetry = false;
+            var canShowDialog = false;
             var isNonInteractive = true;
 
             var adalToken = "TestADALToken";
             MockCachedToken(adalToken);
 
-            var bearerToken = await bearerTokenProvider.GetAsync(source, isRetry, isNonInteractive, cancellationToken);
+            var bearerToken = await bearerTokenProvider.GetAsync(source, isRetry, isNonInteractive, canShowDialog, cancellationToken);
             bearerToken.Should().Be(adalToken);
 
             mockAdalTokenProvider
@@ -195,8 +201,9 @@ namespace CredentialProvider.Microsoft.Tests.CredentialProviders.Vsts
             var source = new Uri("https://example.com/index.json");
             var isRetry = true;
             var isNonInteractive = true;
+            var canShowDialog = false;
 
-            var bearerToken = await bearerTokenProvider.GetAsync(source, isRetry, isNonInteractive, cancellationToken);
+            var bearerToken = await bearerTokenProvider.GetAsync(source, isRetry, isNonInteractive, canShowDialog, cancellationToken);
             bearerToken.Should().BeNull();
 
             mockAdalTokenProvider
@@ -211,7 +218,6 @@ namespace CredentialProvider.Microsoft.Tests.CredentialProviders.Vsts
 
             VerifyAuthority(source);
         }
-
 
         private void MockCachedToken(string token)
         {

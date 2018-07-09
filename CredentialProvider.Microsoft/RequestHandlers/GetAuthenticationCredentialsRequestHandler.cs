@@ -43,7 +43,7 @@ namespace NuGetCredentialProvider.RequestHandlers
 
         public override async Task<GetAuthenticationCredentialsResponse> HandleRequestAsync(GetAuthenticationCredentialsRequest request)
         {
-            Logger.Verbose(string.Format(Resources.HandlingAuthRequest, request.Uri, request.IsRetry, request.IsNonInteractive));
+            Logger.Verbose(string.Format(Resources.HandlingAuthRequest, request.Uri, request.IsRetry, request.IsNonInteractive, request.CanShowDialog));
 
             if (request?.Uri == null)
             {

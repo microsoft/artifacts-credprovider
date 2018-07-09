@@ -70,7 +70,7 @@ namespace NuGetCredentialProvider.CredentialProviders.Vsts
 
             try
             {
-                var bearerToken = await bearerTokenProvider.GetAsync(request.Uri, isRetry: false, request.IsNonInteractive, cancellationToken);
+                var bearerToken = await bearerTokenProvider.GetAsync(request.Uri, isRetry: false, request.IsNonInteractive, request.CanShowDialog, cancellationToken);
                 if (string.IsNullOrWhiteSpace(bearerToken))
                 {
                     return new GetAuthenticationCredentialsResponse(
@@ -106,7 +106,7 @@ namespace NuGetCredentialProvider.CredentialProviders.Vsts
 
         private GetAuthenticationCredentialsRequest GetNonRetryRequest(GetAuthenticationCredentialsRequest request)
         {
-            return new GetAuthenticationCredentialsRequest(request.Uri, isRetry: false, request.IsNonInteractive);
+            return new GetAuthenticationCredentialsRequest(request.Uri, isRetry: false, request.IsNonInteractive, request.CanShowDialog);
         }
     }
 }
