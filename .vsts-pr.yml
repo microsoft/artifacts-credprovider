@@ -5,6 +5,8 @@ queue:
 
 variables:
   BuildConfiguration: 'Debug'
+  TeamName: 'Package Experience'
+
 steps:
 - template: build/build.yml
   parameters:
