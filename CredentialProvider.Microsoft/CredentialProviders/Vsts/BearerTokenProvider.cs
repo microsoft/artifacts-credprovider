@@ -61,9 +61,9 @@ namespace NuGetCredentialProvider.CredentialProviders.Vsts
             // Interactive flows if allowed
             if (!isNonInteractive)
             {
-                if (!!canShowDialog)
-                {
 #if NETFRAMEWORK
+                if (canShowDialog)
+                {
                     // Try UI prompt
                     adalToken = await adalTokenProvider.AcquireTokenWithUI(cancellationToken);
 
@@ -71,8 +71,8 @@ namespace NuGetCredentialProvider.CredentialProviders.Vsts
                     {
                         return adalToken.AccessToken;
                     }
-#endif
                 }
+#endif
 
                 // Try device flow
                 adalToken = await adalTokenProvider.AcquireTokenWithDeviceFlowAsync(
