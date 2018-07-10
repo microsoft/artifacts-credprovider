@@ -33,5 +33,8 @@ namespace NuGetCredentialProvider
         [ArgShortcut("h")]
         [ArgDescription("Prints this help message")]
         public bool Help { get; set; }
+
+        [ArgDescription("If true, user can be prompted with credentials through UI, if false, device flow must be used")]
+        public bool CanShowDialog { get; set; }
     }
 }

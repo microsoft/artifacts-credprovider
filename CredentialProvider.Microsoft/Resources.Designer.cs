@@ -373,7 +373,7 @@ namespace NuGetCredentialProvider {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Handling auth request, Uri: {0}, IsRetry: {1}, IsNonInteractive: {2}.
+        ///   Looks up a localized string similar to Handling auth request, Uri: {0}, IsRetry: {1}, IsNonInteractive: {2}, CanShowDialog: {3}.
         /// </summary>
         internal static string HandlingAuthRequest {
             get {

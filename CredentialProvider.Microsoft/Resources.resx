@@ -214,7 +214,7 @@
     <value>Found hosts in environment to add to {0}</value>
   </data>
   <data name="HandlingAuthRequest" xml:space="preserve">
-    <value>Handling auth request, Uri: {0}, IsRetry: {1}, IsNonInteractive: {2}</value>
+    <value>Handling auth request, Uri: {0}, IsRetry: {1}, IsNonInteractive: {2}, CanShowDialog: {3}</value>
   </data>
   <data name="HandlingRequest" xml:space="preserve">
     <value>Handling '{0}' '{1}' - {2}</value>
