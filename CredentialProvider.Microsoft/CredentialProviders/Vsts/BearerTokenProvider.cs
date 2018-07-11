@@ -62,7 +62,7 @@ namespace NuGetCredentialProvider.CredentialProviders.Vsts
             if (!isNonInteractive)
             {
 #if NETFRAMEWORK
-                if (canShowDialog)
+                if (canShowDialog && RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
                 {
                     // Try UI prompt
                     adalToken = await adalTokenProvider.AcquireTokenWithUI(cancellationToken);
