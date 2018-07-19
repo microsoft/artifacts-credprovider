@@ -1,7 +1,11 @@
 resources:
 - repo: self
+
 queue:
   demands: msbuild
+
+trigger:
+- master
 
 variables:
   BuildConfiguration: 'Debug'

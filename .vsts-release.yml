@@ -4,6 +4,8 @@ resources:
 queue:
   demands: msbuild
 
+trigger: none
+
 variables:
   BuildConfiguration: 'Release'
   TeamName: 'Package Experience'
