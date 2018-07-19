@@ -1,14 +1,18 @@
 resources:
 - repo: self
+
 queue:
   demands: msbuild
 
+trigger:
+- master
+
 variables:
   BuildConfiguration: 'Debug'
+  PushNupkg: 'True'
   TeamName: 'Package Experience'
 
 steps:
 - template: build/build.yml
   parameters:
-    push: true
     nuspecProperties: 'VersionSuffix=-CI-$(Build.BuildNumber)'

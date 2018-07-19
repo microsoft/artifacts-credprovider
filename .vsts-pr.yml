@@ -1,7 +1,10 @@
 resources:
 - repo: self
+
 queue:
   demands: msbuild
+
+trigger: none
 
 variables:
   BuildConfiguration: 'Debug'
@@ -10,5 +13,4 @@ variables:
 steps:
 - template: build/build.yml
   parameters:
-    push: false
     nuspecProperties: 'VersionSuffix=-PR-$(Build.BuildNumber)'

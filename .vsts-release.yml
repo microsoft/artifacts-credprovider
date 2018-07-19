@@ -4,15 +4,18 @@ resources:
 queue:
   demands: msbuild
 
+trigger: none
+
 variables:
   BuildConfiguration: 'Release'
   TeamName: 'Package Experience'
 
 steps:
+- checkout: self
+  clean: true
 - powershell: 'mkdir $(Build.SourcesDirectory)\keys; cp -Verbose $(KeyLocation) $(Build.SourcesDirectory)\keys\; dir $(Build.SourcesDirectory)\keys\'
   displayName: Copy public key
 
 - template: build/build.yml
   parameters:
-    push: false
     sign: true
