@@ -93,6 +93,31 @@ steps:
       packagesToPush: '$(Build.ArtifactStagingDirectory)/$(BuildConfiguration)/*.nupkg'
       publishVstsFeed: '54754426-96db-4f6e-8a3a-64265d1cc147'
 
+- task: CopyFiles@2
+  displayName: Copy netfx files into tarball
+  inputs:
+    sourceFolder: '$(Build.SourcesDirectory)\CredentialProvider.Microsoft\bin\$(BuildConfiguration)\net461\'
+    contents: '**\*'
+    targetFolder: '$(Build.ArtifactStagingDirectory)\tarball\plugins\netfx\CredentialProvider.Microsoft\'
+    cleanTargetFolder: true
+
+- task: CopyFiles@2
+  displayName: Copy netcore files into tarball
+  inputs:
+    sourceFolder: '$(Build.SourcesDirectory)\CredentialProvider.Microsoft\bin\$(BuildConfiguration)\netcoreapp2.1\publish\'
+    Contents: '**\*'
+    targetFolder: '$(Build.ArtifactStagingDirectory)\tarball\plugins\netcore\CredentialProvider.Microsoft\'
+
+- task: ArchiveFiles@2
+  displayName: Create tarball
+  inputs:
+    rootFolderOrFile: '$(Build.ArtifactStagingDirectory)\tarball\'
+    includeRootFolder: false
+    archiveType: 'tar'
+    tarCompression: 'gz'
+    archiveFile: '$(Build.ArtifactStagingDirectory)\$(BuildConfiguration)\Microsoft.NuGet.CredentialProvider.tar.gz'
+    replaceExistingArchive: true
+
 - task: PublishBuildArtifacts@1
   displayName: Publish Artifact $(Build.BuildNumber)
   inputs:
