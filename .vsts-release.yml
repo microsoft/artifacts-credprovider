@@ -14,5 +14,4 @@ steps:
 
 - template: build/build.yml
   parameters:
-    push: false
     sign: true
