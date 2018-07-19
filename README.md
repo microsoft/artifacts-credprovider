@@ -1,9 +1,9 @@
 # MicrosoftCredentialProvider
 
 ## Status
-| | Build & Test |
-|-|--------------|
-| **Windows** | [![Build status](https://mseng.visualstudio.com/_apis/public/build/definitions/b924d696-3eae-4116-8443-9a18392d8544/7110/badge)](https://mseng.visualstudio.com/VSOnline/_build/latest?definitionId=7110) |
+|                    | Build & Test | MSCredProvider |
+|--------------------|--------------|----------------|
+| **Windows**        |[![Build status](https://mseng.visualstudio.com/_apis/public/build/definitions/b924d696-3eae-4116-8443-9a18392d8544/7110/badge?branchName=master)](https://mseng.visualstudio.com/VSOnline/_build/latest?definitionId=7110&branch=master)| [![Microsoft.NuGet.CredentialProvider package in MSCredProvider feed in Visual Studio Team Services](https://mseng.feeds.visualstudio.com/_apis/public/Packaging/Feeds/54754426-96db-4f6e-8a3a-64265d1cc147/Packages/16200823-3f36-4334-a4ec-7b7b6cd5243d/Badge)](https://mseng.visualstudio.com/_Packaging?feed=54754426-96db-4f6e-8a3a-64265d1cc147&package=16200823-3f36-4334-a4ec-7b7b6cd5243d&preferRelease=true&_a=package) |
 
 The configuration parameter in the examples below can be either Debug or Release
 
@@ -21,18 +21,12 @@ For CI builds, you can append a pre-release version
 dotnet pack CredentialProvider.Microsoft --configuration Release /p:NuspecFile=CredentialProvider.Microsoft.nuspec /p:NuspecProperties=VersionSuffix=-MyCustomVersion-2
 ```
 
-# MicrosoftCredentialProvider VSIX
-## Building
-Build the solution in Visual Studio 2017, or using msbuild:
-```
-msbuild MicrosoftCredentialProvider.sln /p:Configuration=Release /t:restore,build
-```
-
 # Versioning
 Update the following files when modifying the version:
 - CredentialProvider.Microsoft\CredentialProvider.Microsoft.csproj
 - CredentialProvider.Microsoft\CredentialProvider.Microsoft.nuspec
-- MicrosoftCredentialProviderVSIX\bin\Debug\extension.vsixmanifest
+- CredentialProvider.Microsoft.VSIX\Microsoft.CredentialProvider.swixproj
+- CredentialProvider.Microsoft.VSIX\Microsoft.CredentialProvider.swr
 
 # Contributing
 
