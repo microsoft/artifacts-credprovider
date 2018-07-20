@@ -104,8 +104,18 @@ steps:
   displayName: Copy netcore files into tarball
   inputs:
     sourceFolder: '$(Build.SourcesDirectory)\CredentialProvider.Microsoft\bin\$(BuildConfiguration)\netcoreapp2.1\publish\'
-    Contents: '**\*'
+    contents: '**\*'
     targetFolder: '$(Build.ArtifactStagingDirectory)\tarball\plugins\netcore\CredentialProvider.Microsoft\'
+
+- task: CopyFiles@2
+  displayName: Copy license files into tarball
+  inputs:
+    contents: |
+      LICENSE
+      CredentialProvider.Microsoft\EULA_Microsoft Visual Studio Team Services Credential Provider.docx
+      CredentialProvider.Microsoft\ThirdPartyNotices.txt
+    targetFolder: '$(Build.ArtifactStagingDirectory)\tarball\'
+    flattenFolders: true
 
 - task: ArchiveFiles@2
   displayName: Create tarball
