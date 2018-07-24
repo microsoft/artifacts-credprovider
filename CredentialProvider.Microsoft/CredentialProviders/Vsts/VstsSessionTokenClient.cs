@@ -38,6 +38,11 @@ namespace NuGetCredentialProvider.CredentialProviders.Vsts
                 httpClient.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
                 httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", bearerToken);
 
+                foreach (var userAgent in Program.UserAgent)
+                {
+                    httpClient.DefaultRequestHeaders.UserAgent.Add(userAgent);
+                }
+
                 var content = new StringContent(
                     JsonConvert.SerializeObject(
                         new VstsSessionToken()
