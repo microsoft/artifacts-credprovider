@@ -32,7 +32,7 @@ namespace NuGetCredentialProvider
             {
                 return new List<ProductInfoHeaderValue>()
                 {
-                    new ProductInfoHeaderValue(Name ,Version),
+                    new ProductInfoHeaderValue(Name, Version),
 #if NETFRAMEWORK
                     new ProductInfoHeaderValue("(netfx)"),
 #else
@@ -44,12 +44,12 @@ namespace NuGetCredentialProvider
 
         private static Lazy<string> name = new Lazy<string>(() =>
         {
-            return typeof(Program).GetTypeInfo().Assembly.GetCustomAttribute<AssemblyProductAttribute>().Product;
+            return typeof(Program).GetTypeInfo().Assembly.GetCustomAttribute<AssemblyProductAttribute>()?.Product ?? "CredentialProvider.Microsoft";
         });
 
         private static Lazy<string> version = new Lazy<string>(() =>
         {
-            return typeof(Program).GetTypeInfo().Assembly.GetCustomAttribute<AssemblyInformationalVersionAttribute>().InformationalVersion;
+            return typeof(Program).GetTypeInfo().Assembly.GetCustomAttribute<AssemblyInformationalVersionAttribute>()?.InformationalVersion ?? "";
         });
 
         public static async Task<int> Main(string[] args)
