@@ -115,6 +115,12 @@ namespace NuGetCredentialProvider.CredentialProviders.Vsts
             using (var httpClient = new HttpClient())
             using (var request = new HttpRequestMessage(HttpMethod.Get, uri))
             {
+                foreach (var userAgent in Program.UserAgent)
+                {
+                    httpClient.DefaultRequestHeaders.UserAgent.Add(userAgent);
+                }
+
+
                 logger.Verbose($"GET {uri}");
                 using (var response = await httpClient.SendAsync(request, cancellationToken))
                 {

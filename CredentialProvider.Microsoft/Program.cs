@@ -5,6 +5,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Net.Http.Headers;
 using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
@@ -22,6 +23,35 @@ namespace NuGetCredentialProvider
 {
     public static class Program
     {
+        internal static string Name => name.Value;
+        internal static string Version => version.Value;
+
+        internal static IList<ProductInfoHeaderValue> UserAgent
+        {
+            get
+            {
+                return new List<ProductInfoHeaderValue>()
+                {
+                    new ProductInfoHeaderValue(Name, Version),
+#if NETFRAMEWORK
+                    new ProductInfoHeaderValue("(netfx)"),
+#else
+                    new ProductInfoHeaderValue("(netcore)"),
+#endif
+                };
+            }
+        }
+
+        private static Lazy<string> name = new Lazy<string>(() =>
+        {
+            return typeof(Program).GetTypeInfo().Assembly.GetCustomAttribute<AssemblyProductAttribute>()?.Product ?? "CredentialProvider.Microsoft";
+        });
+
+        private static Lazy<string> version = new Lazy<string>(() =>
+        {
+            return typeof(Program).GetTypeInfo().Assembly.GetCustomAttribute<AssemblyInformationalVersionAttribute>()?.InformationalVersion ?? "";
+        });
+
         public static async Task<int> Main(string[] args)
         {
             CancellationTokenSource tokenSource = new CancellationTokenSource();
@@ -57,13 +87,12 @@ namespace NuGetCredentialProvider
                     { MessageMethod.SetCredentials, new SetCredentialsRequestHandler(multiLogger) },
                 };
 
-                var version = typeof(Program).GetTypeInfo().Assembly.GetCustomAttribute<AssemblyInformationalVersionAttribute>();
-                multiLogger.Verbose(string.Format(Resources.CommandLineArgs, version.InformationalVersion, Environment.CommandLine));
+                multiLogger.Verbose(string.Format(Resources.CommandLineArgs, Program.Version, Environment.CommandLine));
 
                 // Help
                 if (parsedArgs.Help)
                 {
-                    Console.WriteLine(string.Format(Resources.CommandLineArgs, version.InformationalVersion, Environment.CommandLine));
+                    Console.WriteLine(string.Format(Resources.CommandLineArgs, Program.Version, Environment.CommandLine));
                     Console.WriteLine(ArgUsage.GenerateUsageFromTemplate<CredentialProviderArgs>());
                     Console.WriteLine(
                         string.Format(
