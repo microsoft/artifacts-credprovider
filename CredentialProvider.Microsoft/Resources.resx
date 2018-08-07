@@ -279,7 +279,6 @@
   <data name="VSTSSessionTokenValidity" xml:space="preserve">
     <value>Session time: {0}, valid until: {1} UTC</value>
   </data>
-<<<<<<< HEAD
   <data name="EnvironmentVariableHelp" xml:space="preserve">
     <value>List of Environment Variables
     The following is a list of environment variables that can be used to modify the

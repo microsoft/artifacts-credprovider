@@ -46,8 +46,6 @@ namespace NuGetCredentialProvider.CredentialProviders.VstsBuildTaskExternalCrede
 
         public override Task<bool> CanProvideCredentialsAsync(Uri uri)
         {
-            Verbose("sdlfkj sdlfkj sdlfkj sdlfkjs d");
-
             try
             {
                 string feedEndPointsJson = Environment.GetEnvironmentVariable(EnvUtil.BuildTaskExternalEndpoints);
@@ -73,12 +71,12 @@ namespace NuGetCredentialProvider.CredentialProviders.VstsBuildTaskExternalCrede
             }
         }
 
-        public override Task<GetAuthenticationCredentialsResponse> HandleRequestAsync(GetAuthenticationCredentialsRequest request, CancellationToken cancellationToken)
+        public override async Task<GetAuthenticationCredentialsResponse> HandleRequestAsync(GetAuthenticationCredentialsRequest request, CancellationToken cancellationToken)
         {
             bool isRetry = request.IsRetry;
 
-            // Should fail on retry because the token is provided through a env var. If fails, retry is not going to help. (?)
-            /*if (isRetry)
+            // Should fail on retry because the token is provided through an env var. If fails, retry is not going to help.
+            if (isRetry)
             {
                 var responseWithNoRetry = await HandleRequestAsync(GetNonRetryRequest(request), cancellationToken);
                 if (responseWithNoRetry?.ResponseCode == MessageResponseCode.Success)
@@ -97,28 +95,23 @@ namespace NuGetCredentialProvider.CredentialProviders.VstsBuildTaskExternalCrede
                         "Basic"
                     },
                      MessageResponseCode.Error);
-            }*/
+            }
 
             Verbose($"Responding with success");
-            return this.GetResponse(
-                    Credentials.Username,
-                    Credentials.Password,
-                    "message",
-                    MessageResponseCode.Success);
-            /*return new GetAuthenticationCredentialsResponse(
-                    Credentials.Username,
-                    Credentials.Password,
-                    null,
-                    authenticationTypes: new List<string>
-                    {
-                        "Basic"
-                    },
-                    MessageResponseCode.Success);*/
+            return new GetAuthenticationCredentialsResponse(
+                username: Credentials.Username,
+                password: Credentials.Password,
+                message: null,
+                authenticationTypes: new List<string>
+                {
+                    "Basic"
+                },
+                responseCode: MessageResponseCode.Success);
         }
 
         private GetAuthenticationCredentialsRequest GetNonRetryRequest(GetAuthenticationCredentialsRequest request)
         {
-            return new GetAuthenticationCredentialsRequest(request.Uri, isRetry: false, request.IsNonInteractive);
+            return new GetAuthenticationCredentialsRequest(request.Uri, isRetry: false, request.IsNonInteractive, false);
         }
 
         private Task<GetAuthenticationCredentialsResponse> GetResponse(string username, string password, string message, MessageResponseCode responseCode)
@@ -136,7 +129,6 @@ namespace NuGetCredentialProvider.CredentialProviders.VstsBuildTaskExternalCrede
 
         private bool FindMatchingEndpoint(string feedEndPointsJson, string uri)
         {
-           // Debugger.Launch();
             // Parse JSON from VSS_NUGET_EXTERNAL_FEED_ENDPOINTS
             Verbose(Resources.ParsingJson);
             JObject feedEndPoints = JObject.Parse(feedEndPointsJson);
@@ -149,12 +141,9 @@ namespace NuGetCredentialProvider.CredentialProviders.VstsBuildTaskExternalCrede
             }
 
             Verbose(Resources.EndpointMatchLookup);
-            Verbose($"uri: {uri}");//remove
 
             foreach (EndpointCredentials credentials in endpointCredentials.EndpointCredentials)
             {
-                Verbose($"credentials.endpoint: {credentials.Endpoint}");//remove
-
                 if (credentials == null)
                 {
                     Verbose(Resources.EndpointParseFailure);
@@ -178,38 +167,13 @@ namespace NuGetCredentialProvider.CredentialProviders.VstsBuildTaskExternalCrede
                         Credentials.Username = this.Username;
                     }
                     else {
-                        Verbose("setting username");
                         this.Username = Credentials.Username;
                     }
                     Verbose($"Credentials.Endpoint: {Credentials.Endpoint}");
-                    Verbose($"Credentials.Username: {Credentials.Username}");//remove
-                    Verbose($"Credentials.Password: password");//remove
 
                     return true;
                 }
             }
-            /*JProperty feedEndpoint = obj.Property("endpoint");
-                if (feedEndpoint.Value.ToString().Equals(uri, StringComparison.OrdinalIgnoreCase))
-                {
-                    Verbose($"Checking credentials for endpoint: {feedEndpoint}");
-
-                    JProperty password = obj.Property("password");
-                    if (password == null)
-                    {
-                        Verbose("Failed to read credentials");
-                        Task.FromResult(false);
-                    }
-                    Password = password.Value.ToString();
-
-                    // Username can be null. Default: VssSessionToken
-                    JProperty username = obj.Property("username");
-                    if (username != null)
-                    {
-                        Username = username.Value.ToString();
-                    }
-
-                    return true;
-                }*/
             Verbose(Resources.NoEndpointMatch);
             return false;
         }

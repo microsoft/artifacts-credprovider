@@ -49,7 +49,6 @@ namespace NuGetCredentialProvider.RequestHandlers
 
             if (request?.Uri == null)
             {
-                Logger.Verbose("perkele3");
 
                 return new GetAuthenticationCredentialsResponse(
                     username: null,
@@ -69,40 +68,26 @@ namespace NuGetCredentialProvider.RequestHandlers
                     continue;
                 }
 
-                // For VstsBuildTaskCredentialProvider and VstsBuildTaskExternalCredentialCredentialProvider caching does not make sense
-                // because token will always be provided through env var
-               // if (credentialProvider.LoggingName == nameof(VstsCredentialProvider))
-                //{
-                
-                    if (TryCache(request, out string cachedToken))
-                    {
-                        Logger.Verbose("perkele4");
-
-                        Logger.Verbose($"username: {credentialProvider.Username}");
-                        return new GetAuthenticationCredentialsResponse(
-                            username: credentialProvider.Username,
-                            password: cachedToken,
-                            message: null,
-                            authenticationTypes: new List<string> { "Basic" },
-                            responseCode: MessageResponseCode.Success);
-                    }
-               // }
+                if (TryCache(request, out string cachedToken))
+                {
+                    return new GetAuthenticationCredentialsResponse(
+                        username: credentialProvider.Username,
+                        password: cachedToken,
+                        message: null,
+                        authenticationTypes: new List<string> { "Basic" },
+                        responseCode: MessageResponseCode.Success);
+                }
 
                 try
                 {
                     GetAuthenticationCredentialsResponse response = await credentialProvider.HandleRequestAsync(request, CancellationToken).ConfigureAwait(continueOnCapturedContext: false);
-                    Logger.Verbose("HandleRequestAsync done");
                     if (response != null && response.ResponseCode == MessageResponseCode.Success)
                     {
                         if (cache != null)
                         {
                             Logger.Verbose(string.Format(Resources.CachingSessionToken, request.Uri.ToString()));
                             cache[request.Uri] = response.Password;
-                            Logger.Verbose("cache updated");
-                            //  cache[request.Uri.ToString() + "-username"] = response.Username;
                         }
-
-                        Logger.Verbose("returning response");
 
                         return response;
                     }
@@ -113,10 +98,7 @@ namespace NuGetCredentialProvider.RequestHandlers
                 }
                 catch (Exception e)
                 {
-                    Debugger.Launch();
                     Logger.Error(string.Format(Resources.AcquireSessionTokenFailed, e.ToString()));
-
-                    Logger.Verbose("perkele1");
 
                     return new GetAuthenticationCredentialsResponse(
                         username: null,
@@ -127,7 +109,6 @@ namespace NuGetCredentialProvider.RequestHandlers
                 }
             }
 
-            Logger.Verbose("perkele2");
             return new GetAuthenticationCredentialsResponse(
                 username: null,
                 password: null,

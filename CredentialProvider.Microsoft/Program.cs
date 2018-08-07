@@ -57,7 +57,6 @@ namespace NuGetCredentialProvider
         public static async Task<int> Main(string[] args)
         {
             var multiLogger = new MultiLogger();
-            multiLogger.Verbose("CRED PROVIDER WAS HIT!!!!!!!!!!!!!!!!!!!!!!");
             CancellationTokenSource tokenSource = new CancellationTokenSource();
             var parsedArgs = await Args.ParseAsync<CredentialProviderArgs>(args);
 
@@ -66,8 +65,6 @@ namespace NuGetCredentialProvider
             {
                 multiLogger.Add(fileLogger);
             }
-            multiLogger.Verbose("CRED PROVIDER WAS HIT?");
-
 
             Console.CancelKeyPress += (sender, eventArgs) =>
             {
@@ -82,8 +79,7 @@ namespace NuGetCredentialProvider
                 new VstsCredentialProvider(multiLogger),
             };
 
-            multiLogger.Verbose("credentialProviders set");
-
+            multiLogger.Verbose("CredentialProviders set");
 
             try
             {
@@ -131,7 +127,6 @@ namespace NuGetCredentialProvider
                         multiLogger.Add(new PluginConnectionLogger(plugin.Connection));
                         await RunNuGetPluginsAsync(plugin, multiLogger, TimeSpan.FromMinutes(2), tokenSource.Token).ConfigureAwait(continueOnCapturedContext: false);
                     }
-                    multiLogger.Verbose("returning 0 plugin mode");
 
                     return 0;
                 }
@@ -146,7 +141,6 @@ namespace NuGetCredentialProvider
                     if (parsedArgs.Uri == null)
                     {
                         Console.WriteLine(ArgUsage.GenerateUsageFromTemplate<CredentialProviderArgs>());
-                        multiLogger.Verbose("returning 1stand alone mode");
 
                         return 1;
                     }
@@ -156,11 +150,9 @@ namespace NuGetCredentialProvider
 
                     multiLogger.Info($"{Resources.Username}: {response?.Username}");
                     multiLogger.Info($"{Resources.Password}: {(parsedArgs.RedactPassword ? Resources.Redacted : response?.Password)}");
-                    multiLogger.Verbose("returning 0 stand alone mode");
 
                     return 0;
                 }
-                multiLogger.Verbose("returning -1 stand alone mode");
 
                 return -1;
             }
@@ -179,7 +171,6 @@ namespace NuGetCredentialProvider
 
             plugin.Connection.Faulted += (sender, a) =>
             {
-                Debugger.Launch();
                 logger.Error(string.Format(Resources.FaultedOnMessage, $"{a.Message?.Type} {a.Message?.Method} {a.Message?.RequestId}"));
                 logger.Error(a.Exception.ToString());
             };
@@ -190,7 +181,6 @@ namespace NuGetCredentialProvider
 
             if (!complete)
             {
-                Debugger.Launch();
                 logger.Error(Resources.PluginTimedOut);
             }
         }
