@@ -60,6 +60,16 @@ namespace NuGetCredentialProvider.RequestHandlers
 
             Logger.Verbose(string.Format(Resources.Uri, request.Uri));
 
+            if (TryCache(request, out string cachedToken))
+            {
+                return new GetAuthenticationCredentialsResponse(
+                    username: "VssSessionToken",
+                    password: cachedToken,
+                    message: null,
+                    authenticationTypes: new List<string> { "Basic" },
+                    responseCode: MessageResponseCode.Success);
+            }
+
             foreach (ICredentialProvider credentialProvider in credentialProviders)
             {
                 if (await credentialProvider.CanProvideCredentialsAsync(request.Uri) == false)
@@ -68,22 +78,12 @@ namespace NuGetCredentialProvider.RequestHandlers
                     continue;
                 }
 
-                if (TryCache(request, out string cachedToken))
-                {
-                    return new GetAuthenticationCredentialsResponse(
-                        username: credentialProvider.Username,
-                        password: cachedToken,
-                        message: null,
-                        authenticationTypes: new List<string> { "Basic" },
-                        responseCode: MessageResponseCode.Success);
-                }
-
                 try
                 {
                     GetAuthenticationCredentialsResponse response = await credentialProvider.HandleRequestAsync(request, CancellationToken).ConfigureAwait(continueOnCapturedContext: false);
                     if (response != null && response.ResponseCode == MessageResponseCode.Success)
                     {
-                        if (cache != null)
+                        if (cache != null && credentialProvider.IsCachable)
                         {
                             Logger.Verbose(string.Format(Resources.CachingSessionToken, request.Uri.ToString()));
                             cache[request.Uri] = response.Password;

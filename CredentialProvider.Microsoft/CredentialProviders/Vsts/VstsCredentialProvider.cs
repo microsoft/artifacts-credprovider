@@ -15,8 +15,7 @@ namespace NuGetCredentialProvider.CredentialProviders.Vsts
 {
     public sealed class VstsCredentialProvider : CredentialProviderBase
     {
-        public override string Username { get; set; }
-
+        private const string Username = "VssSessionToken";
         private const string TokenScope = "vso.packaging_write vso.drop_write";
         private const double DefaultSessionTimeHours = 4;
 
@@ -28,7 +27,6 @@ namespace NuGetCredentialProvider.CredentialProviders.Vsts
         {
             this.authUtil = new AuthUtil(logger);
             this.bearerTokenProvider = new BearerTokenProvider(logger);
-            this.Username = "VssSessionToken";
         }
 
         public VstsCredentialProvider(ILogger logger, IAuthUtil authUtil, IBearerTokenProvider bearerTokenProvider)
@@ -38,23 +36,17 @@ namespace NuGetCredentialProvider.CredentialProviders.Vsts
             this.bearerTokenProvider = bearerTokenProvider;
         }
 
-        public override string LoggingName => nameof(VstsCredentialProvider);
+        protected override string LoggingName => nameof(VstsCredentialProvider);
 
         public override async Task<bool> CanProvideCredentialsAsync(Uri uri)
         {
-            string buildTaskEnvVar = Environment.GetEnvironmentVariable(EnvUtil.BuildTaskExternalEndpoints);
-            if (buildTaskEnvVar != null)
-            {
-                return false;
-            }
-
             var validHosts = EnvUtil.GetHostsFromEnvironment(Logger, EnvUtil.SupportedHostsEnvVar, new[]
             {
                 ".pkgs.vsts.me", // DevFabric
                 ".pkgs.codedev.ms", // DevFabric
                 ".pkgs.codeapp.ms", // AppFabric
                 ".pkgs.visualstudio.com", // Prod
-                ".pkgs.codex.azure.com" // Prod
+                ".pkgs.dev.azure.com" // Prod
             });
 
             return validHosts.Any(host => uri.Host.EndsWith(host, StringComparison.OrdinalIgnoreCase)) || await authUtil.IsVstsUriAsync(uri);
@@ -96,7 +88,7 @@ namespace NuGetCredentialProvider.CredentialProviders.Vsts
                 {
                     Verbose(string.Format(Resources.VSTSSessionTokenCreated, request.Uri.ToString()));
                     return new GetAuthenticationCredentialsResponse(
-                        this.Username,
+                        Username,
                         sessionToken,
                         message: null,
                         authenticationTypes: new List<string>() { "Basic" },

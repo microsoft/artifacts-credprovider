@@ -268,15 +268,6 @@ namespace NuGetCredentialProvider {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Converting type.
-        /// </summary>
-        internal static string ConvertingType {
-            get {
-                return ResourceManager.GetString("ConvertingType", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to Could not parse AAD authority override: {0}.
         /// </summary>
         internal static string CouldNotParseAADAuthorityOverride {
@@ -603,6 +594,15 @@ namespace NuGetCredentialProvider {
         internal static string Username {
             get {
                 return ResourceManager.GetString("Username", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Error happened during VstsBuildTaskExternalCredentialCredentialProvider check: {0}.
+        /// </summary>
+        internal static string VstsBuildTaskExternalCredentialCredentialProviderError {
+            get {
+                return ResourceManager.GetString("VstsBuildTaskExternalCredentialCredentialProviderError", resourceCulture);
             }
         }
         

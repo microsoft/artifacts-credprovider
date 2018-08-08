@@ -336,9 +336,6 @@ Cache Location
     Session Token Cache
     {10}</value>
   </data>
-  <data name="ConvertingType" xml:space="preserve">
-    <value>Converting type</value>
-  </data>
   <data name="CredentialParseFailure" xml:space="preserve">
     <value>Failed to parse credentials</value>
   </data>
@@ -359,5 +356,8 @@ Cache Location
   </data>
   <data name="ParsingJson" xml:space="preserve">
     <value>Parsing json</value>
+  </data>
+  <data name="VstsBuildTaskExternalCredentialCredentialProviderError" xml:space="preserve">
+    <value>Error happened during VstsBuildTaskExternalCredentialCredentialProvider check: {0}</value>
   </data>
 </root>

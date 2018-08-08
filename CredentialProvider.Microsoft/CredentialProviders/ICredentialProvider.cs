@@ -29,7 +29,6 @@ namespace NuGetCredentialProvider.CredentialProviders
         /// <returns>A <see cref="GetAuthenticationCredentialsResponse"/> object containg details about a response.</returns>
         Task<GetAuthenticationCredentialsResponse> HandleRequestAsync(GetAuthenticationCredentialsRequest request, CancellationToken cancellationToken);
 
-        string Username { get; set; }
-       // string LoggingName { get; }
+        bool IsCachable { get; }
     }
 }

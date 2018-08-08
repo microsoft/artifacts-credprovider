@@ -4,7 +4,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.IO;
 using System.Net.Http.Headers;
 using System.Reflection;
@@ -14,7 +13,7 @@ using NuGet.Protocol.Plugins;
 using NuGetCredentialProvider.CredentialProviders;
 using NuGetCredentialProvider.CredentialProviders.Vsts;
 using NuGetCredentialProvider.CredentialProviders.VstsBuildTask;
-using NuGetCredentialProvider.CredentialProviders.VstsBuildTaskExternalCredentialCredential;
+using NuGetCredentialProvider.CredentialProviders.VstsBuildTaskServiceEndpointCredentialProvider;
 using NuGetCredentialProvider.Logging;
 using NuGetCredentialProvider.RequestHandlers;
 using NuGetCredentialProvider.Util;
@@ -56,9 +55,9 @@ namespace NuGetCredentialProvider
 
         public static async Task<int> Main(string[] args)
         {
-            var multiLogger = new MultiLogger();
             CancellationTokenSource tokenSource = new CancellationTokenSource();
             var parsedArgs = await Args.ParseAsync<CredentialProviderArgs>(args);
+            var multiLogger = new MultiLogger();
 
             var fileLogger = GetFileLogger();
             if (fileLogger != null)
@@ -74,12 +73,10 @@ namespace NuGetCredentialProvider
 
             List<ICredentialProvider> credentialProviders = new List<ICredentialProvider>
             {
-                new VstsBuildTaskExternalCredentialCredentialProvider(multiLogger),
+                new VstsBuildTaskServiceEndpointCredentialProvider(multiLogger),
                 new VstsBuildTaskCredentialProvider(multiLogger),
                 new VstsCredentialProvider(multiLogger),
             };
-
-            multiLogger.Verbose("CredentialProviders set");
 
             try
             {
@@ -141,7 +138,6 @@ namespace NuGetCredentialProvider
                     if (parsedArgs.Uri == null)
                     {
                         Console.WriteLine(ArgUsage.GenerateUsageFromTemplate<CredentialProviderArgs>());
-
                         return 1;
                     }
 
@@ -150,7 +146,6 @@ namespace NuGetCredentialProvider
 
                     multiLogger.Info($"{Resources.Username}: {response?.Username}");
                     multiLogger.Info($"{Resources.Password}: {(parsedArgs.RedactPassword ? Resources.Redacted : response?.Password)}");
-
                     return 0;
                 }
 
