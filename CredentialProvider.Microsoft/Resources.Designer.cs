@@ -187,6 +187,15 @@ namespace NuGetCredentialProvider {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to This credential provider must be run under the Team Build tasks for NuGet with external endpoint credentials.
+        /// </summary>
+        internal static string BuildTaskEndpointEnvVarError {
+            get {
+                return ResourceManager.GetString("BuildTaskEndpointEnvVarError", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to This credential provider must be run under the Team Build tasks for NuGet.
         /// </summary>
         internal static string BuildTaskEnvVarError {
@@ -327,15 +336,6 @@ namespace NuGetCredentialProvider {
         internal static string EndpointCredentialCheck {
             get {
                 return ResourceManager.GetString("EndpointCredentialCheck", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Looking for matching external endpoint credentials.
-        /// </summary>
-        internal static string EndpointMatchLookup {
-            get {
-                return ResourceManager.GetString("EndpointMatchLookup", resourceCulture);
             }
         }
         
@@ -598,7 +598,7 @@ namespace NuGetCredentialProvider {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Error happened during VstsBuildTaskExternalCredentialCredentialProvider check: {0}.
+        ///   Looks up a localized string similar to Error happened while parsing json: {0}.
         /// </summary>
         internal static string VstsBuildTaskExternalCredentialCredentialProviderError {
             get {

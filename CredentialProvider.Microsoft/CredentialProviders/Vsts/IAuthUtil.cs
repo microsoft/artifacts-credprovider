@@ -135,7 +135,7 @@ namespace NuGetCredentialProvider.CredentialProviders.Vsts
             {
                 ".vsts.me",
                 ".codedev.ms",
-                ".codexppe.azure.com"
+                ".devppe.azure.com"
             });
 
             return ppeHosts.Any(host => uri.Host.EndsWith(host, StringComparison.OrdinalIgnoreCase));

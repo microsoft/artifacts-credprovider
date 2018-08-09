@@ -342,9 +342,6 @@ Cache Location
   <data name="EndpointCredentialCheck" xml:space="preserve">
     <value>Checking credentials for endpoint: {0}</value>
   </data>
-  <data name="EndpointMatchLookup" xml:space="preserve">
-    <value>Looking for matching external endpoint credentials</value>
-  </data>
   <data name="EndpointParseFailure" xml:space="preserve">
     <value>Failed to parse endpoint</value>
   </data>
@@ -358,6 +355,9 @@ Cache Location
     <value>Parsing json</value>
   </data>
   <data name="VstsBuildTaskExternalCredentialCredentialProviderError" xml:space="preserve">
-    <value>Error happened during VstsBuildTaskExternalCredentialCredentialProvider check: {0}</value>
+    <value>Error happened while parsing json: {0}</value>
+  </data>
+  <data name="BuildTaskEndpointEnvVarError" xml:space="preserve">
+    <value>This credential provider must be run under the Team Build tasks for NuGet with external endpoint credentials</value>
   </data>
 </root>
