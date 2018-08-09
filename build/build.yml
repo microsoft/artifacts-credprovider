@@ -127,6 +127,15 @@ steps:
     archiveFile: '$(Build.ArtifactStagingDirectory)\$(BuildConfiguration)\Microsoft.NuGet.CredentialProvider.tar.gz'
     replaceExistingArchive: true
 
+- task: ArchiveFiles@2
+  displayName: Create zip
+  inputs:
+    rootFolderOrFile: '$(Build.ArtifactStagingDirectory)\tarball\'
+    includeRootFolder: false
+    archiveType: 'zip'
+    archiveFile: '$(Build.ArtifactStagingDirectory)\$(BuildConfiguration)\Microsoft.NuGet.CredentialProvider.zip'
+    replaceExistingArchive: true
+
 - task: PublishBuildArtifacts@1
   displayName: Publish Artifact $(Build.BuildNumber)
   inputs:
