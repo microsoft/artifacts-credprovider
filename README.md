@@ -12,21 +12,22 @@ The configuration parameter in the examples below can be either Debug or Release
 dotnet build CredentialProvider.Microsoft --configuration Release
 ```
 
+## Publishing
+```
+dotnet publish CredentialProvider.Microsoft --configuration Release --framework netcoreapp2.1
+```
+
 ## Packing
 ```
-dotnet pack CredentialProvider.Microsoft --configuration Release /p:NuspecFile=CredentialProvider.Microsoft.nuspec
+dotnet pack CredentialProvider.Microsoft --configuration Release
 ```
 For CI builds, you can append a pre-release version
 ```
-dotnet pack CredentialProvider.Microsoft --configuration Release /p:NuspecFile=CredentialProvider.Microsoft.nuspec /p:NuspecProperties=VersionSuffix=-MyCustomVersion-2
+dotnet pack CredentialProvider.Microsoft --configuration Release /p:NuspecProperties=VersionSuffix=-MyCustomVersion-2
 ```
 
 # Versioning
-Update the following files when modifying the version:
-- CredentialProvider.Microsoft\CredentialProvider.Microsoft.csproj
-- CredentialProvider.Microsoft\CredentialProvider.Microsoft.nuspec
-- CredentialProvider.Microsoft.VSIX\Microsoft.CredentialProvider.swixproj
-- CredentialProvider.Microsoft.VSIX\Microsoft.CredentialProvider.swr
+When releasing a new version, update the CredentialProviderVersion property in Build.props
 
 # Contributing
 
