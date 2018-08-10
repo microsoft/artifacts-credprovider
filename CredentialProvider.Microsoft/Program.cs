@@ -13,7 +13,7 @@ using NuGet.Protocol.Plugins;
 using NuGetCredentialProvider.CredentialProviders;
 using NuGetCredentialProvider.CredentialProviders.Vsts;
 using NuGetCredentialProvider.CredentialProviders.VstsBuildTask;
-using NuGetCredentialProvider.CredentialProviders.VstsBuildTaskServiceEndpointCredentialProvider;
+using NuGetCredentialProvider.CredentialProviders.VstsBuildTaskServiceEndpoint;
 using NuGetCredentialProvider.Logging;
 using NuGetCredentialProvider.RequestHandlers;
 using NuGetCredentialProvider.Util;

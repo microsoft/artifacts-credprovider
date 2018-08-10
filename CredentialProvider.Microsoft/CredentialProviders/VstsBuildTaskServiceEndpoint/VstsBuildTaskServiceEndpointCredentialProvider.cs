@@ -11,7 +11,7 @@ using NuGet.Protocol.Plugins;
 using NuGetCredentialProvider.Util;
 using ILogger = NuGetCredentialProvider.Logging.ILogger;
 
-namespace NuGetCredentialProvider.CredentialProviders.VstsBuildTaskServiceEndpointCredentialProvider
+namespace NuGetCredentialProvider.CredentialProviders.VstsBuildTaskServiceEndpoint
 {
     public class EndpointCredentials
     {
@@ -29,7 +29,7 @@ namespace NuGetCredentialProvider.CredentialProviders.VstsBuildTaskServiceEndpoi
         public EndpointCredentials[] EndpointCredentials { get; set; }
     }
 
-    internal sealed class VstsBuildTaskServiceEndpointCredentialProvider : CredentialProviderBase
+    public sealed class VstsBuildTaskServiceEndpointCredentialProvider : CredentialProviderBase
     {
         private Lazy<Dictionary<string, EndpointCredentials>> LazyCredentials;
         private Dictionary<string, EndpointCredentials> Credentials => LazyCredentials.Value;
