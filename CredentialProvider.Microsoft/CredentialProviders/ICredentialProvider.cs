@@ -28,5 +28,7 @@ namespace NuGetCredentialProvider.CredentialProviders
         /// <param name="cancellationToken">A <see cref="CancellationToken"/> used for signaling cancellation.</param>
         /// <returns>A <see cref="GetAuthenticationCredentialsResponse"/> object containg details about a response.</returns>
         Task<GetAuthenticationCredentialsResponse> HandleRequestAsync(GetAuthenticationCredentialsRequest request, CancellationToken cancellationToken);
+
+        bool IsCachable { get; }
     }
 }

@@ -14,9 +14,9 @@ using ILogger = NuGetCredentialProvider.Logging.ILogger;
 
 namespace NuGetCredentialProvider.CredentialProviders.VstsBuildTask
 {
-    internal sealed class VstsBuildTaskCredentialProvider : CredentialProviderBase
+    public sealed class VstsBuildTaskCredentialProvider : CredentialProviderBase
     {
-        public const string Username = "VssSessionToken";
+        private const string Username = "VssSessionToken";
 
         public VstsBuildTaskCredentialProvider(ILogger logger)
             : base(logger)

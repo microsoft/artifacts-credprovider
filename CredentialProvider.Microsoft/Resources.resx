@@ -325,15 +325,46 @@ Build Provider Access Token
         The Personal Access Token that will be returned as credentials by
         the build provider.
 
+Build Provider Service Endpoint Json
+    {9}
+        Json that contains an array of service endpoints, usernames and 
+        access tokens to authenticate endpoints in nuget.config.
+        Example: "{{"endpointCredentials": ["endpoint":"http://example.index.json",
+        "username":"optional", "password":"accesstoken"]}}"
+
 Cache Location
     The Credential Provider uses the following paths to cache credentials. If
     deleted, the credential provider will re-create them but any credentials
     will need to be provided again.
 
     ADAL Token Cache
-    {9}
+    {10}
 
     Session Token Cache
-    {10}</value>
+    {11}</value>
+  </data>
+  <data name="CredentialParseFailure" xml:space="preserve">
+    <value>Failed to parse credentials</value>
+  </data>
+  <data name="EndpointCredentialCheck" xml:space="preserve">
+    <value>Checking credentials for endpoint: {0}</value>
+  </data>
+  <data name="EndpointParseFailure" xml:space="preserve">
+    <value>Failed to parse endpoint</value>
+  </data>
+  <data name="NoEndpointMatch" xml:space="preserve">
+    <value>No provided endpoint matched the given uri</value>
+  </data>
+  <data name="NoEndpointsFound" xml:space="preserve">
+    <value>No feed endpoints found</value>
+  </data>
+  <data name="ParsingJson" xml:space="preserve">
+    <value>Parsing json</value>
+  </data>
+  <data name="VstsBuildTaskExternalCredentialCredentialProviderError" xml:space="preserve">
+    <value>Error happened while parsing json: {0}</value>
+  </data>
+  <data name="BuildTaskEndpointEnvVarError" xml:space="preserve">
+    <value>This credential provider must be run under the Team Build tasks for NuGet with external endpoint credentials</value>
   </data>
 </root>

@@ -35,6 +35,8 @@ namespace NuGetCredentialProvider.CredentialProviders
             Logger = logger;
         }
 
+        public virtual bool IsCachable { get { return true; } }
+
         protected abstract string LoggingName { get; }
 
         /// <summary>

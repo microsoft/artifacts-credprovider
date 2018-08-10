@@ -13,6 +13,7 @@ using NuGet.Protocol.Plugins;
 using NuGetCredentialProvider.CredentialProviders;
 using NuGetCredentialProvider.CredentialProviders.Vsts;
 using NuGetCredentialProvider.CredentialProviders.VstsBuildTask;
+using NuGetCredentialProvider.CredentialProviders.VstsBuildTaskServiceEndpoint;
 using NuGetCredentialProvider.Logging;
 using NuGetCredentialProvider.RequestHandlers;
 using NuGetCredentialProvider.Util;
@@ -72,6 +73,7 @@ namespace NuGetCredentialProvider
 
             List<ICredentialProvider> credentialProviders = new List<ICredentialProvider>
             {
+                new VstsBuildTaskServiceEndpointCredentialProvider(multiLogger),
                 new VstsBuildTaskCredentialProvider(multiLogger),
                 new VstsCredentialProvider(multiLogger),
             };
@@ -106,6 +108,7 @@ namespace NuGetCredentialProvider
                             EnvUtil.SessionTimeEnvVar,
                             EnvUtil.BuildTaskUriPrefixes,
                             EnvUtil.BuildTaskAccessToken,
+                            EnvUtil.BuildTaskExternalEndpoints,
                             EnvUtil.AdalTokenCacheLocation,
                             EnvUtil.SessionTokenCacheLocation
                         ));

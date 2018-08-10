@@ -46,7 +46,7 @@ namespace NuGetCredentialProvider.CredentialProviders.Vsts
                 ".pkgs.codedev.ms", // DevFabric
                 ".pkgs.codeapp.ms", // AppFabric
                 ".pkgs.visualstudio.com", // Prod
-                ".pkgs.codex.azure.com" // Prod
+                ".pkgs.dev.azure.com" // Prod
             });
 
             return validHosts.Any(host => uri.Host.EndsWith(host, StringComparison.OrdinalIgnoreCase)) || await authUtil.IsVstsUriAsync(uri);

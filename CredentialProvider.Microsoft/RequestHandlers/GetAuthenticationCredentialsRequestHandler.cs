@@ -4,10 +4,12 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Threading;
 using System.Threading.Tasks;
 using NuGet.Protocol.Plugins;
 using NuGetCredentialProvider.CredentialProviders;
+using NuGetCredentialProvider.CredentialProviders.Vsts;
 using NuGetCredentialProvider.Logging;
 using NuGetCredentialProvider.Util;
 
@@ -47,6 +49,7 @@ namespace NuGetCredentialProvider.RequestHandlers
 
             if (request?.Uri == null)
             {
+
                 return new GetAuthenticationCredentialsResponse(
                     username: null,
                     password: null,
@@ -78,10 +81,9 @@ namespace NuGetCredentialProvider.RequestHandlers
                 try
                 {
                     GetAuthenticationCredentialsResponse response = await credentialProvider.HandleRequestAsync(request, CancellationToken).ConfigureAwait(continueOnCapturedContext: false);
-
                     if (response != null && response.ResponseCode == MessageResponseCode.Success)
                     {
-                        if (cache != null)
+                        if (cache != null && credentialProvider.IsCachable)
                         {
                             Logger.Verbose(string.Format(Resources.CachingSessionToken, request.Uri.ToString()));
                             cache[request.Uri] = response.Password;

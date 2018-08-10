@@ -187,6 +187,15 @@ namespace NuGetCredentialProvider {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to This credential provider must be run under the Team Build tasks for NuGet with external endpoint credentials.
+        /// </summary>
+        internal static string BuildTaskEndpointEnvVarError {
+            get {
+                return ResourceManager.GetString("BuildTaskEndpointEnvVarError", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to This credential provider must be run under the Team Build tasks for NuGet.
         /// </summary>
         internal static string BuildTaskEnvVarError {
@@ -304,11 +313,38 @@ namespace NuGetCredentialProvider {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Failed to parse credentials.
+        /// </summary>
+        internal static string CredentialParseFailure {
+            get {
+                return ResourceManager.GetString("CredentialParseFailure", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to DPAPI not available on non-Windows platforms, using the DefaultShared TokenCache.
         /// </summary>
         internal static string DPAPIUnavailableNonWindows {
             get {
                 return ResourceManager.GetString("DPAPIUnavailableNonWindows", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Checking credentials for endpoint: {0}.
+        /// </summary>
+        internal static string EndpointCredentialCheck {
+            get {
+                return ResourceManager.GetString("EndpointCredentialCheck", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Failed to parse endpoint.
+        /// </summary>
+        internal static string EndpointParseFailure {
+            get {
+                return ResourceManager.GetString("EndpointParseFailure", resourceCulture);
             }
         }
         
@@ -405,6 +441,33 @@ namespace NuGetCredentialProvider {
         internal static string IsRetry {
             get {
                 return ResourceManager.GetString("IsRetry", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to No provided endpoint matched the given uri.
+        /// </summary>
+        internal static string NoEndpointMatch {
+            get {
+                return ResourceManager.GetString("NoEndpointMatch", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to No feed endpoints found.
+        /// </summary>
+        internal static string NoEndpointsFound {
+            get {
+                return ResourceManager.GetString("NoEndpointsFound", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Parsing json.
+        /// </summary>
+        internal static string ParsingJson {
+            get {
+                return ResourceManager.GetString("ParsingJson", resourceCulture);
             }
         }
         
@@ -531,6 +594,15 @@ namespace NuGetCredentialProvider {
         internal static string Username {
             get {
                 return ResourceManager.GetString("Username", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Error happened while parsing json: {0}.
+        /// </summary>
+        internal static string VstsBuildTaskExternalCredentialCredentialProviderError {
+            get {
+                return ResourceManager.GetString("VstsBuildTaskExternalCredentialCredentialProviderError", resourceCulture);
             }
         }
         
