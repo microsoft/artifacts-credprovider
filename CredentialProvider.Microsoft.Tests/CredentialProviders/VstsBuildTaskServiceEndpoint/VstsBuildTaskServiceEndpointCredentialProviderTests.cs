@@ -30,6 +30,13 @@ namespace CredentialProvider.Microsoft.Tests.CredentialProviders.VstsBuildTaskSe
             vstsCredentialProvider = new VstsBuildTaskServiceEndpointCredentialProvider(mockLogger.Object);
         }
 
+        [TestCleanup]
+        public virtual void TestCleanup()
+        {
+            string feedEndPointJsonEnvVar = EnvUtil.BuildTaskExternalEndpoints;
+            Environment.SetEnvironmentVariable(feedEndPointJsonEnvVar, null);
+        }
+
         [TestMethod]
         public async Task CanProvideCredentials_ReturnsFalseForWhenEnvVarIsNotSet()
         {
@@ -54,8 +61,6 @@ namespace CredentialProvider.Microsoft.Tests.CredentialProviders.VstsBuildTaskSe
 
             var result = await vstsCredentialProvider.CanProvideCredentialsAsync(sourceUri);
             Assert.AreEqual(true, result);
-
-            Environment.SetEnvironmentVariable(feedEndPointJsonEnvVar, null);
         }
 
         [TestMethod]
@@ -69,8 +74,6 @@ namespace CredentialProvider.Microsoft.Tests.CredentialProviders.VstsBuildTaskSe
 
             var result = await vstsCredentialProvider.CanProvideCredentialsAsync(sourceUri);
             Assert.AreEqual(false, result);
-
-            Environment.SetEnvironmentVariable(feedEndPointJsonEnvVar, null);
         }
 
         [TestMethod]
@@ -84,8 +87,6 @@ namespace CredentialProvider.Microsoft.Tests.CredentialProviders.VstsBuildTaskSe
 
             Action act = () => vstsCredentialProvider.CanProvideCredentialsAsync(sourceUri);
             act.Should().Throw<Exception>();
-
-            Environment.SetEnvironmentVariable(feedEndPointJsonEnvVar, null);
         }
     }
 }

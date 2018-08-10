@@ -108,6 +108,7 @@ namespace NuGetCredentialProvider
                             EnvUtil.SessionTimeEnvVar,
                             EnvUtil.BuildTaskUriPrefixes,
                             EnvUtil.BuildTaskAccessToken,
+                            EnvUtil.BuildTaskExternalEndpoints,
                             EnvUtil.AdalTokenCacheLocation,
                             EnvUtil.SessionTokenCacheLocation
                         ));

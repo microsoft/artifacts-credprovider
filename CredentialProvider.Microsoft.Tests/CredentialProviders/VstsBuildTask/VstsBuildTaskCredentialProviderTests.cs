@@ -29,6 +29,14 @@ namespace CredentialProvider.Microsoft.Tests.CredentialProviders.VstsBuildTask
             vstsCredentialProvider = new VstsBuildTaskCredentialProvider(mockLogger.Object);
         }
 
+        [TestCleanup]
+        public virtual void TestCleanup()
+        {
+            string uriPrefixesEnvVar = EnvUtil.BuildTaskUriPrefixes;
+            string accessTokenEnvVar = EnvUtil.BuildTaskAccessToken;
+            Environment.SetEnvironmentVariable(uriPrefixesEnvVar, null);
+            Environment.SetEnvironmentVariable(accessTokenEnvVar, null);
+        }
 
         [TestMethod]
         public async Task CanProvideCredentials_ReturnsFalseWhenEnvironmentVariablesAreNotSet()
@@ -57,9 +65,6 @@ namespace CredentialProvider.Microsoft.Tests.CredentialProviders.VstsBuildTask
 
             var result = await vstsCredentialProvider.CanProvideCredentialsAsync(sourceUri);
             Assert.AreEqual(true, result);
-
-            Environment.SetEnvironmentVariable(uriPrefixesEnvVar, null);
-            Environment.SetEnvironmentVariable(accessTokenEnvVar, null);
         }
 
         [TestMethod]
@@ -74,9 +79,6 @@ namespace CredentialProvider.Microsoft.Tests.CredentialProviders.VstsBuildTask
 
             var result = await vstsCredentialProvider.CanProvideCredentialsAsync(sourceUri);
             Assert.AreEqual(false, result);
-
-            Environment.SetEnvironmentVariable(uriPrefixesEnvVar, null);
-            Environment.SetEnvironmentVariable(accessTokenEnvVar, null);
         }
     }
 }
