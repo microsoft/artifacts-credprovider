@@ -76,12 +76,12 @@ steps:
       command: test
       projects: 'CredentialProvider.Microsoft.Tests/CredentialProvider.Microsoft.Tests.csproj'
 
-- task: NuGetCommand@2
-  displayName: NuGet pack
+- task: DotNetCoreCLI@2
+  displayName: dotnet pack
   inputs:
     command: pack
-    packagesToPack: 'CredentialProvider.Microsoft/CredentialProvider.Microsoft.nuspec'
-    packDestination: '$(Build.ArtifactStagingDirectory)\$(BuildConfiguration)'
+    packagesToPack: 'CredentialProvider.Microsoft/CredentialProvider.Microsoft.csproj'
+    packDirectory: '$(Build.ArtifactStagingDirectory)\$(BuildConfiguration)'
     buildProperties: '${{ parameters.nuspecProperties }}'
 
 - task: DotNetCoreCLI@2
