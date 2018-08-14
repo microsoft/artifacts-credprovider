@@ -76,25 +76,6 @@ steps:
       command: test
       projects: 'CredentialProvider.Microsoft.Tests/CredentialProvider.Microsoft.Tests.csproj'
 
-- powershell: 'Write-Output ("##vso[task.setvariable variable=SignType;]")' 
-  displayName: Clear SignType
-
-- task: DotNetCoreCLI@2
-  displayName: dotnet pack
-  inputs:
-    command: pack
-    packagesToPack: 'CredentialProvider.Microsoft/CredentialProvider.Microsoft.csproj'
-    packDirectory: '$(Build.ArtifactStagingDirectory)\$(BuildConfiguration)'
-    buildProperties: '${{ parameters.nuspecProperties }}'
-
-- task: DotNetCoreCLI@2
-  displayName: dotnet push
-  inputs:
-    command: push
-    packagesToPush: '$(Build.ArtifactStagingDirectory)/$(BuildConfiguration)/*.nupkg'
-    publishVstsFeed: '54754426-96db-4f6e-8a3a-64265d1cc147'
-  condition: eq(variables['PushNupkg'], 'true')
-
 - task: CopyFiles@2
   displayName: Copy netfx files into tarball
   inputs:
@@ -144,3 +125,22 @@ steps:
   inputs:
     PathtoPublish: '$(Build.ArtifactStagingDirectory)\$(BuildConfiguration)\'
     ArtifactName: '$(Build.BuildNumber)'
+
+- powershell: 'Write-Output ("##vso[task.setvariable variable=SignType;]")' 
+  displayName: Clear SignType
+
+- task: DotNetCoreCLI@2
+  displayName: dotnet pack
+  inputs:
+    command: pack
+    packagesToPack: 'CredentialProvider.Microsoft/CredentialProvider.Microsoft.csproj'
+    packDirectory: '$(Build.ArtifactStagingDirectory)\$(BuildConfiguration)'
+    buildProperties: '${{ parameters.nuspecProperties }}'
+
+- task: DotNetCoreCLI@2
+  displayName: dotnet push
+  inputs:
+    command: push
+    packagesToPush: '$(Build.ArtifactStagingDirectory)/$(BuildConfiguration)/*.nupkg'
+    publishVstsFeed: '54754426-96db-4f6e-8a3a-64265d1cc147'
+  condition: eq(variables['PushNupkg'], 'true')
