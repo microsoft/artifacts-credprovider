@@ -76,6 +76,9 @@ steps:
       command: test
       projects: 'CredentialProvider.Microsoft.Tests/CredentialProvider.Microsoft.Tests.csproj'
 
+- powershell: 'Write-Output ("##vso[task.setvariable variable=SignType;]")' 
+  displayName: Clear SignType
+
 - task: DotNetCoreCLI@2
   displayName: dotnet pack
   inputs:
