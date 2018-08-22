@@ -120,12 +120,6 @@ steps:
     archiveFile: '$(Build.ArtifactStagingDirectory)\$(BuildConfiguration)\Microsoft.NuGet.CredentialProvider.zip'
     replaceExistingArchive: true
 
-- task: PublishBuildArtifacts@1
-  displayName: Publish Artifact $(Build.BuildNumber)
-  inputs:
-    PathtoPublish: '$(Build.ArtifactStagingDirectory)\$(BuildConfiguration)\'
-    ArtifactName: '$(Build.BuildNumber)'
-
 - powershell: 'Write-Output ("##vso[task.setvariable variable=SignType;]")' 
   displayName: Clear SignType
 
@@ -144,3 +138,9 @@ steps:
     packagesToPush: '$(Build.ArtifactStagingDirectory)/$(BuildConfiguration)/*.nupkg'
     publishVstsFeed: '54754426-96db-4f6e-8a3a-64265d1cc147'
   condition: eq(variables['PushNupkg'], 'true')
+
+- task: PublishBuildArtifacts@1
+  displayName: Publish Artifact $(Build.BuildNumber)
+  inputs:
+    PathtoPublish: '$(Build.ArtifactStagingDirectory)\$(BuildConfiguration)\'
+    ArtifactName: '$(Build.BuildNumber)'
