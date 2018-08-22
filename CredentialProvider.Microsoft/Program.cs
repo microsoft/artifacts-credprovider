@@ -65,10 +65,11 @@ namespace NuGetCredentialProvider
                 multiLogger.Add(fileLogger);
             }
 
-            Console.CancelKeyPress += (sender, eventArgs) =>
+            // Cancellation listener
+            Console.CancelKeyPress += (object sender, ConsoleCancelEventArgs eventArgs) =>
             {
+                // ConsoleCancelEventArgs.Cancel defaults to false which terminates the current process.
                 tokenSource.Cancel();
-                eventArgs.Cancel = true;
             };
 
             List<ICredentialProvider> credentialProviders = new List<ICredentialProvider>
