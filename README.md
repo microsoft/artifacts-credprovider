@@ -1,35 +1,70 @@
-# MicrosoftCredentialProvider
+# Azure Artifacts Credential Provider
 
-## Status
-|                    | Build & Test | MSCredProvider |
+The Azure Artifacts Credential Provider automates the acquisition of credentials needed to restore NuGet packages as part of your .NET development workflow. It integrates with MSBuild, dotnet, and NuGet(.exe) and works on Windows, Mac, and Linux. Any time you want to use packages from an Azure Artifacts [link] feed, the Credential Provider will automatically acquire and securely store a token on behalf of the NuGet client you're using.
+
+|                    | Build & Test | Package        |
 |--------------------|--------------|----------------|
-| **Windows**        |[![Build status](https://mseng.visualstudio.com/_apis/public/build/definitions/b924d696-3eae-4116-8443-9a18392d8544/7110/badge?branchName=master)](https://mseng.visualstudio.com/VSOnline/_build/latest?definitionId=7110&branch=master)| [![Microsoft.NuGet.CredentialProvider package in MSCredProvider feed in Visual Studio Team Services](https://mseng.feeds.visualstudio.com/_apis/public/Packaging/Feeds/54754426-96db-4f6e-8a3a-64265d1cc147/Packages/16200823-3f36-4334-a4ec-7b7b6cd5243d/Badge)](https://mseng.visualstudio.com/_Packaging?feed=54754426-96db-4f6e-8a3a-64265d1cc147&package=16200823-3f36-4334-a4ec-7b7b6cd5243d&preferRelease=true&_a=package) |
+| **Windows**        |[![Build status](https://mseng.visualstudio.com/_apis/public/build/definitions/b924d696-3eae-4116-8443-9a18392d8544/7110/badge?branchName=master)](https://mseng.visualstudio.com/VSOnline/_build/latest?definitionId=7110&branch=master)| [![Microsoft.NuGet.CredentialProvider package in MSCredProvider feed in Azure Artifacts](https://mseng.feeds.visualstudio.com/_apis/public/Packaging/Feeds/54754426-96db-4f6e-8a3a-64265d1cc147/Packages/16200823-3f36-4334-a4ec-7b7b6cd5243d/Badge)](https://mseng.visualstudio.com/_Packaging?feed=54754426-96db-4f6e-8a3a-64265d1cc147&package=16200823-3f36-4334-a4ec-7b7b6cd5243d&preferRelease=true&_a=package) |
 
-The configuration parameter in the examples below can be either Debug or Release
+## Get
 
-## Building
+On Windows, install the [15.9 preview of any Visual Studio edition](https://visualstudio.microsoft.com/vs/preview/), including the Build Tools edition. After 15.9 is generally available, simply update your Visual Studio install. This will make the new Credential Provider available to dotnet, even if you installed the .NET SDK separately.
+
+If you prefer not to install Visual Studio, or you're on Mac or Linux, run this command in your shell:
+
+```shell
+[command]
 ```
+
+## Use
+
+Because the Credential Provider is a NuGet plugin, it is most commonly used indirectly, by performing a NuGet operation that requires authentication using `dotnet`, `nuget`, or `msbuild`.
+
+### dotnet
+
+todo
+
+### nuget
+
+todo
+
+### msbuild
+
+todo
+
+## Develop
+
+### Building
+
+```shell
 dotnet build CredentialProvider.Microsoft --configuration Release
 ```
 
-## Publishing
-```
+In this and subsequent examples, configuration can be either `debug` or `release`.
+
+### Publishing
+
+```shell
 dotnet publish CredentialProvider.Microsoft --configuration Release --framework netcoreapp2.1
 ```
 
-## Packing
-```
+### Packing
+
+```shell
 dotnet pack CredentialProvider.Microsoft --configuration Release
 ```
-For CI builds, you can append a pre-release version
-```
+
+For CI builds, you can append a pre-release version:
+
+```shell
 dotnet pack CredentialProvider.Microsoft --configuration Release /p:NuspecProperties=VersionSuffix=-MyCustomVersion-2
 ```
 
-# Versioning
+### Versioning
+
 When releasing a new version, update the CredentialProviderVersion property in Build.props
 
-# Contributing
+## Contribute
 
 This project welcomes contributions and suggestions.  Most contributions require you to agree to a
 Contributor License Agreement (CLA) declaring that you have the right to, and actually do, grant us
