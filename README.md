@@ -2,17 +2,23 @@
 
 The Azure Artifacts Credential Provider automates the acquisition of credentials needed to restore NuGet packages as part of your .NET development workflow. It integrates with MSBuild, dotnet, and NuGet(.exe) and works on Windows, Mac, and Linux. Any time you want to use packages from an Azure Artifacts [link] feed, the Credential Provider will automatically acquire and securely store a token on behalf of the NuGet client you're using.
 
-|                    | Build & Test | Package        |
-|--------------------|--------------|----------------|
-| **Windows**        |[![Build status](https://mseng.visualstudio.com/_apis/public/build/definitions/b924d696-3eae-4116-8443-9a18392d8544/7110/badge?branchName=master)](https://mseng.visualstudio.com/VSOnline/_build/latest?definitionId=7110&branch=master)| [![Microsoft.NuGet.CredentialProvider package in MSCredProvider feed in Azure Artifacts](https://mseng.feeds.visualstudio.com/_apis/public/Packaging/Feeds/54754426-96db-4f6e-8a3a-64265d1cc147/Packages/16200823-3f36-4334-a4ec-7b7b6cd5243d/Badge)](https://mseng.visualstudio.com/_Packaging?feed=54754426-96db-4f6e-8a3a-64265d1cc147&package=16200823-3f36-4334-a4ec-7b7b6cd5243d&preferRelease=true&_a=package) |
+[![Build status](https://mseng.visualstudio.com/_apis/public/build/definitions/b924d696-3eae-4116-8443-9a18392d8544/7110/badge?branchName=master)](https://mseng.visualstudio.com/VSOnline/_build/latest?definitionId=7110&branch=master)
 
 ## Get
 
-On Windows, install the [15.9 preview of any Visual Studio edition](https://visualstudio.microsoft.com/vs/preview/), including the Build Tools edition. After 15.9 is generally available, simply update your Visual Studio install. This will make the new Credential Provider available to dotnet, even if you installed the .NET SDK separately.
+For MSBuild on Windows, install the [15.9 preview of any Visual Studio edition](https://visualstudio.microsoft.com/vs/preview/), including the Build Tools edition. 
 
-If you prefer not to install Visual Studio, or you're on Mac or Linux, run this command in your shell:
+For dotnet and NuGet (on Windows, Mac, and Linux), copy and run the command for the shell you use:
+
+### Shell script (bash, zsh, etc.)
 
 ```shell
+[command]
+```
+
+### PowerShell
+
+```powershell
 [command]
 ```
 
@@ -22,15 +28,31 @@ Because the Credential Provider is a NuGet plugin, it is most commonly used indi
 
 ### dotnet
 
-todo
+The first time you perform an operation that requires authentication using `dotnet`, you must use the `--interactive` flag to allow `dotnet` to prompt you for credentials. For example, to restore packages, navigate to your project directory and run:
+
+```shell
+dotnet restore --interactive
+```
+
+Once you've successfully acquired a token, you can run authenticated commands without the `--interactive` flag.
 
 ### nuget
 
-todo
+The NuGet client is interactive by default. To perform an operation that requires authentication, simply run it as expected. For example, to restore packages, navigate to your solution directory and run:
+
+```shell
+nuget restore
+```
 
 ### msbuild
 
-todo
+The first time you perform an operation that requires authentication using `msbuild`, you must use the `/p:nugetInteractive=true` switch to allow `msbuild` to prompt you for credentials. For example, to restore packages, navigate to your project or solution directory and run:
+
+```shell
+msbuild /t:restore /p:nugetInteractive=true
+```
+
+Once you've successfully acquired a token, you can run authenticated commands without the `/p:nugetInteractive=true` switch.
 
 ## Develop
 
