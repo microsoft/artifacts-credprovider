@@ -6,17 +6,21 @@ The Azure Artifacts Credential Provider automates the acquisition of credentials
 
 ## Get
 
-For MSBuild on Windows, install the [15.9 preview of any Visual Studio edition](https://visualstudio.microsoft.com/vs/preview/), including the Build Tools edition. 
+### MSBuild on Windows
 
-For dotnet and NuGet (on Windows, Mac, and Linux), copy and run the command for the shell you use:
+Install the [15.9 preview of any Visual Studio edition](https://visualstudio.microsoft.com/vs/preview/), including the Build Tools edition. 
 
-### Shell script (bash, zsh, etc.)
+### All other clients (`dotnet`, `nuget`) on all platforms
+
+Select, copy, and run the appropriate script for your shell/platform:
+
+#### Shell (bash, zsh, etc.)
 
 ```shell
 [command]
 ```
 
-### PowerShell
+#### PowerShell 
 
 ```powershell
 [command]
