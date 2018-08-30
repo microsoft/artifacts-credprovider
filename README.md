@@ -50,7 +50,7 @@ If you are using the either the [dotnet SDK](https://www.microsoft.com/net/downl
 ### Manual Instructions for Linux and Mac
 1) Download the latest release of [`Microsoft.NuGet.CredentialProvider.tar.gz`](https://github.com/Microsoft/mscredprovider/releases).
 2) Unzip the file.
-3) Copy both the `netcore` directory from the extracted archive to `$HOME\.nuget\plugins`
+3) Copy the `netcore` directory from the extracted archive to `$HOME\.nuget\plugins`
 
 
 ### Shell (bash, zsh, etc.)
