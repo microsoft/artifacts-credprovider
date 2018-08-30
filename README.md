@@ -1,65 +1,54 @@
-# TOC
-- [Azure Artifacts Credential Provider](#azure-artifacts-credential-provider)
-  * [Prerequisites](#prerequisites)
-    + [MSBuild on Windows](#msbuild-on-windows)
-    + [Nuget](#nuget)
-    + [Dotnet](#dotnet)
-  * [Setup](#setup)
-    + [Manual Instructions for Windows](#manual-instructions-for-windows)
-    + [Manual Instructions for Linux and Mac](#manual-instructions-for-linux-and-mac)
-    + [Shell (bash, zsh, etc.)](#shell-bash-zsh-etc)
-    + [PowerShell](#powershell)
-  * [Use](#use)
-    + [dotnet](#dotnet)
-    + [nuget](#nuget)
-    + [msbuild](#msbuild)
-  * [Session Token Cache Locations](#session-token-cache-locations)
-  * [Environment Variables](#environment-variables)
-  * [Help](#help)
-  * [Develop](#develop)
-    + [Building](#building)
-    + [Publishing](#publishing)
-    + [Packing](#packing)
-    + [Versioning](#versioning)
-  * [Contribute](#contribute)
-
 # Azure Artifacts Credential Provider
+
 The Azure Artifacts Credential Provider automates the acquisition of credentials needed to restore NuGet packages as part of your .NET development workflow. It integrates with MSBuild, dotnet, and NuGet(.exe) and works on Windows, Mac, and Linux. Any time you want to use packages from an Azure Artifacts feed, the Credential Provider will automatically acquire and securely store a token on behalf of the NuGet client you're using.
 
 [![Build status](https://mseng.visualstudio.com/_apis/public/build/definitions/b924d696-3eae-4116-8443-9a18392d8544/7110/badge?branchName=master)](https://mseng.visualstudio.com/VSOnline/_build/latest?definitionId=7110&branch=master)
 
+- [Prerequisites](#prerequisites)
+- [Setup](#setup)
+- [Use](#use)
+- [Session Token Cache Locations](#session-token-cache-locations)
+- [Environment Variables](#environment-variables)
+- [Help](#help)
+- [Contribute](#contribute)
+
 ## Prerequisites
 
 ### MSBuild on Windows
-Install any version of [Visual Studio version 15.9-preview1 or later](https://visualstudio.microsoft.com/vs/preview/) to get the required version of msbuild (i.e. `15.8.166.59604` or later).
 
-### Nuget
-If you are using nuget without the Visual Studio IDE to restore packages then you must install version `4.8.0.5385` or later.
+Install [Visual Studio version 15.9-preview1 or later](https://visualstudio.microsoft.com/vs/preview/) to get the required version of msbuild (`15.8.166.59604` or later).
 
-### Dotnet
-Dotnet SDK `2.1.400` or higher is required on Windows, Linux and Mac.
+### NuGet
+
+[NuGet(.exe)](https://www.nuget.org/downloads) on the command line version `4.8.0.5385` or later is required.
+
+### dotnet
+
+[dotnet SDK](https://www.microsoft.com/net/download) version `2.1.400` or later is required on Windows.
 
 ## Setup
-If you are using the either the [dotnet SDK](https://www.microsoft.com/net/download) or [nuget](https://www.nuget.org/downloads) directly then you need to add the credential provider's plugin implementation to [nuget's plugin search path](https://github.com/NuGet/Home/wiki/NuGet-Cross-Plat-Credential-Plugin#plugin-installation-and-discovery). Below we have provided instructions for doing this manually or with platform specific scripts.
 
-### Manual Instructions for Windows
-1) Download the latest release of [`Microsoft.NuGet.CredentialProvider.zip`](https://github.com/Microsoft/mscredprovider/releases).
-2) Unzip the file.
-3) Copy both the `netcore` and `netfx` directories from the extracted archive to `$env:UserProfile\.nuget\plugins`
+If you are using `dotnet` or `nuget`, you can use the Azure Artifact Credential Manager by adding it to [NuGet's plugin search path](https://github.com/NuGet/Home/wiki/NuGet-Cross-Plat-Credential-Plugin#plugin-installation-and-discovery). This section contains both manual and scripted instructions for doing so.
 
-### Manual Instructions for Linux and Mac
-1) Download the latest release of [`Microsoft.NuGet.CredentialProvider.tar.gz`](https://github.com/Microsoft/mscredprovider/releases).
-2) Unzip the file.
+### Manual installation: Windows
+
+1. Download the latest release of [Microsoft.NuGet.CredentialProvider.zip](https://github.com/Microsoft/mscredprovider/releases)
+1. Unzip the file
+1. Copy both the `netcore` and `netfx` directories from the extracted archive to `$env:UserProfile\.nuget\plugins`
+
+### Manual installation: Linux and Mac
+1) Download the latest release of [Microsoft.NuGet.CredentialProvider.tar.gz](https://github.com/Microsoft/mscredprovider/releases)
+2) Untar the file
 3) Copy the `netcore` directory from the extracted archive to `$HOME\.nuget\plugins`
 
 
-### Shell (bash, zsh, etc.)
+### Automatic installation: bash, zsh, etc.
 
 ```shell
 [command]
 ```
 
-### PowerShell
+### Automatic intallation: PowerShell
 
 ```powershell
 [command]
@@ -81,7 +70,7 @@ Once you've successfully acquired a token, you can run authenticated commands wi
 
 ### nuget
 
-The nuget client will prompt for authentication when you run a `restore` and it does not find credential in the [session token cache location](#session-token-cache-locations).  By default, it will attempt to open a modal dialog for authentication and will fall back to console input if that fails.
+The nuget client will prompt for authentication when you run a `restore` and it does not find credential in the [session token cache location](#session-token-cache-locations).  By default, it will attempt to open a dialog for authentication and will fall back to console input if that fails.
 
 ```shell
 nuget restore
@@ -98,12 +87,14 @@ msbuild /t:restore /p:nugetInteractive=true
 Once you've successfully acquired a token, you can run authenticated commands without the `/p:nugetInteractive=true` switch.
 
 ## Session Token Cache Locations
+
 The credential provider will save session tokens in the following locations:
 - Windows: `$env:UserProfile\AppData\Local\MicrosoftCredentialProvider`
 - Linux/MAC: `$HOME/.local/share/MicrosoftCredentialProvider/`
 
 ## Environment Variables
-This is not an exhaustive list.  These are the environment variables that might make sense for users to set.
+
+The Credential Provider accepts a set of environment variables:
 
 - `NUGET_CREDENTIALPROVIDER_SESSIONTOKENCACHE_ENABLED`: Controls whether or not the session token is saved to disk.  If false, the credential provider will prompt for auth every time.
 - `VSS_NUGET_ACCESSTOKEN`: This variable is useful for headless/unattended scenarios where you already have an auth token.  If you set this variable the credential provider will skip any attempt at authentication with AAD and simply return this value to nuget, dotnet, or msbuild.  This is useful for build scenarios and docker where you must have a precalculated Personal Access Token.
@@ -114,7 +105,7 @@ This is not an exhaustive list.  These are the environment variables that might 
 
 ## Help
 
-The windows plugin, delivered in the `netfx` folder of `Microsoft.NuGet.CredentialProvider.zip`, ships a stand-alone executable that will acquire credentials. This program, , will place the credentials in the same location (i.e. ) that the .dll would if it were called by nuget.exe, dotnet.exe, or msbuild.exe. The stand-alone executable will also print the available command options, environment variables, and credential storage locations. This information is reproduced here:
+The windows plugin, delivered in the `netfx` folder of `Microsoft.NuGet.CredentialProvider.zip`, ships a stand-alone executable that will acquire credentials. This program will place the credentials in the same location that the .dll would if it were called by nuget.exe, dotnet.exe, or msbuild.exe. The stand-alone executable will also print the available command options, environment variables, and credential storage locations. This information is reproduced here:
 
 ```
 C:\> .\CredentialProvider.Microsoft.exe -h
@@ -201,42 +192,10 @@ Cache Location
     C:\Users\someuser\AppData\Local\MicrosoftCredentialProvider\SessionTokenCache.dat
 ```
 
-## Develop
-
-### Building
-
-```shell
-dotnet build CredentialProvider.Microsoft --configuration Release
-```
-
-In this and subsequent examples, configuration can be either `debug` or `release`.
-
-### Publishing
-
-```shell
-dotnet publish CredentialProvider.Microsoft --configuration Release --framework netcoreapp2.1
-```
-
-### Packing
-
-```shell
-dotnet pack CredentialProvider.Microsoft --configuration Release
-```
-
-For CI builds, you can append a pre-release version:
-
-```shell
-dotnet pack CredentialProvider.Microsoft --configuration Release /p:NuspecProperties=VersionSuffix=-MyCustomVersion-2
-```
-
-### Versioning
-
-When releasing a new version, update the CredentialProviderVersion property in Build.props
-
 ## Contribute
 
-This project welcomes contributions and suggestions. Most contributions require you to agree to a
-Contributor License Agreement (CLA) declaring that you have the right to, and actually do, grant us
+This project welcomes contributions and suggestions; see [CONTRIBUTING](CONTRIBUTING.md) for more information. 
+Most contributions require you to agree to a Contributor License Agreement (CLA) declaring that you have the right to, and actually do, grant us
 the rights to use your contribution. For details, visit https://cla.microsoft.com.
 
 When you submit a pull request, a CLA-bot will automatically determine whether you need to provide
