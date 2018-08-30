@@ -116,7 +116,7 @@ This is not an exhaustive list.  These are the environment variables that might 
 
 The windows plugin, delivered in the `netfx` folder of `Microsoft.NuGet.CredentialProvider.zip`, ships a stand-alone executable that will acquire credentials. This program, , will place the credentials in the same location (i.e. ) that the .dll would if it were called by nuget.exe, dotnet.exe, or msbuild.exe. The stand-alone executable will also print the available command options, environment variables, and credential storage locations. This information is reproduced here:
 
-```shell
+```
 C:\> .\CredentialProvider.Microsoft.exe -h
 Command-line v0.1.4: "CredentialProvider.Microsoft.exe" -h
 Usage - CredentialProvider.Microsoft -options
