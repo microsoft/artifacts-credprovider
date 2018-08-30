@@ -300,7 +300,7 @@ ADAL Authority
 
 ADAL Token File Cache Enabled
     {3}
-        Boolean to enable/disable the ADAL token cache.
+        Boolean to enable/disable the ADAL token cache. Disabled by default.
 
 PPE ADAL Hosts
     {4}
