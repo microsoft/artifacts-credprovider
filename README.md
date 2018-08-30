@@ -195,10 +195,10 @@ Cache Location
     will need to be provided again.
 
     ADAL Token Cache
-    C:\Users\kerobert\AppData\Local\MicrosoftCredentialProvider\ADALTokenCache.dat
+    C:\Users\someuser\AppData\Local\MicrosoftCredentialProvider\ADALTokenCache.dat
 
     Session Token Cache
-    C:\Users\kerobert\AppData\Local\MicrosoftCredentialProvider\SessionTokenCache.dat
+    C:\Users\someuser\AppData\Local\MicrosoftCredentialProvider\SessionTokenCache.dat
 ```
 
 ## Develop
