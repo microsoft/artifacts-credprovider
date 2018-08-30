@@ -40,7 +40,7 @@ If you are using nuget without the Visual Studio IDE to restore packages then yo
 Dotnet SDK `2.1.400` or higher is required on Windows, Linux and Mac.
 
 ## Setup
-If you are using the either the [dotnet SDK](https://www.microsoft.com/net/download) or [nuget](https://www.nuget.org/downloads) directly then you need to add the credential provider's plugin implementation to nuget's plugin search path. Below we have provided instructions for doing this manually or with platform specific scripts.
+If you are using the either the [dotnet SDK](https://www.microsoft.com/net/download) or [nuget](https://www.nuget.org/downloads) directly then you need to add the credential provider's plugin implementation to [nuget's plugin search path](https://github.com/NuGet/Home/wiki/NuGet-Cross-Plat-Credential-Plugin#plugin-installation-and-discovery). Below we have provided instructions for doing this manually or with platform specific scripts.
 
 ### Manual Instructions for Windows
 1) Download the latest release of [`Microsoft.NuGet.CredentialProvider.zip`](https://github.com/Microsoft/mscredprovider/releases).
