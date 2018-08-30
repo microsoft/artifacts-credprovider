@@ -8,7 +8,7 @@ The Azure Artifacts Credential Provider automates the acquisition of credentials
 
 ### MSBuild on Windows
 
-Install the [15.9 preview of any Visual Studio edition](https://visualstudio.microsoft.com/vs/preview/), including the Build Tools edition. 
+Install the [15.9 preview of any Visual Studio edition](https://visualstudio.microsoft.com/vs/preview/), including the Build Tools edition.
 
 ### All other clients (`dotnet`, `nuget`) on all platforms
 
@@ -20,7 +20,7 @@ Select, copy, and run the appropriate script for your shell/platform:
 [command]
 ```
 
-#### PowerShell 
+#### PowerShell
 
 ```powershell
 [command]
@@ -58,6 +58,16 @@ msbuild /t:restore /p:nugetInteractive=true
 
 Once you've successfully acquired a token, you can run authenticated commands without the `/p:nugetInteractive=true` switch.
 
+## Environment Variables
+
+## Help
+
+The windows plugin, delivered in the `netfx` folder of `Microsoft.NuGet.CredentialProvider.zip`, ships a stand-alone executable that will acquire credentials. This program, , will place the credentials in the same location (i.e. ) that the .dll would if it were called by nuget.exe, dotnet.exe, or msbuild.exe. The stand-alone executable will also print the available command options, environment variables, and credential storage locations. This information is reproduced here:
+
+```shell
+msbuild /t:restore /p:nugetInteractive=true
+```
+
 ## Develop
 
 ### Building
@@ -92,7 +102,7 @@ When releasing a new version, update the CredentialProviderVersion property in B
 
 ## Contribute
 
-This project welcomes contributions and suggestions.  Most contributions require you to agree to a
+This project welcomes contributions and suggestions. Most contributions require you to agree to a
 Contributor License Agreement (CLA) declaring that you have the right to, and actually do, grant us
 the rights to use your contribution. For details, visit https://cla.microsoft.com.
 
