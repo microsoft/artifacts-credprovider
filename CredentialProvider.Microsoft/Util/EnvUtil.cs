@@ -73,7 +73,7 @@ namespace NuGetCredentialProvider.Util
 
         public static bool AdalFileCacheEnabled()
         {
-            return GetEnabledFromEnvironment(AdalFileCacheEnvVar);
+            return GetEnabledFromEnvironment(AdalFileCacheEnvVar, defaultValue: false);
         }
 
         public static bool SessionTokenCacheEnabled()
