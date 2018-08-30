@@ -94,7 +94,7 @@ The credential provider will save session tokens in the following locations:
 
 ## Environment Variables
 
-This is not an exhaustive list.  These are the environment variables that might make sense for users to set.
+The Credential Provider accepts a set of environment variables:
 
 - `NUGET_CREDENTIALPROVIDER_SESSIONTOKENCACHE_ENABLED`: Controls whether or not the session token is saved to disk.  If false, the credential provider will prompt for auth every time.
 - `VSS_NUGET_ACCESSTOKEN`: This variable is useful for headless/unattended scenarios where you already have an auth token.  If you set this variable the credential provider will skip any attempt at authentication with AAD and simply return this value to nuget, dotnet, or msbuild.  This is useful for build scenarios and docker where you must have a precalculated Personal Access Token.
