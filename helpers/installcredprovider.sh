@@ -44,6 +44,7 @@ if [[ ! -e ${NUGET_PLUGIN_DIR} ]]; then
   echo "INFO: Creating the nuget plugin directory (i.e. ${NUGET_PLUGIN_DIR}). "
   if ! mkdir -p ${NUGET_PLUGIN_DIR}; then
       echo "ERROR: Unable to create nuget plugins directory (i.e. ${NUGET_PLUGIN_DIR})."
+      exit 1
   fi
 fi
 
