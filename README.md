@@ -32,13 +32,13 @@ If you are using `dotnet` or `nuget`, you can use the Azure Artifact Credential 
 
 ### Manual installation: Windows
 
-1. Download the latest release of [Microsoft.NuGet.CredentialProvider.zip](https://github.com/Microsoft/mscredprovider/releases)
+1. Download the latest release of [Microsoft.NuGet.CredentialProvider.zip](https://github.com/Microsoft/artifacts-credprovider/releases)
 1. Unzip the file
 1. Copy both the `netcore` and `netfx` directories from the extracted archive to `$env:UserProfile\.nuget\plugins`
 
 ### Manual installation: Linux and Mac
 
-1. Download the latest release of [Microsoft.NuGet.CredentialProvider.tar.gz](https://github.com/Microsoft/mscredprovider/releases)
+1. Download the latest release of [Microsoft.NuGet.CredentialProvider.tar.gz](https://github.com/Microsoft/artifacts-credprovider/releases)
 2. Untar the file
 3. Copy the `netcore` directory from the extracted archive to `$HOME\.nuget\plugins`
 
@@ -91,10 +91,9 @@ The Credential Provider will save session tokens in the following locations:
 
 ## Environment Variables
 
-The Credential Provider accepts a set of environment variables:
+The Credential Provider accepts a set of environment variables. These are the only two that we recommend setting in non-triage situations.
 
 -   `NUGET_CREDENTIALPROVIDER_SESSIONTOKENCACHE_ENABLED`: Controls whether or not the session token is saved to disk. If false, the Credential Provider will prompt for auth every time.
--   `VSS_NUGET_ACCESSTOKEN`: This variable is useful for headless/unattended scenarios where you already have an auth token. If you set this variable the Credential Provider will skip any attempt at authentication with AAD and simply return this value to nuget, dotnet, or msbuild. This is useful for build scenarios and docker where you must have a precalculated Personal Access Token.
 -   `VSS_NUGET_EXTERNAL_FEED_ENDPOINTS`: Json that contains an array of service endpoints, usernames and access tokens to authenticate endpoints in nuget.config. Example:
 
 ```
