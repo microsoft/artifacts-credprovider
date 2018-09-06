@@ -4,13 +4,13 @@ The Azure Artifacts Credential Provider automates the acquisition of credentials
 
 [![Build status](https://mseng.visualstudio.com/_apis/public/build/definitions/b924d696-3eae-4116-8443-9a18392d8544/7110/badge?branchName=master)](https://mseng.visualstudio.com/VSOnline/_build/latest?definitionId=7110&branch=master)
 
-- [Prerequisites](#prerequisites)
-- [Setup](#setup)
-- [Use](#use)
-- [Session Token Cache Locations](#session-token-cache-locations)
-- [Environment Variables](#environment-variables)
-- [Help](#help)
-- [Contribute](#contribute)
+-   [Prerequisites](#prerequisites)
+-   [Setup](#setup)
+-   [Use](#use)
+-   [Session Token Cache Locations](#session-token-cache-locations)
+-   [Environment Variables](#environment-variables)
+-   [Help](#help)
+-   [Contribute](#contribute)
 
 ## Prerequisites
 
@@ -32,27 +32,23 @@ If you are using `dotnet` or `nuget`, you can use the Azure Artifact Credential 
 
 ### Manual installation: Windows
 
-1. Download the latest release of [Microsoft.NuGet.CredentialProvider.zip](https://github.com/Microsoft/mscredprovider/releases)
+1. Download the latest release of [Microsoft.NuGet.CredentialProvider.zip](https://github.com/Microsoft/artifacts-credprovider/releases)
 1. Unzip the file
 1. Copy both the `netcore` and `netfx` directories from the extracted archive to `$env:UserProfile\.nuget\plugins`
 
 ### Manual installation: Linux and Mac
-1) Download the latest release of [Microsoft.NuGet.CredentialProvider.tar.gz](https://github.com/Microsoft/mscredprovider/releases)
-2) Untar the file
-3) Copy the `netcore` directory from the extracted archive to `$HOME\.nuget\plugins`
 
+1. Download the latest release of [Microsoft.NuGet.CredentialProvider.tar.gz](https://github.com/Microsoft/artifacts-credprovider/releases)
+2. Untar the file
+3. Copy the `netcore` directory from the extracted archive to `$HOME\.nuget\plugins`
 
 ### Automatic installation: bash, zsh, etc.
 
-```shell
-[command]
-```
+[Linux or MAC helper script](helpers/installcredprovider.sh)
 
 ### Automatic intallation: PowerShell
 
-```powershell
-[command]
-```
+TODO
 
 ## Use
 
@@ -70,7 +66,7 @@ Once you've successfully acquired a token, you can run authenticated commands wi
 
 ### nuget
 
-The nuget client will prompt for authentication when you run a `restore` and it does not find credential in the [session token cache location](#session-token-cache-locations).  By default, it will attempt to open a dialog for authentication and will fall back to console input if that fails.
+The nuget client will prompt for authentication when you run a `restore` and it does not find credential in the [session token cache location](#session-token-cache-locations). By default, it will attempt to open a dialog for authentication and will fall back to console input if that fails.
 
 ```shell
 nuget restore
@@ -89,16 +85,17 @@ Once you've successfully acquired a token, you can run authenticated commands wi
 ## Session Token Cache Locations
 
 The Credential Provider will save session tokens in the following locations:
-- Windows: `$env:UserProfile\AppData\Local\MicrosoftCredentialProvider`
-- Linux/MAC: `$HOME/.local/share/MicrosoftCredentialProvider/`
+
+-   Windows: `$env:UserProfile\AppData\Local\MicrosoftCredentialProvider`
+-   Linux/MAC: `$HOME/.local/share/MicrosoftCredentialProvider/`
 
 ## Environment Variables
 
-The Credential Provider accepts a set of environment variables:
+The Credential Provider accepts a set of environment variables. These are the only two that we recommend setting in non-triage situations.
 
-- `NUGET_CREDENTIALPROVIDER_SESSIONTOKENCACHE_ENABLED`: Controls whether or not the session token is saved to disk.  If false, the Credential Provider will prompt for auth every time.
-- `VSS_NUGET_ACCESSTOKEN`: This variable is useful for headless/unattended scenarios where you already have an auth token.  If you set this variable the Credential Provider will skip any attempt at authentication with AAD and simply return this value to nuget, dotnet, or msbuild. This is useful for build scenarios and docker where you must have a precalculated Personal Access Token.
-- `VSS_NUGET_EXTERNAL_FEED_ENDPOINTS`: Json that contains an array of service endpoints, usernames and access tokens to authenticate endpoints in nuget.config. Example:
+-   `NUGET_CREDENTIALPROVIDER_SESSIONTOKENCACHE_ENABLED`: Controls whether or not the session token is saved to disk. If false, the Credential Provider will prompt for auth every time.
+-   `VSS_NUGET_EXTERNAL_FEED_ENDPOINTS`: Json that contains an array of service endpoints, usernames and access tokens to authenticate endpoints in nuget.config. Example:
+
 ```
  {"endpointCredentials": ["endpoint":"http://example.index.json", "username":"optional", "password":"accesstoken"]}"
 ```
@@ -194,7 +191,7 @@ Cache Location
 
 ## Contribute
 
-This project welcomes contributions and suggestions; see [CONTRIBUTING](CONTRIBUTING.md) for more information. 
+This project welcomes contributions and suggestions; see [CONTRIBUTING](CONTRIBUTING.md) for more information.
 Most contributions require you to agree to a Contributor License Agreement (CLA) declaring that you have the right to, and actually do, grant us
 the rights to use your contribution. For details, visit https://cla.microsoft.com.
 
