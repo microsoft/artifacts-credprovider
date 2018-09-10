@@ -34,7 +34,9 @@ If you are using `dotnet` or `nuget`, you can use the Azure Artifact Credential 
 
 1. Download the latest release of [Microsoft.NuGet.CredentialProvider.zip](https://github.com/Microsoft/artifacts-credprovider/releases)
 1. Unzip the file
-1. Copy both the `netcore` and `netfx` directories from the extracted archive to `$env:UserProfile\.nuget\plugins`
+1. Copy the `netcore` directory from the extracted archive to `$env:UserProfile\.nuget\plugins`
+
+Note: copying the `netfx` directory is not recommended unless you don't plan to install an edition of Visual Studio (including the Build Tools edition). All Visual Studio editions come with (and automatically update) the `netfx` version of the Credential Provider.
 
 ### Manual installation: Linux and Mac
 
@@ -44,11 +46,7 @@ If you are using `dotnet` or `nuget`, you can use the Azure Artifact Credential 
 
 ### Automatic installation: bash, zsh, etc.
 
-[Linux or MAC helper script](helpers/installcredprovider.sh)
-
-### Automatic intallation: PowerShell
-
-TODO
+[Linux or Mac helper script](helpers/installcredprovider.sh)
 
 ## Use
 
