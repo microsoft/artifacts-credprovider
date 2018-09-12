@@ -42,7 +42,7 @@ Note: copying the `netfx` directory is not recommended unless you don't plan to 
 
 [PowerShell helper script](helpers/installcredprovider.ps1)
 To install netcore, run `installcredprovider.ps1`
-To install both netfx and netcore, run `installcredprovider.ps1 -AddNetfx true`
+To install both netfx and netcore, run `installcredprovider.ps1 -AddNetfx`
 
 ### Manual installation: Linux and Mac
 
