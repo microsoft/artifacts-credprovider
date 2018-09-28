@@ -101,7 +101,7 @@ The Credential Provider accepts a set of environment variables. These are the on
 -   `VSS_NUGET_EXTERNAL_FEED_ENDPOINTS`: Json that contains an array of service endpoints, usernames and access tokens to authenticate endpoints in nuget.config. Example:
 
 ```
- {"endpointCredentials": ["endpoint":"http://example.index.json", "username":"optional", "password":"accesstoken"]}"
+ {"endpointCredentials": [{"endpoint":"http://example.index.json", "username":"optional", "password":"accesstoken"}]}
 ```
 
 ## Help
