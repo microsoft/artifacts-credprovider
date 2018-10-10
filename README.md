@@ -100,7 +100,7 @@ The Credential Provider accepts a set of environment variables. These are the on
 -   `NUGET_CREDENTIALPROVIDER_SESSIONTOKENCACHE_ENABLED`: Controls whether or not the session token is saved to disk. If false, the Credential Provider will prompt for auth every time.
 -   `VSS_NUGET_EXTERNAL_FEED_ENDPOINTS`: Json that contains an array of service endpoints, usernames and access tokens to authenticate endpoints in nuget.config. Example:
 
-```
+```javascript
  {"endpointCredentials": [{"endpoint":"http://example.index.json", "username":"optional", "password":"accesstoken"}]}
 ```
 
@@ -178,8 +178,8 @@ Build Provider Service Endpoint Json
     VSS_NUGET_EXTERNAL_FEED_ENDPOINTS
         Json that contains an array of service endpoints, usernames and
         access tokens to authenticate endpoints in nuget.config.
-        Example: "{"endpointCredentials": ["endpoint":"http://example.index.json",
-        "username":"optional", "password":"accesstoken"]}"
+        Example: {"endpointCredentials": [{"endpoint":"http://example.index.json",
+        "username":"optional", "password":"accesstoken"}]}
 
 Cache Location
     The Credential Provider uses the following paths to cache credentials. If

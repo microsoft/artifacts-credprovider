@@ -329,8 +329,8 @@ Build Provider Service Endpoint Json
     {9}
         Json that contains an array of service endpoints, usernames and 
         access tokens to authenticate endpoints in nuget.config.
-        Example: "{{"endpointCredentials": ["endpoint":"http://example.index.json",
-        "username":"optional", "password":"accesstoken"]}}"
+        Example: {"endpointCredentials": [{"endpoint":"http://example.index.json",
+        "username":"optional", "password":"accesstoken"}]}
 
 Cache Location
     The Credential Provider uses the following paths to cache credentials. If
