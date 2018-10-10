@@ -17,15 +17,19 @@ if ([Net.ServicePointManager]::SecurityProtocol.ToString().Split(',').Trim() -no
     [Net.ServicePointManager]::SecurityProtocol += [Net.SecurityProtocolType]::Tls12
 }
 
-$pluginLocation = "$env:USERPROFILE\.nuget\plugins"
-$tempZipLocation = "$env:TEMP\CredProviderZip"
-$localNetcoreCredProviderPath = "netcore\CredentialProvider.Microsoft"
-$localNetfxCredProviderPath = "netfx\CredentialProvider.Microsoft"
+$profilePath = [System.Environment]::GetFolderPath([System.Environment+SpecialFolder]::UserProfile)
+$tempPath = [System.IO.Path]::GetTempPath()
+
+$pluginLocation = [System.IO.Path]::Combine($profilePath, ".nuget", "plugins");
+$tempZipLocation = [System.IO.Path]::Combine($tempPath, "CredProviderZip");
+
+$localNetcoreCredProviderPath = [System.IO.Path]::Combine("netcore", "CredentialProvider.Microsoft");
+$localNetfxCredProviderPath = [System.IO.Path]::Combine("netfx", "CredentialProvider.Microsoft");
 
 # Check if plugin already exists if -Force swich is not set
 if (!$Force) {
-    $netfxExists = Test-Path -Path "$pluginLocation\$localNetfxCredProviderPath"
-    $netcoreExists = Test-Path -Path "$pluginLocation\$localNetcoreCredProviderPath"
+    $netfxExists = Test-Path -Path ([System.IO.Path]::Combine($pluginLocation, $localNetfxCredProviderPath))
+    $netcoreExists = Test-Path -Path ([System.IO.Path]::Combine($pluginLocation, $localNetcoreCredProviderPath))
     if ($AddNetfx -eq $True -and $netfxExists -eq $True -and $netcoreExists -eq $True) {
         Write-Host "The netcore and netfx Credential Providers are already in $pluginLocation"
         return
@@ -63,7 +67,7 @@ if (Test-Path -Path $tempZipLocation) {
 New-Item -ItemType Directory -Force -Path $tempZipLocation
 
 # Download credential provider zip to the temp location
-$pluginZip = "$tempZipLocation\Microsoft.NuGet.CredentialProvider.zip"
+$pluginZip = ([System.IO.Path]::Combine($tempZipLocation, "Microsoft.NuGet.CredentialProvider.zip"))
 Write-Host "Downloading $packageSourceUrl to $pluginZip"
 try {
     $client = New-Object System.Net.WebClient
@@ -79,9 +83,9 @@ Add-Type -AssemblyName System.IO.Compression.FileSystem
 
 # Forcibly copy netcore (and netfx) directories to plugins directory
 Write-Host "Copying Credential Provider to $pluginLocation"
-Copy-Item "$tempZipLocation\plugins\$localNetcoreCredProviderPath" -Destination "$pluginLocation\$localNetcoreCredProviderPath" -Force -Recurse
+Copy-Item ([System.IO.Path]::Combine($tempZipLocation, "plugins", $localNetcoreCredProviderPath)) -Destination ([System.IO.Path]::Combine($pluginLocation, $localNetcoreCredProviderPath)) -Force -Recurse
 if ($AddNetfx -eq $True) {
-    Copy-Item "$tempZipLocation\plugins\$localNetfxCredProviderPath" -Destination "$pluginLocation\$localNetfxCredProviderPath" -Force -Recurse
+    Copy-Item ([System.IO.Path]::Combine($tempZipLocation, "plugins", $localNetfxCredProviderPath)) -Destination ([System.IO.Path]::Combine($pluginLocation, $localNetfxCredProviderPath)) -Force -Recurse
 }
 
 # Remove $tempZipLocation directory
