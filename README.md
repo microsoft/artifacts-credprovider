@@ -2,7 +2,7 @@
 
 The Azure Artifacts Credential Provider automates the acquisition of credentials needed to restore NuGet packages as part of your .NET development workflow. It integrates with MSBuild, dotnet, and NuGet(.exe) and works on Windows, Mac, and Linux. Any time you want to use packages from an Azure Artifacts feed, the Credential Provider will automatically acquire and securely store a token on behalf of the NuGet client you're using.
 
-[![Build Status](https://dev.azure.com/mseng/VSOnline/_apis/build/status/MSCredProvider.CI?branchName=master)](https://dev.azure.com/mseng/VSOnline/_build/latest?definitionId=7110&branchName=master)
+[![Build Status](https://dev.azure.com/mseng/AzureDevOps/_apis/build/status/MSCredProvider.CI?branchName=master)](https://dev.azure.com/mseng/AzureDevOps/_build/latest?definitionId=7110&branchName=master)
 
 -   [Prerequisites](#prerequisites)
 -   [Setup](#setup)
