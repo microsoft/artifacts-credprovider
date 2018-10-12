@@ -25,6 +25,8 @@ namespace NuGetCredentialProvider.CredentialProviders.VstsBuildTask
 
         protected override string LoggingName => nameof(VstsBuildTaskCredentialProvider);
 
+        public override bool IsCachable { get { return false; } }
+
         public override Task<bool> CanProvideCredentialsAsync(Uri uri)
         {
             string uriPrefixesString = Environment.GetEnvironmentVariable(EnvUtil.BuildTaskUriPrefixes);
