@@ -124,6 +124,24 @@ namespace NuGetCredentialProvider {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Failed to acquire token using Windows Integrated Authentication.
+        /// </summary>
+        internal static string AdalAcquireTokenWIAFailed {
+            get {
+                return ResourceManager.GetString("AdalAcquireTokenWIAFailed", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Acquired token using Windows Integrated Authentication.
+        /// </summary>
+        internal static string AdalAcquireTokenWIASuccess {
+            get {
+                return ResourceManager.GetString("AdalAcquireTokenWIASuccess", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to To sign in, use a web browser to open the page {0} and enter the code {1} to authenticate..
         /// </summary>
         internal static string AdalDeviceFlowMessage {
@@ -634,7 +652,7 @@ namespace NuGetCredentialProvider {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Session time: {0}, valid until: {1} UTC.
+        ///   Looks up a localized string similar to Requesting a {0} token valid for duration {1}, valid until {2} UTC. Note that the generated token may have different validity than requested..
         /// </summary>
         internal static string VSTSSessionTokenValidity {
             get {

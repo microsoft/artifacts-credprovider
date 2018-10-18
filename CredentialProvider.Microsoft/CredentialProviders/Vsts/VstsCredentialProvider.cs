@@ -18,6 +18,7 @@ namespace NuGetCredentialProvider.CredentialProviders.Vsts
         private const string Username = "VssSessionToken";
         private const string TokenScope = "vso.packaging_write vso.drop_write";
         private const double DefaultSessionTimeHours = 4;
+        private const double DefaultPersonalAccessTimeHours = 2160; // 90 days
 
         private readonly IAuthUtil authUtil;
         private readonly IBearerTokenProvider bearerTokenProvider;
@@ -64,14 +65,10 @@ namespace NuGetCredentialProvider.CredentialProviders.Vsts
                 }
             }
 
-            var sessionTimeSpan = EnvUtil.GetSessionTimeFromEnvironment(Logger) ?? TimeSpan.FromHours(DefaultSessionTimeHours);
-            DateTime endTime = DateTime.UtcNow + sessionTimeSpan;
-            Verbose(string.Format(Resources.VSTSSessionTokenValidity, sessionTimeSpan.ToString(), endTime.ToUniversalTime().ToString()));
-
             try
             {
-                var bearerToken = await bearerTokenProvider.GetAsync(request.Uri, isRetry: false, request.IsNonInteractive, request.CanShowDialog, cancellationToken);
-                if (string.IsNullOrWhiteSpace(bearerToken))
+                BearerTokenResult bearerTokenResult = await bearerTokenProvider.GetAsync(request.Uri, isRetry: false, request.IsNonInteractive, request.CanShowDialog, cancellationToken);
+                if (bearerTokenResult == null || string.IsNullOrWhiteSpace(bearerTokenResult.Token))
                 {
                     return new GetAuthenticationCredentialsResponse(
                         username: null,
@@ -81,8 +78,35 @@ namespace NuGetCredentialProvider.CredentialProviders.Vsts
                         responseCode: MessageResponseCode.Error);
                 }
 
-                var sessionTokenClient = new VstsSessionTokenClient(request.Uri, bearerToken, authUtil);
-                var sessionToken = await sessionTokenClient.CreateSessionTokenAsync(endTime, cancellationToken);
+                // Allow the user to choose their token type
+                // If they don't and interactive auth was required, then prefer a PAT so we can safely default to a much longer validity period
+                VstsTokenType tokenType = EnvUtil.GetVstsTokenType() ??
+                    (bearerTokenResult.ObtainedInteractively
+                        ? VstsTokenType.Compact
+                        : VstsTokenType.SelfDescribing);
+
+                // Allow the user to override the validity period
+                TimeSpan? preferredTokenTime = EnvUtil.GetSessionTimeFromEnvironment(Logger);
+                TimeSpan sessionTimeSpan;
+                if (tokenType == VstsTokenType.Compact)
+                {
+                    // Allow Personal Access Tokens to be as long as SPS will grant, since they're easily revokable
+                    sessionTimeSpan = preferredTokenTime ?? TimeSpan.FromHours(DefaultPersonalAccessTimeHours);
+                }
+                else
+                {
+                    // But limit self-describing session tokens to a strict 24 hours, since they're harder to revoke
+                    sessionTimeSpan = preferredTokenTime ?? TimeSpan.FromHours(DefaultSessionTimeHours);
+                    if (sessionTimeSpan >= TimeSpan.FromHours(24))
+                    {
+                        sessionTimeSpan = TimeSpan.FromHours(24);
+                    }
+                }
+
+                DateTime endTime = DateTime.UtcNow + sessionTimeSpan;
+                Verbose(string.Format(Resources.VSTSSessionTokenValidity, tokenType.ToString(), sessionTimeSpan.ToString(), endTime.ToUniversalTime().ToString()));
+                var sessionTokenClient = new VstsSessionTokenClient(request.Uri, bearerTokenResult.Token, authUtil);
+                var sessionToken = await sessionTokenClient.CreateSessionTokenAsync(tokenType, endTime, cancellationToken);
 
                 if (!string.IsNullOrWhiteSpace(sessionToken))
                 {

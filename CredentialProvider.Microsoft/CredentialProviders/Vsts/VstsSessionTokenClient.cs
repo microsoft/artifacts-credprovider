@@ -25,7 +25,7 @@ namespace NuGetCredentialProvider.CredentialProviders.Vsts
             this.authUtil = authUtil ?? throw new ArgumentNullException(nameof(authUtil));
         }
 
-        public async Task<string> CreateSessionTokenAsync(DateTime validTo, CancellationToken cancellationToken)
+        public async Task<string> CreateSessionTokenAsync(VstsTokenType tokenType, DateTime validTo, CancellationToken cancellationToken)
         {
             var spsEndpoint = await authUtil.GetAuthorizationEndpoint(vstsUri, cancellationToken);
             if (spsEndpoint == null)
@@ -47,13 +47,21 @@ namespace NuGetCredentialProvider.CredentialProviders.Vsts
                     JsonConvert.SerializeObject(
                         new VstsSessionToken()
                         {
+                            DisplayName = "Azure DevOps Artifacts Credential Provider",
                             Scope = "vso.packaging_write",
                             ValidTo = validTo
                         }),
                     Encoding.UTF8,
                     "application/json");
 
-                using (var response = await httpClient.PostAsync(new Uri(spsEndpoint, $"/_apis/Token/SessionTokens?api-version=5.0-preview.1"), content, cancellationToken))
+                var uriBuilder = new UriBuilder(spsEndpoint)
+                {
+                    Query = $"tokenType={tokenType}&api-version=5.0-preview.1"
+                };
+
+                uriBuilder.Path = uriBuilder.Path.TrimEnd('/') + "/_apis/Token/SessionTokens";
+
+                using (var response = await httpClient.PostAsync(uriBuilder.Uri, content, cancellationToken))
                 {
                     response.EnsureSuccessStatusCode();
                     var serializedResponse = await response.Content.ReadAsStringAsync();
@@ -63,5 +71,11 @@ namespace NuGetCredentialProvider.CredentialProviders.Vsts
                 }
             }
         }
+    }
+
+    public enum VstsTokenType
+    {
+        Compact, // Personal Access Token (PAT)
+        SelfDescribing // Session Token (JWT)
     }
 }

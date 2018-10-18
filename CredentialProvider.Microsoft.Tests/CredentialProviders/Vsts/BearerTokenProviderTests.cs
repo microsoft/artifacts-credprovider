@@ -49,7 +49,7 @@ namespace CredentialProvider.Microsoft.Tests.CredentialProviders.Vsts
         }
 
         [TestMethod]
-        public async Task Get_WithoutCachedToken_CallsUIFlow()
+        public async Task Get_WithoutCachedToken_CallsWindowsIntegratedFlow()
         {
             var source = new Uri("https://example.com/index.json");
             var isRetry = false;
@@ -58,13 +58,43 @@ namespace CredentialProvider.Microsoft.Tests.CredentialProviders.Vsts
 
             var adalToken = "TestADALToken";
             MockCachedToken(null);
-            MockUIToken(adalToken);
+            MockWindowsIntegratedToken(adalToken);
 
             var bearerToken = await bearerTokenProvider.GetAsync(source, isRetry, isNonInteractive, canShowDialog, cancellationToken);
-            bearerToken.Should().Be(adalToken);
+            bearerToken.Token.Should().Be(adalToken);
 
             mockAdalTokenProvider
                 .Verify(x => x.AcquireTokenSilentlyAsync(It.IsAny<CancellationToken>()), Times.Once);
+            mockAdalTokenProvider
+                .Verify(x => x.AcquireTokenWithWindowsIntegratedAuth(It.IsAny<CancellationToken>()), Times.Once);
+            mockAdalTokenProvider
+                .Verify(x => x.AcquireTokenWithUI(It.IsAny<CancellationToken>()), Times.Never);
+            mockAdalTokenProvider
+                .Verify(x => x.AcquireTokenWithDeviceFlowAsync(It.IsAny<Func<DeviceCodeResult, Task>>(), It.IsAny<CancellationToken>()), Times.Never);
+
+            VerifyAuthority(source);
+        }
+
+        [TestMethod]
+        public async Task Get_WithoutCachedTokenAndWindowsIntegratedFails_CallsUIFlow()
+        {
+            var source = new Uri("https://example.com/index.json");
+            var isRetry = false;
+            var isNonInteractive = false;
+            var canShowDialog = true;
+
+            var adalToken = "TestADALToken";
+            MockCachedToken(null);
+            MockWindowsIntegratedToken(null);
+            MockUIToken(adalToken);
+
+            var bearerToken = await bearerTokenProvider.GetAsync(source, isRetry, isNonInteractive, canShowDialog, cancellationToken);
+            bearerToken.Token.Should().Be(adalToken);
+
+            mockAdalTokenProvider
+                .Verify(x => x.AcquireTokenSilentlyAsync(It.IsAny<CancellationToken>()), Times.Once);
+            mockAdalTokenProvider
+                .Verify(x => x.AcquireTokenWithWindowsIntegratedAuth(It.IsAny<CancellationToken>()), Times.Once);
             mockAdalTokenProvider
                 .Verify(x => x.AcquireTokenWithUI(It.IsAny<CancellationToken>()), Times.Once);
             mockAdalTokenProvider
@@ -74,7 +104,7 @@ namespace CredentialProvider.Microsoft.Tests.CredentialProviders.Vsts
         }
 
         [TestMethod]
-        public async Task Get_WithoutCachedTokenAndUIFlowCanceled_CallsDeviceCodeFlow()
+        public async Task Get_WithoutCachedTokenAndWindowsIntegratedFailedAndUIFlowCanceled_CallsDeviceCodeFlow()
         {
             var source = new Uri("https://example.com/index.json");
             var isRetry = false;
@@ -83,14 +113,17 @@ namespace CredentialProvider.Microsoft.Tests.CredentialProviders.Vsts
 
             var adalToken = "TestADALToken";
             MockCachedToken(null);
+            MockWindowsIntegratedToken(null);
             MockUIToken(null);
             MockDeviceFlowToken(adalToken);
 
-            var bearerToken = await bearerTokenProvider.GetAsync(source, isRetry, isNonInteractive, canShowDialog, cancellationToken);
-            bearerToken.Should().Be(adalToken);
+            var bearerTokenResult = await bearerTokenProvider.GetAsync(source, isRetry, isNonInteractive, canShowDialog, cancellationToken);
+            bearerTokenResult.Token.Should().Be(adalToken);
 
             mockAdalTokenProvider
                 .Verify(x => x.AcquireTokenSilentlyAsync(It.IsAny<CancellationToken>()), Times.Once);
+            mockAdalTokenProvider
+                .Verify(x => x.AcquireTokenWithWindowsIntegratedAuth(It.IsAny<CancellationToken>()), Times.Once);
             mockAdalTokenProvider
                 .Verify(x => x.AcquireTokenWithUI(It.IsAny<CancellationToken>()), Times.Once);
             mockAdalTokenProvider
@@ -100,7 +133,7 @@ namespace CredentialProvider.Microsoft.Tests.CredentialProviders.Vsts
         }
 
         [TestMethod]
-        public async Task Get_WithCachedToken_DoesNotCallFlows()
+        public async Task Get_WithCachedToken_DoesNotCallAnyFlows()
         {
             var source = new Uri("https://example.com/index.json");
             var isRetry = false;
@@ -110,11 +143,13 @@ namespace CredentialProvider.Microsoft.Tests.CredentialProviders.Vsts
             var adalToken = "TestADALToken";
             MockCachedToken(adalToken);
 
-            var bearerToken = await bearerTokenProvider.GetAsync(source, isRetry, isNonInteractive, canShowDialog, cancellationToken);
-            bearerToken.Should().Be(adalToken);
+            var bearerTokenResult = await bearerTokenProvider.GetAsync(source, isRetry, isNonInteractive, canShowDialog, cancellationToken);
+            bearerTokenResult.Token.Should().Be(adalToken);
 
             mockAdalTokenProvider
                 .Verify(x => x.AcquireTokenSilentlyAsync(It.IsAny<CancellationToken>()), Times.Once);
+            mockAdalTokenProvider
+                .Verify(x => x.AcquireTokenWithWindowsIntegratedAuth(It.IsAny<CancellationToken>()), Times.Never);
             mockAdalTokenProvider
                 .Verify(x => x.AcquireTokenWithUI(It.IsAny<CancellationToken>()), Times.Never);
             mockAdalTokenProvider
@@ -133,13 +168,16 @@ namespace CredentialProvider.Microsoft.Tests.CredentialProviders.Vsts
 
             var adalToken = "TestADALToken";
             MockCachedToken("OldCachedToken");
+            MockWindowsIntegratedToken(null);
             MockUIToken(adalToken);
 
-            var bearerToken = await bearerTokenProvider.GetAsync(source, isRetry, isNonInteractive, canShowDialog, cancellationToken);
-            bearerToken.Should().Be(adalToken);
+            var bearerTokenResult = await bearerTokenProvider.GetAsync(source, isRetry, isNonInteractive, canShowDialog, cancellationToken);
+            bearerTokenResult.Token.Should().Be(adalToken);
 
             mockAdalTokenProvider
                 .Verify(x => x.AcquireTokenSilentlyAsync(It.IsAny<CancellationToken>()), Times.Never);
+            mockAdalTokenProvider
+                .Verify(x => x.AcquireTokenWithWindowsIntegratedAuth(It.IsAny<CancellationToken>()), Times.Once);
             mockAdalTokenProvider
                 .Verify(x => x.AcquireTokenWithUI(It.IsAny<CancellationToken>()), Times.Once);
             mockAdalTokenProvider
@@ -149,7 +187,7 @@ namespace CredentialProvider.Microsoft.Tests.CredentialProviders.Vsts
         }
 
         [TestMethod]
-        public async Task Get_WithoutCachedTokenAndIsNonInteractive_DoesNotCallFlows()
+        public async Task Get_WithoutCachedTokenAndIsNonInteractive_DoesNotCallInteractiveFlows()
         {
             var source = new Uri("https://example.com/index.json");
             var isRetry = false;
@@ -158,11 +196,13 @@ namespace CredentialProvider.Microsoft.Tests.CredentialProviders.Vsts
 
             MockCachedToken(null);
 
-            var bearerToken = await bearerTokenProvider.GetAsync(source, isRetry, isNonInteractive, canShowDialog, cancellationToken);
-            bearerToken.Should().BeNull();
+            var bearerTokenResult = await bearerTokenProvider.GetAsync(source, isRetry, isNonInteractive, canShowDialog, cancellationToken);
+            bearerTokenResult.Should().BeNull();
 
             mockAdalTokenProvider
                 .Verify(x => x.AcquireTokenSilentlyAsync(It.IsAny<CancellationToken>()), Times.Once);
+            mockAdalTokenProvider
+                .Verify(x => x.AcquireTokenWithWindowsIntegratedAuth(It.IsAny<CancellationToken>()), Times.Once);
             mockAdalTokenProvider
                 .Verify(x => x.AcquireTokenWithUI(It.IsAny<CancellationToken>()), Times.Never);
             mockAdalTokenProvider
@@ -172,7 +212,7 @@ namespace CredentialProvider.Microsoft.Tests.CredentialProviders.Vsts
         }
 
         [TestMethod]
-        public async Task Get_WithCachedTokenAndIsNonInteractive_DoesNotCallFlows()
+        public async Task Get_WithCachedTokenAndIsNonInteractive_DoesNotCallAnyFlows()
         {
             var source = new Uri("https://example.com/index.json");
             var isRetry = false;
@@ -182,11 +222,13 @@ namespace CredentialProvider.Microsoft.Tests.CredentialProviders.Vsts
             var adalToken = "TestADALToken";
             MockCachedToken(adalToken);
 
-            var bearerToken = await bearerTokenProvider.GetAsync(source, isRetry, isNonInteractive, canShowDialog, cancellationToken);
-            bearerToken.Should().Be(adalToken);
+            var bearerTokenResult = await bearerTokenProvider.GetAsync(source, isRetry, isNonInteractive, canShowDialog, cancellationToken);
+            bearerTokenResult.Token.Should().Be(adalToken);
 
             mockAdalTokenProvider
                 .Verify(x => x.AcquireTokenSilentlyAsync(It.IsAny<CancellationToken>()), Times.Once);
+            mockAdalTokenProvider
+                .Verify(x => x.AcquireTokenWithWindowsIntegratedAuth(It.IsAny<CancellationToken>()), Times.Never);
             mockAdalTokenProvider
                 .Verify(x => x.AcquireTokenWithUI(It.IsAny<CancellationToken>()), Times.Never);
             mockAdalTokenProvider
@@ -203,8 +245,8 @@ namespace CredentialProvider.Microsoft.Tests.CredentialProviders.Vsts
             var isNonInteractive = true;
             var canShowDialog = false;
 
-            var bearerToken = await bearerTokenProvider.GetAsync(source, isRetry, isNonInteractive, canShowDialog, cancellationToken);
-            bearerToken.Should().BeNull();
+            var bearerTokenResult = await bearerTokenProvider.GetAsync(source, isRetry, isNonInteractive, canShowDialog, cancellationToken);
+            bearerTokenResult.Should().BeNull();
 
             mockAdalTokenProvider
                 .Verify(x => x.AcquireTokenSilentlyAsync(It.IsAny<CancellationToken>()), Times.Never);
@@ -223,6 +265,13 @@ namespace CredentialProvider.Microsoft.Tests.CredentialProviders.Vsts
         {
             mockAdalTokenProvider
                 .Setup(x => x.AcquireTokenSilentlyAsync(It.IsAny<CancellationToken>()))
+                .Returns(Task.FromResult<IAdalToken>(new AdalToken("Bearer", token)));
+        }
+
+        private void MockWindowsIntegratedToken(string token)
+        {
+            mockAdalTokenProvider
+                .Setup(x => x.AcquireTokenWithWindowsIntegratedAuth(It.IsAny<CancellationToken>()))
                 .Returns(Task.FromResult<IAdalToken>(new AdalToken("Bearer", token)));
         }
 

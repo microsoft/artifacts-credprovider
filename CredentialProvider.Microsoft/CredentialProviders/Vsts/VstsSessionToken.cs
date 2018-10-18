@@ -11,6 +11,9 @@ namespace NuGetCredentialProvider.CredentialProviders.Vsts
     public class VstsSessionToken
     {
         [DataMember]
+        public string DisplayName { get; set; }
+
+        [DataMember]
         public string Scope { get; set; }
 
         [DataMember]

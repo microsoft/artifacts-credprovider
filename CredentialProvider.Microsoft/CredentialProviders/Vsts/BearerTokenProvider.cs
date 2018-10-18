@@ -4,6 +4,7 @@
 
 using System;
 using System.Runtime.InteropServices;
+using System.Security.Claims;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.IdentityModel.Clients.ActiveDirectory;
@@ -33,7 +34,7 @@ namespace NuGetCredentialProvider.CredentialProviders.Vsts
             this.authUtil = authUtil;
         }
 
-        public async Task<string> GetAsync(Uri uri, bool isRetry, bool isNonInteractive, bool canShowDialog, CancellationToken cancellationToken)
+        public async Task<BearerTokenResult> GetAsync(Uri uri, bool isRetry, bool isNonInteractive, bool canShowDialog, CancellationToken cancellationToken)
         {
             var authority = await authUtil.GetAadAuthorityUriAsync(uri, cancellationToken);
             logger.Verbose(string.Format(Resources.AdalUsingAuthority, authority));
@@ -50,11 +51,26 @@ namespace NuGetCredentialProvider.CredentialProviders.Vsts
                 if (adalToken?.AccessToken != null)
                 {
                     logger.Verbose(Resources.AdalAcquireTokenSilentSuccess);
-                    return adalToken.AccessToken;
+                    return new BearerTokenResult(adalToken.AccessToken, obtainedInteractively: false);
                 }
                 else
                 {
                     logger.Verbose(Resources.AdalAcquireTokenSilentFailed);
+                }
+            }
+
+            // Try Windows Integrated Auth if supported
+            if (WindowsIntegratedAuthUtils.SupportsWindowsIntegratedAuth())
+            {
+                adalToken = await adalTokenProvider.AcquireTokenWithWindowsIntegratedAuth(cancellationToken);
+                if (adalToken?.AccessToken != null)
+                {
+                    logger.Verbose(Resources.AdalAcquireTokenWIASuccess);
+                    return new BearerTokenResult(adalToken.AccessToken, obtainedInteractively: false);
+                }
+                else
+                {
+                    logger.Verbose(Resources.AdalAcquireTokenWIAFailed);
                 }
             }
 
@@ -69,7 +85,7 @@ namespace NuGetCredentialProvider.CredentialProviders.Vsts
 
                     if (adalToken?.AccessToken != null)
                     {
-                        return adalToken.AccessToken;
+                        return new BearerTokenResult(adalToken.AccessToken, obtainedInteractively: true);
                     }
                 }
 #endif
@@ -88,7 +104,7 @@ namespace NuGetCredentialProvider.CredentialProviders.Vsts
                 if (adalToken?.AccessToken != null)
                 {
                     logger.Verbose(Resources.AdalAcquireTokenDeviceFlowSuccess);
-                    return adalToken.AccessToken;
+                    return new BearerTokenResult(adalToken.AccessToken, obtainedInteractively: true);
                 }
                 else
                 {

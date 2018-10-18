@@ -164,6 +164,20 @@ Supported Hosts
 Session Token Time Validity
     NUGET_CREDENTIALPROVIDER_VSTS_SESSIONTIMEMINUTES
         Time in minutes the generated Session Tokens will be valid for.
+        The default for Personal Access Tokens is 90 days.
+        The default for JWT (self-describing) tokens is 4 hours.
+        The maximum allowed validity period for JWT tokens is 24 hours.
+
+Token Type
+    NUGET_CREDENTIALPROVIDER_VSTS_TOKENTYPE
+        Specify 'Compact' to generate a Personal Access Token, which may
+        have a long validity period as it can easily be revoked from the UI,
+        and sends a notification mail on creation.
+        Specify 'SelfDescribing' to generate a shorter-lived JWT token,
+        which does not appear in any UI or notifications
+        and is more difficult to revoke.
+        By default PATs are generated rather than JWTs,
+        unless authentication can be performed non-interactively.
 
 Build Provider URI Prefixes
     VSS_NUGET_URI_PREFIXES

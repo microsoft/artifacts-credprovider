@@ -277,7 +277,7 @@
     <value>Found SessionToken for {0}</value>
   </data>
   <data name="VSTSSessionTokenValidity" xml:space="preserve">
-    <value>Session time: {0}, valid until: {1} UTC</value>
+    <value>Requesting a {0} token valid for duration {1}, valid until {2} UTC. Note that the generated token may have different validity than requested.</value>
   </data>
   <data name="EnvironmentVariableHelp" xml:space="preserve">
     <value>List of Environment Variables
@@ -315,22 +315,36 @@ Supported Hosts
 Session Token Time Validity
     {6}
         Time in minutes the generated Session Tokens will be valid for.
+        The default for Personal Access Tokens is 90 days.
+        The default for JWT (self-describing) tokens is 4 hours.
+        The maximum allowed validity period for JWT tokens is 24 hours.
+
+Token Type
+    {7}
+        Specify 'Compact' to generate a Personal Access Token, which may
+        have a long validity period as it can easily be revoked from the UI,
+        and sends a notification mail on creation.
+        Specify 'SelfDescribing' to generate a shorter-lived JWT token,
+        which does not appear in any UI or notifications
+        and is more difficult to revoke.
+        By default PATs are generated rather than JWTs,
+        unless authentication can be performed non-interactively.
 
 Build Provider URI Prefixes
-    {7}
+    {8}
         Semi-colon separated list of hosts the build provider supports.
 
 Build Provider Access Token
-    {8}
+    {9}
         The Personal Access Token that will be returned as credentials by
         the build provider.
 
 Build Provider Service Endpoint Json
-    {9}
+    {10}
         Json that contains an array of service endpoints, usernames and 
         access tokens to authenticate endpoints in nuget.config.
-        Example: {"endpointCredentials": [{"endpoint":"http://example.index.json",
-        "username":"optional", "password":"accesstoken"}]}
+        Example: {{"endpointCredentials": [{{"endpoint":"http://example.index.json",
+        "username":"optional", "password":"accesstoken"}}]}}
 
 Cache Location
     The Credential Provider uses the following paths to cache credentials. If
@@ -338,10 +352,10 @@ Cache Location
     will need to be provided again.
 
     ADAL Token Cache
-    {10}
+    {11}
 
     Session Token Cache
-    {11}</value>
+    {12}</value>
   </data>
   <data name="CredentialParseFailure" xml:space="preserve">
     <value>Failed to parse credentials</value>
@@ -366,5 +380,11 @@ Cache Location
   </data>
   <data name="BuildTaskEndpointEnvVarError" xml:space="preserve">
     <value>This credential provider must be run under the Team Build tasks for NuGet with external endpoint credentials</value>
+  </data>
+  <data name="AdalAcquireTokenWIAFailed" xml:space="preserve">
+    <value>Failed to acquire token using Windows Integrated Authentication</value>
+  </data>
+  <data name="AdalAcquireTokenWIASuccess" xml:space="preserve">
+    <value>Acquired token using Windows Integrated Authentication</value>
   </data>
 </root>

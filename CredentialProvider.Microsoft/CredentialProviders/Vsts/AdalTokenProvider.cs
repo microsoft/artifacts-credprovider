@@ -3,9 +3,11 @@
 // Licensed under the MIT license.
 
 using System;
+using System.Security.Claims;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.IdentityModel.Clients.ActiveDirectory;
+using NuGetCredentialProvider.Util;
 
 namespace NuGetCredentialProvider.CredentialProviders.Vsts
 {
@@ -68,6 +70,32 @@ namespace NuGetCredentialProvider.CredentialProviders.Vsts
             try
             {
                 var result = await authenticationContext.AcquireTokenAsync(resource, clientId, new Uri(NativeClientRedirect), parameters);
+                cancellationToken.ThrowIfCancellationRequested();
+
+                return new AdalToken(result);
+            }
+            catch (AdalServiceException e)
+            {
+                if (e.ErrorCode == AdalError.AuthenticationCanceled)
+                {
+                    return null;
+                }
+
+                throw;
+            }
+        }
+
+        public async Task<IAdalToken> AcquireTokenWithWindowsIntegratedAuth(CancellationToken cancellationToken)
+        {
+            try
+            {
+                string upn = WindowsIntegratedAuthUtils.GetUserPrincipalName();
+                if (upn == null)
+                {
+                    return null;
+                }
+
+                var result = await authenticationContext.AcquireTokenAsync(resource, clientId, new UserCredential(upn));
                 cancellationToken.ThrowIfCancellationRequested();
 
                 return new AdalToken(result);
