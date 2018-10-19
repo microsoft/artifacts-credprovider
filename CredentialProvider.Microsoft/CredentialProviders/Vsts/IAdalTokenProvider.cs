@@ -16,6 +16,8 @@ namespace NuGetCredentialProvider.CredentialProviders.Vsts
         Task<IAdalToken> AcquireTokenWithDeviceFlowAsync(Func<DeviceCodeResult, Task> deviceCodeHandler, CancellationToken cancellationToken);
 
         Task<IAdalToken> AcquireTokenWithUI(CancellationToken cancellationToken);
+
+        Task<IAdalToken> AcquireTokenWithWindowsIntegratedAuth(CancellationToken cancellationToken);
     }
 
     public interface IAdalToken

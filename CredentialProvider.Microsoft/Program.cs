@@ -107,6 +107,7 @@ namespace NuGetCredentialProvider
                             EnvUtil.PpeHostsEnvVar,
                             EnvUtil.SupportedHostsEnvVar,
                             EnvUtil.SessionTimeEnvVar,
+                            EnvUtil.TokenTypeEnvVar,
                             EnvUtil.BuildTaskUriPrefixes,
                             EnvUtil.BuildTaskAccessToken,
                             EnvUtil.BuildTaskExternalEndpoints,

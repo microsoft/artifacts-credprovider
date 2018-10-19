@@ -6,6 +6,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Runtime.CompilerServices;
+using NuGetCredentialProvider.CredentialProviders.Vsts;
 using NuGetCredentialProvider.Logging;
 
 namespace NuGetCredentialProvider.Util
@@ -21,6 +22,7 @@ namespace NuGetCredentialProvider.Util
 
         public const string SupportedHostsEnvVar = "NUGET_CREDENTIALPROVIDER_VSTS_HOSTS";
         public const string SessionTimeEnvVar = "NUGET_CREDENTIALPROVIDER_VSTS_SESSIONTIMEMINUTES";
+        public const string TokenTypeEnvVar = "NUGET_CREDENTIALPROVIDER_VSTS_TOKENTYPE";
 
         public const string BuildTaskUriPrefixes = "VSS_NUGET_URI_PREFIXES";
         public const string BuildTaskAccessToken = "VSS_NUGET_ACCESSTOKEN";
@@ -92,6 +94,16 @@ namespace NuGetCredentialProvider.Util
                 }
 
                 logger.Warning(string.Format(Resources.CouldNotParseSessionTimeOverride, minutes));
+            }
+
+            return null;
+        }
+
+        public static VstsTokenType? GetVstsTokenType()
+        {
+            if (Enum.TryParse<VstsTokenType>(Environment.GetEnvironmentVariable(TokenTypeEnvVar), ignoreCase: true, out VstsTokenType result))
+            {
+                return result;
             }
 
             return null;

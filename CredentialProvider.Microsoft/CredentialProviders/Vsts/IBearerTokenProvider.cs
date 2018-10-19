@@ -10,6 +10,19 @@ namespace NuGetCredentialProvider.CredentialProviders.Vsts
 {
     public interface IBearerTokenProvider
     {
-        Task<string> GetAsync(Uri uri, bool isRetry, bool isNonInteractive, bool canShowDialog, CancellationToken cancellationToken);
+        Task<BearerTokenResult> GetAsync(Uri uri, bool isRetry, bool isNonInteractive, bool canShowDialog, CancellationToken cancellationToken);
+    }
+
+    public class BearerTokenResult
+    {
+        public BearerTokenResult(string token, bool obtainedInteractively)
+        {
+            Token = token;
+            ObtainedInteractively = obtainedInteractively;
+        }
+
+        public string Token { get; }
+
+        public bool ObtainedInteractively { get; }
     }
 }
