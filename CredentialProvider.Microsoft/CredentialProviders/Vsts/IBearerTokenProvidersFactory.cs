@@ -2,10 +2,12 @@
 //
 // Licensed under the MIT license.
 
+using System.Collections.Generic;
+
 namespace NuGetCredentialProvider.CredentialProviders.Vsts
 {
-    public interface IAdalTokenProviderFactory
+    public interface IBearerTokenProvidersFactory
     {
-        IAdalTokenProvider Get(string authority);
+        IEnumerable<IBearerTokenProvider> Get(string authority);
     }
 }

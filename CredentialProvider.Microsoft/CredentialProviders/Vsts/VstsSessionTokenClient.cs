@@ -12,8 +12,10 @@ using Newtonsoft.Json;
 
 namespace NuGetCredentialProvider.CredentialProviders.Vsts
 {
-    public class VstsSessionTokenClient
+    public class VstsSessionTokenClient : IVstsSessionTokenClient
     {
+        private const string TokenScope = "vso.packaging_write vso.drop_write";
+
         private readonly Uri vstsUri;
         private readonly string bearerToken;
         private readonly IAuthUtil authUtil;
@@ -48,7 +50,7 @@ namespace NuGetCredentialProvider.CredentialProviders.Vsts
                         new VstsSessionToken()
                         {
                             DisplayName = "Azure DevOps Artifacts Credential Provider",
-                            Scope = "vso.packaging_write",
+                            Scope = TokenScope,
                             ValidTo = validTo
                         }),
                     Encoding.UTF8,
