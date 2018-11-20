@@ -79,65 +79,20 @@ namespace NuGetCredentialProvider {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Acquired bearer token using &apos;{0}&apos;.
+        /// </summary>
+        internal static string AcquireBearerTokenSuccess {
+            get {
+                return ResourceManager.GetString("AcquireBearerTokenSuccess", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Failed to acquire session token: {0}.
         /// </summary>
         internal static string AcquireSessionTokenFailed {
             get {
                 return ResourceManager.GetString("AcquireSessionTokenFailed", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Failed to acquire token using DeviceFlow.
-        /// </summary>
-        internal static string AdalAcquireTokenDeviceFlowFailed {
-            get {
-                return ResourceManager.GetString("AdalAcquireTokenDeviceFlowFailed", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Acquired token using DeviceFlow.
-        /// </summary>
-        internal static string AdalAcquireTokenDeviceFlowSuccess {
-            get {
-                return ResourceManager.GetString("AdalAcquireTokenDeviceFlowSuccess", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Failed to acquire token from cache.
-        /// </summary>
-        internal static string AdalAcquireTokenSilentFailed {
-            get {
-                return ResourceManager.GetString("AdalAcquireTokenSilentFailed", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Acquired token from ADAL cache.
-        /// </summary>
-        internal static string AdalAcquireTokenSilentSuccess {
-            get {
-                return ResourceManager.GetString("AdalAcquireTokenSilentSuccess", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Failed to acquire token using Windows Integrated Authentication.
-        /// </summary>
-        internal static string AdalAcquireTokenWIAFailed {
-            get {
-                return ResourceManager.GetString("AdalAcquireTokenWIAFailed", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Acquired token using Windows Integrated Authentication.
-        /// </summary>
-        internal static string AdalAcquireTokenWIASuccess {
-            get {
-                return ResourceManager.GetString("AdalAcquireTokenWIASuccess", resourceCulture);
             }
         }
         
@@ -178,15 +133,6 @@ namespace NuGetCredentialProvider {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Could not find ADAL token for {0}.
-        /// </summary>
-        internal static string AdalTokenNotFound {
-            get {
-                return ResourceManager.GetString("AdalTokenNotFound", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to Using AAD authority: {0}.
         /// </summary>
         internal static string AdalUsingAuthority {
@@ -196,11 +142,29 @@ namespace NuGetCredentialProvider {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Failed to acquire bearer token for VSTSSessionTokenClient.
+        ///   Looks up a localized string similar to Attempting to acquire bearer token using provider &apos;{0}&apos;.
         /// </summary>
-        internal static string BearerTokenFailed {
+        internal static string AttemptingToAcquireBearerTokenUsingProvider {
             get {
-                return ResourceManager.GetString("BearerTokenFailed", resourceCulture);
+                return ResourceManager.GetString("AttemptingToAcquireBearerTokenUsingProvider", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Bearer token provider &apos;{0}&apos; failed with exception:\n{1}.
+        /// </summary>
+        internal static string BearerTokenProviderException {
+            get {
+                return ResourceManager.GetString("BearerTokenProviderException", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Bearer token provider &apos;{0}&apos; didn&apos;t acquire a token.
+        /// </summary>
+        internal static string BearerTokenProviderReturnedNull {
+            get {
+                return ResourceManager.GetString("BearerTokenProviderReturnedNull", resourceCulture);
             }
         }
         
@@ -273,15 +237,6 @@ namespace NuGetCredentialProvider {
         internal static string CachingSessionToken {
             get {
                 return ResourceManager.GetString("CachingSessionToken", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Cannot retry with -IsNonInteractive flag.
-        /// </summary>
-        internal static string CannotRetryWithNonInteractiveFlag {
-            get {
-                return ResourceManager.GetString("CannotRetryWithNonInteractiveFlag", resourceCulture);
             }
         }
         
@@ -391,6 +346,15 @@ namespace NuGetCredentialProvider {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Attempting to exchange the bearer token for an Azure DevOps session token..
+        /// </summary>
+        internal static string ExchangingBearerTokenForSessionToken {
+            get {
+                return ResourceManager.GetString("ExchangingBearerTokenForSessionToken", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Faulted on message: {0}.
         /// </summary>
         internal static string FaultedOnMessage {
@@ -477,6 +441,15 @@ namespace NuGetCredentialProvider {
         internal static string NoEndpointsFound {
             get {
                 return ResourceManager.GetString("NoEndpointsFound", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Not running bearer token provider &apos;{0}&apos;.
+        /// </summary>
+        internal static string NotRunningBearerTokenProvider {
+            get {
+                return ResourceManager.GetString("NotRunningBearerTokenProvider", resourceCulture);
             }
         }
         
@@ -625,7 +598,7 @@ namespace NuGetCredentialProvider {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Exception trying to generate VSTS/TFS token: {0}, message: {1}, stack: {2}.
+        ///   Looks up a localized string similar to Exception trying to generate Azure DevOps token: {0}, message: {1}, stack: {2}.
         /// </summary>
         internal static string VSTSCreateSessionException {
             get {
@@ -634,7 +607,7 @@ namespace NuGetCredentialProvider {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Could not find credentials for {0}.
+        ///   Looks up a localized string similar to Could not obtain credentials for {0}.
         /// </summary>
         internal static string VSTSCredentialsNotFound {
             get {

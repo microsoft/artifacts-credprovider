@@ -72,11 +72,17 @@ namespace NuGetCredentialProvider
                 tokenSource.Cancel();
             };
 
+            var authUtil = new AuthUtil(multiLogger);
+            var adalTokenCache = AdalTokenCacheUtils.GetAdalTokenCache(multiLogger);
+            var adalTokenProviderFactory = new VstsAdalTokenProviderFactory(adalTokenCache);
+            var bearerTokenProvidersFactory = new BearerTokenProvidersFactory(multiLogger, adalTokenProviderFactory);
+            var vstsSessionTokenProvider = new VstsSessionTokenFromBearerTokenProvider(authUtil, multiLogger);
+
             List<ICredentialProvider> credentialProviders = new List<ICredentialProvider>
             {
                 new VstsBuildTaskServiceEndpointCredentialProvider(multiLogger),
                 new VstsBuildTaskCredentialProvider(multiLogger),
-                new VstsCredentialProvider(multiLogger),
+                new VstsCredentialProvider(multiLogger, authUtil, bearerTokenProvidersFactory, vstsSessionTokenProvider),
             };
 
             try
@@ -112,7 +118,8 @@ namespace NuGetCredentialProvider
                             EnvUtil.BuildTaskAccessToken,
                             EnvUtil.BuildTaskExternalEndpoints,
                             EnvUtil.AdalTokenCacheLocation,
-                            EnvUtil.SessionTokenCacheLocation
+                            EnvUtil.SessionTokenCacheLocation,
+                            EnvUtil.WindowsIntegratedAuthenticationEnvVar
                         ));
                     return 0;
                 }

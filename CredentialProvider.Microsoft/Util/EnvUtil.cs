@@ -15,6 +15,7 @@ namespace NuGetCredentialProvider.Util
     {
         public const string LogPathEnvVar = "NUGET_CREDENTIALPROVIDER_LOG_PATH";
         public const string SessionTokenCacheEnvVar = "NUGET_CREDENTIALPROVIDER_SESSIONTOKENCACHE_ENABLED";
+        public const string WindowsIntegratedAuthenticationEnvVar = "NUGET_CREDENTIALPROVIDER_WINDOWSINTEGRATEDAUTHENTICATION_ENABLED";
 
         public const string AuthorityEnvVar = "NUGET_CREDENTIALPROVIDER_ADAL_AUTHORITY";
         public const string AdalFileCacheEnvVar = "NUGET_CREDENTIALPROVIDER_ADAL_FILECACHE_ENABLED";
@@ -81,6 +82,11 @@ namespace NuGetCredentialProvider.Util
         public static bool SessionTokenCacheEnabled()
         {
             return GetEnabledFromEnvironment(SessionTokenCacheEnvVar);
+        }
+
+        public static bool WindowsIntegratedAuthenticationEnabled()
+        {
+            return GetEnabledFromEnvironment(WindowsIntegratedAuthenticationEnvVar);
         }
 
         public static TimeSpan? GetSessionTimeFromEnvironment(ILogger logger)

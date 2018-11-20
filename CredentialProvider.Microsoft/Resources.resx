@@ -126,18 +126,6 @@
   <data name="AcquireSessionTokenFailed" xml:space="preserve">
     <value>Failed to acquire session token: {0}</value>
   </data>
-  <data name="AdalAcquireTokenDeviceFlowFailed" xml:space="preserve">
-    <value>Failed to acquire token using DeviceFlow</value>
-  </data>
-  <data name="AdalAcquireTokenDeviceFlowSuccess" xml:space="preserve">
-    <value>Acquired token using DeviceFlow</value>
-  </data>
-  <data name="AdalAcquireTokenSilentFailed" xml:space="preserve">
-    <value>Failed to acquire token from cache</value>
-  </data>
-  <data name="AdalAcquireTokenSilentSuccess" xml:space="preserve">
-    <value>Acquired token from ADAL cache</value>
-  </data>
   <data name="AdalDeviceFlowMessage" xml:space="preserve">
     <value>To sign in, use a web browser to open the page {0} and enter the code {1} to authenticate.</value>
   </data>
@@ -150,14 +138,8 @@
   <data name="AdalFileCacheLocation" xml:space="preserve">
     <value>ADAL FileCache location: {0}</value>
   </data>
-  <data name="AdalTokenNotFound" xml:space="preserve">
-    <value>Could not find ADAL token for {0}</value>
-  </data>
   <data name="AdalUsingAuthority" xml:space="preserve">
     <value>Using AAD authority: {0}</value>
-  </data>
-  <data name="BearerTokenFailed" xml:space="preserve">
-    <value>Failed to acquire bearer token for VSTSSessionTokenClient</value>
   </data>
   <data name="BuildTaskEnvVarError" xml:space="preserve">
     <value>This credential provider must be run under the Team Build tasks for NuGet</value>
@@ -179,9 +161,6 @@
   </data>
   <data name="CachingSessionToken" xml:space="preserve">
     <value>Caching SessionToken for {0}</value>
-  </data>
-  <data name="CannotRetryWithNonInteractiveFlag" xml:space="preserve">
-    <value>Cannot retry with -IsNonInteractive flag</value>
   </data>
   <data name="CommandLineArgs" xml:space="preserve">
     <value>Command-line v{0}: {1}</value>
@@ -268,10 +247,10 @@
     <value>Username</value>
   </data>
   <data name="VSTSCreateSessionException" xml:space="preserve">
-    <value>Exception trying to generate VSTS/TFS token: {0}, message: {1}, stack: {2}</value>
+    <value>Exception trying to generate Azure DevOps token: {0}, message: {1}, stack: {2}</value>
   </data>
   <data name="VSTSCredentialsNotFound" xml:space="preserve">
-    <value>Could not find credentials for {0}</value>
+    <value>Could not obtain credentials for {0}</value>
   </data>
   <data name="VSTSSessionTokenCreated" xml:space="preserve">
     <value>Found SessionToken for {0}</value>
@@ -355,7 +334,12 @@ Cache Location
     {11}
 
     Session Token Cache
-    {12}</value>
+    {12}
+
+Windows Integrated Authentication
+    {13}
+        Boolean to enable/disable using silent Windows Integrated Authentication
+        to authenticate as the logged-in user. Enabled by default.</value>
   </data>
   <data name="CredentialParseFailure" xml:space="preserve">
     <value>Failed to parse credentials</value>
@@ -381,10 +365,22 @@ Cache Location
   <data name="BuildTaskEndpointEnvVarError" xml:space="preserve">
     <value>This credential provider must be run under the Team Build tasks for NuGet with external endpoint credentials</value>
   </data>
-  <data name="AdalAcquireTokenWIAFailed" xml:space="preserve">
-    <value>Failed to acquire token using Windows Integrated Authentication</value>
+  <data name="AcquireBearerTokenSuccess" xml:space="preserve">
+    <value>Acquired bearer token using '{0}'</value>
   </data>
-  <data name="AdalAcquireTokenWIASuccess" xml:space="preserve">
-    <value>Acquired token using Windows Integrated Authentication</value>
+  <data name="AttemptingToAcquireBearerTokenUsingProvider" xml:space="preserve">
+    <value>Attempting to acquire bearer token using provider '{0}'</value>
+  </data>
+  <data name="BearerTokenProviderException" xml:space="preserve">
+    <value>Bearer token provider '{0}' failed with exception:\n{1}</value>
+  </data>
+  <data name="BearerTokenProviderReturnedNull" xml:space="preserve">
+    <value>Bearer token provider '{0}' didn't acquire a token</value>
+  </data>
+  <data name="ExchangingBearerTokenForSessionToken" xml:space="preserve">
+    <value>Attempting to exchange the bearer token for an Azure DevOps session token.</value>
+  </data>
+  <data name="NotRunningBearerTokenProvider" xml:space="preserve">
+    <value>Not running bearer token provider '{0}'</value>
   </data>
 </root>
