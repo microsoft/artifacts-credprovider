@@ -119,7 +119,8 @@ namespace NuGetCredentialProvider.CredentialProviders.Vsts
 
                         return Task.CompletedTask;
                     },
-                    cancellationToken))?.AccessToken;
+                    cancellationToken,
+                    logger))?.AccessToken;
         }
 
         public bool ShouldRun(bool isRetry, bool isNonInteractive, bool canShowDialog)

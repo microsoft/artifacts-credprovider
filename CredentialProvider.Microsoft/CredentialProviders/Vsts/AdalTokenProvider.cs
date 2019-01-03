@@ -6,6 +6,7 @@ using System;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.IdentityModel.Clients.ActiveDirectory;
+using NuGetCredentialProvider.Logging;
 using NuGetCredentialProvider.Util;
 
 namespace NuGetCredentialProvider.CredentialProviders.Vsts
@@ -29,7 +30,7 @@ namespace NuGetCredentialProvider.CredentialProviders.Vsts
             // e.g. AcquireTokenWithWindowsIntegratedAuth could set it to a specific AAD authority preventing a future AcquireTokenWithDeviceFlowAsync from working for a MSA account.
         }
 
-        public async Task<IAdalToken> AcquireTokenWithDeviceFlowAsync(Func<DeviceCodeResult, Task> deviceCodeHandler, CancellationToken cancellationToken)
+        public async Task<IAdalToken> AcquireTokenWithDeviceFlowAsync(Func<DeviceCodeResult, Task> deviceCodeHandler, CancellationToken cancellationToken, ILogger logger)
         {
             var authenticationContext = new AuthenticationContext(authority, tokenCache);
 
@@ -42,8 +43,19 @@ namespace NuGetCredentialProvider.CredentialProviders.Vsts
                 cancellationToken.ThrowIfCancellationRequested();
             }
 
-            var result = await authenticationContext.AcquireTokenByDeviceCodeAsync(deviceCode);
-            cancellationToken.ThrowIfCancellationRequested();
+            AuthenticationResult result = null;
+            var deviceFlowTimeout = EnvUtil.GetDeviceFlowTimeoutFromEnvironmentInSeconds(logger);
+            var task = authenticationContext.AcquireTokenByDeviceCodeAsync(deviceCode);
+
+            if (await Task.WhenAny(task, Task.Delay(deviceFlowTimeout*1000, cancellationToken)) == task)
+            {
+                result = await task;
+                cancellationToken.ThrowIfCancellationRequested();
+            }
+            else
+            {
+                logger.Error(string.Format(Resources.DeviceFlowTimedOut, deviceFlowTimeout));
+            }
 
             return new AdalToken(result);
         }
