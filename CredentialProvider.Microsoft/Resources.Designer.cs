@@ -259,6 +259,15 @@ namespace NuGetCredentialProvider {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Could not parse Device Flow Timeout override: {0}.
+        /// </summary>
+        internal static string CouldNotParseDeviceFlowTimeoutOverride {
+            get {
+                return ResourceManager.GetString("CouldNotParseDeviceFlowTimeoutOverride", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Could not parse Session Time override: {0}.
         /// </summary>
         internal static string CouldNotParseSessionTimeOverride {
@@ -291,6 +300,15 @@ namespace NuGetCredentialProvider {
         internal static string CredentialParseFailure {
             get {
                 return ResourceManager.GetString("CredentialParseFailure", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Device flow authentication failed. User was presented with device flow, but didn&apos;t react within {0} seconds..
+        /// </summary>
+        internal static string DeviceFlowTimedOut {
+            get {
+                return ResourceManager.GetString("DeviceFlowTimedOut", resourceCulture);
             }
         }
         

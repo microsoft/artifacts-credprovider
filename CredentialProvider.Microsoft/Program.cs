@@ -119,7 +119,8 @@ namespace NuGetCredentialProvider
                             EnvUtil.BuildTaskExternalEndpoints,
                             EnvUtil.AdalTokenCacheLocation,
                             EnvUtil.SessionTokenCacheLocation,
-                            EnvUtil.WindowsIntegratedAuthenticationEnvVar
+                            EnvUtil.WindowsIntegratedAuthenticationEnvVar,
+                            EnvUtil.DeviceFlowTimeoutEnvVar
                         ));
                     return 0;
                 }

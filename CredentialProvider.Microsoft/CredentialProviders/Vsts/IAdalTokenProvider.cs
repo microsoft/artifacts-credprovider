@@ -6,6 +6,7 @@ using System;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.IdentityModel.Clients.ActiveDirectory;
+using NuGetCredentialProvider.Logging;
 
 namespace NuGetCredentialProvider.CredentialProviders.Vsts
 {
@@ -13,7 +14,7 @@ namespace NuGetCredentialProvider.CredentialProviders.Vsts
     {
         Task<IAdalToken> AcquireTokenSilentlyAsync(CancellationToken cancellationToken);
 
-        Task<IAdalToken> AcquireTokenWithDeviceFlowAsync(Func<DeviceCodeResult, Task> deviceCodeHandler, CancellationToken cancellationToken);
+        Task<IAdalToken> AcquireTokenWithDeviceFlowAsync(Func<DeviceCodeResult, Task> deviceCodeHandler, CancellationToken cancellationToken, ILogger logging);
 
         Task<IAdalToken> AcquireTokenWithUI(CancellationToken cancellationToken);
 

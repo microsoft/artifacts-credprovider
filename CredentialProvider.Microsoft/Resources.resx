@@ -339,7 +339,11 @@ Cache Location
 Windows Integrated Authentication
     {13}
         Boolean to enable/disable using silent Windows Integrated Authentication
-        to authenticate as the logged-in user. Enabled by default.</value>
+        to authenticate as the logged-in user. Enabled by default.
+
+Device Flow Authentication Timeout
+    {14}
+        Device Flow authentication timeout in seconds. Default is 90 seconds.</value>
   </data>
   <data name="CredentialParseFailure" xml:space="preserve">
     <value>Failed to parse credentials</value>
@@ -382,5 +386,11 @@ Windows Integrated Authentication
   </data>
   <data name="NotRunningBearerTokenProvider" xml:space="preserve">
     <value>Not running bearer token provider '{0}'</value>
+  </data>
+  <data name="DeviceFlowTimedOut" xml:space="preserve">
+    <value>Device flow authentication failed. User was presented with device flow, but didn't react within {0} seconds.</value>
+  </data>
+  <data name="CouldNotParseDeviceFlowTimeoutOverride" xml:space="preserve">
+    <value>Could not parse Device Flow Timeout override: {0}</value>
   </data>
 </root>
