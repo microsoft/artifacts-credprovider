@@ -21,7 +21,7 @@ namespace NuGetCredentialProvider.Util
         public const string AdalFileCacheEnvVar = "NUGET_CREDENTIALPROVIDER_ADAL_FILECACHE_ENABLED";
         public const string PpeHostsEnvVar = "NUGET_CREDENTIALPROVIDER_ADAL_PPEHOSTS";
 
-        public const string DeviceFlowTimeoutEnvVar = "NUGET_CREDENTIALPROVIDER_VSTS_DEVICEFLOWTIMEOUTINSECONDS";
+        public const string DeviceFlowTimeoutEnvVar = "NUGET_CREDENTIALPROVIDER_VSTS_DEVICEFLOWTIMEOUTSECONDS";
         public const string SupportedHostsEnvVar = "NUGET_CREDENTIALPROVIDER_VSTS_HOSTS";
         public const string SessionTimeEnvVar = "NUGET_CREDENTIALPROVIDER_VSTS_SESSIONTIMEMINUTES";
         public const string TokenTypeEnvVar = "NUGET_CREDENTIALPROVIDER_VSTS_TOKENTYPE";

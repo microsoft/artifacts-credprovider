@@ -50,7 +50,6 @@ namespace NuGetCredentialProvider.CredentialProviders.Vsts
             if (await Task.WhenAny(task, Task.Delay(deviceFlowTimeout*1000, cancellationToken)) == task)
             {
                 result = await task;
-                cancellationToken.ThrowIfCancellationRequested();
             }
             else
             {

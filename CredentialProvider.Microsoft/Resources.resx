@@ -388,7 +388,7 @@ Device Flow Authentication Timeout
     <value>Not running bearer token provider '{0}'</value>
   </data>
   <data name="DeviceFlowTimedOut" xml:space="preserve">
-    <value>Device flow authentication failed. User was presented with device flow, but didn't react within {0} seconds</value>
+    <value>Device flow authentication failed. User was presented with device flow, but didn't react within {0} seconds.</value>
   </data>
   <data name="CouldNotParseDeviceFlowTimeoutOverride" xml:space="preserve">
     <value>Could not parse Device Flow Timeout override: {0}</value>

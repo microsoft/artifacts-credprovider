@@ -304,7 +304,7 @@ namespace NuGetCredentialProvider {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Device flow authentication failed. User was presented with device flow, but didn&apos;t react within {0} seconds.
+        ///   Looks up a localized string similar to Device flow authentication failed. User was presented with device flow, but didn&apos;t react within {0} seconds..
         /// </summary>
         internal static string DeviceFlowTimedOut {
             get {

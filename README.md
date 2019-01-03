@@ -1,4 +1,4 @@
-# Azure Artifacts Credential Provider
+﻿# Azure Artifacts Credential Provider
 
 The Azure Artifacts Credential Provider automates the acquisition of credentials needed to restore NuGet packages as part of your .NET development workflow. It integrates with MSBuild, dotnet, and NuGet(.exe) and works on Windows, Mac, and Linux. Any time you want to use packages from an Azure Artifacts feed, the Credential Provider will automatically acquire and securely store a token on behalf of the NuGet client you're using.
 
@@ -210,6 +210,10 @@ Windows Integrated Authentication
     NUGET_CREDENTIALPROVIDER_WINDOWSINTEGRATEDAUTHENTICATION_ENABLED
         Boolean to enable/disable using silent Windows Integrated Authentication
         to authenticate as the logged-in user. Enabled by default.
+
+Device Flow Authentication Timeout
+    NUGET_CREDENTIALPROVIDER_VSTS_DEVICEFLOWTIMEOUTSECONDS
+        Device Flow authentication timeout in seconds. Default is 90 seconds.
 ```
 
 ## Contribute
