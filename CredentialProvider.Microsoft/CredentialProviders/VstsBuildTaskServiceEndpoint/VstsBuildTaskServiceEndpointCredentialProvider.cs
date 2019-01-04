@@ -4,6 +4,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Threading;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
@@ -32,6 +33,8 @@ namespace NuGetCredentialProvider.CredentialProviders.VstsBuildTaskServiceEndpoi
     public sealed class VstsBuildTaskServiceEndpointCredentialProvider : CredentialProviderBase
     {
         private Lazy<Dictionary<string, EndpointCredentials>> LazyCredentials;
+
+        // Dictionary that maps an endpoint string to EndpointCredentials
         private Dictionary<string, EndpointCredentials> Credentials => LazyCredentials.Value;
 
         public VstsBuildTaskServiceEndpointCredentialProvider(ILogger logger)
@@ -67,20 +70,11 @@ namespace NuGetCredentialProvider.CredentialProviders.VstsBuildTaskServiceEndpoi
 
         public override Task<GetAuthenticationCredentialsResponse> HandleRequestAsync(GetAuthenticationCredentialsRequest request, CancellationToken cancellationToken)
         {
-            bool endpointFound = Credentials.TryGetValue(request.Uri.ToString(), out EndpointCredentials matchingEndpoint);
+            string uriString = request.Uri.ToString();
+            bool endpointFound = Credentials.TryGetValue(uriString, out EndpointCredentials matchingEndpoint);
             if (endpointFound)
             {
                 string username = matchingEndpoint.Username;
-
-                // Should fail on retry because the token is provided through an env var. Retry is not going to help.
-                if (request.IsRetry)
-                {
-                    return GetResponse(
-                        username,
-                        null,
-                        string.Format(Resources.BuildTaskIsRetry, request.Uri.ToString()),
-                        MessageResponseCode.Error);
-                }
 
                 return GetResponse(
                     username,
@@ -92,7 +86,7 @@ namespace NuGetCredentialProvider.CredentialProviders.VstsBuildTaskServiceEndpoi
             return GetResponse(
                 null,
                 null,
-                string.Format(Resources.BuildTaskIsRetry, request.Uri.ToString()),
+                string.Format(Resources.BuildTaskIsRetry, uriString),
                 MessageResponseCode.Error);
         }
 

@@ -62,16 +62,6 @@ namespace NuGetCredentialProvider.CredentialProviders.VstsBuildTask
         public override Task<GetAuthenticationCredentialsResponse> HandleRequestAsync(GetAuthenticationCredentialsRequest request, CancellationToken cancellationToken)
         {
             string accessToken = Environment.GetEnvironmentVariable(EnvUtil.BuildTaskAccessToken);
-            bool isRetry = request.IsRetry;
-
-            if (isRetry)
-            {
-                return this.GetResponse(
-                    Username,
-                    null,
-                    string.Format(Resources.BuildTaskIsRetry, request.Uri.ToString()),
-                    MessageResponseCode.Error);
-            }
 
             return this.GetResponse(
                     Username,
