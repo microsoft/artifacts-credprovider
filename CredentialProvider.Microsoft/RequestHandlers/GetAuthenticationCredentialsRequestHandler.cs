@@ -60,22 +60,22 @@ namespace NuGetCredentialProvider.RequestHandlers
 
             Logger.Verbose(string.Format(Resources.Uri, request.Uri));
 
-            if (TryCache(request, out string cachedToken))
-            {
-                return new GetAuthenticationCredentialsResponse(
-                    username: "VssSessionToken",
-                    password: cachedToken,
-                    message: null,
-                    authenticationTypes: new List<string> { "Basic" },
-                    responseCode: MessageResponseCode.Success);
-            }
-
             foreach (ICredentialProvider credentialProvider in credentialProviders)
             {
                 if (await credentialProvider.CanProvideCredentialsAsync(request.Uri) == false)
                 {
                     Logger.Verbose(string.Format(Resources.SkippingCredentialProvider, credentialProvider, request.Uri.ToString()));
                     continue;
+                }
+
+                if (credentialProvider.IsCachable && TryCache(request, out string cachedToken))
+                {
+                    return new GetAuthenticationCredentialsResponse(
+                        username: "VssSessionToken",
+                        password: cachedToken,
+                        message: null,
+                        authenticationTypes: new List<string> { "Basic" },
+                        responseCode: MessageResponseCode.Success);
                 }
 
                 try
