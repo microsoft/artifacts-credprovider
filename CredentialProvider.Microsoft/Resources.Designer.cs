@@ -169,11 +169,29 @@ namespace NuGetCredentialProvider {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to This credential provider must not run if build task environment variables are set. Variables: VSS_NUGET_URI_PREFIXES, VSS_NUGET_ACCESSTOKEN, VSS_NUGET_EXTERNAL_FEED_ENDPOINTS.
+        /// </summary>
+        internal static string BuildTaskCredProviderIsUsedError {
+            get {
+                return ResourceManager.GetString("BuildTaskCredProviderIsUsedError", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to This credential provider must be run under the Team Build tasks for NuGet with external endpoint credentials.
         /// </summary>
         internal static string BuildTaskEndpointEnvVarError {
             get {
                 return ResourceManager.GetString("BuildTaskEndpointEnvVarError", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to URL {0} did not have credentials stored in the environment variable VSS_NUGET_EXTERNAL_FEED_ENDPOINTS..
+        /// </summary>
+        internal static string BuildTaskEndpointNoMatchingUrl {
+            get {
+                return ResourceManager.GetString("BuildTaskEndpointNoMatchingUrl", resourceCulture);
             }
         }
         

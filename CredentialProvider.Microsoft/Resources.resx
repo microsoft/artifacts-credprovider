@@ -393,4 +393,10 @@ Device Flow Authentication Timeout
   <data name="CouldNotParseDeviceFlowTimeoutOverride" xml:space="preserve">
     <value>Could not parse Device Flow Timeout override: {0}</value>
   </data>
+  <data name="BuildTaskCredProviderIsUsedError" xml:space="preserve">
+    <value>This credential provider must not run if build task environment variables are set. Variables: VSS_NUGET_URI_PREFIXES, VSS_NUGET_ACCESSTOKEN, VSS_NUGET_EXTERNAL_FEED_ENDPOINTS</value>
+  </data>
+  <data name="BuildTaskEndpointNoMatchingUrl" xml:space="preserve">
+    <value>URL {0} did not have credentials stored in the environment variable VSS_NUGET_EXTERNAL_FEED_ENDPOINTS.</value>
+  </data>
 </root>

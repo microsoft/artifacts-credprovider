@@ -60,12 +60,13 @@ namespace NuGetCredentialProvider.CredentialProviders.VstsBuildTaskServiceEndpoi
             }
 
             string uriString = uri.ToString();
-            if (Credentials.ContainsKey(uriString))
+            if (!Credentials.ContainsKey(uriString))
             {
-                return Task.FromResult(true);
+                Verbose(string.Format(Resources.BuildTaskEndpointNoMatchingUrl, uriString));
+                return Task.FromResult(false);
             }
 
-            return Task.FromResult(false);
+            return Task.FromResult(true);
         }
 
         public override Task<GetAuthenticationCredentialsResponse> HandleRequestAsync(GetAuthenticationCredentialsRequest request, CancellationToken cancellationToken)
