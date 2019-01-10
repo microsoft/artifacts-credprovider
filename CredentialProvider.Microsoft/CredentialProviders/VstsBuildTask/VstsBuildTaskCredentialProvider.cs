@@ -61,8 +61,9 @@ namespace NuGetCredentialProvider.CredentialProviders.VstsBuildTask
 
         public override Task<GetAuthenticationCredentialsResponse> HandleRequestAsync(GetAuthenticationCredentialsRequest request, CancellationToken cancellationToken)
         {
-            string accessToken = Environment.GetEnvironmentVariable(EnvUtil.BuildTaskAccessToken);
+            cancellationToken.ThrowIfCancellationRequested();
 
+            string accessToken = Environment.GetEnvironmentVariable(EnvUtil.BuildTaskAccessToken);
             return this.GetResponse(
                     Username,
                     accessToken,

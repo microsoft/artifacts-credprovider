@@ -36,7 +36,7 @@ namespace NuGetCredentialProvider.CredentialProviders.VstsBuildTaskServiceEndpoi
 
         // Dictionary that maps an endpoint string to EndpointCredentials
         private Dictionary<string, EndpointCredentials> Credentials => LazyCredentials.Value;
-
+            
         public VstsBuildTaskServiceEndpointCredentialProvider(ILogger logger)
             : base(logger)
         {
@@ -59,35 +59,30 @@ namespace NuGetCredentialProvider.CredentialProviders.VstsBuildTaskServiceEndpoi
                 return Task.FromResult(false);
             }
 
-            string uriString = uri.ToString();
-            if (!Credentials.ContainsKey(uriString))
-            {
-                Verbose(string.Format(Resources.BuildTaskEndpointNoMatchingUrl, uriString));
-                return Task.FromResult(false);
-            }
-
             return Task.FromResult(true);
         }
 
         public override Task<GetAuthenticationCredentialsResponse> HandleRequestAsync(GetAuthenticationCredentialsRequest request, CancellationToken cancellationToken)
         {
+            cancellationToken.ThrowIfCancellationRequested();
+
             string uriString = request.Uri.ToString();
             bool endpointFound = Credentials.TryGetValue(uriString, out EndpointCredentials matchingEndpoint);
             if (endpointFound)
             {
-                string username = matchingEndpoint.Username;
-
+                Verbose(string.Format(Resources.BuildTaskEndpointMatchingUrlFound, uriString));
                 return GetResponse(
-                    username,
+                    matchingEndpoint.Username,
                     matchingEndpoint.Password,
                     null,
                     MessageResponseCode.Success);
             }
 
+            Verbose(string.Format(Resources.BuildTaskEndpointNoMatchingUrl, uriString));
             return GetResponse(
                 null,
                 null,
-                string.Format(Resources.BuildTaskIsRetry, uriString),
+                string.Format(Resources.BuildTaskFailedToAuthenticate, uriString),
                 MessageResponseCode.Error);
         }
 

@@ -127,7 +127,14 @@
     <value>Failed to acquire session token: {0}</value>
   </data>
   <data name="AdalDeviceFlowMessage" xml:space="preserve">
-    <value>To sign in, use a web browser to open the page {0} and enter the code {1} to authenticate.</value>
+    <value>ATTENTION: User interaction required. 
+
+    **********************************************************************
+
+    To sign in, use a web browser to open the page {0} and enter the code {1} to authenticate.
+
+    **********************************************************************
+</value>
   </data>
   <data name="AdalDeviceFlowRequestedResource" xml:space="preserve">
     <value>DeviceFlow: {0}</value>
@@ -144,7 +151,7 @@
   <data name="BuildTaskEnvVarError" xml:space="preserve">
     <value>This credential provider must be run under the Team Build tasks for NuGet</value>
   </data>
-  <data name="BuildTaskIsRetry" xml:space="preserve">
+  <data name="BuildTaskFailedToAuthenticate" xml:space="preserve">
     <value>Failed to authenticate to {0} from your project collection</value>
   </data>
   <data name="BuildTaskMatchedPrefix" xml:space="preserve">
@@ -397,6 +404,12 @@ Device Flow Authentication Timeout
     <value>This credential provider must not run if build task environment variables are set. Variables: VSS_NUGET_URI_PREFIXES, VSS_NUGET_ACCESSTOKEN, VSS_NUGET_EXTERNAL_FEED_ENDPOINTS</value>
   </data>
   <data name="BuildTaskEndpointNoMatchingUrl" xml:space="preserve">
-    <value>URL {0} did not have credentials stored in the environment variable VSS_NUGET_EXTERNAL_FEED_ENDPOINTS.</value>
+    <value>Environment variable VSS_NUGET_EXTERNAL_FEED_ENDPOINTS did not have credentials for endpoint {0}</value>
+  </data>
+  <data name="BuildTaskEndpointMatchingUrlFound" xml:space="preserve">
+    <value>Found credentials for endpoint {0}</value>
+  </data>
+  <data name="CancelMessage" xml:space="preserve">
+    <value>Canceling credential provider</value>
   </data>
 </root>

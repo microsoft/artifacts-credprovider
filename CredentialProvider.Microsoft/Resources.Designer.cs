@@ -97,7 +97,14 @@ namespace NuGetCredentialProvider {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to To sign in, use a web browser to open the page {0} and enter the code {1} to authenticate..
+        ///   Looks up a localized string similar to ATTENTION: User interaction required. 
+        ///
+        ///    **********************************************************************
+        ///
+        ///    To sign in, use a web browser to open the page {0} and enter the code {1} to authenticate.
+        ///
+        ///    **********************************************************************
+        ///.
         /// </summary>
         internal static string AdalDeviceFlowMessage {
             get {
@@ -187,7 +194,16 @@ namespace NuGetCredentialProvider {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to URL {0} did not have credentials stored in the environment variable VSS_NUGET_EXTERNAL_FEED_ENDPOINTS..
+        ///   Looks up a localized string similar to Found credentials for endpoint {0}.
+        /// </summary>
+        internal static string BuildTaskEndpointMatchingUrlFound {
+            get {
+                return ResourceManager.GetString("BuildTaskEndpointMatchingUrlFound", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Environment variable VSS_NUGET_EXTERNAL_FEED_ENDPOINTS did not have credentials for endpoint {0}.
         /// </summary>
         internal static string BuildTaskEndpointNoMatchingUrl {
             get {
@@ -207,9 +223,9 @@ namespace NuGetCredentialProvider {
         /// <summary>
         ///   Looks up a localized string similar to Failed to authenticate to {0} from your project collection.
         /// </summary>
-        internal static string BuildTaskIsRetry {
+        internal static string BuildTaskFailedToAuthenticate {
             get {
-                return ResourceManager.GetString("BuildTaskIsRetry", resourceCulture);
+                return ResourceManager.GetString("BuildTaskFailedToAuthenticate", resourceCulture);
             }
         }
         
@@ -255,6 +271,15 @@ namespace NuGetCredentialProvider {
         internal static string CachingSessionToken {
             get {
                 return ResourceManager.GetString("CachingSessionToken", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Canceling credential provider.
+        /// </summary>
+        internal static string CancelMessage {
+            get {
+                return ResourceManager.GetString("CancelMessage", resourceCulture);
             }
         }
         

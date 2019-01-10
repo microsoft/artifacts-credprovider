@@ -57,8 +57,8 @@ namespace NuGetCredentialProvider
         {
             CancellationTokenSource tokenSource = new CancellationTokenSource();
             var parsedArgs = await Args.ParseAsync<CredentialProviderArgs>(args);
-            var multiLogger = new MultiLogger();
 
+            var multiLogger = new MultiLogger();
             var fileLogger = GetFileLogger();
             if (fileLogger != null)
             {
@@ -69,6 +69,7 @@ namespace NuGetCredentialProvider
             Console.CancelKeyPress += (object sender, ConsoleCancelEventArgs eventArgs) =>
             {
                 // ConsoleCancelEventArgs.Cancel defaults to false which terminates the current process.
+                multiLogger.Verbose(Resources.CancelMessage);
                 tokenSource.Cancel();
             };
 
@@ -95,8 +96,6 @@ namespace NuGetCredentialProvider
                     { MessageMethod.SetLogLevel, new SetLogLevelRequestHandler(multiLogger) },
                     { MessageMethod.SetCredentials, new SetCredentialsRequestHandler(multiLogger) },
                 };
-
-                multiLogger.Verbose(string.Format(Resources.CommandLineArgs, Program.Version, Environment.CommandLine));
 
                 // Help
                 if (parsedArgs.Help)
@@ -128,11 +127,12 @@ namespace NuGetCredentialProvider
                 // Plug-in mode
                 if (parsedArgs.Plugin)
                 {
-                    multiLogger.Verbose(Resources.RunningInPlugin);
-
                     using (IPlugin plugin = await PluginFactory.CreateFromCurrentProcessAsync(requestHandlers, ConnectionOptions.CreateDefault(), tokenSource.Token).ConfigureAwait(continueOnCapturedContext: false))
                     {
                         multiLogger.Add(new PluginConnectionLogger(plugin.Connection));
+                        multiLogger.Verbose(Resources.RunningInPlugin);
+                        multiLogger.Verbose(string.Format(Resources.CommandLineArgs, Program.Version, Environment.CommandLine));
+
                         await RunNuGetPluginsAsync(plugin, multiLogger, TimeSpan.FromMinutes(2), tokenSource.Token).ConfigureAwait(continueOnCapturedContext: false);
                     }
 
@@ -145,6 +145,7 @@ namespace NuGetCredentialProvider
                     multiLogger.Add(new ConsoleLogger());
                     multiLogger.SetLogLevel(parsedArgs.Verbosity);
                     multiLogger.Verbose(Resources.RunningInStandAlone);
+                    multiLogger.Verbose(string.Format(Resources.CommandLineArgs, Program.Version, Environment.CommandLine));
 
                     if (parsedArgs.Uri == null)
                     {
