@@ -35,23 +35,6 @@ namespace NuGetCredentialProvider.CredentialProviders.VstsBuildTask
             bool useBuildTaskCredProvider = string.IsNullOrWhiteSpace(uriPrefixesString) == false && string.IsNullOrWhiteSpace(accessToken) == false;
             if (useBuildTaskCredProvider == true)
             {
-                string[] uriPrefixes = uriPrefixesString.Split(new[] { ';' }, StringSplitOptions.RemoveEmptyEntries);
-                Verbose(Resources.BuildTaskUriPrefixes);
-                foreach (var uriPrefix in uriPrefixes)
-                {
-                    Verbose($"{uriPrefix}");
-                }
-
-                string uriString = uri.ToString();
-                string matchedPrefix = uriPrefixes.FirstOrDefault(prefix => uriString.StartsWith(prefix, StringComparison.OrdinalIgnoreCase));
-                Verbose(string.Format(Resources.BuildTaskMatchedPrefix, matchedPrefix));
-
-                if (matchedPrefix == null)
-                {
-                    Verbose(Resources.BuildTaskNoPrefixMatch);
-                    return Task.FromResult(false);
-                }
-
                 return Task.FromResult(true);
             }
 
@@ -63,7 +46,30 @@ namespace NuGetCredentialProvider.CredentialProviders.VstsBuildTask
         {
             cancellationToken.ThrowIfCancellationRequested();
 
+            string uriPrefixesString = Environment.GetEnvironmentVariable(EnvUtil.BuildTaskUriPrefixes);
             string accessToken = Environment.GetEnvironmentVariable(EnvUtil.BuildTaskAccessToken);
+
+            string[] uriPrefixes = uriPrefixesString.Split(new[] { ';' }, StringSplitOptions.RemoveEmptyEntries);
+            Verbose(Resources.BuildTaskUriPrefixes);
+            foreach (var uriPrefix in uriPrefixes)
+            {
+                Verbose($"{uriPrefix}");
+            }
+
+            string uriString = request.Uri.ToString();
+            string matchedPrefix = uriPrefixes.FirstOrDefault(prefix => uriString.StartsWith(prefix, StringComparison.OrdinalIgnoreCase));
+            Verbose(string.Format(Resources.BuildTaskMatchedPrefix, matchedPrefix));
+
+            if (matchedPrefix == null)
+            {
+                Verbose(Resources.BuildTaskNoPrefixMatch);
+                return this.GetResponse(
+                    null,
+                    null,
+                    Resources.BuildTaskNoPrefixMatch,
+                    MessageResponseCode.Error);
+            }
+
             return this.GetResponse(
                     Username,
                     accessToken,

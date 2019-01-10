@@ -37,20 +37,6 @@ namespace NuGetCredentialProvider.CredentialProviders.Vsts
 
         public override async Task<bool> CanProvideCredentialsAsync(Uri uri)
         {
-            string buildTaskJsonEnvVar = Environment.GetEnvironmentVariable(EnvUtil.BuildTaskExternalEndpoints);
-            string buildTaskPrefixesEnvVar = Environment.GetEnvironmentVariable(EnvUtil.BuildTaskUriPrefixes);
-            string buildTaskAccessTokenEnvVar = Environment.GetEnvironmentVariable(EnvUtil.BuildTaskAccessToken);
-
-            bool shouldUseBuildTaskCredProvider = string.IsNullOrWhiteSpace(buildTaskJsonEnvVar) == false 
-                || string.IsNullOrWhiteSpace(buildTaskPrefixesEnvVar) == false 
-                || string.IsNullOrWhiteSpace(buildTaskAccessTokenEnvVar) == false;
-            if (shouldUseBuildTaskCredProvider)
-            {
-                // If env vars for build task cred providers are set, this cred provider cannot be used.
-                Verbose(Resources.BuildTaskCredProviderIsUsedError);
-                return await Task.FromResult(false);
-            }
-
             var validHosts = EnvUtil.GetHostsFromEnvironment(Logger, EnvUtil.SupportedHostsEnvVar, new[]
             {
                 ".pkgs.vsts.me", // DevFabric
