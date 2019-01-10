@@ -149,7 +149,7 @@
     <value>Using AAD authority: {0}</value>
   </data>
   <data name="BuildTaskEnvVarError" xml:space="preserve">
-    <value>This credential provider must be run under the Team Build tasks for NuGet</value>
+    <value>This credential provider must be run under the Team Build tasks for NuGet. Appropriate environment variables must be set.</value>
   </data>
   <data name="BuildTaskFailedToAuthenticate" xml:space="preserve">
     <value>Failed to authenticate to {0} from your project collection</value>
@@ -374,7 +374,7 @@ Device Flow Authentication Timeout
     <value>Error happened while parsing json: {0}</value>
   </data>
   <data name="BuildTaskEndpointEnvVarError" xml:space="preserve">
-    <value>This credential provider must be run under the Team Build tasks for NuGet with external endpoint credentials</value>
+    <value>This credential provider must be run under the Team Build tasks for NuGet with external endpoint credentials. Appropriate environment variable needs to be set.</value>
   </data>
   <data name="AcquireBearerTokenSuccess" xml:space="preserve">
     <value>Acquired bearer token using '{0}'</value>
@@ -401,7 +401,7 @@ Device Flow Authentication Timeout
     <value>Could not parse Device Flow Timeout override: {0}</value>
   </data>
   <data name="BuildTaskCredProviderIsUsedError" xml:space="preserve">
-    <value>This credential provider must not run if build task environment variables are set. Variables: VSS_NUGET_URI_PREFIXES, VSS_NUGET_ACCESSTOKEN, VSS_NUGET_EXTERNAL_FEED_ENDPOINTS</value>
+    <value>This credential provider must not run if any build task environment variables are set. Variables: VSS_NUGET_URI_PREFIXES, VSS_NUGET_ACCESSTOKEN, VSS_NUGET_EXTERNAL_FEED_ENDPOINTS</value>
   </data>
   <data name="BuildTaskEndpointNoMatchingUrl" xml:space="preserve">
     <value>Environment variable VSS_NUGET_EXTERNAL_FEED_ENDPOINTS did not have credentials for endpoint {0}</value>
