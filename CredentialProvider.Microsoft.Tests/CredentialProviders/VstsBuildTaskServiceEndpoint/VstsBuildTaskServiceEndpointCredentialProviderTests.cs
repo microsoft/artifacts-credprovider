@@ -3,10 +3,12 @@
 // Licensed under the MIT license.
 
 using System;
+using System.Threading;
 using System.Threading.Tasks;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
+using NuGet.Protocol.Plugins;
 using NuGetCredentialProvider.CredentialProviders.VstsBuildTaskServiceEndpoint;
 using NuGetCredentialProvider.Logging;
 using NuGetCredentialProvider.Util;
@@ -51,7 +53,7 @@ namespace CredentialProvider.Microsoft.Tests.CredentialProviders.VstsBuildTaskSe
         }
 
         [TestMethod]
-        public async Task CanProvideCredentials_ReturnsTrueForCorrectEnvironmentVariableAndMatchingSourceUri()
+        public async Task CanProvideCredentials_ReturnsTrueForCorrectEnvironmentVariable()
         {
             Uri sourceUri = new Uri(@"http://example.pkgs.vsts.me/_packaging/TestFeed/nuget/v3/index.json");
             string feedEndPointJsonEnvVar = EnvUtil.BuildTaskExternalEndpoints;
@@ -64,20 +66,20 @@ namespace CredentialProvider.Microsoft.Tests.CredentialProviders.VstsBuildTaskSe
         }
 
         [TestMethod]
-        public async Task CanProvideCredentials_ReturnsFalseWhenMatchingEndpointIsNotFound()
+        public async Task HandleRequestAsync_ReturnsErrorWhenMatchingEndpointIsNotFound()
         {
             Uri sourceUri = new Uri(@"http://exampleThatDoesNotMatch.pkgs.vsts.me/_packaging/TestFeed/nuget/v3/index.json");
             string feedEndPointJsonEnvVar = EnvUtil.BuildTaskExternalEndpoints;
             string feedEndPointJson = "{\"endpointCredentials\":[{\"endpoint\":\"http://example.pkgs.vsts.me/_packaging/TestFeed/nuget/v3/index.json\", \"username\": \"testUser\", \"password\":\"testToken\"}]}";
 
             Environment.SetEnvironmentVariable(feedEndPointJsonEnvVar, feedEndPointJson);
-
-            var result = await vstsCredentialProvider.CanProvideCredentialsAsync(sourceUri);
-            Assert.AreEqual(false, result);
+            
+            var result = await vstsCredentialProvider.HandleRequestAsync(new GetAuthenticationCredentialsRequest(sourceUri, false, false, false), CancellationToken.None);
+            Assert.AreEqual(result.ResponseCode, MessageResponseCode.Error);
         }
 
         [TestMethod]
-        public async Task CanProvideCredentials_ThrowsWithInvalidJson()
+        public async Task HandleRequestAsync_ThrowsWithInvalidJson()
         {
             Uri sourceUri = new Uri(@"http://example.pkgs.vsts.me.pkgs.vsts.me/_packaging/TestFeed/nuget/v3/index.json");
             string feedEndPointJsonEnvVar = EnvUtil.BuildTaskExternalEndpoints;
@@ -85,7 +87,7 @@ namespace CredentialProvider.Microsoft.Tests.CredentialProviders.VstsBuildTaskSe
 
             Environment.SetEnvironmentVariable(feedEndPointJsonEnvVar, invalidFeedEndPointJson);
 
-            Action act = () => vstsCredentialProvider.CanProvideCredentialsAsync(sourceUri);
+            Action act = () => vstsCredentialProvider.HandleRequestAsync(new GetAuthenticationCredentialsRequest(sourceUri, false, false, false), CancellationToken.None);
             act.Should().Throw<Exception>();
         }
     }
