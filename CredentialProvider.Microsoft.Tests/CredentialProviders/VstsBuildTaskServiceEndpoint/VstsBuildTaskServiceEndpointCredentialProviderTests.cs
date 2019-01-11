@@ -76,6 +76,29 @@ namespace CredentialProvider.Microsoft.Tests.CredentialProviders.VstsBuildTaskSe
 
             var result = await vstsCredentialProvider.HandleRequestAsync(new GetAuthenticationCredentialsRequest(sourceUri, false, false, false), CancellationToken.None);
             Assert.AreEqual(result.ResponseCode, MessageResponseCode.Success);
+            Assert.AreEqual(result.Username, "testUser");
+            Assert.AreEqual(result.Password, "testToken");
+        }
+
+        [TestMethod]
+        public async Task HandleRequestAsync_ReturnsSuccessWhenMultipleSourcesInJson()
+        {
+            Uri sourceUri = new Uri(@"http://example3.pkgs.vsts.me/_packaging/TestFeed/nuget/v3/index.json");
+            string feedEndPointJsonEnvVar = EnvUtil.BuildTaskExternalEndpoints;
+
+            string feedEndPointJson = "{\"endpointCredentials\":[" +
+                "{\"endpoint\":\"http://example1.pkgs.vsts.me/_packaging/TestFeed/nuget/v3/index.json\", \"username\": \"testUser1\", \"password\":\"testToken1\"}, " +
+                "{\"endpoint\":\"http://example2.pkgs.vsts.me/_packaging/TestFeed/nuget/v3/index.json\", \"username\": \"testUser2\", \"password\":\"testToken2\"}, " +
+                "{\"endpoint\":\"http://example3.pkgs.vsts.me/_packaging/TestFeed/nuget/v3/index.json\", \"username\": \"testUser3\", \"password\":\"testToken3\"}, " +
+                "{\"endpoint\":\"http://example4.pkgs.vsts.me/_packaging/TestFeed/nuget/v3/index.json\", \"username\": \"testUser4\", \"password\":\"testToken4\"}" +
+                "]}";
+
+            Environment.SetEnvironmentVariable(feedEndPointJsonEnvVar, feedEndPointJson);
+
+            var result = await vstsCredentialProvider.HandleRequestAsync(new GetAuthenticationCredentialsRequest(sourceUri, false, false, false), CancellationToken.None);
+            Assert.AreEqual(result.ResponseCode, MessageResponseCode.Success);
+            Assert.AreEqual(result.Username, "testUser3");
+            Assert.AreEqual(result.Password, "testToken3");
         }
 
         [TestMethod]
