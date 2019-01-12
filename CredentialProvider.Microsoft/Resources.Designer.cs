@@ -560,6 +560,15 @@ namespace NuGetCredentialProvider {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Caught exception processing {0}  (RequestId: {1}).
+        /// </summary>
+        internal static string ResponseHandlerException {
+            get {
+                return ResourceManager.GetString("ResponseHandlerException", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Running in plug-in mode.
         /// </summary>
         internal static string RunningInPlugin {

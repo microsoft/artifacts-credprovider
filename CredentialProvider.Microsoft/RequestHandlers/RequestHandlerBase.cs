@@ -3,6 +3,7 @@
 // Licensed under the MIT license.
 
 using System;
+using System.Diagnostics;
 using System.Threading;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
@@ -52,22 +53,45 @@ namespace NuGetCredentialProvider.RequestHandlers
 
             TRequest request = MessageUtilities.DeserializePayload<TRequest>(message);
 
-            Logger.Verbose(string.Format(Resources.HandlingRequest, message.Type, message.Method, message.Payload.ToString(Formatting.None)));
+            try {
+                TResponse response = null;
+                Logger.Verbose(string.Format(Resources.HandlingRequest, message.Type, message.Method, message.Payload.ToString(Formatting.None)));
+                try {
+                    using (GetProgressReporter(connection, message, cancellationToken))
+                    {
+                        response = await HandleRequestAsync(request).ConfigureAwait(continueOnCapturedContext: false);
+                    }
+                }
+                catch (Exception ex) when (cancellationToken.IsCancellationRequested)
+                {
+                    // We have been canceled by NuGet. Send a cancellation response.
+                    var cancelMessage = MessageUtilities.Create(message.RequestId, MessageType.Cancel, message.Method);
+                    await connection.SendAsync(cancelMessage, CancellationToken.None);
 
-            TResponse response = null;
-            using (GetProgressReporter(connection, message, cancellationToken))
+                    // We must guarantee that exactly one terminating message is sent, so do not fall through to send
+                    // the normal response, but also do not rethrow.
+                    return;
+                }
+                // If we did not send a cancel message, we must submit the response even if cancellationToken is canceled.
+                await responseHandler.SendResponseAsync(message, response, CancellationToken.None).ConfigureAwait(continueOnCapturedContext: false);
+            }
+            catch (Exception ex) when (LogExceptionAndReturnFalse(ex))
             {
-                response = await HandleRequestAsync(request).ConfigureAwait(continueOnCapturedContext: false);
+                throw;
             }
 
-            // We don't want to print credentials on auth responses
-            if (message.Method != MessageMethod.GetAuthenticationCredentials)
+            bool LogExceptionAndReturnFalse(Exception ex)
             {
-                var logResponse = JsonConvert.SerializeObject(response, new JsonSerializerSettings { Formatting = Formatting.None });
-                Logger.Verbose(string.Format(Resources.SendingResponse, logResponse));
-            }
+                // don't report cancellations during shutdown, they're most likely not interesting.
+                if (ex is OperationCanceledException && Program.IsShuttingDown && !Debugger.IsAttached)
+                {
+                    return false;
+                }
 
-            await responseHandler.SendResponseAsync(message, response, cancellationToken).ConfigureAwait(continueOnCapturedContext: false);
+                Logger.Verbose(string.Format(Resources.ResponseHandlerException, message.Method, message.RequestId));
+                Logger.Error(ex.ToString());
+                return false;
+            }
 
             CancellationToken = CancellationToken.None;
         }

@@ -53,6 +53,9 @@ namespace NuGetCredentialProvider
             return typeof(Program).GetTypeInfo().Assembly.GetCustomAttribute<AssemblyInformationalVersionAttribute>()?.InformationalVersion ?? "";
         });
 
+        private static bool shuttingDown = false;
+        public static bool IsShuttingDown => Volatile.Read(ref shuttingDown);
+
         public static async Task<int> Main(string[] args)
         {
             CancellationTokenSource tokenSource = new CancellationTokenSource();
@@ -181,6 +184,8 @@ namespace NuGetCredentialProvider
                 logger.Error(string.Format(Resources.FaultedOnMessage, $"{a.Message?.Type} {a.Message?.Method} {a.Message?.RequestId}"));
                 logger.Error(a.Exception.ToString());
             };
+
+            plugin.BeforeClose += (sender, args) => Volatile.Write(ref shuttingDown, true);
 
             plugin.Closed += (sender, a) => semaphore.Release();
 

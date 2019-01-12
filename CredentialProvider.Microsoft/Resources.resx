@@ -412,4 +412,7 @@ Device Flow Authentication Timeout
   <data name="CancelMessage" xml:space="preserve">
     <value>Canceling credential provider</value>
   </data>
+  <data name="ResponseHandlerException" xml:space="preserve">
+    <value>Caught exception processing {0}  (RequestId: {1})</value>
+  </data>
 </root>
