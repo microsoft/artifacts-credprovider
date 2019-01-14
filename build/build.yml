@@ -77,19 +77,12 @@ steps:
       projects: 'CredentialProvider.Microsoft.Tests/CredentialProvider.Microsoft.Tests.csproj'
 
 - task: CopyFiles@2
-  displayName: Copy netfx files into tarball
-  inputs:
-    sourceFolder: '$(Build.SourcesDirectory)\CredentialProvider.Microsoft\bin\$(BuildConfiguration)\net461\'
-    contents: '**\*'
-    targetFolder: '$(Build.ArtifactStagingDirectory)\tarball\plugins\netfx\CredentialProvider.Microsoft\'
-    cleanTargetFolder: true
-
-- task: CopyFiles@2
   displayName: Copy netcore files into tarball
   inputs:
     sourceFolder: '$(Build.SourcesDirectory)\CredentialProvider.Microsoft\bin\$(BuildConfiguration)\netcoreapp2.1\publish\'
     contents: '**\*'
     targetFolder: '$(Build.ArtifactStagingDirectory)\tarball\plugins\netcore\CredentialProvider.Microsoft\'
+    cleanTargetFolder: true
 
 - task: CopyFiles@2
   displayName: Copy license files into tarball
@@ -100,6 +93,32 @@ steps:
       CredentialProvider.Microsoft\ThirdPartyNotices.txt
     targetFolder: '$(Build.ArtifactStagingDirectory)\tarball\'
     flattenFolders: true
+
+- task: ArchiveFiles@2
+  displayName: Create netcore tarball
+  inputs:
+    rootFolderOrFile: '$(Build.ArtifactStagingDirectory)\tarball\'
+    includeRootFolder: false
+    archiveType: 'tar'
+    tarCompression: 'gz'
+    archiveFile: '$(Build.ArtifactStagingDirectory)\$(BuildConfiguration)\Microsoft.NetCore.NuGet.CredentialProvider.tar.gz'
+    replaceExistingArchive: true
+
+- task: ArchiveFiles@2
+  displayName: Create netcore zip
+  inputs:
+    rootFolderOrFile: '$(Build.ArtifactStagingDirectory)\tarball\'
+    includeRootFolder: false
+    archiveType: 'zip'
+    archiveFile: '$(Build.ArtifactStagingDirectory)\$(BuildConfiguration)\Microsoft.NetCore.NuGet.CredentialProvider.zip'
+    replaceExistingArchive: true
+
+- task: CopyFiles@2
+  displayName: Copy netfx files into tarball
+  inputs:
+    sourceFolder: '$(Build.SourcesDirectory)\CredentialProvider.Microsoft\bin\$(BuildConfiguration)\net461\'
+    contents: '**\*'
+    targetFolder: '$(Build.ArtifactStagingDirectory)\tarball\plugins\netfx\CredentialProvider.Microsoft\'
 
 - task: ArchiveFiles@2
   displayName: Create tarball
