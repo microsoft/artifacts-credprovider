@@ -97,7 +97,14 @@ namespace NuGetCredentialProvider {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to To sign in, use a web browser to open the page {0} and enter the code {1} to authenticate..
+        ///   Looks up a localized string similar to ATTENTION: User interaction required. 
+        ///
+        ///    **********************************************************************
+        ///
+        ///    To sign in, use a web browser to open the page {0} and enter the code {1} to authenticate.
+        ///
+        ///    **********************************************************************
+        ///.
         /// </summary>
         internal static string AdalDeviceFlowMessage {
             get {
@@ -169,7 +176,16 @@ namespace NuGetCredentialProvider {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to This credential provider must be run under the Team Build tasks for NuGet with external endpoint credentials.
+        ///   Looks up a localized string similar to This credential provider must not run if any build task environment variables are set. Variables: VSS_NUGET_URI_PREFIXES, VSS_NUGET_ACCESSTOKEN, VSS_NUGET_EXTERNAL_FEED_ENDPOINTS.
+        /// </summary>
+        internal static string BuildTaskCredProviderIsUsedError {
+            get {
+                return ResourceManager.GetString("BuildTaskCredProviderIsUsedError", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to This credential provider must be run under the Team Build tasks for NuGet with external endpoint credentials. Appropriate environment variable needs to be set..
         /// </summary>
         internal static string BuildTaskEndpointEnvVarError {
             get {
@@ -178,7 +194,25 @@ namespace NuGetCredentialProvider {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to This credential provider must be run under the Team Build tasks for NuGet.
+        ///   Looks up a localized string similar to Found credentials for endpoint {0}.
+        /// </summary>
+        internal static string BuildTaskEndpointMatchingUrlFound {
+            get {
+                return ResourceManager.GetString("BuildTaskEndpointMatchingUrlFound", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Environment variable VSS_NUGET_EXTERNAL_FEED_ENDPOINTS did not have credentials for endpoint {0}.
+        /// </summary>
+        internal static string BuildTaskEndpointNoMatchingUrl {
+            get {
+                return ResourceManager.GetString("BuildTaskEndpointNoMatchingUrl", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to This credential provider must be run under the Team Build tasks for NuGet. Appropriate environment variables must be set..
         /// </summary>
         internal static string BuildTaskEnvVarError {
             get {
@@ -189,9 +223,9 @@ namespace NuGetCredentialProvider {
         /// <summary>
         ///   Looks up a localized string similar to Failed to authenticate to {0} from your project collection.
         /// </summary>
-        internal static string BuildTaskIsRetry {
+        internal static string BuildTaskFailedToAuthenticate {
             get {
-                return ResourceManager.GetString("BuildTaskIsRetry", resourceCulture);
+                return ResourceManager.GetString("BuildTaskFailedToAuthenticate", resourceCulture);
             }
         }
         
@@ -237,6 +271,15 @@ namespace NuGetCredentialProvider {
         internal static string CachingSessionToken {
             get {
                 return ResourceManager.GetString("CachingSessionToken", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Canceling credential provider.
+        /// </summary>
+        internal static string CancelMessage {
+            get {
+                return ResourceManager.GetString("CancelMessage", resourceCulture);
             }
         }
         
@@ -513,6 +556,15 @@ namespace NuGetCredentialProvider {
         internal static string RequestUriNull {
             get {
                 return ResourceManager.GetString("RequestUriNull", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Caught exception processing {0}  (RequestId: {1}).
+        /// </summary>
+        internal static string ResponseHandlerException {
+            get {
+                return ResourceManager.GetString("ResponseHandlerException", resourceCulture);
             }
         }
         

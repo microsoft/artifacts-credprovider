@@ -32,8 +32,10 @@ namespace NuGetCredentialProvider.CredentialProviders.VstsBuildTaskServiceEndpoi
     public sealed class VstsBuildTaskServiceEndpointCredentialProvider : CredentialProviderBase
     {
         private Lazy<Dictionary<string, EndpointCredentials>> LazyCredentials;
-        private Dictionary<string, EndpointCredentials> Credentials => LazyCredentials.Value;
 
+        // Dictionary that maps an endpoint string to EndpointCredentials
+        private Dictionary<string, EndpointCredentials> Credentials => LazyCredentials.Value;
+            
         public VstsBuildTaskServiceEndpointCredentialProvider(ILogger logger)
             : base(logger)
         {
@@ -56,43 +58,30 @@ namespace NuGetCredentialProvider.CredentialProviders.VstsBuildTaskServiceEndpoi
                 return Task.FromResult(false);
             }
 
-            string uriString = uri.ToString();
-            if (Credentials.ContainsKey(uriString))
-            {
-                return Task.FromResult(true);
-            }
-
-            return Task.FromResult(false);
+            return Task.FromResult(true);
         }
 
         public override Task<GetAuthenticationCredentialsResponse> HandleRequestAsync(GetAuthenticationCredentialsRequest request, CancellationToken cancellationToken)
         {
-            bool endpointFound = Credentials.TryGetValue(request.Uri.ToString(), out EndpointCredentials matchingEndpoint);
+            cancellationToken.ThrowIfCancellationRequested();
+
+            string uriString = request.Uri.ToString();
+            bool endpointFound = Credentials.TryGetValue(uriString, out EndpointCredentials matchingEndpoint);
             if (endpointFound)
             {
-                string username = matchingEndpoint.Username;
-
-                // Should fail on retry because the token is provided through an env var. Retry is not going to help.
-                if (request.IsRetry)
-                {
-                    return GetResponse(
-                        username,
-                        null,
-                        string.Format(Resources.BuildTaskIsRetry, request.Uri.ToString()),
-                        MessageResponseCode.Error);
-                }
-
+                Verbose(string.Format(Resources.BuildTaskEndpointMatchingUrlFound, uriString));
                 return GetResponse(
-                    username,
+                    matchingEndpoint.Username,
                     matchingEndpoint.Password,
                     null,
                     MessageResponseCode.Success);
             }
 
+            Verbose(string.Format(Resources.BuildTaskEndpointNoMatchingUrl, uriString));
             return GetResponse(
                 null,
                 null,
-                string.Format(Resources.BuildTaskIsRetry, request.Uri.ToString()),
+                string.Format(Resources.BuildTaskFailedToAuthenticate, uriString),
                 MessageResponseCode.Error);
         }
 

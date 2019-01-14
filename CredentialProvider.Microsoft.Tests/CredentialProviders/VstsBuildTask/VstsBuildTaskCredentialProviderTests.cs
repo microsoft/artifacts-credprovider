@@ -3,9 +3,11 @@
 // Licensed under the MIT license.
 
 using System;
+using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
+using NuGet.Protocol.Plugins;
 using NuGetCredentialProvider.CredentialProviders.VstsBuildTask;
 using NuGetCredentialProvider.Logging;
 using NuGetCredentialProvider.Util;
@@ -68,7 +70,21 @@ namespace CredentialProvider.Microsoft.Tests.CredentialProviders.VstsBuildTask
         }
 
         [TestMethod]
-        public async Task CanProvideCredentials_ReturnsFalseWhenPrefixWillNotMatch()
+        public async Task HandleRequestAsync_ReturnsSuccess()
+        {
+            Uri sourceUri = new Uri(@"http://example.pkgs.vsts.me/_packaging/TestFeed/nuget/v3/index.json");
+            string uriPrefixesEnvVar = EnvUtil.BuildTaskUriPrefixes;
+            string accessTokenEnvVar = EnvUtil.BuildTaskAccessToken;
+
+            Environment.SetEnvironmentVariable(uriPrefixesEnvVar, "http://example.pkgs.vsts.me/_packaging/TestFeed/nuget/v3/index.json");
+            Environment.SetEnvironmentVariable(accessTokenEnvVar, "accessToken");
+
+            var result = await vstsCredentialProvider.HandleRequestAsync(new GetAuthenticationCredentialsRequest(sourceUri, false, false, false), CancellationToken.None);
+            Assert.AreEqual(result.ResponseCode, MessageResponseCode.Success);
+        }
+
+        [TestMethod]
+        public async Task HandleRequestAsync_ReturnsErrorWhenPrefixDoesNotMatch()
         {
             Uri sourceUri = new Uri(@"http://example.pkgs.vsts.me/_packaging/TestFeed/nuget/v3/index.json");
             string uriPrefixesEnvVar = EnvUtil.BuildTaskUriPrefixes;
@@ -77,8 +93,8 @@ namespace CredentialProvider.Microsoft.Tests.CredentialProviders.VstsBuildTask
             Environment.SetEnvironmentVariable(uriPrefixesEnvVar, "http://urlThatDoesNotMatch");
             Environment.SetEnvironmentVariable(accessTokenEnvVar, "accessToken");
 
-            var result = await vstsCredentialProvider.CanProvideCredentialsAsync(sourceUri);
-            Assert.AreEqual(false, result);
+            var result = await vstsCredentialProvider.HandleRequestAsync(new GetAuthenticationCredentialsRequest(sourceUri, false, false, false), CancellationToken.None);
+            Assert.AreEqual(result.ResponseCode, MessageResponseCode.Error);
         }
     }
 }
