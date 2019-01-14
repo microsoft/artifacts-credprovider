@@ -101,7 +101,7 @@ steps:
     includeRootFolder: false
     archiveType: 'tar'
     tarCompression: 'gz'
-    archiveFile: '$(Build.ArtifactStagingDirectory)\$(BuildConfiguration)\Microsoft.NetCore.NuGet.CredentialProvider.tar.gz'
+    archiveFile: '$(Build.ArtifactStagingDirectory)\$(BuildConfiguration)\Microsoft.NetCore2.NuGet.CredentialProvider.tar.gz'
     replaceExistingArchive: true
 
 - task: ArchiveFiles@2
@@ -110,7 +110,7 @@ steps:
     rootFolderOrFile: '$(Build.ArtifactStagingDirectory)\tarball\'
     includeRootFolder: false
     archiveType: 'zip'
-    archiveFile: '$(Build.ArtifactStagingDirectory)\$(BuildConfiguration)\Microsoft.NetCore.NuGet.CredentialProvider.zip'
+    archiveFile: '$(Build.ArtifactStagingDirectory)\$(BuildConfiguration)\Microsoft.NetCore2.NuGet.CredentialProvider.zip'
     replaceExistingArchive: true
 
 - task: CopyFiles@2
