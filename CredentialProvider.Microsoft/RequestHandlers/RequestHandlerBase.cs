@@ -68,6 +68,8 @@ namespace NuGetCredentialProvider.RequestHandlers
                     var cancelMessage = MessageUtilities.Create(message.RequestId, MessageType.Cancel, message.Method);
                     await connection.SendAsync(cancelMessage, CancellationToken.None);
 
+                    Logger.Verbose(ex.ToString());
+
                     // We must guarantee that exactly one terminating message is sent, so do not fall through to send
                     // the normal response, but also do not rethrow.
                     return;
@@ -89,7 +91,7 @@ namespace NuGetCredentialProvider.RequestHandlers
                 }
 
                 Logger.Verbose(string.Format(Resources.ResponseHandlerException, message.Method, message.RequestId));
-                Logger.Error(ex.ToString());
+                Logger.Verbose(ex.ToString());
                 return false;
             }
 
