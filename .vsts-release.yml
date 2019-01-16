@@ -13,9 +13,13 @@ variables:
 steps:
 - checkout: self
   clean: true
-- powershell: 'mkdir $(Build.SourcesDirectory)\keys; cp -Verbose $(KeyLocation) $(Build.SourcesDirectory)\keys\; dir $(Build.SourcesDirectory)\keys\'
-  displayName: Copy public key
-
+- task: UniversalPackages@0
+  displayName: 'Download public key'
+  inputs:
+    downloadDirectory: '$(Build.SourcesDirectory)\keys\'
+    vstsFeed: '54754426-96db-4f6e-8a3a-64265d1cc147'
+    vstsFeedPackage: '015e2771-4069-4e79-9197-263ca7319d09'
+    vstsPackageVersion: 1.0.0
 - template: build/build.yml
   parameters:
     sign: true
