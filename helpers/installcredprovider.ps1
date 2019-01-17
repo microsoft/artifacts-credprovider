@@ -47,7 +47,14 @@ $latestRelease = Invoke-WebRequest -UseBasicParsing $latestReleaseUrl
 $zipErrorString = "Unable to resolve the Credential Provider zip file from $latestReleaseUrl"
 try {
     $latestReleaseJson = $latestRelease.Content | ConvertFrom-Json
-    $zipAsset = $latestReleaseJson.assets | ? { $_.content_type -eq "application/x-zip-compressed" }
+    if ($AddNetfx -eq $True) {
+        Write-Host "Using Microsoft.NuGet.CredentialProvider.zip"
+        $zipAsset = $latestReleaseJson.assets | ? { $_.name -eq "Microsoft.NuGet.CredentialProvider.zip" }
+    } else {
+        Write-Host "Using Microsoft.NetCore2.NuGet.CredentialProvider.zip"
+        $zipAsset = $latestReleaseJson.assets | ? { $_.name -eq "Microsoft.NetCore2.NuGet.CredentialProvider.zip" }
+    }
+    
     $packageSourceUrl = $zipAsset.browser_download_url
 } catch {
     Write-Error $zipErrorString
