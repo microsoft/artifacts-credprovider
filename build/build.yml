@@ -104,6 +104,7 @@ steps:
     archiveFile: '$(Build.ArtifactStagingDirectory)\$(BuildConfiguration)\Microsoft.NetCore2.NuGet.CredentialProvider.tar.gz'
     replaceExistingArchive: true
 
+# NOTE: Changing the name of the zip will break things. Please don't do it.
 - task: ArchiveFiles@2
   displayName: Create netcore zip
   inputs:
@@ -130,6 +131,7 @@ steps:
     archiveFile: '$(Build.ArtifactStagingDirectory)\$(BuildConfiguration)\Microsoft.NuGet.CredentialProvider.tar.gz'
     replaceExistingArchive: true
 
+# NOTE: Changing the name of the zip will break things. Please don't do it.
 - task: ArchiveFiles@2
   displayName: Create zip
   inputs:
