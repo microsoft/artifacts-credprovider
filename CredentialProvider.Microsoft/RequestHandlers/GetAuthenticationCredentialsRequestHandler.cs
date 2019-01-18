@@ -145,7 +145,7 @@ namespace NuGetCredentialProvider.RequestHandlers
                 cache?.Remove(request.Uri);
                 return false;
             }
-            else if (cache.TryGetValue(request.Uri, out string password))
+            else if (cache.TryGetValue(request.Uri, Logger, out string password))
             {
                 Logger.Verbose(string.Format(Resources.FoundCachedSessionToken, request.Uri.ToString()));
                 cachedToken = password;
