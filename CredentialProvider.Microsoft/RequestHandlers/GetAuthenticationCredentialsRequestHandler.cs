@@ -127,7 +127,7 @@ namespace NuGetCredentialProvider.RequestHandlers
             if (EnvUtil.SessionTokenCacheEnabled())
             {
                 logger.Verbose(string.Format(Resources.SessionTokenCacheLocation, EnvUtil.SessionTokenCacheLocation));
-                return new SessionTokenCache(EnvUtil.SessionTokenCacheLocation);
+                return new SessionTokenCache(EnvUtil.SessionTokenCacheLocation, logger);
             }
 
             logger.Verbose(Resources.SessionTokenCacheDisabled);

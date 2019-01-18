@@ -4,7 +4,9 @@
 
 using System;
 using System.Collections.Generic;
+using System.IO;
 using Newtonsoft.Json;
+using NuGetCredentialProvider.Logging;
 
 namespace NuGetCredentialProvider.Util
 {
@@ -12,10 +14,12 @@ namespace NuGetCredentialProvider.Util
     {
         private static readonly object FileLock = new object();
         private readonly string cacheFilePath;
+        private ILogger logger;
 
-        public SessionTokenCache(string cacheFilePath)
+        public SessionTokenCache(string cacheFilePath, ILogger logger)
         {
             this.cacheFilePath = cacheFilePath;
+            this.logger = logger;
         }
 
         private Dictionary<Uri, string> Cache
@@ -50,7 +54,23 @@ namespace NuGetCredentialProvider.Util
 
         public bool TryGetValue(Uri key, out string value)
         {
-            return Cache.TryGetValue(key, out value);
+            try
+            {
+                return Cache.TryGetValue(key, out value);
+            }
+            catch (Exception e)
+            {
+                if (File.Exists(cacheFilePath))
+                {
+                    File.Delete(cacheFilePath);
+                }
+
+                logger.Verbose(string.Format(Resources.CacheException, e.Message));
+                Cache.Clear();
+                value = null;
+
+                return false;
+            }
         }
 
         public void Remove(Uri key)

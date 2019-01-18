@@ -266,6 +266,15 @@ namespace NuGetCredentialProvider {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Exception happened when trying to get cached token. Invalidating cache. Message: {0}.
+        /// </summary>
+        internal static string CacheException {
+            get {
+                return ResourceManager.GetString("CacheException", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Caching SessionToken for {0}.
         /// </summary>
         internal static string CachingSessionToken {

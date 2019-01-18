@@ -415,4 +415,7 @@ Device Flow Authentication Timeout
   <data name="ResponseHandlerException" xml:space="preserve">
     <value>Caught exception processing {0}  (RequestId: {1})</value>
   </data>
+  <data name="CacheException" xml:space="preserve">
+    <value>Exception happened when trying to get cached token. Invalidating cache. Message: {0}</value>
+  </data>
 </root>
