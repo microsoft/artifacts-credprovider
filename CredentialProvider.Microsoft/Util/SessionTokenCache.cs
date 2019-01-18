@@ -14,7 +14,6 @@ namespace NuGetCredentialProvider.Util
     {
         private static readonly object FileLock = new object();
         private readonly string cacheFilePath;
-        private ILogger logggggger;
         public SessionTokenCache(string cacheFilePath)
         {
             this.cacheFilePath = cacheFilePath;
