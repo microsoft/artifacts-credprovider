@@ -14,9 +14,12 @@ namespace NuGetCredentialProvider.Util
     {
         private static readonly object FileLock = new object();
         private readonly string cacheFilePath;
-        public SessionTokenCache(string cacheFilePath)
+        private ILogger logger;
+
+        public SessionTokenCache(string cacheFilePath, ILogger logger)
         {
             this.cacheFilePath = cacheFilePath;
+            this.logger = logger;
         }
 
         private Dictionary<Uri, string> Cache
@@ -49,7 +52,7 @@ namespace NuGetCredentialProvider.Util
             return Cache.ContainsKey(key);
         }
 
-        public bool TryGetValue(Uri key, ILogger logger, out string value)
+        public bool TryGetValue(Uri key, out string value)
         {
             try
             {
@@ -59,12 +62,11 @@ namespace NuGetCredentialProvider.Util
             {
                 if (File.Exists(cacheFilePath))
                 {
-                    logger.Verbose(string.Format(Resources.CacheException, e.Message));
-
                     File.Delete(cacheFilePath);
-                    Cache.Remove(key);
                 }
 
+                logger.Verbose(string.Format(Resources.CacheException, e.Message));
+                Cache.Clear();
                 value = null;
 
                 return false;

@@ -2,8 +2,6 @@
 //
 // Licensed under the MIT license.
 
-using NuGetCredentialProvider.Logging;
-
 namespace NuGetCredentialProvider.Util
 {
     public interface ICache<TKey, TValue>
@@ -12,7 +10,7 @@ namespace NuGetCredentialProvider.Util
 
         bool ContainsKey(TKey key);
 
-        bool TryGetValue(TKey key, ILogger logger, out TValue value);
+        bool TryGetValue(TKey key, out TValue value);
 
         void Remove(TKey key);
     }
@@ -36,7 +34,7 @@ namespace NuGetCredentialProvider.Util
         {
         }
 
-        public bool TryGetValue(TKey key, ILogger logger, out TValue value)
+        public bool TryGetValue(TKey key, out TValue value)
         {
             value = default;
 
