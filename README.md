@@ -68,6 +68,8 @@ dotnet restore --interactive
 
 Once you've successfully acquired a token, you can run authenticated commands without the `--interactive` flag for the lifespan of the token which is saved in the [session token cache location](#session-token-cache-locations).
 
+If you need to avoid this initial interactive step (e.g., because you are running the command as part of an automated build on an unattended build agent), you can supply an access token directly using the `VSS_NUGET_EXTERNAL_FEED_ENDPOINTS` [environment variable](#environment variables).
+
 ### nuget
 
 The nuget client will prompt for authentication when you run a `restore` and it does not find credential in the [session token cache location](#session-token-cache-locations). By default, it will attempt to open a dialog for authentication and will fall back to console input if that fails.
