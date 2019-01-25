@@ -108,6 +108,8 @@ The Credential Provider accepts a set of environment variables. These are the on
  {"endpointCredentials": [{"endpoint":"http://example.index.json", "username":"optional", "password":"accesstoken"}]}
 ```
 
+You may need to restart the agent service or the computer before the environment variables are available to the agent.
+
 ## Help
 
 The windows plugin, delivered in the `netfx` folder of `Microsoft.NuGet.CredentialProvider.zip`, ships a stand-alone executable that will acquire credentials. This program will place the credentials in the same location that the .dll would if it were called by nuget.exe, dotnet.exe, or msbuild.exe. The stand-alone executable will also print the available command options, environment variables, and credential storage locations. This information is reproduced here:
