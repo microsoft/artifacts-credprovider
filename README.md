@@ -60,7 +60,9 @@ Because the Credential Provider is a NuGet plugin, it is most commonly used indi
 
 ### dotnet
 
-The first time you perform an operation that requires authentication using `dotnet`, you must use the `--interactive` flag to allow `dotnet` to prompt you for credentials. For example, to restore packages, navigate to your project directory and run:
+The first time you perform an operation that requires authentication using `dotnet`, you must either use the `--interactive` flag to allow `dotnet` to prompt you for credentials, or provide them via an environment variable. 
+
+If you're running interactively navigate to your project directory and run:
 
 ```shell
 dotnet restore --interactive
@@ -68,7 +70,7 @@ dotnet restore --interactive
 
 Once you've successfully acquired a token, you can run authenticated commands without the `--interactive` flag for the lifespan of the token which is saved in the [session token cache location](#session-token-cache-locations).
 
-If you need to avoid this initial interactive step (e.g., because you are running the command as part of an automated build on an unattended build agent), you can supply an access token directly using the `VSS_NUGET_EXTERNAL_FEED_ENDPOINTS` [environment variable](#environment variables).
+If you're running the command as part of an automated build on an unattended build agent, you can supply an access token directly using the `VSS_NUGET_EXTERNAL_FEED_ENDPOINTS` [environment variable](#environment-variables).
 
 ### nuget
 
