@@ -104,7 +104,7 @@ The Credential Provider accepts a set of environment variables. These are the on
  {"endpointCredentials": [{"endpoint":"http://example.index.json", "username":"optional", "password":"accesstoken"}]}
 ```
 
-**TIP,** if it doesn't work after you have added the environment variables, you might need to either restart the service for the agent or restart the computer, this so that the agent's process gets aware of the changes.
+You may need to restart the agent service or the computer before the environment variables are available to the agent.
 
 ## Help
 
