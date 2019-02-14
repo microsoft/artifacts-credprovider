@@ -230,7 +230,7 @@
     <value>Running in stand-alone mode</value>
   </data>
   <data name="SendingResponse" xml:space="preserve">
-    <value>Sending response: '{0}'</value>
+    <value>Sending response: '{0}' '{1}'</value>
   </data>
   <data name="SessionTokenCacheDisabled" xml:space="preserve">
     <value>SessionToken cache disabled by environment</value>
@@ -417,5 +417,17 @@ Device Flow Authentication Timeout
   </data>
   <data name="CacheException" xml:space="preserve">
     <value>Exception happened when trying to get cached token. Invalidating cache. Message: {0}</value>
+  </data>
+  <data name="CancellationRequested" xml:space="preserve">
+    <value>Cancellation requested. Sending cancellation response.</value>
+  </data>
+  <data name="BuildTaskNoMatchingPrefixes" xml:space="preserve">
+    <value>none</value>
+  </data>
+  <data name="RequestHandlerCancelingExceptionMessage" xml:space="preserve">
+    <value>Cancellation exception happened while handling request. Exception: {0}, Message: {1}</value>
+  </data>
+  <data name="ShuttingDown" xml:space="preserve">
+    <value>Credential provider shutting down.</value>
   </data>
 </root>

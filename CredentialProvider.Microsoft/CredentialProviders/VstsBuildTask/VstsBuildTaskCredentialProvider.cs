@@ -49,6 +49,8 @@ namespace NuGetCredentialProvider.CredentialProviders.VstsBuildTask
             string uriPrefixesString = Environment.GetEnvironmentVariable(EnvUtil.BuildTaskUriPrefixes);
             string accessToken = Environment.GetEnvironmentVariable(EnvUtil.BuildTaskAccessToken);
 
+            Verbose(string.Format(Resources.IsRetry, request.IsRetry));
+
             string[] uriPrefixes = uriPrefixesString.Split(new[] { ';' }, StringSplitOptions.RemoveEmptyEntries);
             Verbose(Resources.BuildTaskUriPrefixes);
             foreach (var uriPrefix in uriPrefixes)
@@ -58,7 +60,7 @@ namespace NuGetCredentialProvider.CredentialProviders.VstsBuildTask
 
             string uriString = request.Uri.ToString();
             string matchedPrefix = uriPrefixes.FirstOrDefault(prefix => uriString.StartsWith(prefix, StringComparison.OrdinalIgnoreCase));
-            Verbose(string.Format(Resources.BuildTaskMatchedPrefix, matchedPrefix));
+            Verbose(string.Format(Resources.BuildTaskMatchedPrefix, matchedPrefix != null  ? matchedPrefix : Resources.BuildTaskNoMatchingPrefixes));
 
             if (matchedPrefix == null)
             {
@@ -70,6 +72,7 @@ namespace NuGetCredentialProvider.CredentialProviders.VstsBuildTask
                     MessageResponseCode.Error);
             }
 
+            Verbose(string.Format(Resources.BuildTaskEndpointMatchingUrlFound, uriString));
             return this.GetResponse(
                     Username,
                     accessToken,

@@ -65,6 +65,8 @@ namespace NuGetCredentialProvider.CredentialProviders.VstsBuildTaskServiceEndpoi
         {
             cancellationToken.ThrowIfCancellationRequested();
 
+            Verbose(string.Format(Resources.IsRetry, request.IsRetry));
+
             string uriString = request.Uri.ToString();
             bool endpointFound = Credentials.TryGetValue(uriString, out EndpointCredentials matchingEndpoint);
             if (endpointFound)

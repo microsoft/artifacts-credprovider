@@ -239,6 +239,15 @@ namespace NuGetCredentialProvider {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to none.
+        /// </summary>
+        internal static string BuildTaskNoMatchingPrefixes {
+            get {
+                return ResourceManager.GetString("BuildTaskNoMatchingPrefixes", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to This provider only handles URIs from the build&apos;s Team Project Collection.
         /// </summary>
         internal static string BuildTaskNoPrefixMatch {
@@ -280,6 +289,15 @@ namespace NuGetCredentialProvider {
         internal static string CachingSessionToken {
             get {
                 return ResourceManager.GetString("CachingSessionToken", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Cancellation requested. Sending cancellation response..
+        /// </summary>
+        internal static string CancellationRequested {
+            get {
+                return ResourceManager.GetString("CancellationRequested", resourceCulture);
             }
         }
         
@@ -560,6 +578,15 @@ namespace NuGetCredentialProvider {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Cancellation exception happened while handling request. Exception: {0}, Message: {1}.
+        /// </summary>
+        internal static string RequestHandlerCancelingExceptionMessage {
+            get {
+                return ResourceManager.GetString("RequestHandlerCancelingExceptionMessage", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Request uri cannot be null.
         /// </summary>
         internal static string RequestUriNull {
@@ -596,7 +623,7 @@ namespace NuGetCredentialProvider {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Sending response: &apos;{0}&apos;.
+        ///   Looks up a localized string similar to Sending response: &apos;{0}&apos; &apos;{1}&apos;.
         /// </summary>
         internal static string SendingResponse {
             get {
@@ -619,6 +646,15 @@ namespace NuGetCredentialProvider {
         internal static string SessionTokenCacheLocation {
             get {
                 return ResourceManager.GetString("SessionTokenCacheLocation", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Credential provider shutting down..
+        /// </summary>
+        internal static string ShuttingDown {
+            get {
+                return ResourceManager.GetString("ShuttingDown", resourceCulture);
             }
         }
         

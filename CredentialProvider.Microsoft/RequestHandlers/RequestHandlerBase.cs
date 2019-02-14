@@ -64,16 +64,19 @@ namespace NuGetCredentialProvider.RequestHandlers
                 }
                 catch (Exception ex) when (cancellationToken.IsCancellationRequested)
                 {
+                    Logger.Verbose(string.Format(Resources.RequestHandlerCancelingExceptionMessage, ex.InnerException, ex.Message));
+                    Logger.Verbose(Resources.CancellationRequested);
+
                     // We have been canceled by NuGet. Send a cancellation response.
                     var cancelMessage = MessageUtilities.Create(message.RequestId, MessageType.Cancel, message.Method);
                     await connection.SendAsync(cancelMessage, CancellationToken.None);
-
-                    Logger.Verbose(ex.ToString());
-
+                    
                     // We must guarantee that exactly one terminating message is sent, so do not fall through to send
                     // the normal response, but also do not rethrow.
                     return;
                 }
+
+                Logger.Verbose(string.Format(Resources.SendingResponse, message.Type, message.Method));
                 // If we did not send a cancel message, we must submit the response even if cancellationToken is canceled.
                 await responseHandler.SendResponseAsync(message, response, CancellationToken.None).ConfigureAwait(continueOnCapturedContext: false);
             }
@@ -87,6 +90,7 @@ namespace NuGetCredentialProvider.RequestHandlers
                 // don't report cancellations during shutdown, they're most likely not interesting.
                 if (ex is OperationCanceledException && Program.IsShuttingDown && !Debugger.IsAttached)
                 {
+                    Logger.Verbose(Resources.ShuttingDown);
                     return false;
                 }
 
