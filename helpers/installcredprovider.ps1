@@ -13,7 +13,7 @@ param(
 $script:ErrorActionPreference='Stop'
 
 # Without this, System.Net.WebClient.DownloadFile will fail on a client with TLS 1.0/1.1 disabled
-if ([Net.ServicePointManager]::SecurityProtocol.ToString().Split(',').Trim() -notcontains 'Tls12') {
+if ([Net.ServicePointManager]::SecurityProtocol -notcontains [System.Net.SecurityProtocolType]::Tls12) {
     [Net.ServicePointManager]::SecurityProtocol += [Net.SecurityProtocolType]::Tls12
 }
 
