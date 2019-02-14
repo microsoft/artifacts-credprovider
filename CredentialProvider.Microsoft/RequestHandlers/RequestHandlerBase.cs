@@ -75,6 +75,8 @@ namespace NuGetCredentialProvider.RequestHandlers
                     // the normal response, but also do not rethrow.
                     return;
                 }
+
+                Logger.Verbose(string.Format(Resources.SendingResponse, message.Type, message.Method));
                 // If we did not send a cancel message, we must submit the response even if cancellationToken is canceled.
                 await responseHandler.SendResponseAsync(message, response, CancellationToken.None).ConfigureAwait(continueOnCapturedContext: false);
             }

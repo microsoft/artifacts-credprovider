@@ -230,7 +230,7 @@
     <value>Running in stand-alone mode</value>
   </data>
   <data name="SendingResponse" xml:space="preserve">
-    <value>Sending response: '{0}'</value>
+    <value>Sending response: '{0}' '{1}'</value>
   </data>
   <data name="SessionTokenCacheDisabled" xml:space="preserve">
     <value>SessionToken cache disabled by environment</value>

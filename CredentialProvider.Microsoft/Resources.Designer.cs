@@ -623,7 +623,7 @@ namespace NuGetCredentialProvider {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Sending response: &apos;{0}&apos;.
+        ///   Looks up a localized string similar to Sending response: &apos;{0}&apos; &apos;{1}&apos;.
         /// </summary>
         internal static string SendingResponse {
             get {
