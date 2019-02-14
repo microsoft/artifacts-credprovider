@@ -60,7 +60,7 @@ namespace NuGetCredentialProvider.CredentialProviders.VstsBuildTask
 
             string uriString = request.Uri.ToString();
             string matchedPrefix = uriPrefixes.FirstOrDefault(prefix => uriString.StartsWith(prefix, StringComparison.OrdinalIgnoreCase));
-            Verbose(string.Format(Resources.BuildTaskMatchedPrefix, matchedPrefix != null  ? matchedPrefix : Resources.NoMatches));
+            Verbose(string.Format(Resources.BuildTaskMatchedPrefix, matchedPrefix != null  ? matchedPrefix : Resources.BuildTaskNoMatchingPrefixes));
 
             if (matchedPrefix == null)
             {

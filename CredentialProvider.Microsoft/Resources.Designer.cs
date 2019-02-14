@@ -239,6 +239,15 @@ namespace NuGetCredentialProvider {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to none.
+        /// </summary>
+        internal static string BuildTaskNoMatchingPrefixes {
+            get {
+                return ResourceManager.GetString("BuildTaskNoMatchingPrefixes", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to This provider only handles URIs from the build&apos;s Team Project Collection.
         /// </summary>
         internal static string BuildTaskNoPrefixMatch {
@@ -524,15 +533,6 @@ namespace NuGetCredentialProvider {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to none.
-        /// </summary>
-        internal static string NoMatches {
-            get {
-                return ResourceManager.GetString("NoMatches", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to Not running bearer token provider &apos;{0}&apos;.
         /// </summary>
         internal static string NotRunningBearerTokenProvider {
@@ -578,7 +578,7 @@ namespace NuGetCredentialProvider {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Exception happened while handling request. Exception: {0}, Message: {1}.
+        ///   Looks up a localized string similar to Cancellation exception happened while handling request. Exception: {0}, Message: {1}.
         /// </summary>
         internal static string RequestHandlerCancelingExceptionMessage {
             get {

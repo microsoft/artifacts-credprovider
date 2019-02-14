@@ -421,11 +421,11 @@ Device Flow Authentication Timeout
   <data name="CancellationRequested" xml:space="preserve">
     <value>Cancellation requested. Sending cancellation response.</value>
   </data>
-  <data name="NoMatches" xml:space="preserve">
+  <data name="BuildTaskNoMatchingPrefixes" xml:space="preserve">
     <value>none</value>
   </data>
   <data name="RequestHandlerCancelingExceptionMessage" xml:space="preserve">
-    <value>Exception happened while handling request. Exception: {0}, Message: {1}</value>
+    <value>Cancellation exception happened while handling request. Exception: {0}, Message: {1}</value>
   </data>
   <data name="ShuttingDown" xml:space="preserve">
     <value>Credential provider shutting down.</value>
