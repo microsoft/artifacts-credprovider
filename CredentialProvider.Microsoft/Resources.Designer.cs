@@ -284,6 +284,15 @@ namespace NuGetCredentialProvider {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Cancellation requested. Sending cancellation response..
+        /// </summary>
+        internal static string CancellationRequested {
+            get {
+                return ResourceManager.GetString("CancellationRequested", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Canceling credential provider.
         /// </summary>
         internal static string CancelMessage {
@@ -515,6 +524,15 @@ namespace NuGetCredentialProvider {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to none.
+        /// </summary>
+        internal static string NoMatches {
+            get {
+                return ResourceManager.GetString("NoMatches", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Not running bearer token provider &apos;{0}&apos;.
         /// </summary>
         internal static string NotRunningBearerTokenProvider {
@@ -556,6 +574,15 @@ namespace NuGetCredentialProvider {
         internal static string Redacted {
             get {
                 return ResourceManager.GetString("Redacted", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Exception happened while handling request. Exception: {0}, Message: {1}.
+        /// </summary>
+        internal static string RequestHandlerCancelingExceptionMessage {
+            get {
+                return ResourceManager.GetString("RequestHandlerCancelingExceptionMessage", resourceCulture);
             }
         }
         
@@ -619,6 +646,15 @@ namespace NuGetCredentialProvider {
         internal static string SessionTokenCacheLocation {
             get {
                 return ResourceManager.GetString("SessionTokenCacheLocation", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Credential provider shutting down..
+        /// </summary>
+        internal static string ShuttingDown {
+            get {
+                return ResourceManager.GetString("ShuttingDown", resourceCulture);
             }
         }
         
