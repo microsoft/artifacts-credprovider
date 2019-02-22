@@ -203,7 +203,7 @@
     <value>Handling auth request, Uri: {0}, IsRetry: {1}, IsNonInteractive: {2}, CanShowDialog: {3}</value>
   </data>
   <data name="HandlingRequest" xml:space="preserve">
-    <value>Handling '{0}' '{1}' - {2}</value>
+    <value>Handling '{0}' '{1}'. Time elapsed in ms: {2} - Payload: {3}</value>
   </data>
   <data name="InvalidatingCachedSessionToken" xml:space="preserve">
     <value>Invalidating SessionToken cache for {0}</value>
@@ -230,7 +230,7 @@
     <value>Running in stand-alone mode</value>
   </data>
   <data name="SendingResponse" xml:space="preserve">
-    <value>Sending response: '{0}' '{1}'</value>
+    <value>Sending response: '{0}' '{1}'. Time elapsed in ms: {2}</value>
   </data>
   <data name="SessionTokenCacheDisabled" xml:space="preserve">
     <value>SessionToken cache disabled by environment</value>
@@ -418,16 +418,19 @@ Device Flow Authentication Timeout
   <data name="CacheException" xml:space="preserve">
     <value>Exception happened when trying to get cached token. Invalidating cache. Message: {0}</value>
   </data>
-  <data name="CancellationRequested" xml:space="preserve">
-    <value>Cancellation requested. Sending cancellation response.</value>
-  </data>
   <data name="BuildTaskNoMatchingPrefixes" xml:space="preserve">
     <value>none</value>
   </data>
   <data name="RequestHandlerCancelingExceptionMessage" xml:space="preserve">
-    <value>Cancellation exception happened while handling request. Exception: {0}, Message: {1}</value>
+    <value>Ignoring a cancellation exception during request handling. Exception: {0}, Message: {1}</value>
   </data>
   <data name="ShuttingDown" xml:space="preserve">
     <value>Credential provider shutting down.</value>
+  </data>
+  <data name="StartRequestHandlerStopwatch" xml:space="preserve">
+    <value>Starting stopwatch for {1} {2}</value>
+  </data>
+  <data name="TimeElapsedAfterSendingResponse" xml:space="preserve">
+    <value>Time elapsed in milliseconds after sending response '{0}' '{1}': {2}</value>
   </data>
 </root>

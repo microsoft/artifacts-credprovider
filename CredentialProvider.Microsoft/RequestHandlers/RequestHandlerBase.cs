@@ -48,6 +48,9 @@ namespace NuGetCredentialProvider.RequestHandlers
         /// <inheritdoc cref="IRequestHandler.HandleResponseAsync"/>
         public async Task HandleResponseAsync(IConnection connection, Message message, IResponseHandler responseHandler, CancellationToken cancellationToken)
         {
+            Stopwatch timer = new Stopwatch();
+            timer.Start();
+
             Connection = connection;
             CancellationToken = cancellationToken;
 
@@ -55,7 +58,7 @@ namespace NuGetCredentialProvider.RequestHandlers
 
             try {
                 TResponse response = null;
-                Logger.Verbose(string.Format(Resources.HandlingRequest, message.Type, message.Method, message.Payload.ToString(Formatting.None)));
+                Logger.Verbose(string.Format(Resources.HandlingRequest, message.Type, message.Method, timer.ElapsedMilliseconds, message.Payload.ToString(Formatting.None)));
                 try {
                     using (GetProgressReporter(connection, message, cancellationToken))
                     {
@@ -64,21 +67,15 @@ namespace NuGetCredentialProvider.RequestHandlers
                 }
                 catch (Exception ex) when (cancellationToken.IsCancellationRequested)
                 {
+                    // NuGet will handle canceling event but verbose logs in this case might be interesting.
                     Logger.Verbose(string.Format(Resources.RequestHandlerCancelingExceptionMessage, ex.InnerException, ex.Message));
-                    Logger.Verbose(Resources.CancellationRequested);
-
-                    // We have been canceled by NuGet. Send a cancellation response.
-                    var cancelMessage = MessageUtilities.Create(message.RequestId, MessageType.Cancel, message.Method);
-                    await connection.SendAsync(cancelMessage, CancellationToken.None);
-                    
-                    // We must guarantee that exactly one terminating message is sent, so do not fall through to send
-                    // the normal response, but also do not rethrow.
                     return;
                 }
-
-                Logger.Verbose(string.Format(Resources.SendingResponse, message.Type, message.Method));
+                Logger.Verbose(string.Format(Resources.SendingResponse, message.Type, message.Method, timer.ElapsedMilliseconds));
                 // If we did not send a cancel message, we must submit the response even if cancellationToken is canceled.
                 await responseHandler.SendResponseAsync(message, response, CancellationToken.None).ConfigureAwait(continueOnCapturedContext: false);
+
+                Logger.Verbose(string.Format(Resources.TimeElapsedAfterSendingResponse, message.Type, message.Method, timer.ElapsedMilliseconds));
             }
             catch (Exception ex) when (LogExceptionAndReturnFalse(ex))
             {
@@ -100,6 +97,7 @@ namespace NuGetCredentialProvider.RequestHandlers
             }
 
             CancellationToken = CancellationToken.None;
+            timer.Stop();
         }
 
         public abstract Task<TResponse> HandleRequestAsync(TRequest request);
