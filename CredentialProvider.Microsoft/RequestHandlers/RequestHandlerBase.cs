@@ -67,6 +67,7 @@ namespace NuGetCredentialProvider.RequestHandlers
                 }
                 catch (Exception ex) when (cancellationToken.IsCancellationRequested)
                 {
+                    // NuGet will handle canceling event but verbose logs in this case might be interesting.
                     Logger.Verbose(string.Format(Resources.RequestHandlerCancelingExceptionMessage, ex.InnerException, ex.Message));
                     return;
                 }
