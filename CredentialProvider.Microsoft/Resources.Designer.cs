@@ -293,15 +293,6 @@ namespace NuGetCredentialProvider {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Cancellation requested. Sending cancellation response..
-        /// </summary>
-        internal static string CancellationRequested {
-            get {
-                return ResourceManager.GetString("CancellationRequested", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to Canceling credential provider.
         /// </summary>
         internal static string CancelMessage {
@@ -488,7 +479,7 @@ namespace NuGetCredentialProvider {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Handling &apos;{0}&apos; &apos;{1}&apos; - {2}.
+        ///   Looks up a localized string similar to Handling &apos;{0}&apos; &apos;{1}&apos;. Time elapsed in ms: {2} - Payload: {3}.
         /// </summary>
         internal static string HandlingRequest {
             get {
@@ -578,7 +569,7 @@ namespace NuGetCredentialProvider {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Cancellation exception happened while handling request. Exception: {0}, Message: {1}.
+        ///   Looks up a localized string similar to Ignoring a cancellation exception during request handling. Exception: {0}, Message: {1}.
         /// </summary>
         internal static string RequestHandlerCancelingExceptionMessage {
             get {
@@ -623,7 +614,7 @@ namespace NuGetCredentialProvider {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Sending response: &apos;{0}&apos; &apos;{1}&apos;.
+        ///   Looks up a localized string similar to Sending response: &apos;{0}&apos; &apos;{1}&apos;. Time elapsed in ms: {2}.
         /// </summary>
         internal static string SendingResponse {
             get {
@@ -682,6 +673,24 @@ namespace NuGetCredentialProvider {
         internal static string SPSAuthEndpointNotFound {
             get {
                 return ResourceManager.GetString("SPSAuthEndpointNotFound", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Starting stopwatch for {1} {2}.
+        /// </summary>
+        internal static string StartRequestHandlerStopwatch {
+            get {
+                return ResourceManager.GetString("StartRequestHandlerStopwatch", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Time elapsed in milliseconds after sending response &apos;{0}&apos; &apos;{1}&apos;: {2}.
+        /// </summary>
+        internal static string TimeElapsedAfterSendingResponse {
+            get {
+                return ResourceManager.GetString("TimeElapsedAfterSendingResponse", resourceCulture);
             }
         }
         
