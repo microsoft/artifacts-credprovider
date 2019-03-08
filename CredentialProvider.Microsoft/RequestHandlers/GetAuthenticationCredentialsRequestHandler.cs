@@ -39,7 +39,7 @@ namespace NuGetCredentialProvider.RequestHandlers
         public GetAuthenticationCredentialsRequestHandler(ILogger logger, IReadOnlyCollection<ICredentialProvider> credentialProviders)
             : this(logger, credentialProviders, null)
         {
-            this.cache = GetSessionTokenCache(logger);
+            this.cache = GetSessionTokenCache(logger, CancellationToken);
         }
 
         public override async Task<GetAuthenticationCredentialsResponse> HandleRequestAsync(GetAuthenticationCredentialsRequest request)
@@ -122,12 +122,12 @@ namespace NuGetCredentialProvider.RequestHandlers
             return AutomaticProgressReporter.Create(connection, message, progressReporterTimeSpan, cancellationToken);
         }
 
-        private static ICache<Uri, string> GetSessionTokenCache(ILogger logger)
+        private static ICache<Uri, string> GetSessionTokenCache(ILogger logger, CancellationToken cancellationToken)
         {
             if (EnvUtil.SessionTokenCacheEnabled())
             {
                 logger.Verbose(string.Format(Resources.SessionTokenCacheLocation, EnvUtil.SessionTokenCacheLocation));
-                return new SessionTokenCache(EnvUtil.SessionTokenCacheLocation, logger);
+                return new SessionTokenCache(EnvUtil.SessionTokenCacheLocation, logger, cancellationToken);
             }
 
             logger.Verbose(Resources.SessionTokenCacheDisabled);

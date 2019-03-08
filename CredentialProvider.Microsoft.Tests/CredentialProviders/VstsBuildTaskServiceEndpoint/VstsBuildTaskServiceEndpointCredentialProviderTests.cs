@@ -115,7 +115,7 @@ namespace CredentialProvider.Microsoft.Tests.CredentialProviders.VstsBuildTaskSe
         }
 
         [TestMethod]
-        public async Task HandleRequestAsync_ThrowsWithInvalidJson()
+        public void HandleRequestAsync_ThrowsWithInvalidJson()
         {
             Uri sourceUri = new Uri(@"http://example.pkgs.vsts.me.pkgs.vsts.me/_packaging/TestFeed/nuget/v3/index.json");
             string feedEndPointJsonEnvVar = EnvUtil.BuildTaskExternalEndpoints;
@@ -123,7 +123,7 @@ namespace CredentialProvider.Microsoft.Tests.CredentialProviders.VstsBuildTaskSe
 
             Environment.SetEnvironmentVariable(feedEndPointJsonEnvVar, invalidFeedEndPointJson);
 
-            Action act = () => vstsCredentialProvider.HandleRequestAsync(new GetAuthenticationCredentialsRequest(sourceUri, false, false, false), CancellationToken.None);
+            Func<Task> act = async () => await vstsCredentialProvider.HandleRequestAsync(new GetAuthenticationCredentialsRequest(sourceUri, false, false, false), CancellationToken.None);
             act.Should().Throw<Exception>();
         }
     }

@@ -433,4 +433,10 @@ Device Flow Authentication Timeout
   <data name="TimeElapsedAfterSendingResponse" xml:space="preserve">
     <value>Time elapsed in milliseconds after sending response '{0}' '{1}': {2}</value>
   </data>
+  <data name="SessionTokenCacheMutexFail" xml:space="preserve">
+    <value>Unable to gain a lock on the credential cache.</value>
+  </data>
+  <data name="SessionTokenCacheMutexMiss" xml:space="preserve">
+    <value>Another instance of CredentialProvider is accessing the credential cache, waiting for it to become available.</value>
+  </data>
 </root>

@@ -5,6 +5,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Threading;
 using Newtonsoft.Json;
 using NuGetCredentialProvider.Logging;
 
@@ -15,20 +16,63 @@ namespace NuGetCredentialProvider.Util
         private static readonly object FileLock = new object();
         private readonly string cacheFilePath;
         private ILogger logger;
+        private CancellationToken cancellationToken;
+        private readonly string mutexName;
 
-        public SessionTokenCache(string cacheFilePath, ILogger logger)
+        public SessionTokenCache(string cacheFilePath, ILogger logger, CancellationToken cancellationToken)
         {
             this.cacheFilePath = cacheFilePath;
             this.logger = logger;
+            this.mutexName = @"Global\" + cacheFilePath.Replace(Path.DirectorySeparatorChar, '_');
         }
 
         private Dictionary<Uri, string> Cache
         {
             get
             {
-                lock (FileLock)
+                bool mutexHeld = false, dummy;
+                using (Mutex mutex = new Mutex(false, mutexName, out dummy))
                 {
-                    return Deserialize(ReadFileBytes());
+                    try
+                    {
+                        try
+                        {
+                            if (!mutex.WaitOne(0))
+                            {
+                                // We couldn't get the mutex on our first acquisition attempt. Log this so the user knows what we're
+                                // waiting on.
+                                logger.Verbose(Resources.SessionTokenCacheMutexMiss);
+
+                                int index = WaitHandle.WaitAny(new WaitHandle[] { mutex, this.cancellationToken.WaitHandle }, -1);
+
+                                if (index == 1)
+                                {
+                                    logger.Verbose(Resources.CancelMessage);
+                                    return new Dictionary<Uri, string>();
+                                }
+                                else if (index == WaitHandle.WaitTimeout)
+                                {
+                                    logger.Verbose(Resources.SessionTokenCacheMutexFail);
+                                    return new Dictionary<Uri, string>();
+                                }
+                            }
+                        }
+                        catch (AbandonedMutexException)
+                        {
+                            // If this is thrown, then we hold the mutex.
+                        }
+
+                        mutexHeld = true;
+
+                        return Deserialize(ReadFileBytes());
+                    }
+                    finally
+                    {
+                        if (mutexHeld)
+                        {
+                            mutex.ReleaseMutex();
+                        }
+                    }
                 }
             }
         }
@@ -38,11 +82,49 @@ namespace NuGetCredentialProvider.Util
             get => Cache[key];
             set
             {
-                lock (FileLock)
+                bool mutexHeld = false, dummy;
+                using (Mutex mutex = new Mutex(false, mutexName, out dummy))
                 {
-                    var cache = Cache;
-                    cache[key] = value;
-                    WriteFileBytes(Serialize(cache));
+                    try
+                    {
+                        try
+                        {
+                            if (!mutex.WaitOne(0))
+                            {
+                                // We couldn't get the mutex on our first acquisition attempt. Log this so the user knows what we're
+                                // waiting on.
+                                logger.Verbose(Resources.SessionTokenCacheMutexMiss);
+
+                                int index = WaitHandle.WaitAny(new WaitHandle[] { mutex, this.cancellationToken.WaitHandle }, -1);
+
+                                if (index == 1)
+                                {
+                                    logger.Verbose(Resources.CancelMessage);
+                                }
+                                else if (index == WaitHandle.WaitTimeout)
+                                {
+                                    logger.Verbose(Resources.SessionTokenCacheMutexFail);
+                                }
+                            }
+                        }
+                        catch (AbandonedMutexException)
+                        {
+                            // If this is thrown, then we hold the mutex.
+                        }
+
+                        mutexHeld = true;
+
+                        var cache = Cache;
+                        cache[key] = value;
+                        WriteFileBytes(Serialize(cache));
+                    }
+                    finally
+                    {
+                        if (mutexHeld)
+                        {
+                            mutex.ReleaseMutex();
+                        }
+                    }
                 }
             }
         }
@@ -75,11 +157,49 @@ namespace NuGetCredentialProvider.Util
 
         public void Remove(Uri key)
         {
-            lock (FileLock)
+            bool mutexHeld = false, dummy;
+            using (Mutex mutex = new Mutex(false, mutexName, out dummy))
             {
-                var cache = Cache;
-                cache.Remove(key);
-                WriteFileBytes(Serialize(cache));
+                try
+                {
+                    try
+                    {
+                        if (!mutex.WaitOne(0))
+                        {
+                            // We couldn't get the mutex on our first acquisition attempt. Log this so the user knows what we're
+                            // waiting on.
+                            logger.Verbose(Resources.SessionTokenCacheMutexMiss);
+
+                            int index = WaitHandle.WaitAny(new WaitHandle[] { mutex, this.cancellationToken.WaitHandle }, -1);
+
+                            if (index == 1)
+                            {
+                                logger.Verbose(Resources.CancelMessage);
+                            }
+                            else if (index == WaitHandle.WaitTimeout)
+                            {
+                                logger.Verbose(Resources.SessionTokenCacheMutexFail);
+                            }
+                        }
+                    }
+                    catch (AbandonedMutexException)
+                    {
+                        // If this is thrown, then we hold the mutex.
+                    }
+
+                    mutexHeld = true;
+
+                    var cache = Cache;
+                    cache.Remove(key);
+                    WriteFileBytes(Serialize(cache));
+                }
+                finally
+                {
+                    if (mutexHeld)
+                    {
+                        mutex.ReleaseMutex();
+                    }
+                }
             }
         }
 

@@ -641,6 +641,24 @@ namespace NuGetCredentialProvider {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Unable to gain a lock on the credential cache..
+        /// </summary>
+        internal static string SessionTokenCacheMutexFail {
+            get {
+                return ResourceManager.GetString("SessionTokenCacheMutexFail", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Another instance of CredentialProvider is accessing the credential cache, waiting for it to become available..
+        /// </summary>
+        internal static string SessionTokenCacheMutexMiss {
+            get {
+                return ResourceManager.GetString("SessionTokenCacheMutexMiss", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Credential provider shutting down..
         /// </summary>
         internal static string ShuttingDown {
