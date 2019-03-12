@@ -52,7 +52,6 @@ namespace NuGetCredentialProvider.RequestHandlers
             timer.Start();
 
             Connection = connection;
-            CancellationToken = cancellationToken;
 
             TRequest request = MessageUtilities.DeserializePayload<TRequest>(message);
 
@@ -95,8 +94,7 @@ namespace NuGetCredentialProvider.RequestHandlers
                 Logger.Verbose(ex.ToString());
                 return false;
             }
-
-            CancellationToken = CancellationToken.None;
+            
             timer.Stop();
         }
 
