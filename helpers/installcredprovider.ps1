@@ -26,10 +26,14 @@ $tempZipLocation = [System.IO.Path]::Combine($tempPath, "CredProviderZip");
 $localNetcoreCredProviderPath = [System.IO.Path]::Combine("netcore", "CredentialProvider.Microsoft");
 $localNetfxCredProviderPath = [System.IO.Path]::Combine("netfx", "CredentialProvider.Microsoft");
 
+$fullNetfxCredProviderPath = [System.IO.Path]::Combine($pluginLocation, $localNetfxCredProviderPath)
+$fullNetcoreCredProviderPath = [System.IO.Path]::Combine($pluginLocation, $localNetcoreCredProviderPath)
+
+$netfxExists = Test-Path -Path ($fullNetfxCredProviderPath)
+$netcoreExists = Test-Path -Path ($fullNetcoreCredProviderPath)
+
 # Check if plugin already exists if -Force swich is not set
 if (!$Force) {
-    $netfxExists = Test-Path -Path ([System.IO.Path]::Combine($pluginLocation, $localNetfxCredProviderPath))
-    $netcoreExists = Test-Path -Path ([System.IO.Path]::Combine($pluginLocation, $localNetcoreCredProviderPath))
     if ($AddNetfx -eq $True -and $netfxExists -eq $True -and $netcoreExists -eq $True) {
         Write-Host "The netcore and netfx Credential Providers are already in $pluginLocation"
         return
@@ -88,11 +92,17 @@ Write-Host "Extracting zip to the Credential Provider temp directory"
 Add-Type -AssemblyName System.IO.Compression.FileSystem 
 [System.IO.Compression.ZipFile]::ExtractToDirectory($pluginZip, $tempZipLocation)
 
-# Forcibly copy netcore (and netfx) directories to plugins directory
+# Remove existing content and copy netcore (and netfx) directories to plugins directory
 Write-Host "Copying Credential Provider to $pluginLocation"
-Copy-Item ([System.IO.Path]::Combine($tempZipLocation, "plugins", $localNetcoreCredProviderPath)) -Destination ([System.IO.Path]::Combine($pluginLocation, $localNetcoreCredProviderPath)) -Force -Recurse
+if ($netcoreExists) {
+    Remove-Item $fullNetcoreCredProviderPath -Force -Recurse
+}
+Copy-Item ([System.IO.Path]::Combine($tempZipLocation, "plugins", $localNetcoreCredProviderPath)) -Destination $fullNetcoreCredProviderPath -Force -Recurse
 if ($AddNetfx -eq $True) {
-    Copy-Item ([System.IO.Path]::Combine($tempZipLocation, "plugins", $localNetfxCredProviderPath)) -Destination ([System.IO.Path]::Combine($pluginLocation, $localNetfxCredProviderPath)) -Force -Recurse
+    if ($netfxExists) {
+        Remove-Item $fullNetfxCredProviderPath -Force -Recurse
+    }
+    Copy-Item ([System.IO.Path]::Combine($tempZipLocation, "plugins", $localNetfxCredProviderPath)) -Destination $fullNetfxCredProviderPath -Force -Recurse
 }
 
 # Remove $tempZipLocation directory
