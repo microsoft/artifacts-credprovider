@@ -26,6 +26,7 @@ echo "Downloading from $URI"
 #Fetch the file
 curl -H "Accept: application/octet-stream" \
      -s \
+     -S \
      -L \
      "$URI" | tar xz -C "$HOME/.nuget/" "plugins/netcore"
 
