@@ -14,7 +14,7 @@ NUGET_PLUGIN_DIR="$HOME/.nuget/plugins"
 # Ensure plugin directory exists
 if [[ ! -e ${NUGET_PLUGIN_DIR} ]]; then
   echo "INFO: Creating the nuget plugin directory (i.e. ${NUGET_PLUGIN_DIR}). "
-  if ! mkdir -p ${NUGET_PLUGIN_DIR}; then
+  if ! mkdir -p "${NUGET_PLUGIN_DIR}"; then
       echo "ERROR: Unable to create nuget plugins directory (i.e. ${NUGET_PLUGIN_DIR})."
       exit 1
   fi
@@ -27,6 +27,6 @@ echo "Downloading from $URI"
 curl -H "Accept: application/octet-stream" \
      -s \
      -L \
-     $URI | tar xz -C $HOME/.nuget/ plugins/netcore
+     "$URI" | tar xz -C "$HOME/.nuget/" "plugins/netcore"
 
 echo "INFO: credential provider netcore plugin extracted to $HOME/.nuget/"
