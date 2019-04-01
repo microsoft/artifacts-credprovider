@@ -21,7 +21,7 @@ if [[ ! -e "${NUGET_PLUGIN_DIR}" ]]; then
   fi
 fi
 
-echo "Downloading from $RELEASEURL."
+echo "Downloading from $RELEASEURL"
 
 # Extract netcore from the .tar.gz into the plugin directory
 
