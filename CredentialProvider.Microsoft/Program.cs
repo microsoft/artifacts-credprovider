@@ -9,6 +9,7 @@ using System.Net.Http.Headers;
 using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
+using Newtonsoft.Json;
 using NuGet.Protocol.Plugins;
 using NuGetCredentialProvider.CredentialProviders;
 using NuGetCredentialProvider.CredentialProviders.Vsts;
@@ -145,7 +146,12 @@ namespace NuGetCredentialProvider
                 // Stand-alone mode
                 if (requestHandlers.TryGet(MessageMethod.GetAuthenticationCredentials, out IRequestHandler requestHandler) && requestHandler is GetAuthenticationCredentialsRequestHandler getAuthenticationCredentialsRequestHandler)
                 {
-                    multiLogger.Add(new ConsoleLogger());
+                    // Don't use ConsoleLogger in JSON output mode, since emitting other messages as well as the loglevel prefix would corrupt the pure JSON output
+                    if (parsedArgs.OutputFormat == OutputFormat.HumanReadable)
+                    {
+                        multiLogger.Add(new ConsoleLogger());
+                    }
+
                     multiLogger.SetLogLevel(parsedArgs.Verbosity);
                     multiLogger.Verbose(Resources.RunningInStandAlone);
                     multiLogger.Verbose(string.Format(Resources.CommandLineArgs, Program.Version, Environment.CommandLine));
@@ -159,8 +165,18 @@ namespace NuGetCredentialProvider
                     GetAuthenticationCredentialsRequest request = new GetAuthenticationCredentialsRequest(parsedArgs.Uri, isRetry: parsedArgs.IsRetry, isNonInteractive: parsedArgs.NonInteractive, parsedArgs.CanShowDialog);
                     GetAuthenticationCredentialsResponse response = await getAuthenticationCredentialsRequestHandler.HandleRequestAsync(request).ConfigureAwait(continueOnCapturedContext: false);
 
-                    multiLogger.Info($"{Resources.Username}: {response?.Username}");
-                    multiLogger.Info($"{Resources.Password}: {(parsedArgs.RedactPassword ? Resources.Redacted : response?.Password)}");
+                    string resultUsername = response?.Username;
+                    string resultPassword = parsedArgs.RedactPassword ? Resources.Redacted : response?.Password;
+                    if (parsedArgs.OutputFormat == OutputFormat.Json)
+                    {
+                        // Manually write the JSON output, since we don't use ConsoleLogger in JSON mode (see above)
+                        Console.WriteLine(JsonConvert.SerializeObject(new CredentialResult(resultUsername, resultPassword)));
+                    }
+                    else
+                    {
+                        multiLogger.Info($"{Resources.Username}: {resultUsername}");
+                        multiLogger.Info($"{Resources.Password}: {resultPassword}");
+                    }
                     return 0;
                 }
 

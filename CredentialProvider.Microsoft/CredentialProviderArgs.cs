@@ -36,5 +36,15 @@ namespace NuGetCredentialProvider
 
         [ArgDescription("If true, user can be prompted with credentials through UI, if false, device flow must be used")]
         public bool CanShowDialog { get; set; }
+
+        [ArgDescription("In standalone mode, format the results for human readability or as JSON. If JSON is selected, then additional log output will not be logged to the console.")]
+        [ArgShortcut("F")]
+        public OutputFormat OutputFormat { get; set; }
+    }
+
+    public enum OutputFormat
+    {
+        HumanReadable = 0,
+        Json = 1
     }
 }
