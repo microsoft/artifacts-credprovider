@@ -146,10 +146,14 @@ namespace NuGetCredentialProvider
                 // Stand-alone mode
                 if (requestHandlers.TryGet(MessageMethod.GetAuthenticationCredentials, out IRequestHandler requestHandler) && requestHandler is GetAuthenticationCredentialsRequestHandler getAuthenticationCredentialsRequestHandler)
                 {
-                    // Don't use ConsoleLogger in JSON output mode, since emitting other messages as well as the loglevel prefix would corrupt the pure JSON output
-                    if (parsedArgs.OutputFormat == OutputFormat.HumanReadable)
+                    // When emitting machine-readable output to standard out, logging (including Device Code prompts) must be emitted to standard error
+                    if (parsedArgs.OutputFormat == OutputFormat.Json)
                     {
-                        multiLogger.Add(new ConsoleLogger());
+                        multiLogger.Add(new StandardErrorLogger());
+                    }
+                    else
+                    {
+                        multiLogger.Add(new StandardOutputLogger());
                     }
 
                     multiLogger.SetLogLevel(parsedArgs.Verbosity);
