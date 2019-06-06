@@ -439,4 +439,40 @@ Device Flow Authentication Timeout
   <data name="SessionTokenCacheMutexMiss" xml:space="preserve">
     <value>Another instance of CredentialProvider is accessing the credential cache, waiting for it to become available.</value>
   </data>
+  <data name="ExceptionSeeInnerExceptionForDetails" xml:space="preserve">
+    <value>{0}.  See inner exception for details</value>
+  </data>
+  <data name="KeyVaultCertificateNotFound" xml:space="preserve">
+    <value>Certificate with thumbprint '{0}' not found in store '{1}/{2}'</value>
+  </data>
+  <data name="KeyVaultCertificateStoreNotSet" xml:space="preserve">
+    <value>Certificate store type (CurrentUser or LocalMachine) is required for KeyVault access. Please set KeyVaultAuthCertificateStoreType setting in the application config</value>
+  </data>
+  <data name="KeyVaultCertificateStoreTypeInvalid" xml:space="preserve">
+    <value>Invalid certificate store type in the application config: {0}</value>
+  </data>
+  <data name="KeyVaultCertificateThumbprintNotSet" xml:space="preserve">
+    <value>Certificate thumbprint is required for Azure AD application authentication. Please set KeyVaultAuthCertificateThumbprint setting in the application config</value>
+  </data>
+  <data name="KeyVaultClientIdNotSet" xml:space="preserve">
+    <value>Client Id (application Id) for KeyVault App is not set in the application config</value>
+  </data>
+  <data name="KeyVaultCouldNotRetrievePatRetrying" xml:space="preserve">
+    <value>Could not retrieve PAT for {0}, retrying for {1}</value>
+  </data>
+  <data name="KeyVaultCredentialNotFound" xml:space="preserve">
+    <value>Could not retrieve PAT, credential for {0} not found</value>
+  </data>
+  <data name="KeyVaultErrorAccessingCertificateStore" xml:space="preserve">
+    <value>An error occurred accessing the '{0}' certificate store</value>
+  </data>
+  <data name="KeyVaultIsConfigured" xml:space="preserve">
+    <value>{0} is configured to KeyVault at '{1}'"</value>
+  </data>
+  <data name="KeyVaultNotConfigured" xml:space="preserve">
+    <value>{0} is not configured</value>
+  </data>
+  <data name="KeyVaultUrlNotSet" xml:space="preserve">
+    <value>KeyVault URL is not set in the application config</value>
+  </data>
 </root>

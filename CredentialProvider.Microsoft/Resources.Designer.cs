@@ -425,6 +425,15 @@ namespace NuGetCredentialProvider {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to {0}.  See inner exception for details.
+        /// </summary>
+        internal static string ExceptionSeeInnerExceptionForDetails {
+            get {
+                return ResourceManager.GetString("ExceptionSeeInnerExceptionForDetails", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Attempting to exchange the bearer token for an Azure DevOps session token..
         /// </summary>
         internal static string ExchangingBearerTokenForSessionToken {
@@ -502,6 +511,105 @@ namespace NuGetCredentialProvider {
         internal static string IsRetry {
             get {
                 return ResourceManager.GetString("IsRetry", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Certificate with thumbprint &apos;{0}&apos; not found in store &apos;{1}/{2}&apos;.
+        /// </summary>
+        internal static string KeyVaultCertificateNotFound {
+            get {
+                return ResourceManager.GetString("KeyVaultCertificateNotFound", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Certificate store type (CurrentUser or LocalMachine) is required for KeyVault access. Please set KeyVaultAuthCertificateStoreType setting in the application config.
+        /// </summary>
+        internal static string KeyVaultCertificateStoreNotSet {
+            get {
+                return ResourceManager.GetString("KeyVaultCertificateStoreNotSet", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Invalid certificate store type in the application config: {0}.
+        /// </summary>
+        internal static string KeyVaultCertificateStoreTypeInvalid {
+            get {
+                return ResourceManager.GetString("KeyVaultCertificateStoreTypeInvalid", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Certificate thumbprint is required for Azure AD application authentication. Please set KeyVaultAuthCertificateThumbprint setting in the application config.
+        /// </summary>
+        internal static string KeyVaultCertificateThumbprintNotSet {
+            get {
+                return ResourceManager.GetString("KeyVaultCertificateThumbprintNotSet", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Client Id (application Id) for KeyVault App is not set in the application config.
+        /// </summary>
+        internal static string KeyVaultClientIdNotSet {
+            get {
+                return ResourceManager.GetString("KeyVaultClientIdNotSet", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Could not retrieve PAT for {0}, retrying for {1}.
+        /// </summary>
+        internal static string KeyVaultCouldNotRetrievePatRetrying {
+            get {
+                return ResourceManager.GetString("KeyVaultCouldNotRetrievePatRetrying", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Could not retrieve PAT, credential for {0} not found.
+        /// </summary>
+        internal static string KeyVaultCredentialNotFound {
+            get {
+                return ResourceManager.GetString("KeyVaultCredentialNotFound", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to An error occurred accessing the &apos;{0}&apos; certificate store.
+        /// </summary>
+        internal static string KeyVaultErrorAccessingCertificateStore {
+            get {
+                return ResourceManager.GetString("KeyVaultErrorAccessingCertificateStore", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to {0} is configured to KeyVault at &apos;{1}&apos;&quot;.
+        /// </summary>
+        internal static string KeyVaultIsConfigured {
+            get {
+                return ResourceManager.GetString("KeyVaultIsConfigured", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to {0} is not configured.
+        /// </summary>
+        internal static string KeyVaultNotConfigured {
+            get {
+                return ResourceManager.GetString("KeyVaultNotConfigured", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to KeyVault URL is not set in the application config.
+        /// </summary>
+        internal static string KeyVaultUrlNotSet {
+            get {
+                return ResourceManager.GetString("KeyVaultUrlNotSet", resourceCulture);
             }
         }
         

@@ -10,7 +10,7 @@ namespace NuGetCredentialProvider.Logging
     internal class FileLogger : LoggerBase
     {
         private readonly string filePath;
-
+        private static readonly object writeLock = new object();
         internal FileLogger(string filePath)
         {
             this.filePath = filePath;
@@ -18,7 +18,10 @@ namespace NuGetCredentialProvider.Logging
 
         protected override void WriteLog(LogLevel logLevel, string message)
         {
-            File.AppendAllText(filePath, $"[{logLevel}] {message}\n");
+            lock (writeLock)
+            {
+                File.AppendAllText(filePath, $"[{logLevel}] {message}\n");
+            }
         }
     }
 }
