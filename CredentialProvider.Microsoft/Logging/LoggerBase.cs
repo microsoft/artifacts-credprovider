@@ -9,7 +9,7 @@ using NuGet.Common;
 
 namespace NuGetCredentialProvider.Logging
 {
-    internal abstract class LoggerBase : ILogger
+    public abstract class LoggerBase : ILogger
     {
         private LogLevel minLogLevel = LogLevel.Debug;
         private bool allowLogWrites = false;
