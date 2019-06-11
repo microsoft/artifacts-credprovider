@@ -12,6 +12,7 @@ using System.Collections.Generic;
 using Microsoft.Azure.KeyVault.Models;
 using Newtonsoft.Json;
 using System.Runtime.Serialization;
+using NuGetCredentialProvider.Util;
 
 namespace NuGetCredentialProvider.CredentialProviders.KeyVault
 {
@@ -38,6 +39,15 @@ namespace NuGetCredentialProvider.CredentialProviders.KeyVault
         public VstsKeyVaultCredentialProvider (ILogger logger)
             : base(logger)
         {
+            string keyVaultUrlEnvVar = Environment.GetEnvironmentVariable(EnvUtil.KeyVaultUrlEnvVar);
+            if (!string.IsNullOrEmpty(keyVaultUrlEnvVar))
+            {
+                KeyVaultHelper.Configure(new KeyVaultHelper.Config()
+                {
+                    KeyVaultUrl = keyVaultUrlEnvVar,
+                    UseMsi = true
+                });
+            }
         }
 
         public override bool IsCachable { get { return false; } }
