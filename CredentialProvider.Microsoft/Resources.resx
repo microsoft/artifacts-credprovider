@@ -439,4 +439,13 @@ Device Flow Authentication Timeout
   <data name="SessionTokenCacheMutexMiss" xml:space="preserve">
     <value>Another instance of CredentialProvider is accessing the credential cache, waiting for it to become available.</value>
   </data>
+  <data name="InvalidCachedCredentials" xml:space="preserve">
+    <value>Cached credentials for '{0}' are NOT valid</value>
+  </data>
+  <data name="ValidatingCachedCredentialsFor" xml:space="preserve">
+    <value>Checking that cached credentials for '{0}' are still valid</value>
+  </data>
+  <data name="ValidCachedCredentials" xml:space="preserve">
+    <value>Cached credentials for '{0}' are valid</value>
+  </data>
 </root>

@@ -19,8 +19,13 @@ namespace NuGetCredentialProvider
         [ArgDescription("If present and true, providers will not issue interactive prompts")]
         public bool NonInteractive { get; set; }
 
-        [ArgDescription("Notifies the provider that this is a retry and the credentials were rejected on a previous attempt")]
+        [ArgDescription("Always generate fresh credentials, ignoring the cache")]
+        [OmitFromUsageDocs] // IsRetry support is really for the NuGet flow and is confusing for standalone. Keep for backcompat, but don't advertise.
         public bool IsRetry { get; set; }
+
+        [ArgDescription("Skip validating cached credentials. Expired or revoked credentials may be returned.")]
+        [ArgShortcut("S")]
+        public bool SkipValidatingCachedCreds { get; set; }
 
         [ArgDefaultValue(LogLevel.Information)]
         [ArgDescription("Display this amount of detail in the output")]

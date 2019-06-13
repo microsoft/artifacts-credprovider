@@ -19,7 +19,7 @@ namespace NuGetCredentialProvider {
     // class via a tool like ResGen or Visual Studio.
     // To add or remove a member, edit your .ResX file then rerun ResGen
     // with the /str option, or rebuild your VS project.
-    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Resources.Tools.StronglyTypedResourceBuilder", "15.0.0.0")]
+    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Resources.Tools.StronglyTypedResourceBuilder", "16.0.0.0")]
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
     [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
     internal class Resources {
@@ -497,6 +497,15 @@ namespace NuGetCredentialProvider {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Cached credentials for &apos;{0}&apos; are NOT valid.
+        /// </summary>
+        internal static string InvalidCachedCredentials {
+            get {
+                return ResourceManager.GetString("InvalidCachedCredentials", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to IsRetry: {0}.
         /// </summary>
         internal static string IsRetry {
@@ -727,6 +736,24 @@ namespace NuGetCredentialProvider {
         internal static string Username {
             get {
                 return ResourceManager.GetString("Username", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Checking that cached credentials for &apos;{0}&apos; are still valid.
+        /// </summary>
+        internal static string ValidatingCachedCredentialsFor {
+            get {
+                return ResourceManager.GetString("ValidatingCachedCredentialsFor", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Cached credentials for &apos;{0}&apos; are valid.
+        /// </summary>
+        internal static string ValidCachedCredentials {
+            get {
+                return ResourceManager.GetString("ValidCachedCredentials", resourceCulture);
             }
         }
         

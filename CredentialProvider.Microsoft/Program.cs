@@ -82,6 +82,8 @@ namespace NuGetCredentialProvider
             var adalTokenProviderFactory = new VstsAdalTokenProviderFactory(adalTokenCache);
             var bearerTokenProvidersFactory = new BearerTokenProvidersFactory(multiLogger, adalTokenProviderFactory);
             var vstsSessionTokenProvider = new VstsSessionTokenFromBearerTokenProvider(authUtil, multiLogger);
+            var credentialsValidator = new BasicAuthCredentialsValidator(multiLogger);
+            var sessionTokenCache = GetSessionTokenCache(multiLogger, tokenSource.Token);
 
             List<ICredentialProvider> credentialProviders = new List<ICredentialProvider>
             {
@@ -90,11 +92,13 @@ namespace NuGetCredentialProvider
                 new VstsCredentialProvider(multiLogger, authUtil, bearerTokenProvidersFactory, vstsSessionTokenProvider),
             };
 
+            var orchestrator = new GetAuthenticationCredentialsOrchestrator(sessionTokenCache, multiLogger, credentialProviders, credentialsValidator);
+
             try
             {
                 IRequestHandlers requestHandlers = new RequestHandlerCollection
                 {
-                    { MessageMethod.GetAuthenticationCredentials, new GetAuthenticationCredentialsRequestHandler(multiLogger, credentialProviders) },
+                    { MessageMethod.GetAuthenticationCredentials, new GetAuthenticationCredentialsRequestHandler(orchestrator, multiLogger) },
                     { MessageMethod.GetOperationClaims, new GetOperationClaimsRequestHandler(multiLogger, credentialProviders) },
                     { MessageMethod.Initialize, new InitializeRequestHandler(multiLogger) },
                     { MessageMethod.SetLogLevel, new SetLogLevelRequestHandler(multiLogger) },
@@ -167,7 +171,7 @@ namespace NuGetCredentialProvider
                     }
 
                     GetAuthenticationCredentialsRequest request = new GetAuthenticationCredentialsRequest(parsedArgs.Uri, isRetry: parsedArgs.IsRetry, isNonInteractive: parsedArgs.NonInteractive, parsedArgs.CanShowDialog);
-                    GetAuthenticationCredentialsResponse response = await getAuthenticationCredentialsRequestHandler.HandleRequestAsync(request).ConfigureAwait(continueOnCapturedContext: false);
+                    GetAuthenticationCredentialsResponse response = await orchestrator.HandleRequestAsync(request, parsedArgs.SkipValidatingCachedCreds, tokenSource.Token).ConfigureAwait(continueOnCapturedContext: false);
 
                     string resultUsername = response?.Username;
                     string resultPassword = parsedArgs.RedactPassword ? Resources.Redacted : response?.Password;
@@ -230,6 +234,18 @@ namespace NuGetCredentialProvider
             fileLogger.SetLogLevel(NuGet.Common.LogLevel.Verbose);
 
             return fileLogger;
+        }
+
+        private static ICache<Uri, string> GetSessionTokenCache(ILogger logger, CancellationToken cancellationToken)
+        {
+            if (EnvUtil.SessionTokenCacheEnabled())
+            {
+                logger.Verbose(string.Format(Resources.SessionTokenCacheLocation, EnvUtil.SessionTokenCacheLocation));
+                return new SessionTokenCache(EnvUtil.SessionTokenCacheLocation, logger, cancellationToken);
+            }
+
+            logger.Verbose(Resources.SessionTokenCacheDisabled);
+            return new NoOpCache<Uri, string>();
         }
     }
 }
