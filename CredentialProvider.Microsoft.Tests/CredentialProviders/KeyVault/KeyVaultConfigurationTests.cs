@@ -1,13 +1,13 @@
-﻿using Microsoft.Azure.KeyVault.Helper;
+﻿// Copyright (c) Microsoft. All rights reserved.
+//
+// Licensed under the MIT license.
+
+using Microsoft.Azure.KeyVault.Helper;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using NuGetCredentialProvider.CredentialProviders.KeyVault;
 using NuGetCredentialProvider.Logging;
 using NuGetCredentialProvider.Util;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace CredentialProvider.Microsoft.Tests.CredentialProviders.KeyVault
 {
@@ -18,9 +18,11 @@ namespace CredentialProvider.Microsoft.Tests.CredentialProviders.KeyVault
         public void EnvironmentVariableConfigTest()
         {
             Environment.SetEnvironmentVariable(EnvUtil.KeyVaultUrlEnvVar, "https://TestKeyVault.vault.azure.net");
-            var keyVaultProvider = new VstsKeyVaultCredentialProvider(new StandardOutputLogger());
-            Assert.IsTrue(KeyVaultHelper.IsConfigured(out string keyVaultUrl));
-            Assert.AreEqual("https://TestKeyVault.vault.azure.net", keyVaultUrl);
+            using (var keyVaultProvider = new VstsKeyVaultCredentialProvider(new StandardOutputLogger()))
+            {
+                Assert.IsTrue(KeyVaultHelper.IsConfigured(out string keyVaultUrl));
+                Assert.AreEqual("https://TestKeyVault.vault.azure.net", keyVaultUrl);
+            }
         }
 
         [TestMethod]
@@ -32,7 +34,7 @@ namespace CredentialProvider.Microsoft.Tests.CredentialProviders.KeyVault
                 ClientId = "01f61b0e-8e36-4247-857c-4c3a0376bfae",
                 CertificateStoreType = "CurrentUser",
                 CertificateThumbprint = "a74eba1fa5bb7731c110178a0a821fc30ceb4ffa",
-                UseMsi = false
+                UseManagedServiceIdentity = false
             };
 
             KeyVaultHelper.Configure(config);
@@ -40,19 +42,16 @@ namespace CredentialProvider.Microsoft.Tests.CredentialProviders.KeyVault
             Assert.AreEqual("https://SetConfigTest.vault.azure.com", keyVaultUrl);
 
             ConfigManager manager = new ConfigManager();
-            string urlFromSettingsFile = manager.GetSetting("KeyVaultUrl");
+            string urlFromSettingsFile = manager.GetSetting(KeyVaultHelper.KeyVaultUrlSettingName);
             Assert.AreEqual("https://SetConfigTest.vault.azure.com", urlFromSettingsFile);
 
-            string useMsiFromSettingsFile = manager.GetSetting("KeyVaultUseMsi");
-            Assert.AreEqual("False", useMsiFromSettingsFile);
-
-            string clientIdFromSettingsFile = manager.GetSetting("KeyVaultAuthClientId");
+            string clientIdFromSettingsFile = manager.GetSetting(KeyVaultHelper.ClientIdSettingName);
             Assert.AreEqual("01f61b0e-8e36-4247-857c-4c3a0376bfae", clientIdFromSettingsFile);
 
-            string certificateStoreType = manager.GetSetting("KeyVaultAuthCertificateStoreType");
+            string certificateStoreType = manager.GetSetting(KeyVaultHelper.CertificateStoreTypeSettingName);
             Assert.AreEqual("CurrentUser", certificateStoreType);
 
-            string certificateThumbprint = manager.GetSetting("KeyVaultAuthCertificateThumbprint");
+            string certificateThumbprint = manager.GetSetting(KeyVaultHelper.CertificateThumbprintSettingName);
             Assert.AreEqual("a74eba1fa5bb7731c110178a0a821fc30ceb4ffa", certificateThumbprint);
         }
 

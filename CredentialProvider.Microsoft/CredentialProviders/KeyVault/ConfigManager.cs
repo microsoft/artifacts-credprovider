@@ -3,7 +3,6 @@
 // Licensed under the MIT license.
 
 using System.Configuration;
-using System.Reflection;
 
 namespace Microsoft.Azure.KeyVault.Helper
 {

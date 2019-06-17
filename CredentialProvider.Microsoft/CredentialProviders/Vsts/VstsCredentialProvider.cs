@@ -123,12 +123,7 @@ namespace NuGetCredentialProvider.CredentialProviders.Vsts
             }
 
             Verbose(string.Format(Resources.VSTSCredentialsNotFound, request.Uri.ToString()));
-            return new GetAuthenticationCredentialsResponse(
-                null,
-                null,
-                message: null,
-                authenticationTypes: new List<string>() { "Basic" },
-                responseCode: MessageResponseCode.NotFound);
+            return null;
         }
     }
 }

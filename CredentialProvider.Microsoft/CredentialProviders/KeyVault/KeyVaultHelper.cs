@@ -16,13 +16,18 @@ namespace Microsoft.Azure.KeyVault.Helper
     /// </summary>
     public sealed class KeyVaultHelper : IDisposable
     {
+        public const string KeyVaultUrlSettingName = "KeyVaultUrl";
+        public const string CertificateThumbprintSettingName = "KeyVaultAuthCertificateThumbprint";
+        public const string CertificateStoreTypeSettingName = "KeyVaultAuthCertificateStoreType";
+        public const string ClientIdSettingName = "KeyVaultAuthClientId";
+
         public struct Config
         {
             public string CertificateThumbprint { get; set; }
             public string CertificateStoreType { get; set; }
             public string KeyVaultUrl { get; set; }
             public string ClientId { get; set; }
-            public bool? UseMsi { get; set; }
+            public bool? UseManagedServiceIdentity { get; set; }
         }
 
         private static KeyVaultHelper _instance = null;
@@ -44,27 +49,19 @@ namespace Microsoft.Azure.KeyVault.Helper
             _keyVaultUrl = _config.KeyVaultUrl;
             if (string.IsNullOrWhiteSpace(_keyVaultUrl))
             {
-                _keyVaultUrl = configManager.GetSetting("KeyVaultUrl");
+                _keyVaultUrl = configManager.GetSetting(KeyVaultUrlSettingName);
                 if (string.IsNullOrWhiteSpace(_keyVaultUrl))
                     throw new KeyVaultHelperConfigurationException(Resources.KeyVaultUrlNotSet);
             }
 
-            _useMsi = _config.UseMsi;
-            if (!_useMsi.HasValue)
+            _useMsi = _config.UseManagedServiceIdentity;
+            if (!_useMsi.HasValue &&
+                string.IsNullOrWhiteSpace(_config.CertificateThumbprint))
             {
-                string _useMsiString = configManager.GetSetting("KeyVaultUseMsi");
-
-                if (bool.TryParse(_useMsiString, out bool useMsi))
-                {
-                    _useMsi = useMsi;
-                }
-                else
-                {
-                    _useMsi = false;
-                }
+                _useMsi = string.IsNullOrWhiteSpace(configManager.GetSetting(CertificateThumbprintSettingName));
             }
 
-            // using MSI (Managed Service Identity) method of authentication means we dont need any service principal arguments - appId, certificate or cert store
+            // using Managed Service Identity method of authentication means we dont need any service principal arguments - appId, certificate or cert store
             if (_useMsi == true)
             {
                 var azureServiceTokenProvider = new AzureServiceTokenProvider();
@@ -76,7 +73,7 @@ namespace Microsoft.Azure.KeyVault.Helper
                 _certificateThumbprint = _config.CertificateThumbprint;
                 if (string.IsNullOrWhiteSpace(_certificateThumbprint))
                 {
-                    _certificateThumbprint = configManager.GetSetting("KeyVaultAuthCertificateThumbprint");
+                    _certificateThumbprint = configManager.GetSetting(CertificateThumbprintSettingName);
                     if (string.IsNullOrWhiteSpace(_certificateThumbprint))
                         throw new KeyVaultHelperConfigurationException(Resources.KeyVaultCertificateThumbprintNotSet);
                 }
@@ -85,7 +82,7 @@ namespace Microsoft.Azure.KeyVault.Helper
                 string certificateStoreType = _config.CertificateStoreType;
                 if (string.IsNullOrWhiteSpace(certificateStoreType))
                 {
-                    certificateStoreType = configManager.GetSetting("KeyVaultAuthCertificateStoreType");
+                    certificateStoreType = configManager.GetSetting(CertificateStoreTypeSettingName);
                     if (string.IsNullOrWhiteSpace(certificateStoreType))
                         throw new KeyVaultHelperConfigurationException(Resources.KeyVaultCertificateStoreNotSet);
                 }
@@ -96,7 +93,7 @@ namespace Microsoft.Azure.KeyVault.Helper
                 _clientId = _config.ClientId;
                 if (string.IsNullOrWhiteSpace(_clientId))
                 {
-                    _clientId = configManager.GetSetting("KeyVaultAuthClientId");
+                    _clientId = configManager.GetSetting(ClientIdSettingName);
                     if (string.IsNullOrWhiteSpace(_clientId))
                         throw new KeyVaultHelperConfigurationException(Resources.KeyVaultClientIdNotSet);
                 }
@@ -108,7 +105,7 @@ namespace Microsoft.Azure.KeyVault.Helper
         public static bool IsConfigured (out string keyVaultUrl)
         {
             ConfigManager configManager = new ConfigManager();
-            keyVaultUrl = configManager.GetSetting("KeyVaultUrl");
+            keyVaultUrl = configManager.GetSetting(KeyVaultUrlSettingName);
             return !string.IsNullOrEmpty(keyVaultUrl);
         }
 
@@ -121,20 +118,17 @@ namespace Microsoft.Azure.KeyVault.Helper
                 throw new KeyVaultHelperConfigurationException(Resources.KeyVaultUrlNotSet);
             }
             string keyVaultUrl = config.KeyVaultUrl.Trim();
-            configManager.SetSetting("KeyVaultUrl", keyVaultUrl);
-
-            string useMsi = (config.UseMsi == true) ? Boolean.TrueString : Boolean.FalseString;
-            configManager.SetSetting("KeyVaultUseMsi", useMsi);
+            configManager.SetSetting(KeyVaultUrlSettingName, keyVaultUrl);
 
             // if msi is not specified or value is false retrieve the cert details
-            if (config.UseMsi != true)
+            if (config.UseManagedServiceIdentity != true)
             {
                 if (string.IsNullOrWhiteSpace(config.CertificateThumbprint))
                 {
                     throw new KeyVaultHelperConfigurationException(Resources.KeyVaultCertificateThumbprintNotSet);
                 }
                 var certificateThumbprint = config.CertificateThumbprint.Replace(" ", "").Trim();
-                configManager.SetSetting("KeyVaultAuthCertificateThumbprint", certificateThumbprint);
+                configManager.SetSetting(CertificateThumbprintSettingName, certificateThumbprint);
 
                 if (string.IsNullOrWhiteSpace(config.CertificateStoreType))
                 {
@@ -144,14 +138,14 @@ namespace Microsoft.Azure.KeyVault.Helper
 
                 if (!Enum.TryParse(certificateStoreType, true, out StoreLocation storeLocation))
                     throw new KeyVaultHelperConfigurationException(string.Format(Resources.KeyVaultCertificateStoreTypeInvalid, certificateStoreType));
-                configManager.SetSetting("KeyVaultAuthCertificateStoreType", certificateStoreType);
+                configManager.SetSetting(CertificateStoreTypeSettingName, certificateStoreType);
 
                 if (string.IsNullOrWhiteSpace(config.ClientId))
                 {
                     throw new KeyVaultHelperConfigurationException(Resources.KeyVaultClientIdNotSet);
                 }
                 string clientId = config.ClientId.Trim();
-                configManager.SetSetting("KeyVaultAuthClientId", clientId);
+                configManager.SetSetting(ClientIdSettingName, clientId);
             }
             _config = config;
         }
@@ -219,6 +213,7 @@ namespace Microsoft.Azure.KeyVault.Helper
                 _expiration.UtcDateTime > DateTime.Now.AddMinutes(1).ToUniversalTime())
             {
                 var context = new AuthenticationContext(authority);
+
                 var cert = RetrieveCertificate();
                 var clientAssertionCertificate = new ClientAssertionCertificate(_clientId, cert);
 

@@ -45,7 +45,7 @@ namespace NuGetCredentialProvider.CredentialProviders.KeyVault
                 KeyVaultHelper.Configure(new KeyVaultHelper.Config()
                 {
                     KeyVaultUrl = keyVaultUrlEnvVar,
-                    UseMsi = true
+                    UseManagedServiceIdentity = true
                 });
             }
         }
