@@ -6,6 +6,9 @@ queue:
 
 trigger: none
 
+pr:
+- master
+
 variables:
   BuildConfiguration: 'Debug'
   TeamName: 'Package Experience'
