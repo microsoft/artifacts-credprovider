@@ -30,27 +30,35 @@ Install [Visual Studio version 15.9-preview1 or later](https://visualstudio.micr
 
 If you are using `dotnet` or `nuget`, you can use the Azure Artifact Credential Provider by adding it to [NuGet's plugin search path](https://github.com/NuGet/Home/wiki/NuGet-Cross-Plat-Credential-Plugin#plugin-installation-and-discovery). This section contains both manual and scripted instructions for doing so.
 
-### Manual installation: Windows
+### Installation on Windows
 
-1. Download the latest release of [Microsoft.NuGet.CredentialProvider.zip](https://github.com/Microsoft/artifacts-credprovider/releases)
-2. Unzip the file
-3. Copy the `netcore` (and optionally `netfx` for nuget.exe) directory from the extracted archive to `$env:UserProfile\.nuget\plugins`
-
-### Automatic PowerShell installation:
+#### Automatic PowerShell script
 
 [PowerShell helper script](helpers/installcredprovider.ps1)
 - To install netcore, run `installcredprovider.ps1`
-- To install both netfx and netcore, run `installcredprovider.ps1 -AddNetfx` (netfx needed for nuget.exe)
+- To install both netfx and netcore, run `installcredprovider.ps1 -AddNetfx`. The netfx version is needed for nuget.exe.
 
-### Manual installation: Linux and Mac
+#### Manual installation on Windows
+
+1. Download the latest release of [Microsoft.NuGet.CredentialProvider.zip](https://github.com/Microsoft/artifacts-credprovider/releases)
+2. Unzip the file
+3. Copy the `netcore` (and `netfx` for nuget.exe) directory from the extracted archive to `$env:UserProfile\.nuget\plugins`
+
+Using the above is recommended, but as per [NuGet's plugin discovery rules](https://github.com/NuGet/Home/wiki/NuGet-Cross-Plat-Credential-Plugin#plugin-installation-and-discovery), alternatively you can install the credential provider to a location you prefer, and then set the environment variable NUGET_PLUGIN_PATHS to the .exe of the credential provider found in plugins\netfx\CredentialProvider.Microsoft\CredentialProvider.Microsoft.exe. For example, $env:NUGET_PLUGIN_PATHS="my-alternative-location\CredentialProvider.Microsoft.exe". Note that if you are using both nuget and dotnet, this environment variable is not recommended due to this issue: https://github.com/NuGet/Home/issues/8151
+
+### Installation on Linux and Mac
+
+#### Automatic bash script
+
+[Linux or Mac helper script](helpers/installcredprovider.sh)
+
+#### Manual installation on Linux and Mac
 
 1. Download the latest release of [Microsoft.NuGet.CredentialProvider.tar.gz](https://github.com/Microsoft/artifacts-credprovider/releases)
 2. Untar the file
 3. Copy the `netcore` directory from the extracted archive to `$HOME\.nuget\plugins`
 
-### Automatic installation: bash, zsh, etc.
-
-[Linux or Mac helper script](helpers/installcredprovider.sh)
+Using the above is recommended, but as per [NuGet's plugin discovery rules](https://github.com/NuGet/Home/wiki/NuGet-Cross-Plat-Credential-Plugin#plugin-installation-and-discovery), alternatively you can install the credential provider to a location you prefer, and then set the environment variable NUGET_PLUGIN_PATHS to the .dll of the credential provider found in plugins\netcore\CredentialProvider.Microsoft\CredentialProvider.Microsoft.dll. For example, $env:NUGET_PLUGIN_PATHS="my-alternative-location\CredentialProvider.Microsoft.dll".
 
 ## Use
 
@@ -68,8 +76,6 @@ dotnet restore --interactive
 
 Once you've successfully acquired a token, you can run authenticated commands without the `--interactive` flag for the lifespan of the token which is saved in the [session token cache location](#session-token-cache-locations).
 
-If you're running the command as part of an automated build on an unattended build agent, you can supply an access token directly using the `VSS_NUGET_EXTERNAL_FEED_ENDPOINTS` [environment variable](#environment-variables).
-
 ### nuget
 
 The nuget client will prompt for authentication when you run a `restore` and it does not find credential in the [session token cache location](#session-token-cache-locations). By default, it will attempt to open a dialog for authentication and will fall back to console input if that fails.
@@ -77,6 +83,8 @@ The nuget client will prompt for authentication when you run a `restore` and it 
 ```shell
 nuget restore
 ```
+
+When using Windows and you are already signed in to Azure DevOps, Windows Integrated Authentication may be used to get automatically authenticated as the signed in user.
 
 ### msbuild
 
@@ -88,6 +96,12 @@ msbuild /t:restore /p:nugetInteractive=true
 
 Once you've successfully acquired a token, you can run authenticated commands without the `/p:nugetInteractive=true` switch.
 
+### Unattended build agents 
+
+If you're running the command as part of an automated build on an unattended build agent, you can supply an access token directly using the `VSS_NUGET_EXTERNAL_FEED_ENDPOINTS` [environment variable](#environment-variables). The use of [Personal Access Tokens](https://docs.microsoft.com/en-us/azure/devops/organizations/accounts/use-personal-access-tokens-to-authenticate?view=azure-devops) is recommended.
+
+You may need to restart the agent service or the computer before the environment variables are available to the agent.
+
 ## Session Token Cache Locations
 
 The Credential Provider will save session tokens in the following locations:
@@ -97,7 +111,7 @@ The Credential Provider will save session tokens in the following locations:
 
 ## Environment Variables
 
-The Credential Provider accepts a set of environment variables. These are the only two that we recommend setting in non-triage situations.
+The Credential Provider accepts a set of environment variables. Not all of them we recommend using in production, but these two are considered safe.
 
 -   `NUGET_CREDENTIALPROVIDER_SESSIONTOKENCACHE_ENABLED`: Controls whether or not the session token is saved to disk. If false, the Credential Provider will prompt for auth every time.
 -   `VSS_NUGET_EXTERNAL_FEED_ENDPOINTS`: Json that contains an array of service endpoints, usernames and access tokens to authenticate endpoints in nuget.config. Example:
@@ -105,8 +119,6 @@ The Credential Provider accepts a set of environment variables. These are the on
 ```javascript
  {"endpointCredentials": [{"endpoint":"http://example.index.json", "username":"optional", "password":"accesstoken"}]}
 ```
-
-You may need to restart the agent service or the computer before the environment variables are available to the agent.
 
 ## Help
 
