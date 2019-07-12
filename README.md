@@ -28,29 +28,37 @@ Install [Visual Studio version 15.9-preview1 or later](https://visualstudio.micr
 
 ## Setup
 
-If you are using `dotnet` or `nuget`, you can use the Azure Artifact Credential Provider by adding it to [NuGet's plugin search path](https://github.com/NuGet/Home/wiki/NuGet-Cross-Plat-Credential-Plugin#plugin-installation-and-discovery). This section contains both manual and scripted instructions for doing so.
+If you are using `dotnet` or `nuget`, you can use the Azure Artifact Credential Provider by adding it to [NuGet's plugin search path](https://github.com/NuGet/Home/wiki/NuGet-Cross-Plat-Credential-Plugin#plugin-installation-and-discovery). This section contains both manual and scripted instructions for installing the credential provider to a pre-determined location that NuGet is going to look for it. 
 
-### Manual installation: Windows
+### Installation on Windows:
 
-1. Download the latest release of [Microsoft.NuGet.CredentialProvider.zip](https://github.com/Microsoft/artifacts-credprovider/releases)
-2. Unzip the file
-3. Copy the `netcore` (and optionally `netfx` for nuget.exe) directory from the extracted archive to `$env:UserProfile\.nuget\plugins`
-
-### Automatic PowerShell installation:
+#### Automatic PowerShell script:
 
 [PowerShell helper script](helpers/installcredprovider.ps1)
 - To install netcore, run `installcredprovider.ps1`
 - To install both netfx and netcore, run `installcredprovider.ps1 -AddNetfx` (netfx needed for nuget.exe)
 
-### Manual installation: Linux and Mac
+### Manual installation on Windows:
+
+1. Download the latest release of [Microsoft.NuGet.CredentialProvider.zip](https://github.com/Microsoft/artifacts-credprovider/releases)
+2. Unzip the file
+3. Copy the `netcore` (and optionally `netfx` for nuget.exe) directory from the extracted archive to `$env:UserProfile\.nuget\plugins`
+
+Alternatively, you can install the credential provider in a location you prefer, and then set the environment variable NUGET_PLUGIN_PATHS to the .exe of the credential provider found in plugins\netfx\CredentialProvider.Microsoft\CredentialProvider.Microsoft.exe. For example, $env:NUGET_PLUGIN_PATHS="<my-alternative-location>\CredentialProvider.Microsoft.exe"
+
+### Installation on Linux and Mac
+
+#### Automatic bash script
+
+[Linux or Mac helper script](helpers/installcredprovider.sh)
+
+#### Manual installation on Linux and Mac
 
 1. Download the latest release of [Microsoft.NuGet.CredentialProvider.tar.gz](https://github.com/Microsoft/artifacts-credprovider/releases)
 2. Untar the file
 3. Copy the `netcore` directory from the extracted archive to `$HOME\.nuget\plugins`
 
-### Automatic installation: bash, zsh, etc.
-
-[Linux or Mac helper script](helpers/installcredprovider.sh)
+Alternatively, you can install the credential provider in a location you prefer, and then set the environment variable NUGET_PLUGIN_PATHS to the .dll of the credential provider found in plugins\netcore\CredentialProvider.Microsoft\CredentialProvider.Microsoft.exe. For example, $env:NUGET_PLUGIN_PATHS="<my-alternative-location>\CredentialProvider.Microsoft.dll"
 
 ## Use
 
