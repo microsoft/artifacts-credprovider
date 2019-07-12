@@ -2,12 +2,17 @@
 # plugin for Dotnet and/or NuGet to ~/.nuget/plugins directory
 # To install netcore, run installcredprovider.ps1
 # To install netcore and netfx, run installcredprovider.ps1 -AddNetfx
-# To overwrite existing plugin with the latest, run installcredprovider.ps1 -Force
+# To overwrite existing plugin with the latest version, run installcredprovider.ps1 -Force
+# To use a specific version of a credential provider, run installcredprovider.ps1 -Version "0.1.17" or installcredprovider.ps1 -Version "0.1.17" -Force
 # More: https://github.com/Microsoft/artifacts-credprovider/blob/master/README.md
 
 param(
+    # whether or not to install netfx folder for nuget
     [switch]$AddNetfx,
-    [switch]$Force
+    # override existing cred provider with the latest version
+    [switch]$Force,
+    # install the version specified
+    [string]$Version
 )
 
 $script:ErrorActionPreference='Stop'
@@ -45,18 +50,41 @@ if (!$Force) {
     }
 }
 
-# Get the zip file from latest GitHub release
-$latestReleaseUrl = "https://api.github.com/repos/Microsoft/artifacts-credprovider/releases/latest"
-$latestRelease = Invoke-WebRequest -UseBasicParsing $latestReleaseUrl
-$zipErrorString = "Unable to resolve the Credential Provider zip file from $latestReleaseUrl"
+# Get the zip file from the GitHub release
+$releaseUrlBase = "https://api.github.com/repos/Microsoft/artifacts-credprovider/releases"
+$versionError = "Unable to find the release version $Version from $releaseUrlBase"
+$releaseId = "latest"
+if (![string]::IsNullOrEmpty($Version)) {
+    try {
+        $releases = Invoke-WebRequest -UseBasicParsing $releaseUrlBase
+        $releaseJson = $releases | ConvertFrom-Json
+        $correctReleaseVersion = $releaseJson | ? { $_.name -eq $Version }
+        $releaseId = $correctReleaseVersion.id
+    } catch {
+        Write-Error $versionError
+        return
+    }
+}
+
+if (!$releaseId) {
+    Write-Error $versionError
+    return
+}
+
+$releaseUrl = [System.IO.Path]::Combine($releaseUrlBase, $releaseId)
+$releaseUrl = $releaseUrl.Replace("\","/")
+
+$zipErrorString = "Unable to resolve the Credential Provider zip file from $releaseUrl"
 try {
-    $latestReleaseJson = $latestRelease.Content | ConvertFrom-Json
+    Write-Host "Fetching release $releaseUrl"
+    $release = Invoke-WebRequest -UseBasicParsing $releaseUrl
+    $releaseJson = $release.Content | ConvertFrom-Json
     if ($AddNetfx -eq $True) {
         Write-Host "Using Microsoft.NuGet.CredentialProvider.zip"
-        $zipAsset = $latestReleaseJson.assets | ? { $_.name -eq "Microsoft.NuGet.CredentialProvider.zip" }
+        $zipAsset = $releaseJson.assets | ? { $_.name -eq "Microsoft.NuGet.CredentialProvider.zip" }
     } else {
         Write-Host "Using Microsoft.NetCore2.NuGet.CredentialProvider.zip"
-        $zipAsset = $latestReleaseJson.assets | ? { $_.name -eq "Microsoft.NetCore2.NuGet.CredentialProvider.zip" }
+        $zipAsset = $releaseJson.assets | ? { $_.name -eq "Microsoft.NetCore2.NuGet.CredentialProvider.zip" }
     }
     
     $packageSourceUrl = $zipAsset.browser_download_url
