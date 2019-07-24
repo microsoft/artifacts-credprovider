@@ -8,6 +8,11 @@ using PowerArgs;
 
 namespace NuGetCredentialProvider
 {
+    [ArgDescription("The Azure Artifacts credential provider can be used to aquire credentials for Azure Artifacts.\n" +
+                    "\n" +
+                    "Note: The Azure Artifacts Credential Provider is mainly intended for use via integrations with development tools such as .NET Core and nuget.exe.\n" + 
+                    "While it can be used via this CLI in \"stand-alone mode\", please pay special attention to certain options such as -IsRetry below.\n" +
+                    "Failing to do so may result in obtaining invalid credentials.")]
     internal class CredentialProviderArgs
     {
         [ArgDescription("Used by nuget to run the credential helper in plugin mode")]
@@ -19,7 +24,7 @@ namespace NuGetCredentialProvider
         [ArgDescription("If present and true, providers will not issue interactive prompts")]
         public bool NonInteractive { get; set; }
 
-        [ArgDescription("Notifies the provider that this is a retry and the credentials were rejected on a previous attempt")]
+        [ArgDescription("If false / unset, INVALID CREDENTIALS MAY BE RETURNED. The caller is required to validate returned credentials themselves, and if invalid, should call the credential provider again with -IsRetry set. If true, the credential provider will obtain new credentials instead of returning potentially invalid credentials from the cache.")]
         public bool IsRetry { get; set; }
 
         [ArgDefaultValue(LogLevel.Information)]

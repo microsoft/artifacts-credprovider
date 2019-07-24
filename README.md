@@ -126,14 +126,22 @@ The windows plugin, delivered in the `netfx` folder of `Microsoft.NuGet.Credenti
 
 ```
 C:\> .\CredentialProvider.Microsoft.exe -h
-Command-line v0.1.4: "CredentialProvider.Microsoft.exe" -h
+Command-line v0.1.17: .\CredentialProvider.Microsoft.exe  -h
+
+The Azure Artifacts credential provider can be used to aquire credentials for Azure Artifacts.
+
+Note: The Azure Artifacts Credential Provider is mainly intended for use via integrations with development tools such as .NET Core and nuget.exe.
+While it can be used via this CLI in "stand-alone mode", please pay special attention to certain options such as -IsRetry below.
+Failing to do so may result in obtaining invalid credentials.
+
 Usage - CredentialProvider.Microsoft -options
 
 GlobalOption          Description
 Plugin (-P)           Used by nuget to run the credential helper in plugin mode
 Uri (-U)              The package source URI for which credentials will be filled
 NonInteractive (-N)   If present and true, providers will not issue interactive prompts
-IsRetry (-I)          Notifies the provider that this is a retry and the credentials were rejected on a previous attempt
+IsRetry (-I)          If false / unset, INVALID CREDENTIALS MAY BE RETURNED. The caller is required to validate returned credentials themselves, and if invalid, should call the credential provider again with -IsRetry set. If true, the
+                      credential provider will obtain new credentials instead of returning potentially invalid credentials from the cache.
 Verbosity (-V)        Display this amount of detail in the output [Default='Information']
                       Debug
                       Verbose
@@ -144,10 +152,13 @@ Verbosity (-V)        Display this amount of detail in the output [Default='Info
 RedactPassword (-R)   Prevents writing the password to standard output (for troubleshooting purposes)
 Help (-?, -h)         Prints this help message
 CanShowDialog (-C)    If true, user can be prompted with credentials through UI, if false, device flow must be used
+OutputFormat (-F)     In standalone mode, format the results for human readability or as JSON. If JSON is selected, then logging (which may include Device Code instructions) will be logged to standard error instead of standard output.
+                      HumanReadable
+                      Json
 
 List of Environment Variables
     The following is a list of environment variables that can be used to modify the
-    behavior of the Credential Provider. They may be used for workarounds but their
+    behavior of the credential provider. They may be used for workarounds but their
     use is not supported. Use at your own risk.
 
 Log Path
@@ -165,7 +176,7 @@ ADAL Authority
 
 ADAL Token File Cache Enabled
     NUGET_CREDENTIALPROVIDER_ADAL_FILECACHE_ENABLED
-        Boolean to enable/disable the ADAL token cache.
+        Boolean to enable/disable the ADAL token cache. Disabled by default.
 
 PPE ADAL Hosts
     NUGET_CREDENTIALPROVIDER_ADAL_PPEHOSTS
@@ -213,7 +224,7 @@ Build Provider Service Endpoint Json
 
 Cache Location
     The Credential Provider uses the following paths to cache credentials. If
-    deleted, the Credential Provider will re-create them but any credentials
+    deleted, the credential provider will re-create them but any credentials
     will need to be provided again.
 
     ADAL Token Cache
