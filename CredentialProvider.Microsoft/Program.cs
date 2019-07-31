@@ -131,13 +131,21 @@ namespace NuGetCredentialProvider
                 // Plug-in mode
                 if (parsedArgs.Plugin)
                 {
-                    using (IPlugin plugin = await PluginFactory.CreateFromCurrentProcessAsync(requestHandlers, ConnectionOptions.CreateDefault(), tokenSource.Token).ConfigureAwait(continueOnCapturedContext: false))
+                    try
                     {
-                        multiLogger.Add(new PluginConnectionLogger(plugin.Connection));
-                        multiLogger.Verbose(Resources.RunningInPlugin);
-                        multiLogger.Verbose(string.Format(Resources.CommandLineArgs, Program.Version, Environment.CommandLine));
+                        using (IPlugin plugin = await PluginFactory.CreateFromCurrentProcessAsync(requestHandlers, ConnectionOptions.CreateDefault(), tokenSource.Token).ConfigureAwait(continueOnCapturedContext: false))
+                        {
+                            multiLogger.Add(new PluginConnectionLogger(plugin.Connection));
+                            multiLogger.Verbose(Resources.RunningInPlugin);
+                            multiLogger.Verbose(string.Format(Resources.CommandLineArgs, Program.Version, Environment.CommandLine));
 
-                        await RunNuGetPluginsAsync(plugin, multiLogger, TimeSpan.FromMinutes(2), tokenSource.Token).ConfigureAwait(continueOnCapturedContext: false);
+                            await RunNuGetPluginsAsync(plugin, multiLogger, TimeSpan.FromMinutes(2), tokenSource.Token).ConfigureAwait(continueOnCapturedContext: false);
+                        }
+                    }
+                    catch (TaskCanceledException)
+                    {
+                        // When restoring from multiple sources, one of the sources will throw an unhandled TaskCanceledException
+                        // if it has been restored successfully from a different source. We catch the exception and silently exit.
                     }
 
                     return 0;
