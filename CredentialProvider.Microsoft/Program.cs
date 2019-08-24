@@ -142,7 +142,7 @@ namespace NuGetCredentialProvider
                             await RunNuGetPluginsAsync(plugin, multiLogger, TimeSpan.FromMinutes(2), tokenSource.Token).ConfigureAwait(continueOnCapturedContext: false);
                         }
                     }
-                    catch (TaskCanceledException)
+                    catch (OperationCanceledException)
                     {
                         // When restoring from multiple sources, one of the sources will throw an unhandled TaskCanceledException
                         // if it has been restored successfully from a different source. We catch the exception and silently exit.
