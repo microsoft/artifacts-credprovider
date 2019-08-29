@@ -234,7 +234,7 @@ namespace NuGetCredentialProvider
             }
         }
 
-        private static FileLogger GetFileLogger()
+        private static ILogger GetFileLogger()
         {
             var location = EnvUtil.FileLogLocation;
             if (string.IsNullOrEmpty(location))
@@ -243,7 +243,7 @@ namespace NuGetCredentialProvider
             }
 
             Directory.CreateDirectory(Path.GetDirectoryName(location));
-            var fileLogger = new FileLogger(location);
+            var fileLogger = new LogEveryMessageFileLogger(location);
             fileLogger.SetLogLevel(NuGet.Common.LogLevel.Verbose);
 
             return fileLogger;
