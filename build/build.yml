@@ -8,14 +8,6 @@ steps:
   inputs:
     version: 2.1.300
 
-- task: DotNetCoreCLI@2
-  displayName: dotnet restore NuGet.config
-  inputs:
-    command: restore
-    projects: 'CredentialProvider.Microsoft/CredentialProvider.Microsoft.csproj'
-    feedsToUse: config
-    nugetConfigPath: 'CredentialProvider.Microsoft/NuGet.config'
-
 - ${{ if eq(parameters.sign, 'true') }}:
   - task: ms-vseng.MicroBuildTasks.30666190-6959-11e5-9f96-f56098202fef.MicroBuildSigningPlugin@1
     displayName: Install Signing Plugin
@@ -31,6 +23,14 @@ steps:
       restoreSolution: 'CredentialProvider.Microsoft.VSIX/packages.config'
       restoreDirectory: 'packages'
       vstsFeed: '6a2d6fd3-0b16-40f0-b309-7175c4e86490'
+
+- task: DotNetCoreCLI@2
+  displayName: dotnet restore NuGet.config
+  inputs:
+    command: restore
+    projects: 'CredentialProvider.Microsoft/CredentialProvider.Microsoft.csproj'
+    feedsToUse: config
+    nugetConfigPath: 'CredentialProvider.Microsoft/NuGet.config'
 
 - task: MSBuild@1
   displayName: Build CredentialProvider
