@@ -12,6 +12,7 @@ namespace NuGetCredentialProvider.Logging
         private readonly string filePath;
 
         internal FileLogger(string filePath)
+            : base(writesToConsole: false)
         {
             this.filePath = filePath;
         }

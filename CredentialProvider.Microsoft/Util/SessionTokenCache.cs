@@ -7,7 +7,9 @@ using System.Collections.Generic;
 using System.IO;
 using System.Threading;
 using Newtonsoft.Json;
-using NuGetCredentialProvider.Logging;
+using NuGet.Common;
+using NuGetCredentialProvider.Cancellation;
+using ILogger = NuGetCredentialProvider.Logging.ILogger;
 
 namespace NuGetCredentialProvider.Util
 {
@@ -148,6 +150,11 @@ namespace NuGetCredentialProvider.Util
                 }
 
                 logger.Verbose(string.Format(Resources.CacheException, e.Message));
+                if (e is OperationCanceledException oce)
+                {
+                    logger.Log(LogLevel.Debug, false, oce.CancellationToken.DumpDiagnostics());
+                }
+
                 Cache.Clear();
                 value = null;
 

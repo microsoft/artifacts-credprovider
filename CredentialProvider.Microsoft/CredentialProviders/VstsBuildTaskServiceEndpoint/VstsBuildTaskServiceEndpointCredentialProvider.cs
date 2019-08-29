@@ -7,7 +7,9 @@ using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
+using NuGet.Common;
 using NuGet.Protocol.Plugins;
+using NuGetCredentialProvider.Cancellation;
 using NuGetCredentialProvider.Util;
 using ILogger = NuGetCredentialProvider.Logging.ILogger;
 
@@ -140,6 +142,10 @@ namespace NuGetCredentialProvider.CredentialProviders.VstsBuildTaskServiceEndpoi
             catch (Exception e)
             {
                 Verbose(string.Format(Resources.VstsBuildTaskExternalCredentialCredentialProviderError, e));
+                if (e is OperationCanceledException oce)
+                {
+                    Logger.Log(LogLevel.Debug, false, oce.CancellationToken.DumpDiagnostics());
+                }
                 throw;
             }
         }

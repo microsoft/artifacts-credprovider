@@ -4,13 +4,16 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Net.Http.Headers;
 using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
+using NuGet.Common;
 using NuGet.Protocol.Plugins;
+using NuGetCredentialProvider.Cancellation;
 using NuGetCredentialProvider.CredentialProviders;
 using NuGetCredentialProvider.CredentialProviders.Vsts;
 using NuGetCredentialProvider.CredentialProviders.VstsBuildTask;
@@ -60,6 +63,8 @@ namespace NuGetCredentialProvider
         public static async Task<int> Main(string[] args)
         {
             CancellationTokenSource tokenSource = new CancellationTokenSource();
+            tokenSource.Register("Main() tokenSource");
+
             var parsedArgs = await Args.ParseAsync<CredentialProviderArgs>(args);
 
             var multiLogger = new MultiLogger();
@@ -74,7 +79,7 @@ namespace NuGetCredentialProvider
             {
                 // ConsoleCancelEventArgs.Cancel defaults to false which terminates the current process.
                 multiLogger.Verbose(Resources.CancelMessage);
-                tokenSource.Cancel();
+                tokenSource.Cancel("CancelKeyPress");
             };
 
             var authUtil = new AuthUtil(multiLogger);
@@ -142,10 +147,14 @@ namespace NuGetCredentialProvider
                             await RunNuGetPluginsAsync(plugin, multiLogger, TimeSpan.FromMinutes(2), tokenSource.Token).ConfigureAwait(continueOnCapturedContext: false);
                         }
                     }
-                    catch (OperationCanceledException)
+                    catch (OperationCanceledException ex)
                     {
                         // When restoring from multiple sources, one of the sources will throw an unhandled TaskCanceledException
                         // if it has been restored successfully from a different source. We catch the exception and silently exit.
+
+                        multiLogger.Log(LogLevel.Verbose, allowOnConsole: false, "Caught exception:");
+                        multiLogger.Log(LogLevel.Verbose, allowOnConsole: false, ex.ToString());
+                        multiLogger.Log(LogLevel.Debug, allowOnConsole: false, ex.CancellationToken.DumpDiagnostics());
                     }
 
                     return 0;

@@ -11,11 +11,11 @@ namespace NuGetCredentialProvider.Logging
     {
         private LogLevel? minLogLevel = null;
 
-        public void Log(LogLevel level, string message)
+        public void Log(LogLevel level, bool allowOnConsole, string message)
         {
             foreach (var logger in this)
             {
-                logger.Log(level, message);
+                logger.Log(level, allowOnConsole, message);
             }
         }
 

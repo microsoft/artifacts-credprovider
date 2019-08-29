@@ -13,6 +13,7 @@ namespace NuGetCredentialProvider.Logging
         private readonly IConnection connection;
 
         internal PluginConnectionLogger(IConnection connection)
+            : base(writesToConsole: true)
         {
             this.connection = connection;
         }

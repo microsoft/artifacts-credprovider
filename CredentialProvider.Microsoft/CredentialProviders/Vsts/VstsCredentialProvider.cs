@@ -7,9 +7,11 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using NuGet.Common;
 using NuGet.Protocol.Plugins;
-using NuGetCredentialProvider.Logging;
+using NuGetCredentialProvider.Cancellation;
 using NuGetCredentialProvider.Util;
+using ILogger = NuGetCredentialProvider.Logging.ILogger;
 
 namespace NuGetCredentialProvider.CredentialProviders.Vsts
 {
@@ -90,6 +92,10 @@ namespace NuGetCredentialProvider.CredentialProviders.Vsts
                 catch (Exception ex)
                 {
                     Verbose(string.Format(Resources.BearerTokenProviderException, bearerTokenProvider.Name, ex));
+                    if (ex is OperationCanceledException oce)
+                    {
+                        Logger.Log(LogLevel.Debug, false, oce.CancellationToken.DumpDiagnostics());
+                    }
                     continue;
                 }
 
@@ -119,6 +125,10 @@ namespace NuGetCredentialProvider.CredentialProviders.Vsts
                 catch (Exception e)
                 {
                     Verbose(string.Format(Resources.VSTSCreateSessionException, request.Uri, e.Message, e.StackTrace));
+                    if (e is OperationCanceledException oce)
+                    {
+                        Logger.Log(LogLevel.Debug, false, oce.CancellationToken.DumpDiagnostics());
+                    }
                 }
             }
 

@@ -11,12 +11,24 @@ namespace NuGetCredentialProvider.Logging
 {
     public abstract class LoggerBase : ILogger
     {
+        public bool WritesToConsole { get; }
+
         private LogLevel minLogLevel = LogLevel.Debug;
         private bool allowLogWrites = false;
         private ConcurrentQueue<Tuple<LogLevel, string, DateTime>> bufferedLogs = new ConcurrentQueue<Tuple<LogLevel, string, DateTime>>();
 
-        public void Log(LogLevel level, string message)
+        protected LoggerBase(bool writesToConsole)
         {
+            WritesToConsole = writesToConsole;
+        }
+
+        public void Log(LogLevel level, bool allowOnConsole, string message)
+        {
+            if (!allowOnConsole && WritesToConsole)
+            {
+                return;
+            }
+
             if (!allowLogWrites)
             {
                 // cheap reserve, if it swaps out after we add, meh, we miss one log

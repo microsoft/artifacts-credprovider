@@ -8,8 +8,10 @@ using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Threading;
 using System.Threading.Tasks;
-using NuGetCredentialProvider.Logging;
+using NuGet.Common;
+using NuGetCredentialProvider.Cancellation;
 using NuGetCredentialProvider.Util;
+using ILogger = NuGetCredentialProvider.Logging.ILogger;
 
 namespace NuGetCredentialProvider.CredentialProviders.Vsts
 {
@@ -104,6 +106,11 @@ namespace NuGetCredentialProvider.CredentialProviders.Vsts
             {
                 logger.Warning(string.Format(Resources.SPSAuthEndpointException, e.Message));
                 logger.Warning(e.StackTrace);
+
+                if (e is OperationCanceledException oce)
+                {
+                    logger.Log(LogLevel.Debug, false, oce.CancellationToken.DumpDiagnostics());
+                }
             }
 
             logger.Warning(string.Format(Resources.SPSAuthEndpointNotFound, uri.ToString()));

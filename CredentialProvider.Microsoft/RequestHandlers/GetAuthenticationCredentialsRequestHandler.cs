@@ -6,11 +6,13 @@ using System;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
+using NuGet.Common;
 using NuGet.Protocol.Plugins;
+using NuGetCredentialProvider.Cancellation;
 using NuGetCredentialProvider.CredentialProviders;
 using NuGetCredentialProvider.CredentialProviders.Vsts;
-using NuGetCredentialProvider.Logging;
 using NuGetCredentialProvider.Util;
+using ILogger = NuGetCredentialProvider.Logging.ILogger;
 
 namespace NuGetCredentialProvider.RequestHandlers
 {
@@ -26,7 +28,7 @@ namespace NuGetCredentialProvider.RequestHandlers
         /// <summary>
         /// Initializes a new instance of the <see cref="GetAuthenticationCredentialsRequestHandler"/> class.
         /// </summary>
-        /// <param name="logger">A <see cref="ILogger"/> to use for logging.</param>
+        /// <param name="logger">A <see cref="Logging.ILogger"/> to use for logging.</param>
         /// <param name="credentialProviders">An <see cref="IReadOnlyCollection{ICredentialProviders}"/> containing credential providers.</param>
         /// <param name="cache">An <see cref="ICache{TKey, TValue}"/> cache to store found credentials.</param>
         public GetAuthenticationCredentialsRequestHandler(ILogger logger, IReadOnlyCollection<ICredentialProvider> credentialProviders, ICache<Uri, string> cache)
@@ -98,6 +100,10 @@ namespace NuGetCredentialProvider.RequestHandlers
                 catch (Exception e)
                 {
                     Logger.Error(string.Format(Resources.AcquireSessionTokenFailed, e.ToString()));
+                    if (e is OperationCanceledException oce)
+                    {
+                        Logger.Log(LogLevel.Debug, false, oce.CancellationToken.DumpDiagnostics());
+                    }
 
                     return new GetAuthenticationCredentialsResponse(
                         username: null,

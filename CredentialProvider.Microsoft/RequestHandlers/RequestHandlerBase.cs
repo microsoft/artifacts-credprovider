@@ -7,9 +7,11 @@ using System.Diagnostics;
 using System.Threading;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
+using NuGet.Common;
 using NuGet.Protocol.Plugins;
-using NuGetCredentialProvider.Logging;
+using NuGetCredentialProvider.Cancellation;
 using NuGetCredentialProvider.Util;
+using ILogger = NuGetCredentialProvider.Logging.ILogger;
 
 namespace NuGetCredentialProvider.RequestHandlers
 {
@@ -24,7 +26,7 @@ namespace NuGetCredentialProvider.RequestHandlers
         /// <summary>
         /// Initializes a new instance of the <see cref="RequestHandlerBase{TRequest, TResponse}"/> class.
         /// </summary>
-        /// <param name="logger">A <see cref="ILogger"/> to use for logging.</param>
+        /// <param name="logger">A <see cref="Logging.ILogger"/> to use for logging.</param>
         protected RequestHandlerBase(ILogger logger)
         {
             Logger = logger ?? throw new ArgumentNullException(nameof(logger));
@@ -33,7 +35,7 @@ namespace NuGetCredentialProvider.RequestHandlers
         /// <summary>
         /// Gets a <see cref="CancellationToken"/> to use.
         /// </summary>
-        public virtual CancellationToken CancellationToken { get; private set; } = CancellationToken.None;
+        public CancellationToken CancellationToken { get; } = CancellationToken.None;
 
         /// <summary>
         /// Gets the current <see cref="IConnection"/>.
@@ -48,6 +50,7 @@ namespace NuGetCredentialProvider.RequestHandlers
         /// <inheritdoc cref="IRequestHandler.HandleResponseAsync"/>
         public async Task HandleResponseAsync(IConnection connection, Message message, IResponseHandler responseHandler, CancellationToken cancellationToken)
         {
+            cancellationToken.EnsureSourceRegistered($"HandleResponseAsync: {message.RequestId}");
             Stopwatch timer = new Stopwatch();
             timer.Start();
 
@@ -68,6 +71,10 @@ namespace NuGetCredentialProvider.RequestHandlers
                 {
                     // NuGet will handle canceling event but verbose logs in this case might be interesting.
                     Logger.Verbose(string.Format(Resources.RequestHandlerCancelingExceptionMessage, ex.InnerException, ex.Message));
+                    if (ex is OperationCanceledException oce)
+                    {
+                        Logger.Log(LogLevel.Debug, false, oce.CancellationToken.DumpDiagnostics());
+                    }
                     return;
                 }
                 Logger.Verbose(string.Format(Resources.SendingResponse, message.Type, message.Method, timer.ElapsedMilliseconds));
@@ -76,6 +83,7 @@ namespace NuGetCredentialProvider.RequestHandlers
 
                 Logger.Verbose(string.Format(Resources.TimeElapsedAfterSendingResponse, message.Type, message.Method, timer.ElapsedMilliseconds));
             }
+            // slightly better diagnostics if the exception is never caught vs being rethrown
             catch (Exception ex) when (LogExceptionAndReturnFalse(ex))
             {
                 throw;
@@ -83,18 +91,28 @@ namespace NuGetCredentialProvider.RequestHandlers
 
             bool LogExceptionAndReturnFalse(Exception ex)
             {
-                // don't report cancellations during shutdown, they're most likely not interesting.
-                if (ex is OperationCanceledException && Program.IsShuttingDown && !Debugger.IsAttached)
+                if (ex is OperationCanceledException oce)
                 {
-                    Logger.Verbose(Resources.ShuttingDown);
-                    return false;
+                    // don't report cancellations on the console during shutdown, they're most likely not interesting.
+                    // But do log them in file logs
+                    var allowOnConsole = !Program.IsShuttingDown || Debugger.IsAttached;
+                    LogException(allowOnConsole);
+                    Logger.Log(LogLevel.Debug, allowOnConsole, oce.CancellationToken.DumpDiagnostics());
+                }
+                else
+                {
+                    LogException(allowOnConsole: true);
                 }
 
-                Logger.Verbose(string.Format(Resources.ResponseHandlerException, message.Method, message.RequestId));
-                Logger.Verbose(ex.ToString());
                 return false;
+
+                void LogException(bool allowOnConsole)
+                {
+                    Logger.Log(LogLevel.Verbose, allowOnConsole, string.Format(Resources.ResponseHandlerException, message.Method, message.RequestId));
+                    Logger.Log(LogLevel.Verbose, allowOnConsole, ex.ToString());
+                }
             }
-            
+
             timer.Stop();
         }
 

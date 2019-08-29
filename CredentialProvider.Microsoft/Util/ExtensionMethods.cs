@@ -21,7 +21,7 @@ namespace NuGetCredentialProvider.Util
         /// <param name="message">The message.</param>
         public static void Error(this ILogger logger, string message)
         {
-            logger.Log(LogLevel.Error, message);
+            logger.Log(LogLevel.Error, allowOnConsole: true, message);
         }
 
         /// <summary>
@@ -31,7 +31,7 @@ namespace NuGetCredentialProvider.Util
         /// <param name="message">The message.</param>
         public static void Warning(this ILogger logger, string message)
         {
-            logger.Log(LogLevel.Warning, message);
+            logger.Log(LogLevel.Warning, allowOnConsole: true, message);
         }
 
         /// <summary>
@@ -41,7 +41,7 @@ namespace NuGetCredentialProvider.Util
         /// <param name="message">The message.</param>
         public static void Minimal(this ILogger logger, string message)
         {
-            logger.Log(LogLevel.Minimal, message);
+            logger.Log(LogLevel.Minimal, allowOnConsole: true, message);
         }
 
         /// <summary>
@@ -51,7 +51,7 @@ namespace NuGetCredentialProvider.Util
         /// <param name="message">The message.</param>
         public static void Info(this ILogger logger, string message)
         {
-            logger.Log(LogLevel.Information, message);
+            logger.Log(LogLevel.Information, allowOnConsole: true, message);
         }
 
         /// <summary>
@@ -61,7 +61,7 @@ namespace NuGetCredentialProvider.Util
         /// <param name="message">The message.</param>
         public static void Verbose(this ILogger logger, string message)
         {
-            logger.Log(LogLevel.Verbose, message);
+            logger.Log(LogLevel.Verbose, allowOnConsole: true, message);
         }
 
         /// <summary>
