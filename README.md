@@ -108,7 +108,7 @@ If you're running the command as part of an automated build on an unattended bui
 You may need to restart the agent service or the computer before the environment variables are available to the agent.
 
 ### Docker containers
-You may use the example Dockerfile provided here: https://gist.github.com/shubham90/ad85f2546a72caa20d57bce03ec3890f
+[Sample Dockerfile](https://github.com/microsoft/artifacts-credprovider/blob/master/samples/dockerfile.sample.txt)
 
 ## Session Token Cache Locations
 
