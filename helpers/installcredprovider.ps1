@@ -18,9 +18,7 @@ param(
 $script:ErrorActionPreference='Stop'
 
 # Without this, System.Net.WebClient.DownloadFile will fail on a client with TLS 1.0/1.1 disabled
-if ([Net.ServicePointManager]::SecurityProtocol.ToString().Split(',').Trim() -notcontains 'Tls12') {
-    [Net.ServicePointManager]::SecurityProtocol += [Net.SecurityProtocolType]::Tls12
-}
+[Net.ServicePointManager]::SecurityProtocol = [Net.ServicePointManager]::SecurityProtocol -bor [Net.SecurityProtocolType]::Tls12
 
 $profilePath = [System.Environment]::GetFolderPath([System.Environment+SpecialFolder]::UserProfile)
 $tempPath = [System.IO.Path]::GetTempPath()
@@ -49,92 +47,94 @@ if (!$Force) {
         return
     }
 }
+if ($Force -or !$netcoreExists -or ($AddNetfx -and !$netfxExists))
+{
+    # Get the zip file from the GitHub release
+    $releaseUrlBase = "https://api.github.com/repos/Microsoft/artifacts-credprovider/releases"
+    $versionError = "Unable to find the release version $Version from $releaseUrlBase"
+    $releaseId = "latest"
+    if (![string]::IsNullOrEmpty($Version)) {
+        try {
+            $releases = Invoke-WebRequest -UseBasicParsing $releaseUrlBase
+            $releaseJson = $releases | ConvertFrom-Json
+            $correctReleaseVersion = $releaseJson | ? { $_.name -eq $Version }
+            $releaseId = $correctReleaseVersion.id
+        } catch {
+            Write-Error $versionError
+            return
+        }
+    }
 
-# Get the zip file from the GitHub release
-$releaseUrlBase = "https://api.github.com/repos/Microsoft/artifacts-credprovider/releases"
-$versionError = "Unable to find the release version $Version from $releaseUrlBase"
-$releaseId = "latest"
-if (![string]::IsNullOrEmpty($Version)) {
-    try {
-        $releases = Invoke-WebRequest -UseBasicParsing $releaseUrlBase
-        $releaseJson = $releases | ConvertFrom-Json
-        $correctReleaseVersion = $releaseJson | ? { $_.name -eq $Version }
-        $releaseId = $correctReleaseVersion.id
-    } catch {
+    if (!$releaseId) {
         Write-Error $versionError
         return
     }
-}
 
-if (!$releaseId) {
-    Write-Error $versionError
-    return
-}
+    $releaseUrl = [System.IO.Path]::Combine($releaseUrlBase, $releaseId)
+    $releaseUrl = $releaseUrl.Replace("\","/")
 
-$releaseUrl = [System.IO.Path]::Combine($releaseUrlBase, $releaseId)
-$releaseUrl = $releaseUrl.Replace("\","/")
+    $zipErrorString = "Unable to resolve the Credential Provider zip file from $releaseUrl"
+    try {
+        Write-Host "Fetching release $releaseUrl"
+        $release = Invoke-WebRequest -UseBasicParsing $releaseUrl
+        $releaseJson = $release.Content | ConvertFrom-Json
+        if ($AddNetfx -eq $True) {
+            Write-Host "Using Microsoft.NuGet.CredentialProvider.zip"
+            $zipAsset = $releaseJson.assets | ? { $_.name -eq "Microsoft.NuGet.CredentialProvider.zip" }
+        } else {
+            Write-Host "Using Microsoft.NetCore2.NuGet.CredentialProvider.zip"
+            $zipAsset = $releaseJson.assets | ? { $_.name -eq "Microsoft.NetCore2.NuGet.CredentialProvider.zip" }
+        }
+        
+        $packageSourceUrl = $zipAsset.browser_download_url
+    } catch {
+        Write-Error $zipErrorString
+        return
+    }
 
-$zipErrorString = "Unable to resolve the Credential Provider zip file from $releaseUrl"
-try {
-    Write-Host "Fetching release $releaseUrl"
-    $release = Invoke-WebRequest -UseBasicParsing $releaseUrl
-    $releaseJson = $release.Content | ConvertFrom-Json
+    if (!$packageSourceUrl) {
+        Write-Error $zipErrorString
+        return
+    }
+
+    # Create temporary location for the zip file handling
+    Write-Host "Creating temp directory for the Credential Provider zip: $tempZipLocation"
+    if (Test-Path -Path $tempZipLocation) {
+        Remove-Item $tempZipLocation -Force -Recurse
+    }
+    New-Item -ItemType Directory -Force -Path $tempZipLocation
+
+    # Download credential provider zip to the temp location
+    $pluginZip = ([System.IO.Path]::Combine($tempZipLocation, "Microsoft.NuGet.CredentialProvider.zip"))
+    Write-Host "Downloading $packageSourceUrl to $pluginZip"
+    try {
+        $client = New-Object System.Net.WebClient
+        $client.DownloadFile($packageSourceUrl, $pluginZip)
+    } catch {
+        Write-Error "Unable to download $packageSourceUrl to the location $pluginZip"
+    }
+
+    # Extract zip to temp directory
+    Write-Host "Extracting zip to the Credential Provider temp directory"
+    Add-Type -AssemblyName System.IO.Compression.FileSystem 
+    [System.IO.Compression.ZipFile]::ExtractToDirectory($pluginZip, $tempZipLocation)
+
+    # Remove existing content and copy netcore (and netfx) directories to plugins directory
+    Write-Host "Copying Credential Provider to $pluginLocation"
+    if ($netcoreExists) {
+        Remove-Item $fullNetcoreCredProviderPath -Force -Recurse
+    }
+    Copy-Item ([System.IO.Path]::Combine($tempZipLocation, "plugins", $localNetcoreCredProviderPath)) -Destination $fullNetcoreCredProviderPath -Force -Recurse
     if ($AddNetfx -eq $True) {
-        Write-Host "Using Microsoft.NuGet.CredentialProvider.zip"
-        $zipAsset = $releaseJson.assets | ? { $_.name -eq "Microsoft.NuGet.CredentialProvider.zip" }
-    } else {
-        Write-Host "Using Microsoft.NetCore2.NuGet.CredentialProvider.zip"
-        $zipAsset = $releaseJson.assets | ? { $_.name -eq "Microsoft.NetCore2.NuGet.CredentialProvider.zip" }
+        if ($netfxExists) {
+            Remove-Item $fullNetfxCredProviderPath -Force -Recurse
+        }
+        Copy-Item ([System.IO.Path]::Combine($tempZipLocation, "plugins", $localNetfxCredProviderPath)) -Destination $fullNetfxCredProviderPath -Force -Recurse
     }
-    
-    $packageSourceUrl = $zipAsset.browser_download_url
-} catch {
-    Write-Error $zipErrorString
-    return
-}
 
-if (!$packageSourceUrl) {
-    Write-Error $zipErrorString
-    return
-}
-
-# Create temporary location for the zip file handling
-Write-Host "Creating temp directory for the Credential Provider zip: $tempZipLocation"
-if (Test-Path -Path $tempZipLocation) {
+    # Remove $tempZipLocation directory
+    Write-Host "Removing the Credential Provider temp directory $tempZipLocation"
     Remove-Item $tempZipLocation -Force -Recurse
+
+    Write-Host "Credential Provider installed successfully"
 }
-New-Item -ItemType Directory -Force -Path $tempZipLocation
-
-# Download credential provider zip to the temp location
-$pluginZip = ([System.IO.Path]::Combine($tempZipLocation, "Microsoft.NuGet.CredentialProvider.zip"))
-Write-Host "Downloading $packageSourceUrl to $pluginZip"
-try {
-    $client = New-Object System.Net.WebClient
-    $client.DownloadFile($packageSourceUrl, $pluginZip)
-} catch {
-    Write-Error "Unable to download $packageSourceUrl to the location $pluginZip"
-}
-
-# Extract zip to temp directory
-Write-Host "Extracting zip to the Credential Provider temp directory"
-Add-Type -AssemblyName System.IO.Compression.FileSystem 
-[System.IO.Compression.ZipFile]::ExtractToDirectory($pluginZip, $tempZipLocation)
-
-# Remove existing content and copy netcore (and netfx) directories to plugins directory
-Write-Host "Copying Credential Provider to $pluginLocation"
-if ($netcoreExists) {
-    Remove-Item $fullNetcoreCredProviderPath -Force -Recurse
-}
-Copy-Item ([System.IO.Path]::Combine($tempZipLocation, "plugins", $localNetcoreCredProviderPath)) -Destination $fullNetcoreCredProviderPath -Force -Recurse
-if ($AddNetfx -eq $True) {
-    if ($netfxExists) {
-        Remove-Item $fullNetfxCredProviderPath -Force -Recurse
-    }
-    Copy-Item ([System.IO.Path]::Combine($tempZipLocation, "plugins", $localNetfxCredProviderPath)) -Destination $fullNetfxCredProviderPath -Force -Recurse
-}
-
-# Remove $tempZipLocation directory
-Write-Host "Removing the Credential Provider temp directory $tempZipLocation"
-Remove-Item $tempZipLocation -Force -Recurse
-
-Write-Host "Credential Provider installed successfully"
