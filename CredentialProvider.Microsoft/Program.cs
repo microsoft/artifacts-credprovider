@@ -243,10 +243,8 @@ namespace NuGetCredentialProvider
             }
 
             Directory.CreateDirectory(Path.GetDirectoryName(location));
-            var fileLogger = new LogEveryMessageFileLogger(location);
-            fileLogger.SetLogLevel(NuGet.Common.LogLevel.Verbose);
 
-            return fileLogger;
+            return new LogEveryMessageFileLogger(location);
         }
     }
 }

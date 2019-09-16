@@ -64,15 +64,15 @@ namespace NuGetCredentialProvider.Cancellation
             else if (ctsType == linked1CancellationTokenSourceType)
             {
                 var registration = (CancellationTokenRegistration) linked1CancellationTokenSourceReg1.GetValue(cts);
-                yield return registration.Token.GetSource();
+                yield return GetSourceFromRegistration(registration);
             }
             else if (ctsType == linked2CancellationTokenSourceType)
             {
                 var registration1 = (CancellationTokenRegistration)linked2CancellationTokenSourceReg1.GetValue(cts);
-                yield return registration1.Token.GetSource();
+                yield return GetSourceFromRegistration(registration1);
 
                 var registration2 = (CancellationTokenRegistration)linked2CancellationTokenSourceReg2.GetValue(cts);
-                yield return registration2.Token.GetSource();
+                yield return GetSourceFromRegistration(registration2);
             }
             else if (ctsType == linkedNCancellationTokenSourceType)
             {
@@ -81,8 +81,14 @@ namespace NuGetCredentialProvider.Cancellation
 
                 foreach (var registration in registrations)
                 {
-                    yield return registration.Token.GetSource();
+                    yield return GetSourceFromRegistration(registration);
                 }
+            }
+
+            CancellationTokenSource GetSourceFromRegistration(CancellationTokenRegistration reg)
+            {
+                var token = (CancellationToken)cancellationTokenRegistrationTokenProperty.GetValue(reg);
+                return token.GetSource();
             }
 
 #elif NETFRAMEWORK
@@ -132,7 +138,7 @@ namespace NuGetCredentialProvider.Cancellation
             ImmutableList<int> path,
             string indent)
         {
-            if (node.Token == CancellationToken.None)
+            if (node == null || node.Token == CancellationToken.None)
             {
                 sb.AppendLine($"{indent}[CancellationToken.None]");
                 return;
@@ -194,11 +200,12 @@ namespace NuGetCredentialProvider.Cancellation
 
         public static void EnsureSourceRegistered(this CancellationToken token, string name)
         {
-            token.GetSource().Register("via EnsureSourceRegistered: " + name);
+            token.GetSource()?.Register("via EnsureSourceRegistered: " + name);
         }
 
         public static string DumpDiagnostics(this CancellationToken token)
         {
+            // DumpDiagnostics is OK with nulls
             return token.GetSource().DumpDiagnostics();
         }
 
