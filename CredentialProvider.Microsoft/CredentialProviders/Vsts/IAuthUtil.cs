@@ -9,7 +9,7 @@ using System.Net.Http.Headers;
 using System.Threading;
 using System.Threading.Tasks;
 using NuGet.Common;
-using NuGetCredentialProvider.Cancellation;
+using NuGet.Protocol.Cancellation;
 using NuGetCredentialProvider.Util;
 using ILogger = NuGetCredentialProvider.Logging.ILogger;
 

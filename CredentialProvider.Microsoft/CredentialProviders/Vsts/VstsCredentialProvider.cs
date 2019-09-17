@@ -8,8 +8,8 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using NuGet.Common;
+using NuGet.Protocol.Cancellation;
 using NuGet.Protocol.Plugins;
-using NuGetCredentialProvider.Cancellation;
 using NuGetCredentialProvider.Util;
 using ILogger = NuGetCredentialProvider.Logging.ILogger;
 

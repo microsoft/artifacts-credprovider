@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Threading;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using NuGetCredentialProvider.Cancellation;
+using NuGet.Protocol.Cancellation;
 
 namespace CredentialProvider.Microsoft.Tests.Cancellation
 {

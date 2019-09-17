@@ -8,7 +8,7 @@ using System.IO;
 using System.Threading;
 using Newtonsoft.Json;
 using NuGet.Common;
-using NuGetCredentialProvider.Cancellation;
+using NuGet.Protocol.Cancellation;
 using ILogger = NuGetCredentialProvider.Logging.ILogger;
 
 namespace NuGetCredentialProvider.Util
