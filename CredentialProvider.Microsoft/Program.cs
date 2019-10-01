@@ -10,6 +10,7 @@ using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
+using NuGet.Common;
 using NuGet.Protocol.Plugins;
 using NuGetCredentialProvider.CredentialProviders;
 using NuGetCredentialProvider.CredentialProviders.Vsts;
@@ -142,10 +143,11 @@ namespace NuGetCredentialProvider
                             await RunNuGetPluginsAsync(plugin, multiLogger, TimeSpan.FromMinutes(2), tokenSource.Token).ConfigureAwait(continueOnCapturedContext: false);
                         }
                     }
-                    catch (TaskCanceledException)
+                    catch (OperationCanceledException ex)
                     {
                         // When restoring from multiple sources, one of the sources will throw an unhandled TaskCanceledException
-                        // if it has been restored successfully from a different source. We catch the exception and silently exit.
+                        // if it has been restored successfully from a different source.
+                        multiLogger.Log(LogLevel.Verbose, ex.ToString());
                     }
 
                     return 0;
