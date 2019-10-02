@@ -10,6 +10,7 @@ using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
+using NuGet.Common;
 using NuGet.Protocol.Plugins;
 using NuGetCredentialProvider.CredentialProviders;
 using NuGetCredentialProvider.CredentialProviders.Vsts;
@@ -131,13 +132,22 @@ namespace NuGetCredentialProvider
                 // Plug-in mode
                 if (parsedArgs.Plugin)
                 {
-                    using (IPlugin plugin = await PluginFactory.CreateFromCurrentProcessAsync(requestHandlers, ConnectionOptions.CreateDefault(), tokenSource.Token).ConfigureAwait(continueOnCapturedContext: false))
+                    try
                     {
-                        multiLogger.Add(new PluginConnectionLogger(plugin.Connection));
-                        multiLogger.Verbose(Resources.RunningInPlugin);
-                        multiLogger.Verbose(string.Format(Resources.CommandLineArgs, Program.Version, Environment.CommandLine));
+                        using (IPlugin plugin = await PluginFactory.CreateFromCurrentProcessAsync(requestHandlers, ConnectionOptions.CreateDefault(), tokenSource.Token).ConfigureAwait(continueOnCapturedContext: false))
+                        {
+                            multiLogger.Add(new PluginConnectionLogger(plugin.Connection));
+                            multiLogger.Verbose(Resources.RunningInPlugin);
+                            multiLogger.Verbose(string.Format(Resources.CommandLineArgs, Program.Version, Environment.CommandLine));
 
-                        await RunNuGetPluginsAsync(plugin, multiLogger, TimeSpan.FromMinutes(2), tokenSource.Token).ConfigureAwait(continueOnCapturedContext: false);
+                            await RunNuGetPluginsAsync(plugin, multiLogger, TimeSpan.FromMinutes(2), tokenSource.Token).ConfigureAwait(continueOnCapturedContext: false);
+                        }
+                    }
+                    catch (OperationCanceledException ex)
+                    {
+                        // When restoring from multiple sources, one of the sources will throw an unhandled TaskCanceledException
+                        // if it has been restored successfully from a different source.
+                        multiLogger.Log(LogLevel.Verbose, ex.ToString());
                     }
 
                     return 0;
