@@ -7,9 +7,10 @@ using System.Diagnostics;
 using System.Threading;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
+using NuGet.Common;
 using NuGet.Protocol.Plugins;
-using NuGetCredentialProvider.Logging;
 using NuGetCredentialProvider.Util;
+using ILogger = NuGetCredentialProvider.Logging.ILogger;
 
 namespace NuGetCredentialProvider.RequestHandlers
 {
@@ -24,7 +25,7 @@ namespace NuGetCredentialProvider.RequestHandlers
         /// <summary>
         /// Initializes a new instance of the <see cref="RequestHandlerBase{TRequest, TResponse}"/> class.
         /// </summary>
-        /// <param name="logger">A <see cref="ILogger"/> to use for logging.</param>
+        /// <param name="logger">A <see cref="Logging.ILogger"/> to use for logging.</param>
         protected RequestHandlerBase(ILogger logger)
         {
             Logger = logger ?? throw new ArgumentNullException(nameof(logger));
@@ -76,25 +77,22 @@ namespace NuGetCredentialProvider.RequestHandlers
 
                 Logger.Verbose(string.Format(Resources.TimeElapsedAfterSendingResponse, message.Type, message.Method, timer.ElapsedMilliseconds));
             }
-            catch (Exception ex) when (LogExceptionAndReturnFalse(ex))
+            catch (Exception ex)
             {
+                // don't report cancellations to the console during shutdown, they're most likely not interesting.
+                bool cancelingDuringShutdown = ex is OperationCanceledException && Program.IsShuttingDown;
+
+                if (cancelingDuringShutdown)
+                {
+                    Logger.Log(LogLevel.Verbose, allowOnConsole: false, Resources.WhileShuttingDown);
+                }
+
+                Logger.Log(LogLevel.Verbose, allowOnConsole: !cancelingDuringShutdown, string.Format(Resources.ResponseHandlerException, message.Method, message.RequestId));
+                Logger.Log(LogLevel.Verbose, allowOnConsole: !cancelingDuringShutdown, ex.ToString());
+
                 throw;
             }
 
-            bool LogExceptionAndReturnFalse(Exception ex)
-            {
-                // don't report cancellations during shutdown, they're most likely not interesting.
-                if (ex is OperationCanceledException && Program.IsShuttingDown && !Debugger.IsAttached)
-                {
-                    Logger.Verbose(Resources.ShuttingDown);
-                    return false;
-                }
-
-                Logger.Verbose(string.Format(Resources.ResponseHandlerException, message.Method, message.RequestId));
-                Logger.Verbose(ex.ToString());
-                return false;
-            }
-            
             timer.Stop();
         }
 

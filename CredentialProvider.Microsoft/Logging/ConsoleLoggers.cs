@@ -13,7 +13,7 @@ namespace NuGetCredentialProvider.Logging
     /// </summary>
     public class StandardOutputLogger : HumanFriendlyTextWriterLogger
     {
-        public StandardOutputLogger() : base(Console.Out) { }
+        public StandardOutputLogger() : base(Console.Out, writesToConsole: true) { }
     }
 
     /// <summary>
@@ -21,7 +21,7 @@ namespace NuGetCredentialProvider.Logging
     /// </summary>
     public class StandardErrorLogger : HumanFriendlyTextWriterLogger
     {
-        public StandardErrorLogger() : base(Console.Error) { }
+        public StandardErrorLogger() : base(Console.Error, writesToConsole: true) { }
     }
 
     /// <summary>
@@ -31,7 +31,8 @@ namespace NuGetCredentialProvider.Logging
     {
         private readonly TextWriter writer;
 
-        public HumanFriendlyTextWriterLogger(TextWriter writer)
+        public HumanFriendlyTextWriterLogger(TextWriter writer, bool writesToConsole)
+            : base(writesToConsole)
         {
             this.writer = writer;
         }

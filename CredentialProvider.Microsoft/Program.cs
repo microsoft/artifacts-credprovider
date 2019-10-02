@@ -147,7 +147,10 @@ namespace NuGetCredentialProvider
                     {
                         // When restoring from multiple sources, one of the sources will throw an unhandled TaskCanceledException
                         // if it has been restored successfully from a different source.
-                        multiLogger.Log(LogLevel.Verbose, ex.ToString());
+
+                        // This is probably more confusing than interesting to users, but may be helpful in debugging,
+                        // so log the exception but not to the console.
+                        multiLogger.Log(LogLevel.Verbose, allowOnConsole:false, ex.ToString());
                     }
 
                     return 0;
@@ -227,7 +230,7 @@ namespace NuGetCredentialProvider
             }
         }
 
-        private static FileLogger GetFileLogger()
+        private static ILogger GetFileLogger()
         {
             var location = EnvUtil.FileLogLocation;
             if (string.IsNullOrEmpty(location))
@@ -236,10 +239,8 @@ namespace NuGetCredentialProvider
             }
 
             Directory.CreateDirectory(Path.GetDirectoryName(location));
-            var fileLogger = new FileLogger(location);
-            fileLogger.SetLogLevel(NuGet.Common.LogLevel.Verbose);
 
-            return fileLogger;
+            return new LogEveryMessageFileLogger(location);
         }
     }
 }
