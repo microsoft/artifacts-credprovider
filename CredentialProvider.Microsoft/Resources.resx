@@ -439,4 +439,10 @@ Device Flow Authentication Timeout
   <data name="SessionTokenCacheMutexMiss" xml:space="preserve">
     <value>Another instance of CredentialProvider is accessing the credential cache, waiting for it to become available.</value>
   </data>
+  <data name="LogStartsAt" xml:space="preserve">
+    <value>Log starts at {0}</value>
+  </data>
+  <data name="WhileShuttingDown" xml:space="preserve">
+    <value>While the plugin was shutting down:</value>
+  </data>
 </root>
