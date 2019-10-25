@@ -86,7 +86,12 @@ namespace NuGetCredentialProvider.CredentialProviders.Vsts
 
         public bool ShouldRun(bool isRetry, bool isNonInteractive, bool canShowDialog)
         {
+#if NETFRAMEWORK
             return !isNonInteractive && canShowDialog && RuntimeInformation.IsOSPlatform(OSPlatform.Windows);
+#else
+            // no ADAL UI in netcore
+            return false;
+#endif
         }
     }
 
