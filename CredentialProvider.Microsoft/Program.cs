@@ -140,7 +140,7 @@ namespace NuGetCredentialProvider
                             multiLogger.Verbose(Resources.RunningInPlugin);
                             multiLogger.Verbose(string.Format(Resources.CommandLineArgs, Program.Version, Environment.CommandLine));
 
-                            await RunNuGetPluginsAsync(plugin, multiLogger, TimeSpan.FromMinutes(2), tokenSource.Token).ConfigureAwait(continueOnCapturedContext: false);
+                            await WaitForPluginExitAsync(plugin, multiLogger, TimeSpan.FromMinutes(2)).ConfigureAwait(continueOnCapturedContext: false);
                         }
                     }
                     catch (OperationCanceledException ex)
@@ -208,9 +208,10 @@ namespace NuGetCredentialProvider
             }
         }
 
-        internal static async Task RunNuGetPluginsAsync(IPlugin plugin, ILogger logger, TimeSpan timeout, CancellationToken cancellationToken)
+        internal static async Task WaitForPluginExitAsync(IPlugin plugin, ILogger logger, TimeSpan shutdownTimeout)
         {
-            SemaphoreSlim semaphore = new SemaphoreSlim(0);
+            var beginShutdownTaskSource = new TaskCompletionSource<object>();
+            var endShutdownTaskSource = new TaskCompletionSource<object>();
 
             plugin.Connection.Faulted += (sender, a) =>
             {
@@ -218,13 +219,27 @@ namespace NuGetCredentialProvider
                 logger.Error(a.Exception.ToString());
             };
 
-            plugin.BeforeClose += (sender, args) => Volatile.Write(ref shuttingDown, true);
+            plugin.BeforeClose += (sender, args) =>
+            {
+                Volatile.Write(ref shuttingDown, true);
+                beginShutdownTaskSource.TrySetResult(null);
+            };
 
-            plugin.Closed += (sender, a) => semaphore.Release();
+            plugin.Closed += (sender, a) =>
+            {
+                // beginShutdownTaskSource should already be set in BeforeClose, but just in case do it here too
+                beginShutdownTaskSource.TrySetResult(null);
 
-            bool complete = await semaphore.WaitAsync(timeout, cancellationToken).ConfigureAwait(continueOnCapturedContext: false);
+                endShutdownTaskSource.TrySetResult(null);
+            };
 
-            if (!complete)
+            await beginShutdownTaskSource.Task;
+            using (new Timer(_ => endShutdownTaskSource.TrySetCanceled(), null, shutdownTimeout, TimeSpan.FromMilliseconds(-1)))
+            {
+                await endShutdownTaskSource.Task;
+            }
+
+            if (endShutdownTaskSource.Task.IsCanceled)
             {
                 logger.Error(Resources.PluginTimedOut);
             }
