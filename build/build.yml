@@ -31,7 +31,7 @@ steps:
     projects: 'CredentialProvider.Microsoft/CredentialProvider.Microsoft.csproj'
     feedsToUse: config
     nugetConfigPath: 'CredentialProvider.Microsoft/NuGet.config'
-
+  
 - task: MSBuild@1
   displayName: Build CredentialProvider
   inputs:
@@ -140,6 +140,35 @@ steps:
     archiveType: 'zip'
     archiveFile: '$(Build.ArtifactStagingDirectory)\$(BuildConfiguration)\Microsoft.NuGet.CredentialProvider.zip'
     replaceExistingArchive: true
+
+- task: CopyFiles@2
+  displayName: Collect symbols
+  inputs:
+    SourceFolder: '$(Build.SourcesDirectory)\CredentialProvider.Microsoft\bin\$(BuildConfiguration)'
+    Contents: |
+      **\CredentialProvider.Microsoft.dll
+      **\CredentialProvider.Microsoft.exe
+      **\CredentialProvider.Microsoft.pdb
+    TargetFolder: '$(Build.ArtifactStagingDirectory)\symbols'
+
+- task: PublishSymbols@2
+  inputs:
+    SymbolsFolder: '$(Build.ArtifactStagingDirectory)\symbols'
+    SearchPattern:  '**\*.pdb'
+    IndexSources: true
+    PublishSymbols: ${{ eq(parameters.sign, 'true') }}
+    SymbolServerType: TeamServices
+    SymbolsProduct: 'artifacts-credprovider'
+  env:
+    ArtifactServices.Symbol.AccountName: 'microsoft'
+    ArtifactServices.Symbol.UseAAD: 'true'
+
+- task: PublishPipelineArtifact@1
+  displayName: 'Upload symbols'
+  inputs:
+    artifact: "Symbols"
+    targetPath: '$(Build.ArtifactStagingDirectory)\symbols'
+
 
 - powershell: 'Write-Output ("##vso[task.setvariable variable=SignType;]")' 
   displayName: Clear SignType
