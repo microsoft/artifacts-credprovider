@@ -78,7 +78,7 @@ $zipFile = "Microsoft.NetCore2.NuGet.CredentialProvider.zip"
 if ($AddNetfx -eq $True) {
     $zipFile = "Microsoft.NuGet.CredentialProvider.zip"
 }
-Write-Host "Using $zipFile"
+Write-Verbose "Using $zipFile"
 
 $zipErrorString = "Unable to resolve the Credential Provider zip file from $releaseUrl"
 try {
@@ -98,7 +98,7 @@ if (!$packageSourceUrl) {
 }
 
 # Create temporary location for the zip file handling
-Write-Host "Creating temp directory for the Credential Provider zip: $tempZipLocation"
+Write-Verbose "Creating temp directory for the Credential Provider zip: $tempZipLocation"
 if (Test-Path -Path $tempZipLocation) {
     Remove-Item $tempZipLocation -Force -Recurse
 }
@@ -121,24 +121,24 @@ Add-Type -AssemblyName System.IO.Compression.FileSystem
 
 # Remove existing content and copy netcore (and netfx) directories to plugins directory
 if ($netcoreExists) {
-    Write-Host "Removing existing content from $fullNetcoreCredProviderPath"
+    Write-Verbose "Removing existing content from $fullNetcoreCredProviderPath"
     Remove-Item $fullNetcoreCredProviderPath -Force -Recurse
 }
 $tempNetcorePath = [System.IO.Path]::Combine($tempZipLocation, "plugins", $localNetcoreCredProviderPath)
-Write-Host "Copying Credential Provider from $tempNetcorePath to $fullNetcoreCredProviderPath"
+Write-Verbose "Copying Credential Provider from $tempNetcorePath to $fullNetcoreCredProviderPath"
 Copy-Item $tempNetcorePath -Destination $fullNetcoreCredProviderPath -Force -Recurse
 if ($AddNetfx -eq $True) {
     if ($netfxExists) {
-        Write-Host "Removing existing content from $fullNetfxCredProviderPath"
+        Write-Verbose "Removing existing content from $fullNetfxCredProviderPath"
         Remove-Item $fullNetfxCredProviderPath -Force -Recurse
     }
     $tempNetfxPath = [System.IO.Path]::Combine($tempZipLocation, "plugins", $localNetfxCredProviderPath)
-    Write-Host "Copying Credential Provider from $tempNetfxPath to $fullNetfxCredProviderPath"
+    Write-Verbose "Copying Credential Provider from $tempNetfxPath to $fullNetfxCredProviderPath"
     Copy-Item $tempNetfxPath -Destination $fullNetfxCredProviderPath -Force -Recurse
 }
 
 # Remove $tempZipLocation directory
-Write-Host "Removing the Credential Provider temp directory $tempZipLocation"
+Write-Verbose "Removing the Credential Provider temp directory $tempZipLocation"
 Remove-Item $tempZipLocation -Force -Recurse
 
 Write-Host "Credential Provider installed successfully"
