@@ -74,19 +74,18 @@ if (!$releaseId) {
 $releaseUrl = [System.IO.Path]::Combine($releaseUrlBase, $releaseId)
 $releaseUrl = $releaseUrl.Replace("\","/")
 
+$zipFile = "Microsoft.NetCore2.NuGet.CredentialProvider.zip"
+if ($AddNetfx -eq $True) {
+    $zipFile = "Microsoft.NuGet.CredentialProvider.zip"
+}
+Write-Verbose "Using $zipFile"
+
 $zipErrorString = "Unable to resolve the Credential Provider zip file from $releaseUrl"
 try {
     Write-Host "Fetching release $releaseUrl"
     $release = Invoke-WebRequest -UseBasicParsing $releaseUrl
     $releaseJson = $release.Content | ConvertFrom-Json
-    if ($AddNetfx -eq $True) {
-        Write-Host "Using Microsoft.NuGet.CredentialProvider.zip"
-        $zipAsset = $releaseJson.assets | ? { $_.name -eq "Microsoft.NuGet.CredentialProvider.zip" }
-    } else {
-        Write-Host "Using Microsoft.NetCore2.NuGet.CredentialProvider.zip"
-        $zipAsset = $releaseJson.assets | ? { $_.name -eq "Microsoft.NetCore2.NuGet.CredentialProvider.zip" }
-    }
-    
+    $zipAsset = $releaseJson.assets | ? { $_.name -eq $zipFile }
     $packageSourceUrl = $zipAsset.browser_download_url
 } catch {
     Write-Error $zipErrorString
@@ -99,14 +98,14 @@ if (!$packageSourceUrl) {
 }
 
 # Create temporary location for the zip file handling
-Write-Host "Creating temp directory for the Credential Provider zip: $tempZipLocation"
+Write-Verbose "Creating temp directory for the Credential Provider zip: $tempZipLocation"
 if (Test-Path -Path $tempZipLocation) {
     Remove-Item $tempZipLocation -Force -Recurse
 }
 New-Item -ItemType Directory -Force -Path $tempZipLocation
 
 # Download credential provider zip to the temp location
-$pluginZip = ([System.IO.Path]::Combine($tempZipLocation, "Microsoft.NuGet.CredentialProvider.zip"))
+$pluginZip = ([System.IO.Path]::Combine($tempZipLocation, $zipFile))
 Write-Host "Downloading $packageSourceUrl to $pluginZip"
 try {
     $client = New-Object System.Net.WebClient
@@ -116,25 +115,30 @@ try {
 }
 
 # Extract zip to temp directory
-Write-Host "Extracting zip to the Credential Provider temp directory"
-Add-Type -AssemblyName System.IO.Compression.FileSystem 
+Write-Host "Extracting zip to the Credential Provider temp directory $tempZipLocation"
+Add-Type -AssemblyName System.IO.Compression.FileSystem
 [System.IO.Compression.ZipFile]::ExtractToDirectory($pluginZip, $tempZipLocation)
 
 # Remove existing content and copy netcore (and netfx) directories to plugins directory
-Write-Host "Copying Credential Provider to $pluginLocation"
 if ($netcoreExists) {
+    Write-Verbose "Removing existing content from $fullNetcoreCredProviderPath"
     Remove-Item $fullNetcoreCredProviderPath -Force -Recurse
 }
-Copy-Item ([System.IO.Path]::Combine($tempZipLocation, "plugins", $localNetcoreCredProviderPath)) -Destination $fullNetcoreCredProviderPath -Force -Recurse
+$tempNetcorePath = [System.IO.Path]::Combine($tempZipLocation, "plugins", $localNetcoreCredProviderPath)
+Write-Verbose "Copying Credential Provider from $tempNetcorePath to $fullNetcoreCredProviderPath"
+Copy-Item $tempNetcorePath -Destination $fullNetcoreCredProviderPath -Force -Recurse
 if ($AddNetfx -eq $True) {
     if ($netfxExists) {
+        Write-Verbose "Removing existing content from $fullNetfxCredProviderPath"
         Remove-Item $fullNetfxCredProviderPath -Force -Recurse
     }
-    Copy-Item ([System.IO.Path]::Combine($tempZipLocation, "plugins", $localNetfxCredProviderPath)) -Destination $fullNetfxCredProviderPath -Force -Recurse
+    $tempNetfxPath = [System.IO.Path]::Combine($tempZipLocation, "plugins", $localNetfxCredProviderPath)
+    Write-Verbose "Copying Credential Provider from $tempNetfxPath to $fullNetfxCredProviderPath"
+    Copy-Item $tempNetfxPath -Destination $fullNetfxCredProviderPath -Force -Recurse
 }
 
 # Remove $tempZipLocation directory
-Write-Host "Removing the Credential Provider temp directory $tempZipLocation"
+Write-Verbose "Removing the Credential Provider temp directory $tempZipLocation"
 Remove-Item $tempZipLocation -Force -Recurse
 
 Write-Host "Credential Provider installed successfully"

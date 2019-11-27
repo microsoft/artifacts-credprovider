@@ -1,14 +1,18 @@
 #!/usr/bin/env bash
-# DESCRIPTION: A simple shell script designed to fetch the latest version
+# DESCRIPTION: A simple shell script designed to fetch a version
 # of the artifacts credential provider plugin for dotnet and
 # install it into $HOME/.nuget/plugins.
-# SEE: https://github.com/Microsoft/artifacts-credprovider/blob/master/README.md
+# Default version to install is the latest version.
+# To install a specific version, call the script with the TAG NAME of the version,
+# e.g. "installcredprovider.sh v0.1.20". Find the tag name of the version from https://github.com/microsoft/artifacts-credprovider/releases
+# More: https://github.com/Microsoft/artifacts-credprovider/blob/master/README.md
 
 REPO="Microsoft/artifacts-credprovider"
 FILE="Microsoft.NuGet.CredentialProvider.tar.gz"
-VERSION="latest"
-# URL pattern documented at https://help.github.com/en/articles/linking-to-releases as of 2019-03-29
-URI="https://github.com/$REPO/releases/$VERSION/download/$FILE"
+VERSION=${1:-"latest"} # "latest" or tag name of the release
+
+# browser_download_url from https://api.github.com/repos/Microsoft/artifacts-credprovider/releases/latest
+URI="https://github.com/$REPO/releases/download/$VERSION/$FILE"
 NUGET_PLUGIN_DIR="$HOME/.nuget/plugins"
 
 # Ensure plugin directory exists
