@@ -30,7 +30,7 @@ Install [Visual Studio version 15.9-preview1 or later](https://visualstudio.micr
 
 If you are using `dotnet` or `nuget`, you can use the Azure Artifact Credential Provider by adding it to [NuGet's plugin search path](https://github.com/NuGet/Home/wiki/NuGet-cross-plat-authentication-plugin#plugin-installation-and-discovery). This section contains both manual and scripted instructions for doing so.
 
-Dotnet needs the `netcore` version being installed. NuGet and MSBuild need the `netfx` version to be installed.
+Dotnet needs the `netcore` version to be installed. NuGet and MSBuild need the `netfx` version to be installed.
 
 ### Installation on Windows
 
