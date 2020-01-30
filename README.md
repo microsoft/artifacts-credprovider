@@ -30,6 +30,8 @@ Install [Visual Studio version 15.9-preview1 or later](https://visualstudio.micr
 
 If you are using `dotnet` or `nuget`, you can use the Azure Artifact Credential Provider by adding it to [NuGet's plugin search path](https://github.com/NuGet/Home/wiki/NuGet-cross-plat-authentication-plugin#plugin-installation-and-discovery). This section contains both manual and scripted instructions for doing so.
 
+Dotnet needs the `netcore` version to be installed. NuGet and MSBuild need the `netfx` version to be installed.
+
 ### Installation on Windows
 
 #### Automatic PowerShell script
@@ -62,8 +64,8 @@ Using the above is recommended, but as per [NuGet's plugin discovery rules](http
 
 ### Automatic usage
 - MSBuild in Visual Studio Developer Command Prompt with Visual Studio 15.9+
-- Azure DevOps Pipelines NuGet tasks (NuGetCommandV2) version 2.145.3+
-- NuGet tasks in Azure DevOps Server 2019 Update 1+
+- Azure DevOps Pipelines NuGetAuthenticate task
+- Azure DevOps Pipelines NuGet task, NuGetCommandV2 version 2.145.3+ (Azure DevOps Server 2019 Update 1+)
 
 ## Use
 
