@@ -10,7 +10,7 @@ RUN wget -qO- https://raw.githubusercontent.com/Microsoft/artifacts-credprovider
 WORKDIR /workdir
 COPY ./ .
 
-# Optional: Sometimes the http client hangs because of a .NEt issue. Setting this in dockerfile helps 
+# Optional: Sometimes the http client hangs because of a .NET issue. Setting this in dockerfile helps 
 ENV DOTNET_SYSTEM_NET_HTTP_USESOCKETSHTTPHANDLER=0
 
 # Environment variable to enable seesion token cache. More on this here: https://github.com/Microsoft/artifacts-credprovider#help
