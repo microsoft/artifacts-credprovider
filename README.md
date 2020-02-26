@@ -58,7 +58,7 @@ Using the above is recommended, but as per [NuGet's plugin discovery rules](http
 
 1. Download the latest release of [Microsoft.NuGet.CredentialProvider.tar.gz](https://github.com/Microsoft/artifacts-credprovider/releases)
 2. Untar the file
-3. Copy the `netcore` directory from the extracted archive to `$HOME\.nuget\plugins`
+3. Copy the `netcore` directory from the extracted archive to `$HOME/.nuget/plugins`
 
 Using the above is recommended, but as per [NuGet's plugin discovery rules](https://github.com/NuGet/Home/wiki/NuGet-cross-plat-authentication-plugin#plugin-installation-and-discovery), alternatively you can install the credential provider to a location you prefer, and then set the environment variable NUGET_PLUGIN_PATHS to the .dll of the credential provider found in plugins\netcore\CredentialProvider.Microsoft\CredentialProvider.Microsoft.dll. For example, $env:NUGET_PLUGIN_PATHS="my-alternative-location\CredentialProvider.Microsoft.dll".
 
