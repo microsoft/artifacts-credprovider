@@ -108,6 +108,7 @@ namespace NuGetCredentialProvider.RequestHandlers
                 }
             }
 
+            Logger.Verbose(Resources.CredentialsNotFound);
             return new GetAuthenticationCredentialsResponse(
                 username: null,
                 password: null,

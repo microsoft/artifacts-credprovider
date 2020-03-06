@@ -182,6 +182,12 @@ namespace NuGetCredentialProvider
                     GetAuthenticationCredentialsRequest request = new GetAuthenticationCredentialsRequest(parsedArgs.Uri, isRetry: parsedArgs.IsRetry, isNonInteractive: parsedArgs.NonInteractive, parsedArgs.CanShowDialog);
                     GetAuthenticationCredentialsResponse response = await getAuthenticationCredentialsRequestHandler.HandleRequestAsync(request).ConfigureAwait(continueOnCapturedContext: false);
 
+                    // Fail if credentials are not found
+                    if (response?.ResponseCode != MessageResponseCode.Success)
+                    {
+                        return 2;
+                    }
+
                     string resultUsername = response?.Username;
                     string resultPassword = parsedArgs.RedactPassword ? Resources.Redacted : response?.Password;
                     if (parsedArgs.OutputFormat == OutputFormat.Json)
