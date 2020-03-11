@@ -365,6 +365,15 @@ namespace NuGetCredentialProvider {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Credentials not found..
+        /// </summary>
+        internal static string CredentialsNotFound {
+            get {
+                return ResourceManager.GetString("CredentialsNotFound", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Device flow authentication failed. User was presented with device flow, but didn&apos;t react within {0} seconds..
         /// </summary>
         internal static string DeviceFlowTimedOut {

@@ -445,4 +445,7 @@ Device Flow Authentication Timeout
   <data name="WhileShuttingDown" xml:space="preserve">
     <value>While the plugin was shutting down:</value>
   </data>
+  <data name="CredentialsNotFound" xml:space="preserve">
+    <value>Unable to acquire credentials.</value>
+  </data>
 </root>
