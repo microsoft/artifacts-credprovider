@@ -105,9 +105,9 @@ Once you've successfully acquired a token, you can run authenticated commands wi
 
 ### Unattended build agents 
 
-If you're running the command as part of an automated build on an unattended build agent, you can supply an access token directly using the `VSS_NUGET_EXTERNAL_FEED_ENDPOINTS` [environment variable](#environment-variables). The use of [Personal Access Tokens](https://docs.microsoft.com/en-us/azure/devops/organizations/accounts/use-personal-access-tokens-to-authenticate?view=azure-devops) is recommended.
+With Azure DevOps Pipelines, please use the [NuGet Authenticate](https://docs.microsoft.com/en-us/azure/devops/pipelines/tasks/package/nuget-authenticate?view=azure-devops) task before running NuGet, dotnet or MSBuild commands that need authentication.
 
-You may need to restart the agent service or the computer before the environment variables are available to the agent.
+If you're running the command as part of an automated build on an unattended build agent outside of Azure DevOps Pipelines, you can supply an access token directly using the `VSS_NUGET_EXTERNAL_FEED_ENDPOINTS` [environment variable](#environment-variables). The use of [Personal Access Tokens](https://docs.microsoft.com/en-us/azure/devops/organizations/accounts/use-personal-access-tokens-to-authenticate?view=azure-devops) is recommended. You may need to restart the agent service or the computer before the environment variables are available to the agent.
 
 ### Docker containers
 [Sample Dockerfile](https://github.com/microsoft/artifacts-credprovider/blob/master/samples/dockerfile.sample.txt)
