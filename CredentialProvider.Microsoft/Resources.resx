@@ -448,4 +448,7 @@ Device Flow Authentication Timeout
   <data name="CredentialsNotFound" xml:space="preserve">
     <value>Unable to acquire credentials.</value>
   </data>
+  <data name="ForcingCanShowDialogFromTo" xml:space="preserve">
+    <value>Forcing canShowDialog from {0} to {1} due to setting from environment variable</value>
+  </data>
 </root>

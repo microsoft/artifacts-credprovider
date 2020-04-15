@@ -29,6 +29,7 @@ namespace NuGetCredentialProvider.Util
         public const string BuildTaskUriPrefixes = "VSS_NUGET_URI_PREFIXES";
         public const string BuildTaskAccessToken = "VSS_NUGET_ACCESSTOKEN";
         public const string BuildTaskExternalEndpoints = "VSS_NUGET_EXTERNAL_FEED_ENDPOINTS";
+        public const string ForceCanShowDialogEnvVar = "ARTIFACTS_CREDPROVIDER_FORCE_CANSHOWDIALOG_TO";
 
         private static readonly string LocalAppDataLocation = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData, Environment.SpecialFolderOption.Create), "MicrosoftCredentialProvider");
 
@@ -73,6 +74,17 @@ namespace NuGetCredentialProvider.Util
 
             hosts.AddRange(defaultHosts);
             return hosts;
+        }
+
+        public static bool? ForceCanShowDialogTo()
+        {
+            var fromEnv = Environment.GetEnvironmentVariable(ForceCanShowDialogEnvVar);
+            if(string.IsNullOrWhiteSpace(fromEnv) || !bool.TryParse(fromEnv, out var parsed))
+            {
+                return default;
+            }
+
+            return parsed;
         }
 
         public static bool AdalFileCacheEnabled()
