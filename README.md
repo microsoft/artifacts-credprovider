@@ -20,11 +20,11 @@ Install [Visual Studio version 15.9-preview1 or later](https://visualstudio.micr
 
 ### NuGet
 
-[NuGet(.exe)](https://www.nuget.org/downloads) on the command line version `4.8.0.5385` or later is required. The recommended NuGet version is `5.5.x` or later as it has some importand bug fixes related to cancellations and timeouts. 
+[NuGet(.exe)](https://www.nuget.org/downloads) on the command line version `4.8.0.5385` or later is required. The recommended NuGet version is `5.5.x` or later as it has some important bug fixes related to cancellations and timeouts. 
 
 ### dotnet
 
-[dotnet SDK](https://www.microsoft.com/net/download) version `2.1.400` or later is required on Windows. The recommended dotnet version is `3.1.200` or later as it has some importand bug fixes related to cancellations and timeouts. 
+[dotnet SDK](https://www.microsoft.com/net/download) version `2.1.400` or later is required on Windows. The recommended dotnet version is `3.1.200` or later as it has some important bug fixes related to cancellations and timeouts. 
 
 ## Setup
 
