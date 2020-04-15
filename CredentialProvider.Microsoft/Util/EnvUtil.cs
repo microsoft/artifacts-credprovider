@@ -16,6 +16,7 @@ namespace NuGetCredentialProvider.Util
         public const string LogPathEnvVar = "NUGET_CREDENTIALPROVIDER_LOG_PATH";
         public const string SessionTokenCacheEnvVar = "NUGET_CREDENTIALPROVIDER_SESSIONTOKENCACHE_ENABLED";
         public const string WindowsIntegratedAuthenticationEnvVar = "NUGET_CREDENTIALPROVIDER_WINDOWSINTEGRATEDAUTHENTICATION_ENABLED";
+        public const string ForceCanShowDialogEnvVar = "NUGET_CREDENTIALPROVIDER_FORCE_CANSHOWDIALOG_TO";
 
         public const string AuthorityEnvVar = "NUGET_CREDENTIALPROVIDER_ADAL_AUTHORITY";
         public const string AdalFileCacheEnvVar = "NUGET_CREDENTIALPROVIDER_ADAL_FILECACHE_ENABLED";
@@ -29,7 +30,6 @@ namespace NuGetCredentialProvider.Util
         public const string BuildTaskUriPrefixes = "VSS_NUGET_URI_PREFIXES";
         public const string BuildTaskAccessToken = "VSS_NUGET_ACCESSTOKEN";
         public const string BuildTaskExternalEndpoints = "VSS_NUGET_EXTERNAL_FEED_ENDPOINTS";
-        public const string ForceCanShowDialogEnvVar = "ARTIFACTS_CREDPROVIDER_FORCE_CANSHOWDIALOG_TO";
 
         private static readonly string LocalAppDataLocation = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData, Environment.SpecialFolderOption.Create), "MicrosoftCredentialProvider");
 
