@@ -251,6 +251,11 @@ Windows Integrated Authentication
 Device Flow Authentication Timeout
     NUGET_CREDENTIALPROVIDER_VSTS_DEVICEFLOWTIMEOUTSECONDS
         Device Flow authentication timeout in seconds. Default is 90 seconds.
+
+NuGet workarounds
+    NUGET_CREDENTIALPROVIDER_FORCE_CANSHOWDIALOG_TO
+        Set to "true" or "false" to override any other sources of the
+        CanShowDialog parameter
 ```
 
 ## Contribute

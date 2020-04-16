@@ -16,6 +16,7 @@ namespace NuGetCredentialProvider.Util
         public const string LogPathEnvVar = "NUGET_CREDENTIALPROVIDER_LOG_PATH";
         public const string SessionTokenCacheEnvVar = "NUGET_CREDENTIALPROVIDER_SESSIONTOKENCACHE_ENABLED";
         public const string WindowsIntegratedAuthenticationEnvVar = "NUGET_CREDENTIALPROVIDER_WINDOWSINTEGRATEDAUTHENTICATION_ENABLED";
+        public const string ForceCanShowDialogEnvVar = "NUGET_CREDENTIALPROVIDER_FORCE_CANSHOWDIALOG_TO";
 
         public const string AuthorityEnvVar = "NUGET_CREDENTIALPROVIDER_ADAL_AUTHORITY";
         public const string AdalFileCacheEnvVar = "NUGET_CREDENTIALPROVIDER_ADAL_FILECACHE_ENABLED";
@@ -73,6 +74,17 @@ namespace NuGetCredentialProvider.Util
 
             hosts.AddRange(defaultHosts);
             return hosts;
+        }
+
+        public static bool? ForceCanShowDialogTo()
+        {
+            var fromEnv = Environment.GetEnvironmentVariable(ForceCanShowDialogEnvVar);
+            if(string.IsNullOrWhiteSpace(fromEnv) || !bool.TryParse(fromEnv, out var parsed))
+            {
+                return default;
+            }
+
+            return parsed;
         }
 
         public static bool AdalFileCacheEnabled()

@@ -63,6 +63,14 @@ namespace NuGetCredentialProvider.CredentialProviders.Vsts
 
         public override async Task<GetAuthenticationCredentialsResponse> HandleRequestAsync(GetAuthenticationCredentialsRequest request, CancellationToken cancellationToken)
         {
+            var forceCanShowDialogTo = EnvUtil.ForceCanShowDialogTo();
+            var canShowDialog = request.CanShowDialog;
+            if (forceCanShowDialogTo.HasValue)
+            {
+                Logger.Verbose(string.Format(Resources.ForcingCanShowDialogFromTo, request.CanShowDialog, forceCanShowDialogTo.Value));
+                canShowDialog = forceCanShowDialogTo.Value;
+            }
+
             Uri authority = await authUtil.GetAadAuthorityUriAsync(request.Uri, cancellationToken);
             Verbose(string.Format(Resources.AdalUsingAuthority, authority));
 
@@ -73,7 +81,7 @@ namespace NuGetCredentialProvider.CredentialProviders.Vsts
             // Only consider it successful if the bearer token can be exchanged for an Azure DevOps token.
             foreach (IBearerTokenProvider bearerTokenProvider in bearerTokenProviders)
             {
-                bool shouldRun = bearerTokenProvider.ShouldRun(request.IsRetry, request.IsNonInteractive, request.CanShowDialog);
+                bool shouldRun = bearerTokenProvider.ShouldRun(request.IsRetry, request.IsNonInteractive, canShowDialog);
                 if (!shouldRun)
                 {
                     Verbose(string.Format(Resources.NotRunningBearerTokenProvider, bearerTokenProvider.Name));

@@ -365,7 +365,7 @@ namespace NuGetCredentialProvider {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Credentials not found..
+        ///   Looks up a localized string similar to Unable to acquire credentials..
         /// </summary>
         internal static string CredentialsNotFound {
             get {
@@ -425,7 +425,7 @@ namespace NuGetCredentialProvider {
         ///
         ///ADAL Authority
         ///    {2}
-        ///        Set to override the authority used when  [rest of string was truncated]&quot;;.
+        ///        Set to override the autho [rest of string was truncated]&quot;;.
         /// </summary>
         internal static string EnvironmentVariableHelp {
             get {
@@ -448,6 +448,15 @@ namespace NuGetCredentialProvider {
         internal static string FaultedOnMessage {
             get {
                 return ResourceManager.GetString("FaultedOnMessage", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Forcing canShowDialog from {0} to {1} due to setting from environment variable.
+        /// </summary>
+        internal static string ForcingCanShowDialogFromTo {
+            get {
+                return ResourceManager.GetString("ForcingCanShowDialogFromTo", resourceCulture);
             }
         }
         
