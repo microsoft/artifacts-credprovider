@@ -82,7 +82,7 @@ namespace NuGetCredentialProvider
 
             BearerTokenProvidersFactory bearerTokenProvidersFactory;
 
-            if (EnvUtil.UseMsal())
+            if (EnvUtil.MsalEnabled())
             {
                 var msalTokenProviderFactory = new MsalTokenProviderFactory();
                 bearerTokenProvidersFactory = new BearerTokenProvidersFactory(multiLogger, msalTokenProviderFactory: msalTokenProviderFactory);
@@ -135,7 +135,12 @@ namespace NuGetCredentialProvider
                             EnvUtil.AdalTokenCacheLocation,
                             EnvUtil.SessionTokenCacheLocation,
                             EnvUtil.WindowsIntegratedAuthenticationEnvVar,
-                            EnvUtil.DeviceFlowTimeoutEnvVar
+                            EnvUtil.DeviceFlowTimeoutEnvVar,
+                            EnvUtil.MsalEnabledEnvVar,
+                            EnvUtil.MsalAuthorityEnvVar,
+                            EnvUtil.MsalFileCacheEnvVar,
+                            EnvUtil.DefaultMsalCacheLocation,
+                            EnvUtil.MsalFileCacheLocationEnvVar
                         ));
                     return 0;
                 }

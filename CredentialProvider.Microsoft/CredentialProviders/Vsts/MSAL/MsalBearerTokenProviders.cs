@@ -17,11 +17,11 @@ namespace NuGetCredentialProvider.CredentialProviders.Vsts
     /// </summary>
     internal class MsalCacheBearerTokenProvider : IBearerTokenProvider
     {
-        private readonly IMsalTokenProvider MsalTokenProvider;
+        private readonly IMsalTokenProvider msalTokenProvider;
 
-        public MsalCacheBearerTokenProvider(IMsalTokenProvider MsalTokenProvider)
+        public MsalCacheBearerTokenProvider(IMsalTokenProvider msalTokenProvider)
         {
-            this.MsalTokenProvider = MsalTokenProvider;
+            this.msalTokenProvider = msalTokenProvider;
         }
 
         public bool Interactive { get; } = false;
@@ -29,7 +29,7 @@ namespace NuGetCredentialProvider.CredentialProviders.Vsts
 
         public async Task<string> GetTokenAsync(Uri uri, CancellationToken cancellationToken)
         {
-            return (await MsalTokenProvider.AcquireTokenSilentlyAsync(cancellationToken))?.AccessToken;
+            return (await msalTokenProvider.AcquireTokenSilentlyAsync(cancellationToken))?.AccessToken;
         }
 
         public bool ShouldRun(bool isRetry, bool isNonInteractive, bool canShowDialog)
@@ -43,11 +43,11 @@ namespace NuGetCredentialProvider.CredentialProviders.Vsts
     /// </summary>
     internal class MsalWindowsIntegratedAuthBearerTokenProvider : IBearerTokenProvider
     {
-        private readonly IMsalTokenProvider MsalTokenProvider;
+        private readonly IMsalTokenProvider msalTokenProvider;
 
-        public MsalWindowsIntegratedAuthBearerTokenProvider(IMsalTokenProvider MsalTokenProvider)
+        public MsalWindowsIntegratedAuthBearerTokenProvider(IMsalTokenProvider msalTokenProvider)
         {
-            this.MsalTokenProvider = MsalTokenProvider;
+            this.msalTokenProvider = msalTokenProvider;
         }
 
         public bool Interactive { get; } = false;
@@ -55,7 +55,7 @@ namespace NuGetCredentialProvider.CredentialProviders.Vsts
 
         public async Task<string> GetTokenAsync(Uri uri, CancellationToken cancellationToken)
         {
-            return (await MsalTokenProvider.AcquireTokenWithWindowsIntegratedAuth(cancellationToken))?.AccessToken;
+            return (await msalTokenProvider.AcquireTokenWithWindowsIntegratedAuth(cancellationToken))?.AccessToken;
         }
 
         public bool ShouldRun(bool isRetry, bool isNonInteractive, bool canShowDialog)
@@ -69,13 +69,11 @@ namespace NuGetCredentialProvider.CredentialProviders.Vsts
     /// </summary>
     internal class MsalUserInterfaceBearerTokenProvider : IBearerTokenProvider
     {
-        private readonly IMsalTokenProvider MsalTokenProvider;
-        private ILogger logging;
+        private readonly IMsalTokenProvider msalTokenProvider;
 
-        internal MsalUserInterfaceBearerTokenProvider(IMsalTokenProvider MsalTokenProvider, ILogger logging)
+        internal MsalUserInterfaceBearerTokenProvider(IMsalTokenProvider msalTokenProvider)
         {
-            this.MsalTokenProvider = MsalTokenProvider;
-            this.logging = logging;
+            this.msalTokenProvider = msalTokenProvider;
         }
 
         public bool Interactive { get; } = true;
@@ -83,7 +81,7 @@ namespace NuGetCredentialProvider.CredentialProviders.Vsts
 
         public async Task<string> GetTokenAsync(Uri uri, CancellationToken cancellationToken)
         {
-            return (await MsalTokenProvider.AcquireTokenWithUI(cancellationToken, logging))?.AccessToken;
+            return (await msalTokenProvider.AcquireTokenWithUI(cancellationToken, this.msalTokenProvider.Logger))?.AccessToken;
         }
 
         public bool ShouldRun(bool isRetry, bool isNonInteractive, bool canShowDialog)
@@ -98,15 +96,11 @@ namespace NuGetCredentialProvider.CredentialProviders.Vsts
     /// </summary>
     internal class MsalDeviceCodeFlowBearerTokenProvider : IBearerTokenProvider
     {
-        private readonly IMsalTokenProvider MsalTokenProvider;
-        private readonly ILogger logger;
+        private readonly IMsalTokenProvider msalTokenProvider;
 
-        public MsalDeviceCodeFlowBearerTokenProvider(
-            IMsalTokenProvider MsalTokenProvider,
-            ILogger logger)
+        public MsalDeviceCodeFlowBearerTokenProvider(IMsalTokenProvider msalTokenProvider)
         {
-            this.MsalTokenProvider = MsalTokenProvider;
-            this.logger = logger;
+            this.msalTokenProvider = msalTokenProvider;
         }
 
         public bool Interactive { get; } = true;
@@ -114,16 +108,16 @@ namespace NuGetCredentialProvider.CredentialProviders.Vsts
 
         public async Task<string> GetTokenAsync(Uri uri, CancellationToken cancellationToken)
         {
-            return (await MsalTokenProvider.AcquireTokenWithDeviceFlowAsync(
+            return (await msalTokenProvider.AcquireTokenWithDeviceFlowAsync(
                     (DeviceCodeResult deviceCodeResult) =>
                     {
-                        logger.Minimal(string.Format(Resources.AdalDeviceFlowRequestedResource, uri.ToString()));
-                        logger.Minimal(string.Format(Resources.AdalDeviceFlowMessage, deviceCodeResult.VerificationUrl, deviceCodeResult.UserCode));
+                        this.msalTokenProvider.Logger.Minimal(string.Format(Resources.AdalDeviceFlowRequestedResource, uri.ToString()));
+                        this.msalTokenProvider.Logger.Minimal(string.Format(Resources.AdalDeviceFlowMessage, deviceCodeResult.VerificationUrl, deviceCodeResult.UserCode));
 
                         return Task.CompletedTask;
                     },
                     cancellationToken,
-                    logger))?.AccessToken;
+                    this.msalTokenProvider.Logger))?.AccessToken;
         }
 
         public bool ShouldRun(bool isRetry, bool isNonInteractive, bool canShowDialog)

@@ -19,7 +19,7 @@ namespace NuGetCredentialProvider {
     // class via a tool like ResGen or Visual Studio.
     // To add or remove a member, edit your .ResX file then rerun ResGen
     // with the /str option, or rebuild your VS project.
-    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Resources.Tools.StronglyTypedResourceBuilder", "16.0.0.0")]
+    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Resources.Tools.StronglyTypedResourceBuilder", "15.0.0.0")]
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
     [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
     internal class Resources {
@@ -365,7 +365,7 @@ namespace NuGetCredentialProvider {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Credentials not found..
+        ///   Looks up a localized string similar to Unable to acquire credentials..
         /// </summary>
         internal static string CredentialsNotFound {
             get {
@@ -425,7 +425,7 @@ namespace NuGetCredentialProvider {
         ///
         ///ADAL Authority
         ///    {2}
-        ///        Set to override the authority used when  [rest of string was truncated]&quot;;.
+        ///        Set to override the autho [rest of string was truncated]&quot;;.
         /// </summary>
         internal static string EnvironmentVariableHelp {
             get {

@@ -41,7 +41,7 @@ namespace CredentialProvider.Microsoft.Tests.CredentialProviders.Vsts
         public void TestCleanup()
         {
             Environment.SetEnvironmentVariable(EnvUtil.AuthorityEnvVar, string.Empty);
-            Environment.SetEnvironmentVariable(EnvUtil.UseMsalEnvVar, string.Empty);
+            Environment.SetEnvironmentVariable(EnvUtil.MsalEnabledEnvVar, string.Empty);
         }
 
         [TestMethod]
@@ -176,7 +176,7 @@ namespace CredentialProvider.Microsoft.Tests.CredentialProviders.Vsts
         [TestMethod]
         public async Task MsalGetAadAuthorityUri_WithoutAuthenticateHeadersAndPpeAndPpeOverride_ReturnsCorrectAuthority()
         {
-            Environment.SetEnvironmentVariable(EnvUtil.UseMsalEnvVar, "true");
+            Environment.SetEnvironmentVariable(EnvUtil.MsalEnabledEnvVar, "true");
 
             var ppeUris = new[]
             {
@@ -198,7 +198,7 @@ namespace CredentialProvider.Microsoft.Tests.CredentialProviders.Vsts
         [TestMethod]
         public async Task MsaltAadAuthorityUri_WithoutAuthenticateHeaders_ReturnsCorrectAuthority()
         {
-            Environment.SetEnvironmentVariable(EnvUtil.UseMsalEnvVar, "true");
+            Environment.SetEnvironmentVariable(EnvUtil.MsalEnabledEnvVar, "true");
             var requestUri = new Uri("https://example.pkgs.visualstudio.com/_packaging/feed/nuget/v3/index.json");
 
             var authorityUri = await authUtil.GetAadAuthorityUriAsync(requestUri, cancellationToken);
@@ -210,7 +210,7 @@ namespace CredentialProvider.Microsoft.Tests.CredentialProviders.Vsts
         [TestMethod]
         public async Task MsaltAadAuthorityUri_WithoutAuthenticateHeaders_ReturnsCorrectAuthorityFalseEnvVar()
         {
-            Environment.SetEnvironmentVariable(EnvUtil.UseMsalEnvVar, "false");
+            Environment.SetEnvironmentVariable(EnvUtil.MsalEnabledEnvVar, "false");
             var requestUri = new Uri("https://example.pkgs.visualstudio.com/_packaging/feed/nuget/v3/index.json");
 
             var authorityUri = await authUtil.GetAadAuthorityUriAsync(requestUri, cancellationToken);
@@ -221,7 +221,7 @@ namespace CredentialProvider.Microsoft.Tests.CredentialProviders.Vsts
         [TestMethod]
         public async Task MsalGetAadAuthorityUri_WithoutAuthenticateHeadersAndPpe_ReturnsCorrectAuthority()
         {
-            Environment.SetEnvironmentVariable(EnvUtil.UseMsalEnvVar, "true");
+            Environment.SetEnvironmentVariable(EnvUtil.MsalEnabledEnvVar, "true");
             var requestUri = new Uri("https://example.pkgs.vsts.me/_packaging/feed/nuget/v3/index.json");
 
             var authorityUri = await authUtil.GetAadAuthorityUriAsync(requestUri, cancellationToken);

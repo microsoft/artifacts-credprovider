@@ -73,7 +73,7 @@ namespace NuGetCredentialProvider.CredentialProviders.Vsts
             var aadBase = UsePpeAadUrl(uri) ? "https://login.windows-ppe.net" : "https://login.microsoftonline.com";
             logger.Verbose(string.Format(Resources.AADAuthorityNotFound, aadBase));
 
-            var tenant = EnvUtil.UseMsal() ? OrganizationsTenant: CommonTenant;
+            var tenant = EnvUtil.MsalEnabled() ? OrganizationsTenant: CommonTenant;
             return new Uri($"{aadBase}/{tenant}");
         }
 

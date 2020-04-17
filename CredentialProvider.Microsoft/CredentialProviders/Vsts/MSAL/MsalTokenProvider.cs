@@ -23,15 +23,18 @@ namespace NuGetCredentialProvider.CredentialProviders.Vsts
         private bool cacheEnabled = false;
         private string cacheLocation;
 
-        internal MsalTokenProvider(string authority, string resource, string clientId)
+        internal MsalTokenProvider(string authority, string resource, string clientId, ILogger logger)
         {
             this.authority = authority;
             this.resource = resource;
             this.clientId = clientId;
+            this.Logger = logger;
 
             this.cacheEnabled = EnvUtil.MsalFileCacheEnabled();
             this.cacheLocation = this.cacheEnabled ? EnvUtil.GetMsalCacheLocation() : null;
         }
+
+        public ILogger Logger { get; private set; }
 
         private async Task<MsalCacheHelper> GetMsalCacheHelperAsync()
         {
@@ -56,7 +59,7 @@ namespace NuGetCredentialProvider.CredentialProviders.Vsts
             var linkedCancellationToken = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken, cts.Token).Token;
             linkedCancellationToken.ThrowIfCancellationRequested();
 
-            var publicClient = await GetPCAAsync(useLocalHost: true).ConfigureAwait(false);
+            var publicClient = await GetPCAAsync().ConfigureAwait(false);
 
             try
             {
@@ -73,7 +76,7 @@ namespace NuGetCredentialProvider.CredentialProviders.Vsts
 
         public async Task<IMsalToken> AcquireTokenSilentlyAsync(CancellationToken cancellationToken)
         {
-            var publicClient = await GetPCAAsync(useLocalHost: true).ConfigureAwait(false);
+            var publicClient = await GetPCAAsync().ConfigureAwait(false);
             var accounts = await publicClient.GetAccountsAsync();
 
             try
@@ -135,7 +138,7 @@ namespace NuGetCredentialProvider.CredentialProviders.Vsts
 
         public async Task<IMsalToken> AcquireTokenWithWindowsIntegratedAuth(CancellationToken cancellationToken)
         {
-            var publicClient = await GetPCAAsync(useLocalHost: true).ConfigureAwait(false);
+            var publicClient = await GetPCAAsync().ConfigureAwait(false);
 
             try
             {
@@ -146,6 +149,7 @@ namespace NuGetCredentialProvider.CredentialProviders.Vsts
                 }
 
                 var builder = publicClient.AcquireTokenByIntegratedWindowsAuth(new string[] { resource});
+                builder.WithUsername(upn);
                 var result = await builder.ExecuteAsync(cancellationToken);
 
                 return new MsalToken(result);
@@ -176,6 +180,10 @@ namespace NuGetCredentialProvider.CredentialProviders.Vsts
             if (useLocalHost)
             {
                 publicClientBuilder.WithRedirectUri("http://localhost");
+            }
+            else
+            {
+                publicClientBuilder.WithRedirectUri(NativeClientRedirect);
             }
 
             var publicClient = publicClientBuilder.Build();

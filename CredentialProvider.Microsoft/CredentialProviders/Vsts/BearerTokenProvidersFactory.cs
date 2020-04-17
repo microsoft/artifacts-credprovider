@@ -25,11 +25,11 @@ namespace NuGetCredentialProvider.CredentialProviders.Vsts
             List<IBearerTokenProvider> providers = new List<IBearerTokenProvider>();
             if (msalTokenProviderFactory != null)
             {
-                IMsalTokenProvider msalTokenProvider = msalTokenProviderFactory.Get(authority);
+                IMsalTokenProvider msalTokenProvider = msalTokenProviderFactory.Get(authority, logger);
                 providers.Add(new MsalCacheBearerTokenProvider(msalTokenProvider));
                 providers.Add(new MsalWindowsIntegratedAuthBearerTokenProvider(msalTokenProvider));
-                providers.Add(new MsalUserInterfaceBearerTokenProvider(msalTokenProvider, logger));
-                providers.Add(new MsalDeviceCodeFlowBearerTokenProvider(msalTokenProvider, logger));
+                providers.Add(new MsalUserInterfaceBearerTokenProvider(msalTokenProvider));
+                providers.Add(new MsalDeviceCodeFlowBearerTokenProvider(msalTokenProvider));
             }
 
             if (adalTokenProviderFactory != null)

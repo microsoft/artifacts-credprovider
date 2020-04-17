@@ -2,10 +2,12 @@
 //
 // Licensed under the MIT license.
 
+using NuGetCredentialProvider.Logging;
+
 namespace NuGetCredentialProvider.CredentialProviders.Vsts
 {
     public interface IMsalTokenProviderFactory
     {
-        IMsalTokenProvider Get(string authority);
+        IMsalTokenProvider Get(string authority, ILogger logger);
     }
 }

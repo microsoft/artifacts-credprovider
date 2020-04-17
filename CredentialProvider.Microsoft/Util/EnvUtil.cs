@@ -30,7 +30,7 @@ namespace NuGetCredentialProvider.Util
         public const string BuildTaskAccessToken = "VSS_NUGET_ACCESSTOKEN";
         public const string BuildTaskExternalEndpoints = "VSS_NUGET_EXTERNAL_FEED_ENDPOINTS";
 
-        public const string UseMsalEnvVar = "NUGET_CREDENTIALPROVIDER_MSAL_ENABLED";
+        public const string MsalEnabledEnvVar = "NUGET_CREDENTIALPROVIDER_MSAL_ENABLED";
         public const string MsalAuthorityEnvVar = "NUGET_CREDENTIALPROVIDER_MSAL_AUTHORITY";
         public const string MsalFileCacheEnvVar = "NUGET_CREDENTIALPROVIDER_MSAL_FILECACHE_ENABLED";
         public const string MsalFileCacheLocationEnvVar = "NUGET_CREDENTIALPROVIDER_MSAL_FILECACHE_LOCATION";
@@ -39,13 +39,15 @@ namespace NuGetCredentialProvider.Util
 
         public static string AdalTokenCacheLocation { get; } = Path.Combine(LocalAppDataLocation, "ADALTokenCache.dat");
 
+        public static string DefaultMsalCacheLocation { get; } = Path.Combine(LocalAppDataLocation, "MSALTokenCache.dat");
+
         public static string FileLogLocation { get; } = Environment.GetEnvironmentVariable(LogPathEnvVar);
 
         public static string SessionTokenCacheLocation { get; } = Path.Combine(LocalAppDataLocation, "SessionTokenCache.dat");
 
         public static Uri GetAuthorityFromEnvironment(ILogger logger)
         {
-            var authorityVariableToUse = UseMsal() ? MsalAuthorityEnvVar : AuthorityEnvVar;
+            var authorityVariableToUse = MsalEnabled() ? MsalAuthorityEnvVar : AuthorityEnvVar;
             var environmentAuthority = Environment.GetEnvironmentVariable(authorityVariableToUse);
             if (environmentAuthority == null)
             {
@@ -68,12 +70,12 @@ namespace NuGetCredentialProvider.Util
         public static string GetMsalCacheLocation()
         {
             string msalCacheFromEnvironment = Environment.GetEnvironmentVariable(MsalFileCacheLocationEnvVar);
-            return string.IsNullOrWhiteSpace(msalCacheFromEnvironment) ? Path.Combine(LocalAppDataLocation, "MSALTokenCache.dat") : msalCacheFromEnvironment;
+            return string.IsNullOrWhiteSpace(msalCacheFromEnvironment) ? DefaultMsalCacheLocation : msalCacheFromEnvironment;
         }
 
-        internal static bool UseMsal()
+        internal static bool MsalEnabled()
         {
-            return GetEnabledFromEnvironment(UseMsalEnvVar, defaultValue: false);
+            return GetEnabledFromEnvironment(MsalEnabledEnvVar, defaultValue: false);
         }
 
         public static bool MsalFileCacheEnabled()
