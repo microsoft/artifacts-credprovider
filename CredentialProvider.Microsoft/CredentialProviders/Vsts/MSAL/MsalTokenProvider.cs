@@ -107,8 +107,6 @@ namespace NuGetCredentialProvider.CredentialProviders.Vsts
 
             CancellationTokenSource cts = new CancellationTokenSource(TimeSpan.FromSeconds(deviceFlowTimeout));
             var linkedCancellationToken = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken, cts.Token).Token;
-
-
             var publicClient = await GetPCAAsync(useLocalHost: true).ConfigureAwait(false);
 
             try

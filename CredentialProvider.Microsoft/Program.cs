@@ -211,7 +211,7 @@ namespace NuGetCredentialProvider
                         multiLogger.Info($"{Resources.Username}: {resultUsername}");
                         multiLogger.Info($"{Resources.Password}: {resultPassword}");
                     }
-                   return 0;
+                    return 0;
                 }
 
                 return -1;
