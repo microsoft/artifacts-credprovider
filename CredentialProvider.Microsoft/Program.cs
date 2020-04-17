@@ -79,9 +79,20 @@ namespace NuGetCredentialProvider
             };
 
             var authUtil = new AuthUtil(multiLogger);
-            var adalTokenCache = AdalTokenCacheUtils.GetAdalTokenCache(multiLogger);
-            var adalTokenProviderFactory = new VstsAdalTokenProviderFactory(adalTokenCache);
-            var bearerTokenProvidersFactory = new BearerTokenProvidersFactory(multiLogger, adalTokenProviderFactory);
+
+            BearerTokenProvidersFactory bearerTokenProvidersFactory;
+
+            if (EnvUtil.UseMsal())
+            {
+                var msalTokenProviderFactory = new MsalTokenProviderFactory();
+                bearerTokenProvidersFactory = new BearerTokenProvidersFactory(multiLogger, msalTokenProviderFactory: msalTokenProviderFactory);
+            }
+            else
+            {
+                var adalTokenCache = AdalTokenCacheUtils.GetAdalTokenCache(multiLogger);
+                var adalTokenProviderFactory = new VstsAdalTokenProviderFactory(adalTokenCache);
+                bearerTokenProvidersFactory = new BearerTokenProvidersFactory(multiLogger, adalTokenProviderFactory);
+            }
             var vstsSessionTokenProvider = new VstsSessionTokenFromBearerTokenProvider(authUtil, multiLogger);
 
             List<ICredentialProvider> credentialProviders = new List<ICredentialProvider>
@@ -200,7 +211,7 @@ namespace NuGetCredentialProvider
                         multiLogger.Info($"{Resources.Username}: {resultUsername}");
                         multiLogger.Info($"{Resources.Password}: {resultPassword}");
                     }
-                    return 0;
+                   return 0;
                 }
 
                 return -1;

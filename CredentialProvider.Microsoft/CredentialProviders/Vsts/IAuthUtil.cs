@@ -26,6 +26,8 @@ namespace NuGetCredentialProvider.CredentialProviders.Vsts
     {
         public const string VssResourceTenant = "X-VSS-ResourceTenant";
         public const string VssAuthorizationEndpoint = "X-VSS-AuthorizationEndpoint";
+        private const string OrganizationsTenant = "organizations";
+        private const string CommonTenant = "common";
 
         private readonly ILogger logger;
 
@@ -70,7 +72,9 @@ namespace NuGetCredentialProvider.CredentialProviders.Vsts
             // Return the common tenant
             var aadBase = UsePpeAadUrl(uri) ? "https://login.windows-ppe.net" : "https://login.microsoftonline.com";
             logger.Verbose(string.Format(Resources.AADAuthorityNotFound, aadBase));
-            return new Uri($"{aadBase}/common");
+
+            var tenant = EnvUtil.UseMsal() ? OrganizationsTenant: CommonTenant;
+            return new Uri($"{aadBase}/{tenant}");
         }
 
         public async Task<bool> IsVstsUriAsync(Uri uri)

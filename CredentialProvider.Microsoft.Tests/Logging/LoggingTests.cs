@@ -17,7 +17,7 @@ namespace CredentialProvider.Microsoft.Tests.Logging
             mockWriter.Setup(x => x.WriteLine(It.IsAny<string>()));
             HumanFriendlyTextWriterLogger logger = new HumanFriendlyTextWriterLogger(mockWriter.Object, writesToConsole: false);
             logger.SetLogLevel(LogLevel.Error);
-            logger.Log(LogLevel.Error, allowOnConsole: true, "Something bad happened");
+            logger.Log(LogLevel.Error, allowOnConsole: true, message: "Something bad happened");
             mockWriter.Verify(x => x.WriteLine("[Error] [CredentialProvider]Something bad happened"));
         }
     }

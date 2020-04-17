@@ -30,6 +30,11 @@ namespace NuGetCredentialProvider.Util
         public const string BuildTaskAccessToken = "VSS_NUGET_ACCESSTOKEN";
         public const string BuildTaskExternalEndpoints = "VSS_NUGET_EXTERNAL_FEED_ENDPOINTS";
 
+        public const string UseMsalEnvVar = "NUGET_CREDENTIALPROVIDER_MSAL_ENABLED";
+        public const string MsalAuthorityEnvVar = "NUGET_CREDENTIALPROVIDER_MSAL_AUTHORITY";
+        public const string MsalFileCacheEnvVar = "NUGET_CREDENTIALPROVIDER_MSAL_FILECACHE_ENABLED";
+        public const string MsalFileCacheLocationEnvVar = "NUGET_CREDENTIALPROVIDER_MSAL_FILECACHE_LOCATION";
+
         private static readonly string LocalAppDataLocation = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData, Environment.SpecialFolderOption.Create), "MicrosoftCredentialProvider");
 
         public static string AdalTokenCacheLocation { get; } = Path.Combine(LocalAppDataLocation, "ADALTokenCache.dat");
@@ -40,7 +45,8 @@ namespace NuGetCredentialProvider.Util
 
         public static Uri GetAuthorityFromEnvironment(ILogger logger)
         {
-            var environmentAuthority = Environment.GetEnvironmentVariable(AuthorityEnvVar);
+            var authorityVariableToUse = UseMsal() ? MsalAuthorityEnvVar : AuthorityEnvVar;
+            var environmentAuthority = Environment.GetEnvironmentVariable(authorityVariableToUse);
             if (environmentAuthority == null)
             {
                 return null;
@@ -57,6 +63,22 @@ namespace NuGetCredentialProvider.Util
             }
 
             return null;
+        }
+
+        public static string GetMsalCacheLocation()
+        {
+            string msalCacheFromEnvironment = Environment.GetEnvironmentVariable(MsalFileCacheLocationEnvVar);
+            return string.IsNullOrWhiteSpace(msalCacheFromEnvironment) ? Path.Combine(LocalAppDataLocation, "MSALTokenCache.dat") : msalCacheFromEnvironment;
+        }
+
+        internal static bool UseMsal()
+        {
+            return GetEnabledFromEnvironment(UseMsalEnvVar, defaultValue: false);
+        }
+
+        public static bool MsalFileCacheEnabled()
+        {
+            return GetEnabledFromEnvironment(MsalFileCacheEnvVar, defaultValue: false);
         }
 
         public static IList<string> GetHostsFromEnvironment(ILogger logger, string envVar, IEnumerable<string> defaultHosts, [CallerMemberName] string collectionName = null)
