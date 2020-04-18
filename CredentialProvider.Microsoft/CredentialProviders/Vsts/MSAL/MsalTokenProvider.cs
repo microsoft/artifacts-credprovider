@@ -4,6 +4,7 @@
 
 using System;
 using System.IO;
+using System.Runtime.InteropServices;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Identity.Client;
@@ -38,7 +39,9 @@ namespace NuGetCredentialProvider.CredentialProviders.Vsts
 
         private async Task<MsalCacheHelper> GetMsalCacheHelperAsync()
         {
-            if (helper == null && this.cacheEnabled)
+            // There are options to set up the cache correctly using StorageCreationProperties on other OS's but that will need to be tested
+            // for now only support windows
+            if (helper == null && this.cacheEnabled && RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
             {
                 var fileName = Path.GetFileName(cacheLocation);
                 var directory = Path.GetDirectoryName(cacheLocation);
