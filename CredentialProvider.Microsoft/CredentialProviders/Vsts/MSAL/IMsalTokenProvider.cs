@@ -19,6 +19,7 @@ namespace NuGetCredentialProvider.CredentialProviders.Vsts
         Task<IMsalToken> AcquireTokenWithUI(CancellationToken cancellationToken, ILogger logging);
 
         Task<IMsalToken> AcquireTokenWithWindowsIntegratedAuth(CancellationToken cancellationToken);
+
         ILogger Logger {get;}
     }
 
