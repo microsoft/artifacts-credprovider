@@ -6,7 +6,7 @@ using NuGetCredentialProvider.Logging;
 
 namespace NuGetCredentialProvider.CredentialProviders.Vsts
 {
-    public interface IMsalTokenProviderFactory
+    internal interface IMsalTokenProviderFactory
     {
         IMsalTokenProvider Get(string authority, ILogger logger);
     }

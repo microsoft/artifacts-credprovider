@@ -13,7 +13,7 @@ using NuGetCredentialProvider.Util;
 
 namespace NuGetCredentialProvider.CredentialProviders.Vsts
 {
-    public class MsalTokenProvider : IMsalTokenProvider
+    internal class MsalTokenProvider : IMsalTokenProvider
     {
         private const string NativeClientRedirect = "https://login.microsoftonline.com/common/oauth2/nativeclient";
         private readonly string authority;

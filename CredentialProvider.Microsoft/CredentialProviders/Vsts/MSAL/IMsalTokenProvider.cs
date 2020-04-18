@@ -10,7 +10,7 @@ using NuGetCredentialProvider.Logging;
 
 namespace NuGetCredentialProvider.CredentialProviders.Vsts
 {
-    public interface IMsalTokenProvider
+    internal interface IMsalTokenProvider
     {
         Task<IMsalToken> AcquireTokenSilentlyAsync(CancellationToken cancellationToken);
 
@@ -22,14 +22,14 @@ namespace NuGetCredentialProvider.CredentialProviders.Vsts
         ILogger Logger {get;}
     }
 
-    public interface IMsalToken
+    internal interface IMsalToken
     {
         string AccessTokenType { get; }
 
         string AccessToken { get; }
     }
 
-    public class MsalToken : IMsalToken
+    internal class MsalToken : IMsalToken
     {
         public MsalToken(string accessToken)
         {

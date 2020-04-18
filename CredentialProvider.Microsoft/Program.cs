@@ -80,12 +80,12 @@ namespace NuGetCredentialProvider
 
             var authUtil = new AuthUtil(multiLogger);
 
-            BearerTokenProvidersFactory bearerTokenProvidersFactory;
+            IBearerTokenProvidersFactory bearerTokenProvidersFactory;
 
             if (EnvUtil.MsalEnabled())
             {
                 var msalTokenProviderFactory = new MsalTokenProviderFactory();
-                bearerTokenProvidersFactory = new BearerTokenProvidersFactory(multiLogger, msalTokenProviderFactory: msalTokenProviderFactory);
+                bearerTokenProvidersFactory = new MsalBearerTokenProvidersFactory(multiLogger, msalTokenProviderFactory);
             }
             else
             {
@@ -93,6 +93,7 @@ namespace NuGetCredentialProvider
                 var adalTokenProviderFactory = new VstsAdalTokenProviderFactory(adalTokenCache);
                 bearerTokenProvidersFactory = new BearerTokenProvidersFactory(multiLogger, adalTokenProviderFactory);
             }
+
             var vstsSessionTokenProvider = new VstsSessionTokenFromBearerTokenProvider(authUtil, multiLogger);
 
             List<ICredentialProvider> credentialProviders = new List<ICredentialProvider>
