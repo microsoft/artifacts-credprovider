@@ -452,6 +452,15 @@ namespace NuGetCredentialProvider {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Forcing canShowDialog from {0} to {1} due to setting from environment variable.
+        /// </summary>
+        internal static string ForcingCanShowDialogFromTo {
+            get {
+                return ResourceManager.GetString("ForcingCanShowDialogFromTo", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Found AAD Authority from 401 headers: {0}.
         /// </summary>
         internal static string FoundAADAuthorityFromHeaders {
