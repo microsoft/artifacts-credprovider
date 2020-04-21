@@ -137,7 +137,7 @@ namespace NuGetCredentialProvider
                             EnvUtil.SessionTokenCacheLocation,
                             EnvUtil.WindowsIntegratedAuthenticationEnvVar,
                             EnvUtil.DeviceFlowTimeoutEnvVar,
-                            EnvUtil.ForceCanShowDialogEnvVar
+                            EnvUtil.ForceCanShowDialogEnvVar,
                             EnvUtil.MsalEnabledEnvVar,
                             EnvUtil.MsalAuthorityEnvVar,
                             EnvUtil.MsalFileCacheEnvVar,

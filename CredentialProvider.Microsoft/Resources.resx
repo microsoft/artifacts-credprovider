@@ -355,8 +355,7 @@ Device Flow Authentication Timeout
 NuGet workarounds
     {15}
         Set to "true" or "false" to override any other sources of the 
-        CanShowDialog parameter</value>
-        Device Flow authentication timeout in seconds. Default is 90 seconds.
+        CanShowDialog parameter
 
 Enable MSAL
     {16}
