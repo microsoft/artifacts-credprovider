@@ -67,7 +67,7 @@ namespace NuGetCredentialProvider.CredentialProviders.VstsBuildTaskServiceEndpoi
 
             Verbose(string.Format(Resources.IsRetry, request.IsRetry));
 
-            string uriString = request.Uri.ToString();
+            string uriString = request.Uri.AbsoluteUri.ToString();
             bool endpointFound = Credentials.TryGetValue(uriString, out EndpointCredentials matchingEndpoint);
             if (endpointFound)
             {
