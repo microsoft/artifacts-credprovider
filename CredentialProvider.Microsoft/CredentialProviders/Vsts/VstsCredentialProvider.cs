@@ -115,7 +115,7 @@ namespace NuGetCredentialProvider.CredentialProviders.Vsts
 
                     if (!string.IsNullOrWhiteSpace(sessionToken))
                     {
-                        Verbose(string.Format(Resources.VSTSSessionTokenCreated, request.Uri.ToString()));
+                        Verbose(string.Format(Resources.VSTSSessionTokenCreated, request.Uri.AbsoluteUri));
                         return new GetAuthenticationCredentialsResponse(
                             Username,
                             sessionToken,
@@ -126,11 +126,11 @@ namespace NuGetCredentialProvider.CredentialProviders.Vsts
                 }
                 catch (Exception e)
                 {
-                    Verbose(string.Format(Resources.VSTSCreateSessionException, request.Uri, e.Message, e.StackTrace));
+                    Verbose(string.Format(Resources.VSTSCreateSessionException, request.Uri.AbsoluteUri, e.Message, e.StackTrace));
                 }
             }
 
-            Verbose(string.Format(Resources.VSTSCredentialsNotFound, request.Uri.ToString()));
+            Verbose(string.Format(Resources.VSTSCredentialsNotFound, request.Uri.AbsoluteUri));
             return null;
         }
     }
