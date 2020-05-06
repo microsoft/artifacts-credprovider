@@ -63,7 +63,7 @@ namespace NuGetCredentialProvider.RequestHandlers
             {
                 if (await credentialProvider.CanProvideCredentialsAsync(request.Uri) == false)
                 {
-                    Logger.Verbose(string.Format(Resources.SkippingCredentialProvider, credentialProvider, request.Uri.AbsoluteUri.ToString()));
+                    Logger.Verbose(string.Format(Resources.SkippingCredentialProvider, credentialProvider, request.Uri.AbsoluteUri));
                     continue;
                 }
 
@@ -84,7 +84,7 @@ namespace NuGetCredentialProvider.RequestHandlers
                     {
                         if (cache != null && credentialProvider.IsCachable)
                         {
-                            Logger.Verbose(string.Format(Resources.CachingSessionToken, request.Uri.AbsoluteUri.ToString()));
+                            Logger.Verbose(string.Format(Resources.CachingSessionToken, request.Uri.AbsoluteUri));
                             cache[request.Uri] = response.Password;
                         }
 
@@ -142,18 +142,18 @@ namespace NuGetCredentialProvider.RequestHandlers
             Logger.Verbose(string.Format(Resources.IsRetry, request.IsRetry));
             if (request.IsRetry)
             {
-                Logger.Verbose(string.Format(Resources.InvalidatingCachedSessionToken, request.Uri.AbsoluteUri.ToString()));
+                Logger.Verbose(string.Format(Resources.InvalidatingCachedSessionToken, request.Uri.AbsoluteUri));
                 cache?.Remove(request.Uri);
                 return false;
             }
             else if (cache.TryGetValue(request.Uri, out string password))
             {
-                Logger.Verbose(string.Format(Resources.FoundCachedSessionToken, request.Uri.AbsoluteUri.ToString()));
+                Logger.Verbose(string.Format(Resources.FoundCachedSessionToken, request.Uri.AbsoluteUri));
                 cachedToken = password;
                 return true;
             }
 
-            Logger.Verbose(string.Format(Resources.CachedSessionTokenNotFound, request.Uri.AbsoluteUri.ToString()));
+            Logger.Verbose(string.Format(Resources.CachedSessionTokenNotFound, request.Uri.AbsoluteUri));
             return false;
         }
     }
