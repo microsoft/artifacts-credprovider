@@ -26,7 +26,7 @@ namespace NuGetCredentialProvider.CredentialProviders.Vsts
                 // Order here is important - providers (potentially) run in this order.
                 new AdalCacheBearerTokenProvider(adalTokenProvider),
                 new WindowsIntegratedAuthBearerTokenProvider(adalTokenProvider),
-                new UserInterfaceBearerTokenProvider(adalTokenProvider),
+                new UserInterfaceBearerTokenProvider(adalTokenProvider, logger),
                 new DeviceCodeFlowBearerTokenProvider(adalTokenProvider, logger)
             };
         }

@@ -19,7 +19,7 @@ namespace NuGetCredentialProvider {
     // class via a tool like ResGen or Visual Studio.
     // To add or remove a member, edit your .ResX file then rerun ResGen
     // with the /str option, or rebuild your VS project.
-    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Resources.Tools.StronglyTypedResourceBuilder", "16.0.0.0")]
+    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Resources.Tools.StronglyTypedResourceBuilder", "15.0.0.0")]
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
     [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
     internal class Resources {
@@ -736,6 +736,15 @@ namespace NuGetCredentialProvider {
         internal static string TimeElapsedAfterSendingResponse {
             get {
                 return ResourceManager.GetString("TimeElapsedAfterSendingResponse", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Using the {0}  flow. User sign-in required in pop-up authentication window..
+        /// </summary>
+        internal static string UIFlowStarted {
+            get {
+                return ResourceManager.GetString("UIFlowStarted", resourceCulture);
             }
         }
         
