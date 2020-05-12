@@ -83,7 +83,7 @@ namespace NuGetCredentialProvider.CredentialProviders.Vsts
 
         public async Task<string> GetTokenAsync(Uri uri, CancellationToken cancellationToken)
         {
-            logger.Minimal(string.Format(Resources.UIFlowStarted, this.Name));
+            logger.Minimal(string.Format(Resources.UIFlowStarted, this.Name, uri.AbsoluteUri));
             return (await adalTokenProvider.AcquireTokenWithUI(cancellationToken))?.AccessToken;
         }
 

@@ -740,7 +740,7 @@ namespace NuGetCredentialProvider {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Using the {0}  flow. User sign-in required in pop-up authentication window..
+        ///   Looks up a localized string similar to Using the {0}  flow for uri {1}. User sign-in required in a pop-up authentication window..
         /// </summary>
         internal static string UIFlowStarted {
             get {
