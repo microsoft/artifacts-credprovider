@@ -66,6 +66,7 @@ namespace NuGetCredentialProvider.RequestHandlers
                     Logger.Verbose(string.Format(Resources.SkippingCredentialProvider, credentialProvider, request.Uri.AbsoluteUri));
                     continue;
                 }
+                Logger.Verbose(string.Format(Resources.UsingCredentialProvider, credentialProvider, request.Uri.AbsoluteUri));
 
                 if (credentialProvider.IsCachable && TryCache(request, out string cachedToken))
                 {

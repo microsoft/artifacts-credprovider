@@ -506,6 +506,15 @@ namespace NuGetCredentialProvider {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Host accepted: {0}.
+        /// </summary>
+        internal static string HostAccepted {
+            get {
+                return ResourceManager.GetString("HostAccepted", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Invalidating SessionToken cache for {0}.
         /// </summary>
         internal static string InvalidatingCachedSessionToken {
@@ -556,6 +565,15 @@ namespace NuGetCredentialProvider {
         internal static string NotRunningBearerTokenProvider {
             get {
                 return ResourceManager.GetString("NotRunningBearerTokenProvider", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Detected an on premise Azure DevOps Server. Please use a PAT and VSS_NUGET_EXTERNAL_FEED_ENDPOINTS variable to use this credential provider..
+        /// </summary>
+        internal static string OnPremDetected {
+            get {
+                return ResourceManager.GetString("OnPremDetected", resourceCulture);
             }
         }
         
@@ -763,6 +781,24 @@ namespace NuGetCredentialProvider {
         internal static string Username {
             get {
                 return ResourceManager.GetString("Username", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Using {0} to try get credentials for {1}..
+        /// </summary>
+        internal static string UsingCredentialProvider {
+            get {
+                return ResourceManager.GetString("UsingCredentialProvider", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Uri returned valid Azure DevOps headers..
+        /// </summary>
+        internal static string ValidHeaders {
+            get {
+                return ResourceManager.GetString("ValidHeaders", resourceCulture);
             }
         }
         

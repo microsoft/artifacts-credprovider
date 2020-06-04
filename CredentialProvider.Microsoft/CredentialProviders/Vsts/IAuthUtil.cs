@@ -17,16 +17,24 @@ namespace NuGetCredentialProvider.CredentialProviders.Vsts
     {
         Task<Uri> GetAadAuthorityUriAsync(Uri uri, CancellationToken cancellationToken);
 
-        Task<bool> IsVstsUriAsync(Uri uri);
+        Task<IFeedUriSource> GetFeedUriSource(Uri uri);
 
         Task<Uri> GetAuthorizationEndpoint(Uri uri, CancellationToken cancellationToken);
+    }
+
+    public enum IFeedUriSource
+    {
+        External,
+        Hosted,
+        OnPrem
     }
 
     public class AuthUtil : IAuthUtil
     {
         public const string VssResourceTenant = "X-VSS-ResourceTenant";
         public const string VssAuthorizationEndpoint = "X-VSS-AuthorizationEndpoint";
-
+        public const string TfsServiceError = "X-TFS-ServiceError";
+        
         private readonly ILogger logger;
 
         public AuthUtil(ILogger logger)
@@ -44,7 +52,7 @@ namespace NuGetCredentialProvider.CredentialProviders.Vsts
 
             var headers = await GetResponseHeadersAsync(uri, cancellationToken);
             var bearerHeaders = headers.WwwAuthenticate.Where(x => x.Scheme.Equals("Bearer", StringComparison.Ordinal));
-
+            
             foreach (var param in bearerHeaders)
             {
                 if (param.Parameter == null)
@@ -73,17 +81,25 @@ namespace NuGetCredentialProvider.CredentialProviders.Vsts
             return new Uri($"{aadBase}/common");
         }
 
-        public async Task<bool> IsVstsUriAsync(Uri uri)
+        public async Task<IFeedUriSource> GetFeedUriSource(Uri uri)
         {
-            if (!IsValidScheme(uri))
-            {
-                // We are not talking to a https endpoint so it cannot be a VSTS endpoint
-                return false;
-            }
-
+            // Ping the url to see from headers whether it's an Azure Artifacts feed or external
             var responseHeaders = await GetResponseHeadersAsync(uri, cancellationToken: default);
 
-            return responseHeaders.Contains(VssResourceTenant) && responseHeaders.Contains(VssAuthorizationEndpoint);
+            // Hosted only allows https
+            if (IsHttpsScheme(uri) && responseHeaders.Contains(VssResourceTenant) && responseHeaders.Contains(VssAuthorizationEndpoint))
+            {
+                return IFeedUriSource.Hosted;
+            }
+
+            // Uri returns 401 (TFS service error) if it's an Azure DevOps Server instance.
+            if (responseHeaders.Contains(TfsServiceError))
+            {
+                return IFeedUriSource.OnPrem;
+            }
+
+            // Assume uri is from an external source if expected headers aren't present.
+            return IFeedUriSource.External;
         }
 
         public async Task<Uri> GetAuthorizationEndpoint(Uri uri, CancellationToken cancellationToken)
@@ -141,7 +157,7 @@ namespace NuGetCredentialProvider.CredentialProviders.Vsts
             return ppeHosts.Any(host => uri.Host.EndsWith(host, StringComparison.OrdinalIgnoreCase));
         }
 
-        private bool IsValidScheme(Uri uri)
+        private bool IsHttpsScheme(Uri uri)
         {
             try
             {

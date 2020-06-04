@@ -49,16 +49,36 @@ namespace NuGetCredentialProvider.CredentialProviders.Vsts
                 return false;
             }
 
-            var validHosts = EnvUtil.GetHostsFromEnvironment(Logger, EnvUtil.SupportedHostsEnvVar, new[]
-            {
-                ".pkgs.vsts.me", // DevFabric
-                ".pkgs.codedev.ms", // DevFabric
-                ".pkgs.codeapp.ms", // AppFabric
-                ".pkgs.visualstudio.com", // Prod
-                ".pkgs.dev.azure.com" // Prod
-            });
+             var validHosts = EnvUtil.GetHostsFromEnvironment(Logger, EnvUtil.SupportedHostsEnvVar, new[]
+             {
+                 ".pkgs.vsts.me", // DevFabric
+                 ".pkgs.codedev.ms", // DevFabric
+                 ".pkgs.codeapp.ms", // AppFabric
+                 ".pkgs.visualstudio.com", // Prod
+                 ".pkgs.dev.azure.com" // Prod
+             });
 
-            return validHosts.Any(host => uri.Host.EndsWith(host, StringComparison.OrdinalIgnoreCase)) || await authUtil.IsVstsUriAsync(uri);
+            bool isValidHost = validHosts.Any(host => uri.Host.EndsWith(host, StringComparison.OrdinalIgnoreCase));
+            if (isValidHost)
+            {
+                Verbose(string.Format(Resources.HostAccepted, uri.Host));
+                return true;
+            }
+
+            var feedUriSource = await authUtil.GetFeedUriSource(uri);
+            if (feedUriSource == IFeedUriSource.Hosted)
+            {
+                Verbose(Resources.ValidHeaders);
+                return true;
+            }
+
+            if (feedUriSource == IFeedUriSource.OnPrem)
+            {
+                Verbose(Resources.OnPremDetected);
+                return false;
+            }
+
+            return false;
         }
 
         public override async Task<GetAuthenticationCredentialsResponse> HandleRequestAsync(GetAuthenticationCredentialsRequest request, CancellationToken cancellationToken)
