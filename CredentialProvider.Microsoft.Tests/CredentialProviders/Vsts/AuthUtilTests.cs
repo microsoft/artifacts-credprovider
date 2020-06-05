@@ -113,8 +113,8 @@ namespace CredentialProvider.Microsoft.Tests.CredentialProviders.Vsts
         {
             var requestUri = new Uri("https://example.pkgs.visualstudio.com/_packaging/feed/nuget/v3/index.json");
 
-            var feedSource = await authUtil.GetFeedUriSource(requestUri);
-            feedSource.Should().Be(IFeedUriSource.External);
+            var feedSource = await authUtil.GetAzDevDeploymentType(requestUri);
+            feedSource.Should().Be(AzDevDeploymentType.External);
         }
 
         [TestMethod]
@@ -124,8 +124,8 @@ namespace CredentialProvider.Microsoft.Tests.CredentialProviders.Vsts
 
             MockVssResourceTenantHeader();
 
-            var feedSource = await authUtil.GetFeedUriSource(requestUri);
-            feedSource.Should().Be(IFeedUriSource.External);
+            var feedSource = await authUtil.GetAzDevDeploymentType(requestUri);
+            feedSource.Should().Be(AzDevDeploymentType.External);
         }
 
         [TestMethod]
@@ -135,8 +135,8 @@ namespace CredentialProvider.Microsoft.Tests.CredentialProviders.Vsts
 
             MockVssAuthorizationEndpointHeader();
 
-            var feedSource = await authUtil.GetFeedUriSource(requestUri);
-            feedSource.Should().Be(IFeedUriSource.External);
+            var feedSource = await authUtil.GetAzDevDeploymentType(requestUri);
+            feedSource.Should().Be(AzDevDeploymentType.External);
         }
 
         [TestMethod]
@@ -147,8 +147,8 @@ namespace CredentialProvider.Microsoft.Tests.CredentialProviders.Vsts
             MockVssResourceTenantHeader();
             MockVssAuthorizationEndpointHeader();
 
-            var feedSource = await authUtil.GetFeedUriSource(requestUri);
-            feedSource.Should().Be(IFeedUriSource.Hosted);
+            var feedSource = await authUtil.GetAzDevDeploymentType(requestUri);
+            feedSource.Should().Be(AzDevDeploymentType.Hosted);
         }
 
         [TestMethod]
@@ -159,8 +159,8 @@ namespace CredentialProvider.Microsoft.Tests.CredentialProviders.Vsts
             MockVssResourceTenantHeader();
             MockVssAuthorizationEndpointHeader();
 
-            var feedSource = await authUtil.GetFeedUriSource(requestUri);
-            feedSource.Should().Be(IFeedUriSource.External);
+            var feedSource = await authUtil.GetAzDevDeploymentType(requestUri);
+            feedSource.Should().Be(AzDevDeploymentType.External);
         }
 
         [TestMethod]
@@ -168,10 +168,10 @@ namespace CredentialProvider.Microsoft.Tests.CredentialProviders.Vsts
         {
             var requestUri = new Uri("https://example.pkgs.visualstudio.com/_packaging/feed/nuget/v3/index.json");
 
-            MockResponseHeaders(AuthUtil.TfsServiceError, "TfsServiceError");// debug and get the actual thing here
+            MockResponseHeaders(AuthUtil.VssE2EID, "id");
 
-            var feedSource = await authUtil.GetFeedUriSource(requestUri);
-            feedSource.Should().Be(IFeedUriSource.OnPrem);
+            var feedSource = await authUtil.GetAzDevDeploymentType(requestUri);
+            feedSource.Should().Be(AzDevDeploymentType.OnPrem);
         }
 
         [TestMethod]

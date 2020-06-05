@@ -65,19 +65,20 @@ namespace NuGetCredentialProvider.CredentialProviders.Vsts
                 return true;
             }
 
-            var feedUriSource = await authUtil.GetFeedUriSource(uri);
-            if (feedUriSource == IFeedUriSource.Hosted)
+            var azDevOpsType = await authUtil.GetAzDevDeploymentType(uri);
+            if (azDevOpsType == AzDevDeploymentType.Hosted)
             {
                 Verbose(Resources.ValidHeaders);
                 return true;
             }
 
-            if (feedUriSource == IFeedUriSource.OnPrem)
+            if (azDevOpsType == AzDevDeploymentType.OnPrem)
             {
                 Verbose(Resources.OnPremDetected);
                 return false;
             }
 
+            Verbose(string.Format(Resources.ExternalUri, uri));
             return false;
         }
 

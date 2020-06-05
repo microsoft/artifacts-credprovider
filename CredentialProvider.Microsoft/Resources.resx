@@ -460,16 +460,19 @@ NuGet workarounds
     <value>Using the {0}  flow for uri {1}. User sign-in required in a pop-up authentication window.</value>
   </data>
   <data name="HostAccepted" xml:space="preserve">
-    <value>Host accepted: {0}</value>
+    <value>Matched well-known Azure DevOps Service hostname: {0}</value>
   </data>
   <data name="OnPremDetected" xml:space="preserve">
-    <value>Detected an on premise Azure DevOps Server. Please use a PAT and VSS_NUGET_EXTERNAL_FEED_ENDPOINTS variable to use this credential provider.</value>
+    <value>Detected an on premise Azure DevOps Server.</value>
   </data>
   <data name="UsingCredentialProvider" xml:space="preserve">
-    <value>Using {0} to try get credentials for {1}.</value>
+    <value>Using {0} to try to get credentials for {1}.</value>
     <comment>{0} - credential provider name, {1} - Uri</comment>
   </data>
   <data name="ValidHeaders" xml:space="preserve">
-    <value>Uri returned valid Azure DevOps headers.</value>
+    <value>Detected a hosted Azure DevOps Service.</value>
+  </data>
+  <data name="ExternalUri" xml:space="preserve">
+    <value>{0} is not an Azure Artifacts feed.</value>
   </data>
 </root>

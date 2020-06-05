@@ -443,6 +443,15 @@ namespace NuGetCredentialProvider {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to {0} is not an Azure Artifacts feed..
+        /// </summary>
+        internal static string ExternalUri {
+            get {
+                return ResourceManager.GetString("ExternalUri", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Faulted on message: {0}.
         /// </summary>
         internal static string FaultedOnMessage {
@@ -506,7 +515,7 @@ namespace NuGetCredentialProvider {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Host accepted: {0}.
+        ///   Looks up a localized string similar to Matched well-known Azure DevOps Service hostname: {0}.
         /// </summary>
         internal static string HostAccepted {
             get {
@@ -569,7 +578,7 @@ namespace NuGetCredentialProvider {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Detected an on premise Azure DevOps Server. Please use a PAT and VSS_NUGET_EXTERNAL_FEED_ENDPOINTS variable to use this credential provider..
+        ///   Looks up a localized string similar to Detected an on premise Azure DevOps Server..
         /// </summary>
         internal static string OnPremDetected {
             get {
@@ -785,7 +794,7 @@ namespace NuGetCredentialProvider {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Using {0} to try get credentials for {1}..
+        ///   Looks up a localized string similar to Using {0} to try to get credentials for {1}..
         /// </summary>
         internal static string UsingCredentialProvider {
             get {
@@ -794,7 +803,7 @@ namespace NuGetCredentialProvider {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Uri returned valid Azure DevOps headers..
+        ///   Looks up a localized string similar to Detected a hosted Azure DevOps Service..
         /// </summary>
         internal static string ValidHeaders {
             get {

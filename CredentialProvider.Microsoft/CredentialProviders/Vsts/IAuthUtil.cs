@@ -17,12 +17,12 @@ namespace NuGetCredentialProvider.CredentialProviders.Vsts
     {
         Task<Uri> GetAadAuthorityUriAsync(Uri uri, CancellationToken cancellationToken);
 
-        Task<IFeedUriSource> GetFeedUriSource(Uri uri);
+        Task<AzDevDeploymentType> GetAzDevDeploymentType(Uri uri);
 
         Task<Uri> GetAuthorizationEndpoint(Uri uri, CancellationToken cancellationToken);
     }
 
-    public enum IFeedUriSource
+    public enum AzDevDeploymentType
     {
         External,
         Hosted,
@@ -33,7 +33,7 @@ namespace NuGetCredentialProvider.CredentialProviders.Vsts
     {
         public const string VssResourceTenant = "X-VSS-ResourceTenant";
         public const string VssAuthorizationEndpoint = "X-VSS-AuthorizationEndpoint";
-        public const string TfsServiceError = "X-TFS-ServiceError";
+        public const string VssE2EID = "X-VSS-E2EID";
         
         private readonly ILogger logger;
 
@@ -81,7 +81,7 @@ namespace NuGetCredentialProvider.CredentialProviders.Vsts
             return new Uri($"{aadBase}/common");
         }
 
-        public async Task<IFeedUriSource> GetFeedUriSource(Uri uri)
+        public async Task<AzDevDeploymentType> GetAzDevDeploymentType(Uri uri)
         {
             // Ping the url to see from headers whether it's an Azure Artifacts feed or external
             var responseHeaders = await GetResponseHeadersAsync(uri, cancellationToken: default);
@@ -89,17 +89,17 @@ namespace NuGetCredentialProvider.CredentialProviders.Vsts
             // Hosted only allows https
             if (IsHttpsScheme(uri) && responseHeaders.Contains(VssResourceTenant) && responseHeaders.Contains(VssAuthorizationEndpoint))
             {
-                return IFeedUriSource.Hosted;
+                return AzDevDeploymentType.Hosted;
             }
 
-            // Uri returns 401 (TFS service error) if it's an Azure DevOps Server instance.
-            if (responseHeaders.Contains(TfsServiceError))
+            // If not hosted and has E2EID, assume on prem.
+            if (responseHeaders.Contains(VssE2EID))
             {
-                return IFeedUriSource.OnPrem;
+                return AzDevDeploymentType.OnPrem;
             }
 
             // Assume uri is from an external source if expected headers aren't present.
-            return IFeedUriSource.External;
+            return AzDevDeploymentType.External;
         }
 
         public async Task<Uri> GetAuthorizationEndpoint(Uri uri, CancellationToken cancellationToken)

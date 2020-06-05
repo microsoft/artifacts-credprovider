@@ -82,7 +82,7 @@ namespace CredentialProvider.Microsoft.Tests.CredentialProviders.Vsts
             }
 
             mockAuthUtil
-                .Verify(x => x.GetFeedUriSource(It.IsAny<Uri>()), Times.Never, "because we shouldn't probe for known sources");
+                .Verify(x => x.GetAzDevDeploymentType(It.IsAny<Uri>()), Times.Never, "because we shouldn't probe for known sources");
         }
 
         [TestMethod]
@@ -103,7 +103,7 @@ namespace CredentialProvider.Microsoft.Tests.CredentialProviders.Vsts
             }
 
             mockAuthUtil
-                .Verify(x => x.GetFeedUriSource(It.IsAny<Uri>()), Times.Never, "because we shouldn't probe for known sources");
+                .Verify(x => x.GetAzDevDeploymentType(It.IsAny<Uri>()), Times.Never, "because we shouldn't probe for known sources");
 
             Environment.SetEnvironmentVariable(EnvUtil.SupportedHostsEnvVar, string.Empty);
         }
@@ -125,7 +125,7 @@ namespace CredentialProvider.Microsoft.Tests.CredentialProviders.Vsts
             }
 
             mockAuthUtil
-                .Verify(x => x.GetFeedUriSource(It.IsAny<Uri>()), Times.Exactly(3), "because sources were unknown");
+                .Verify(x => x.GetAzDevDeploymentType(It.IsAny<Uri>()), Times.Exactly(3), "because sources were unknown");
         }
 
         [TestMethod]
