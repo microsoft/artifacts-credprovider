@@ -82,7 +82,7 @@ namespace CredentialProvider.Microsoft.Tests.CredentialProviders.Vsts
             }
 
             mockAuthUtil
-                .Verify(x => x.IsVstsUriAsync(It.IsAny<Uri>()), Times.Never, "because we shouldn't probe for known sources");
+                .Verify(x => x.GetAzDevDeploymentType(It.IsAny<Uri>()), Times.Never, "because we shouldn't probe for known sources");
         }
 
         [TestMethod]
@@ -103,7 +103,29 @@ namespace CredentialProvider.Microsoft.Tests.CredentialProviders.Vsts
             }
 
             mockAuthUtil
-                .Verify(x => x.IsVstsUriAsync(It.IsAny<Uri>()), Times.Never, "because we shouldn't probe for known sources");
+                .Verify(x => x.GetAzDevDeploymentType(It.IsAny<Uri>()), Times.Never, "because we shouldn't probe for known sources");
+
+            Environment.SetEnvironmentVariable(EnvUtil.SupportedHostsEnvVar, string.Empty);
+        }
+
+        [TestMethod]
+        public async Task CanProvideCredentials_CallsGetFeedUriSourceWhenSourcesAreInvalid()
+        {
+            var sources = new[]
+            {
+                new Uri(@"http://example.overrideOne.com/_packaging/TestFeed/nuget/v3/index.json"),
+                new Uri(@"https://example.overrideTwo.com/_packaging/TestFeed/nuget/v3/index.json"),
+                new Uri(@"https://example.overrideThre.com/_packaging/TestFeed/nuget/v3/index.json"),
+            };
+
+            foreach (var source in sources)
+            {
+                var canProvideCredentials = await vstsCredentialProvider.CanProvideCredentialsAsync(source);
+                canProvideCredentials.Should().BeFalse($"because {source} is not a valid host");
+            }
+
+            mockAuthUtil
+                .Verify(x => x.GetAzDevDeploymentType(It.IsAny<Uri>()), Times.Exactly(3), "because sources were unknown");
         }
 
         [TestMethod]

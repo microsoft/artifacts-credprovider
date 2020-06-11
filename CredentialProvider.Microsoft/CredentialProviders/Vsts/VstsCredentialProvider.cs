@@ -49,16 +49,37 @@ namespace NuGetCredentialProvider.CredentialProviders.Vsts
                 return false;
             }
 
-            var validHosts = EnvUtil.GetHostsFromEnvironment(Logger, EnvUtil.SupportedHostsEnvVar, new[]
-            {
-                ".pkgs.vsts.me", // DevFabric
-                ".pkgs.codedev.ms", // DevFabric
-                ".pkgs.codeapp.ms", // AppFabric
-                ".pkgs.visualstudio.com", // Prod
-                ".pkgs.dev.azure.com" // Prod
-            });
+             var validHosts = EnvUtil.GetHostsFromEnvironment(Logger, EnvUtil.SupportedHostsEnvVar, new[]
+             {
+                 ".pkgs.vsts.me", // DevFabric
+                 ".pkgs.codedev.ms", // DevFabric
+                 ".pkgs.codeapp.ms", // AppFabric
+                 ".pkgs.visualstudio.com", // Prod
+                 ".pkgs.dev.azure.com" // Prod
+             });
 
-            return validHosts.Any(host => uri.Host.EndsWith(host, StringComparison.OrdinalIgnoreCase)) || await authUtil.IsVstsUriAsync(uri);
+            bool isValidHost = validHosts.Any(host => uri.Host.EndsWith(host, StringComparison.OrdinalIgnoreCase));
+            if (isValidHost)
+            {
+                Verbose(string.Format(Resources.HostAccepted, uri.Host));
+                return true;
+            }
+
+            var azDevOpsType = await authUtil.GetAzDevDeploymentType(uri);
+            if (azDevOpsType == AzDevDeploymentType.Hosted)
+            {
+                Verbose(Resources.ValidHeaders);
+                return true;
+            }
+
+            if (azDevOpsType == AzDevDeploymentType.OnPrem)
+            {
+                Verbose(Resources.OnPremDetected);
+                return false;
+            }
+
+            Verbose(string.Format(Resources.ExternalUri, uri));
+            return false;
         }
 
         public override async Task<GetAuthenticationCredentialsResponse> HandleRequestAsync(GetAuthenticationCredentialsRequest request, CancellationToken cancellationToken)

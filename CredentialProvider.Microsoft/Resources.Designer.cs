@@ -443,6 +443,15 @@ namespace NuGetCredentialProvider {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to {0} is not an Azure Artifacts feed..
+        /// </summary>
+        internal static string ExternalUri {
+            get {
+                return ResourceManager.GetString("ExternalUri", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Faulted on message: {0}.
         /// </summary>
         internal static string FaultedOnMessage {
@@ -506,6 +515,15 @@ namespace NuGetCredentialProvider {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Matched well-known Azure DevOps Service hostname: {0}.
+        /// </summary>
+        internal static string HostAccepted {
+            get {
+                return ResourceManager.GetString("HostAccepted", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Invalidating SessionToken cache for {0}.
         /// </summary>
         internal static string InvalidatingCachedSessionToken {
@@ -556,6 +574,15 @@ namespace NuGetCredentialProvider {
         internal static string NotRunningBearerTokenProvider {
             get {
                 return ResourceManager.GetString("NotRunningBearerTokenProvider", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Detected an on premise Azure DevOps Server..
+        /// </summary>
+        internal static string OnPremDetected {
+            get {
+                return ResourceManager.GetString("OnPremDetected", resourceCulture);
             }
         }
         
@@ -763,6 +790,24 @@ namespace NuGetCredentialProvider {
         internal static string Username {
             get {
                 return ResourceManager.GetString("Username", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Using {0} to try to get credentials for {1}..
+        /// </summary>
+        internal static string UsingCredentialProvider {
+            get {
+                return ResourceManager.GetString("UsingCredentialProvider", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Detected a hosted Azure DevOps Service..
+        /// </summary>
+        internal static string ValidHeaders {
+            get {
+                return ResourceManager.GetString("ValidHeaders", resourceCulture);
             }
         }
         
