@@ -146,9 +146,9 @@ steps:
   inputs:
     SourceFolder: '$(Build.SourcesDirectory)\CredentialProvider.Microsoft\bin\$(BuildConfiguration)'
     Contents: |
-      **\CredentialProvider.Microsoft.dll
-      **\CredentialProvider.Microsoft.exe
-      **\CredentialProvider.Microsoft.pdb
+      **\*.dll
+      **\*.exe
+      **\*.pdb
     TargetFolder: '$(Build.ArtifactStagingDirectory)\symbols'
 
 - task: PublishSymbols@2
