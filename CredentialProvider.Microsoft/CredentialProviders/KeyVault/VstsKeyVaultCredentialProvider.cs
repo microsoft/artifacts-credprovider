@@ -32,6 +32,7 @@ namespace NuGetCredentialProvider.CredentialProviders.KeyVault
     public sealed class VstsKeyVaultCredentialProvider : CredentialProviderBase
     {
         private const string PackagesDevAzureCom = "pkgs.dev.azure.com";
+        private const string DevAzureCom = "dev.azure.com";
         private const string Username = "PersonalAccessToken";
 
         protected override string LoggingName => nameof(VstsKeyVaultCredentialProvider);
@@ -63,9 +64,10 @@ namespace NuGetCredentialProvider.CredentialProviders.KeyVault
         {
             cancellationToken.ThrowIfCancellationRequested();
             var uri = request.Uri;
-            var host = uri.Host;
+            var host = uri.Host.ToLower();
             // for pkgs.dev.azure.com, add account before the host
-            if (host.ToLower() == PackagesDevAzureCom &&
+            if ((host == PackagesDevAzureCom ||
+                 host == DevAzureCom) &&
                 uri.Segments.Length > 1)
             {
                 var path = uri.Segments[1];
