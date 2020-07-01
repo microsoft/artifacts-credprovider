@@ -4,7 +4,7 @@ ARG FEED_URL
 ARG PAT
 
 # download and install latest credential provider. Not required after https://github.com/dotnet/dotnet-docker/issues/878
-RUN wget -qO- https://raw.githubusercontent.com/Microsoft/artifacts-credprovider/master/helpers/installcredprovider.sh | bash
+RUN wget -qO- https://aka.ms/install-artifacts-credprovider.sh | bash
 
 # Optional
 WORKDIR /workdir
