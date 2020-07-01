@@ -13,9 +13,9 @@ param(
     [switch]$Force,
     # install the version specified
     [string]$Version,
-    # If running the script behind a proxy and need to use default proxy
+    # run the script behind a proxy and use default proxy
     [switch]$DefaultProxy,
-    # If running the script behind a proxy, use the proxy parameter
+    # set up proxy
     [string]$ProxyUrl
 )
 
