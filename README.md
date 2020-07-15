@@ -115,7 +115,9 @@ If you're running the command as part of an automated build on an unattended bui
 [Managing NuGet credentials in Docker scenarios](https://github.com/dotnet/dotnet-docker/blob/master/documentation/scenarios/nuget-credentials.md#using-the-azure-artifact-credential-provider)
 
 ### Azure DevOps Server
-The Artifacts credential provider cannot cannot acquire credentials interactively for an on premise Azure DevOps Server, therefore, the VSS_NUGET_EXTERNAL_FEED_ENDPOINTS environment variable must be used as an alternative. Supply a [Personal Access Token](https://docs.microsoft.com/en-us/azure/devops/organizations/accounts/use-personal-access-tokens-to-authenticate?view=azure-devops) directly using the `VSS_NUGET_EXTERNAL_FEED_ENDPOINTS` [environment variable](#environment-variables). From Azure DevOps Server 2020 RC1 forward, the NuGet Authenticate task can be used in Pipelines. 
+The Azure Artifacts Credential Provider may not be necessary for an on-premises Azure DevOps Server on Windows. If the credential provider is needed, it cannot acquire credentials interactively, therefore, the VSS_NUGET_EXTERNAL_FEED_ENDPOINTS environment variable must be used as an alternative. Supply a [Personal Access Token](https://docs.microsoft.com/en-us/azure/devops/organizations/accounts/use-personal-access-tokens-to-authenticate?view=azure-devops) directly using the `VSS_NUGET_EXTERNAL_FEED_ENDPOINTS` [environment variable](#environment-variables). 
+
+From Azure DevOps Server 2020 RC1 forward, the NuGet Authenticate task can be used in Pipelines. 
 
 ## Session Token Cache Locations
 
