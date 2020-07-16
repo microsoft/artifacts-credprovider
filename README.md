@@ -38,7 +38,9 @@ Dotnet needs the `netcore` version to be installed. NuGet and MSBuild need the `
 
 [PowerShell helper script](helpers/installcredprovider.ps1)
 - To install netcore, run `installcredprovider.ps1`
+  - e.g. `iex "& { $(irm https://aka.ms/install-artifacts-credprovider.ps1) }"`
 - To install both netfx and netcore, run `installcredprovider.ps1 -AddNetfx`. The netfx version is needed for nuget.exe.
+  - e.g. `iex "& { $(irm https://aka.ms/install-artifacts-credprovider.ps1) } -AddNetfx"`
 
 #### Manual installation on Windows
 
@@ -53,6 +55,7 @@ Using the above is recommended, but as per [NuGet's plugin discovery rules](http
 #### Automatic bash script
 
 [Linux or Mac helper script](helpers/installcredprovider.sh)
+- e.g. `wget -qO- https://aka.ms/install-artifacts-credprovider.sh | bash`
 
 #### Manual installation on Linux and Mac
 
