@@ -124,6 +124,7 @@ namespace NuGetCredentialProvider
                             EnvUtil.AdalTokenCacheLocation,
                             EnvUtil.SessionTokenCacheLocation,
                             EnvUtil.WindowsIntegratedAuthenticationEnvVar,
+                            EnvUtil.DeviceFlowAuthenticationEnvVar,
                             EnvUtil.DeviceFlowTimeoutEnvVar,
                             EnvUtil.ForceCanShowDialogEnvVar
                         ));

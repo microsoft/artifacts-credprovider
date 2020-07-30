@@ -133,7 +133,7 @@ namespace NuGetCredentialProvider.CredentialProviders.Vsts
 
         public bool ShouldRun(bool isRetry, bool isNonInteractive, bool canShowDialog)
         {
-            return !isNonInteractive;
+            return !isNonInteractive && EnvUtil.DeviceFlowAuthenticationEnabled();
         }
     }
 

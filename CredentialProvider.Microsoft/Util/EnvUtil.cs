@@ -16,6 +16,7 @@ namespace NuGetCredentialProvider.Util
         public const string LogPathEnvVar = "NUGET_CREDENTIALPROVIDER_LOG_PATH";
         public const string SessionTokenCacheEnvVar = "NUGET_CREDENTIALPROVIDER_SESSIONTOKENCACHE_ENABLED";
         public const string WindowsIntegratedAuthenticationEnvVar = "NUGET_CREDENTIALPROVIDER_WINDOWSINTEGRATEDAUTHENTICATION_ENABLED";
+        public const string DeviceFlowAuthenticationEnvVar = "NUGET_CREDENTIALPROVIDER_DEVICEFLOWAUTHENTICATION_ENABLED";
         public const string ForceCanShowDialogEnvVar = "NUGET_CREDENTIALPROVIDER_FORCE_CANSHOWDIALOG_TO";
 
         public const string AuthorityEnvVar = "NUGET_CREDENTIALPROVIDER_ADAL_AUTHORITY";
@@ -100,6 +101,11 @@ namespace NuGetCredentialProvider.Util
         public static bool WindowsIntegratedAuthenticationEnabled()
         {
             return GetEnabledFromEnvironment(WindowsIntegratedAuthenticationEnvVar);
+        }
+
+        public static bool DeviceFlowAuthenticationEnabled()
+        {
+            return GetEnabledFromEnvironment(DeviceFlowAuthenticationEnvVar);
         }
 
         public static TimeSpan? GetSessionTimeFromEnvironment(ILogger logger)

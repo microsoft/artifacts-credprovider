@@ -348,12 +348,17 @@ Windows Integrated Authentication
         Boolean to enable/disable using silent Windows Integrated Authentication
         to authenticate as the logged-in user. Enabled by default.
 
-Device Flow Authentication Timeout
+Device Flow Authentication
     {14}
+        Boolean to enable/disable using Device Flow Authentication
+        to authenticate as the logged-in user. Enabled by default.
+
+Device Flow Authentication Timeout
+    {15}
         Device Flow authentication timeout in seconds. Default is 90 seconds.
 
 NuGet workarounds
-    {15}
+    {16}
         Set to "true" or "false" to override any other sources of the 
         CanShowDialog parameter</value>
   </data>
