@@ -12,7 +12,11 @@ param(
     # override existing cred provider with the latest version
     [switch]$Force,
     # install the version specified
-    [string]$Version
+    [string]$Version,
+    # run the script behind a proxy and use default proxy
+    [switch]$DefaultProxy,
+    # set up proxy
+    [string]$ProxyUrl
 )
 
 $script:ErrorActionPreference='Stop'
@@ -50,6 +54,24 @@ if (!$Force) {
     }
 }
 
+# Proxy settings
+if ($DefaultProxy) {
+    Write-Host "Using system proxy and default credentials"
+    [System.Net.WebRequest]::DefaultWebProxy = [System.Net.WebRequest]::GetSystemWebProxy()
+    [System.Net.WebRequest]::DefaultWebProxy.Credentials = [System.Net.CredentialCache]::DefaultNetworkCredentials
+}
+
+if ($ProxyUrl) {
+    Write-Host "Configuring proxy settings"
+    [System.Net.Webrequest]::DefaultWebProxy = new-object System.Net.Webproxy($ProxyUrl)
+    [System.Net.WebRequest]::DefaultWebProxy.Credentials = [System.Net.CredentialCache]::DefaultNetworkCredentials
+    if (![System.Net.WebRequest]::DefaultWebProxy.Credentials) {
+        Write-Host "Provide proxy credentials from prompt"
+        [System.Net.WebRequest]::DefaultWebProxy.Credentials = Get-Credential
+    }
+    [System.Net.Webrequest]::DefaultWebProxy.BypassProxyOnLocal = $true
+}
+
 # Get the zip file from the GitHub release
 $releaseUrlBase = "https://api.github.com/repos/Microsoft/artifacts-credprovider/releases"
 $versionError = "Unable to find the release version $Version from $releaseUrlBase"
@@ -80,7 +102,6 @@ if ($AddNetfx -eq $True) {
 }
 Write-Verbose "Using $zipFile"
 
-$zipErrorString = "Unable to resolve the Credential Provider zip file from $releaseUrl"
 try {
     Write-Host "Fetching release $releaseUrl"
     $release = Invoke-WebRequest -UseBasicParsing $releaseUrl
@@ -88,12 +109,12 @@ try {
     $zipAsset = $releaseJson.assets | ? { $_.name -eq $zipFile }
     $packageSourceUrl = $zipAsset.browser_download_url
 } catch {
-    Write-Error $zipErrorString
+    Write-Error "Error occurred when trying to resolve the Credential Provider zip file from $releaseUrl"
     return
 }
 
 if (!$packageSourceUrl) {
-    Write-Error $zipErrorString
+    Write-Error "Unable to resolve the Credential Provider zip file from $releaseUrl"
     return
 }
 
