@@ -4,6 +4,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
@@ -129,9 +130,16 @@ namespace NuGetCredentialProvider.CredentialProviders.VstsBuildTaskServiceEndpoi
                         credentials.Username = "VssSessionToken";
                     }
 
-                    if (credsResult.ContainsKey(credentials.Endpoint) == false)
+                    var urlEncodedEndpoint = WebUtility.UrlEncode(credentials.Endpoint);
+                    if (urlEncodedEndpoint == null)
                     {
-                        credsResult.Add(credentials.Endpoint, credentials);
+                        Verbose(Resources.EndpointParseFailure);
+                        break;
+                    }
+                    
+                    if (credsResult.ContainsKey(urlEncodedEndpoint) == false)
+                    {
+                        credsResult.Add(urlEncodedEndpoint, credentials);
                     }
                 }
 
