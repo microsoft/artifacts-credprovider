@@ -357,23 +357,23 @@ NuGet workarounds
         Set to "true" or "false" to override any other sources of the 
         CanShowDialog parameter
 
-Enable MSAL
+Enable MSAL (Experimental: may be changed or removed in a future version)
     {16}
         Use the MSAL library to get a bearer token to then get a session token
 
-MSAL Authority
+MSAL Authority (Experimental: may be changed or removed in a future version)
     {17}
         Set to override the authority used when fetching an MSAL token.
         e.g. https://login.microsoftonline.com/organizations
 
-MSAL Token File Cache Enabled
+MSAL Token File Cache Enabled (Experimental: may be changed or removed in a future version)
     {18}
         Boolean to enable/disable the MSAL token cache. Disabled by default.
 
-Default MSAL Cache Location
+Default MSAL Cache Location (Experimental: may be changed or removed in a future version)
     {19}
 
-Provide MSAL Cache Location
+Provide MSAL Cache Location (Experimental: may be changed or removed in a future version)
     {20}
     Provide the location where the MSAL cache should be read and written to</value>
   </data>
