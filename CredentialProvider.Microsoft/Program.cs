@@ -79,9 +79,21 @@ namespace NuGetCredentialProvider
             };
 
             var authUtil = new AuthUtil(multiLogger);
-            var adalTokenCache = AdalTokenCacheUtils.GetAdalTokenCache(multiLogger);
-            var adalTokenProviderFactory = new VstsAdalTokenProviderFactory(adalTokenCache);
-            var bearerTokenProvidersFactory = new BearerTokenProvidersFactory(multiLogger, adalTokenProviderFactory);
+
+            IBearerTokenProvidersFactory bearerTokenProvidersFactory;
+
+            if (EnvUtil.MsalEnabled())
+            {
+                var msalTokenProviderFactory = new MsalTokenProviderFactory();
+                bearerTokenProvidersFactory = new MsalBearerTokenProvidersFactory(multiLogger, msalTokenProviderFactory);
+            }
+            else
+            {
+                var adalTokenCache = AdalTokenCacheUtils.GetAdalTokenCache(multiLogger);
+                var adalTokenProviderFactory = new VstsAdalTokenProviderFactory(adalTokenCache);
+                bearerTokenProvidersFactory = new BearerTokenProvidersFactory(multiLogger, adalTokenProviderFactory);
+            }
+
             var vstsSessionTokenProvider = new VstsSessionTokenFromBearerTokenProvider(authUtil, multiLogger);
 
             List<ICredentialProvider> credentialProviders = new List<ICredentialProvider>
@@ -125,7 +137,12 @@ namespace NuGetCredentialProvider
                             EnvUtil.SessionTokenCacheLocation,
                             EnvUtil.WindowsIntegratedAuthenticationEnvVar,
                             EnvUtil.DeviceFlowTimeoutEnvVar,
-                            EnvUtil.ForceCanShowDialogEnvVar
+                            EnvUtil.ForceCanShowDialogEnvVar,
+                            EnvUtil.MsalEnabledEnvVar,
+                            EnvUtil.MsalAuthorityEnvVar,
+                            EnvUtil.MsalFileCacheEnvVar,
+                            EnvUtil.DefaultMsalCacheLocation,
+                            EnvUtil.MsalFileCacheLocationEnvVar
                         ));
                     return 0;
                 }
