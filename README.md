@@ -38,7 +38,9 @@ Dotnet needs the `netcore` version to be installed. NuGet and MSBuild need the `
 
 [PowerShell helper script](helpers/installcredprovider.ps1)
 - To install netcore, run `installcredprovider.ps1`
+  - e.g. `iex "& { $(irm https://aka.ms/install-artifacts-credprovider.ps1) }"`
 - To install both netfx and netcore, run `installcredprovider.ps1 -AddNetfx`. The netfx version is needed for nuget.exe.
+  - e.g. `iex "& { $(irm https://aka.ms/install-artifacts-credprovider.ps1) } -AddNetfx"`
 
 #### Manual installation on Windows
 
@@ -53,12 +55,13 @@ Using the above is recommended, but as per [NuGet's plugin discovery rules](http
 #### Automatic bash script
 
 [Linux or Mac helper script](helpers/installcredprovider.sh)
+- e.g. `wget -qO- https://aka.ms/install-artifacts-credprovider.sh | bash`
 
 #### Manual installation on Linux and Mac
 
 1. Download the latest release of [Microsoft.NuGet.CredentialProvider.tar.gz](https://github.com/Microsoft/artifacts-credprovider/releases)
 2. Untar the file
-3. Copy the `netcore` directory from the extracted archive to `$HOME\.nuget\plugins`
+3. Copy the `netcore` directory from the extracted archive to `$HOME/.nuget/plugins`
 
 Using the above is recommended, but as per [NuGet's plugin discovery rules](https://github.com/NuGet/Home/wiki/NuGet-cross-plat-authentication-plugin#plugin-installation-and-discovery), alternatively you can install the credential provider to a location you prefer, and then set the environment variable NUGET_PLUGIN_PATHS to the .dll of the credential provider found in plugins\netcore\CredentialProvider.Microsoft\CredentialProvider.Microsoft.dll. For example, $env:NUGET_PLUGIN_PATHS="my-alternative-location\CredentialProvider.Microsoft.dll".
 
@@ -105,12 +108,19 @@ Once you've successfully acquired a token, you can run authenticated commands wi
 
 ### Unattended build agents 
 
-With Azure DevOps Pipelines, please use the [NuGet Authenticate](https://docs.microsoft.com/en-us/azure/devops/pipelines/tasks/package/nuget-authenticate?view=azure-devops) task before running NuGet, dotnet or MSBuild commands that need authentication.
+#### Azure DevOps Pipelines
+Use the [NuGet Authenticate](https://docs.microsoft.com/en-us/azure/devops/pipelines/tasks/package/nuget-authenticate?view=azure-devops) task before running NuGet, dotnet or MSBuild commands that need authentication.
 
+#### Other automated build scenarios
 If you're running the command as part of an automated build on an unattended build agent outside of Azure DevOps Pipelines, you can supply an access token directly using the `VSS_NUGET_EXTERNAL_FEED_ENDPOINTS` [environment variable](#environment-variables). The use of [Personal Access Tokens](https://docs.microsoft.com/en-us/azure/devops/organizations/accounts/use-personal-access-tokens-to-authenticate?view=azure-devops) is recommended. You may need to restart the agent service or the computer before the environment variables are available to the agent.
 
 ### Docker containers
-[Sample Dockerfile](https://github.com/microsoft/artifacts-credprovider/blob/master/samples/dockerfile.sample.txt)
+[Managing NuGet credentials in Docker scenarios](https://github.com/dotnet/dotnet-docker/blob/master/documentation/scenarios/nuget-credentials.md#using-the-azure-artifact-credential-provider)
+
+### Azure DevOps Server
+The Azure Artifacts Credential Provider may not be necessary for an on-premises Azure DevOps Server on Windows. If the credential provider is needed, it cannot acquire credentials interactively, therefore, the VSS_NUGET_EXTERNAL_FEED_ENDPOINTS environment variable must be used as an alternative. Supply a [Personal Access Token](https://docs.microsoft.com/en-us/azure/devops/organizations/accounts/use-personal-access-tokens-to-authenticate?view=azure-devops) directly using the `VSS_NUGET_EXTERNAL_FEED_ENDPOINTS` [environment variable](#environment-variables). 
+
+From Azure DevOps Server 2020 RC1 forward, the NuGet Authenticate task can be used in Pipelines. 
 
 ## Session Token Cache Locations
 

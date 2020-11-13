@@ -42,6 +42,7 @@ namespace CredentialProvider.Microsoft.Tests.CredentialProviders.Vsts
         {
             Environment.SetEnvironmentVariable(EnvUtil.AuthorityEnvVar, string.Empty);
             Environment.SetEnvironmentVariable(EnvUtil.MsalEnabledEnvVar, string.Empty);
+            Environment.SetEnvironmentVariable(EnvUtil.PpeHostsEnvVar, string.Empty);
         }
 
         [TestMethod]
@@ -110,46 +111,69 @@ namespace CredentialProvider.Microsoft.Tests.CredentialProviders.Vsts
         }
 
         [TestMethod]
-        public async Task IsVstsUri_TenantHeaderNotPresent_ReturnsFalse()
+        public async Task GetFeedUriSource_TenantHeaderNotPresent_ReturnsExternal()
         {
             var requestUri = new Uri("https://example.pkgs.visualstudio.com/_packaging/feed/nuget/v3/index.json");
 
-            var isVstsUri = await authUtil.IsVstsUriAsync(requestUri);
-            isVstsUri.Should().BeFalse();
+            var feedSource = await authUtil.GetAzDevDeploymentType(requestUri);
+            feedSource.Should().Be(AzDevDeploymentType.External);
         }
 
         [TestMethod]
-        public async Task IsVstsUri_TenantHeaderPresent_ReturnsFalse()
+        public async Task GetFeedUriSource_TenantHeaderPresent_VssAuthorizationEndpointNotPresent_ReturnsExternal()
         {
             var requestUri = new Uri("https://example.pkgs.visualstudio.com/_packaging/feed/nuget/v3/index.json");
 
             MockVssResourceTenantHeader();
 
-            var isVstsUri = await authUtil.IsVstsUriAsync(requestUri);
-            isVstsUri.Should().BeFalse();
+            var feedSource = await authUtil.GetAzDevDeploymentType(requestUri);
+            feedSource.Should().Be(AzDevDeploymentType.External);
         }
 
         [TestMethod]
-        public async Task IsVstsUri_AuthorizationEndpointHeaderPresent_ReturnsFalse()
+        public async Task GetFeedUriSource_AuthorizationEndpointHeaderPresent_TenantHeaderNotPresent_ReturnsExternal()
         {
             var requestUri = new Uri("https://example.pkgs.visualstudio.com/_packaging/feed/nuget/v3/index.json");
 
             MockVssAuthorizationEndpointHeader();
 
-            var isVstsUri = await authUtil.IsVstsUriAsync(requestUri);
-            isVstsUri.Should().BeFalse();
+            var feedSource = await authUtil.GetAzDevDeploymentType(requestUri);
+            feedSource.Should().Be(AzDevDeploymentType.External);
         }
 
         [TestMethod]
-        public async Task IsVstsUri_BothHeadersPresent_ReturnsTrue()
+        public async Task GetFeedUriSource_BothHeadersPresent_ReturnsHosted()
         {
             var requestUri = new Uri("https://example.pkgs.visualstudio.com/_packaging/feed/nuget/v3/index.json");
 
             MockVssResourceTenantHeader();
             MockVssAuthorizationEndpointHeader();
 
-            var isVstsUri = await authUtil.IsVstsUriAsync(requestUri);
-            isVstsUri.Should().BeTrue();
+            var feedSource = await authUtil.GetAzDevDeploymentType(requestUri);
+            feedSource.Should().Be(AzDevDeploymentType.Hosted);
+        }
+
+        [TestMethod]
+        public async Task GetFeedUriSource_NoHttps_ReturnsExternal()
+        {
+            var requestUri = new Uri("http://example.pkgs.visualstudio.com/_packaging/feed/nuget/v3/index.json");
+
+            MockVssResourceTenantHeader();
+            MockVssAuthorizationEndpointHeader();
+
+            var feedSource = await authUtil.GetAzDevDeploymentType(requestUri);
+            feedSource.Should().Be(AzDevDeploymentType.External);
+        }
+
+        [TestMethod]
+        public async Task GetFeedUriSource_OnPremHeaderPresent_ReturnsOnPrem()
+        {
+            var requestUri = new Uri("https://example.pkgs.visualstudio.com/_packaging/feed/nuget/v3/index.json");
+
+            MockResponseHeaders(AuthUtil.VssE2EID, "id");
+
+            var feedSource = await authUtil.GetAzDevDeploymentType(requestUri);
+            feedSource.Should().Be(AzDevDeploymentType.OnPrem);
         }
 
         [TestMethod]
