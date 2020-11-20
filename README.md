@@ -55,7 +55,9 @@ Using the above is recommended, but as per [NuGet's plugin discovery rules](http
 #### Automatic bash script
 
 [Linux or Mac helper script](helpers/installcredprovider.sh)
-- e.g. `wget -qO- https://aka.ms/install-artifacts-credprovider.sh | bash`
+- e.g. `sh -c "$(curl -fsSL https://aka.ms/install-artifacts-credprovider.sh)"`
+
+> Note: this script only installs the netcore version of the plugin. If you need to have it working with mono msbuild, you will need to download the version with both netcore and netfx binaries following the steps in [Manual installation on Linux and Mac](#installation-on-linux-and-mac)
 
 #### Manual installation on Linux and Mac
 
