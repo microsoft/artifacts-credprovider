@@ -268,6 +268,13 @@ NuGet workarounds
         CanShowDialog parameter
 ```
 
+### Troubleshooting
+#### How do I know the cred provider is installed correctly? / I'm still getting username/password prompt after installing
+This means that either nuget/dotnet was unable to find the cred provider from [NuGet's plugin search path](https://github.com/microsoft/artifacts-credprovider#setup), or the cred provider failed to authenticate so the client defaulted to the username/password prompt. Verify the cred provider is correctly installed by checking it exists in the nuget/plugins folder in your user profile (Refer to the [setup docs](https://github.com/microsoft/artifacts-credprovider#setup)). If using nuget.exe and used the [install script](https://github.com/microsoft/artifacts-credprovider#automatic-powershell-script) to install the cred provider, please make sure you ran it with -AddNetfx. 
+
+#### How do I get better error logs from the cred provider?
+Run the nuget.exe/dotnet command with detailed verbosity to see more cred provider logs that may help debugging (`nuget.exe -verbosity detailed`, `dotnet --verbosity detailed`).
+
 ## Contribute
 
 This project welcomes contributions and suggestions; see [CONTRIBUTING](CONTRIBUTING.md) for more information.
