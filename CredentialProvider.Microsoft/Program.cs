@@ -4,6 +4,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.Tracing;
 using System.IO;
 using System.Net.Http.Headers;
 using System.Reflection;
@@ -58,8 +59,30 @@ namespace NuGetCredentialProvider
         private static bool shuttingDown = false;
         public static bool IsShuttingDown => Volatile.Read(ref shuttingDown);
 
+
+        private class AdalListener : EventListener
+        {
+            public AdalListener()
+            {
+                //this.EnableEvents(new EventSource("Microsoft.IdentityModel.Clients.ActiveDirectory"), EventLevel.LogAlways);
+                this.EventSourceCreated += (o, args) => {
+                    if (args.EventSource.Name == "Microsoft.IdentityModel.Clients.ActiveDirectory") {
+                        Console.WriteLine("Event source created: " + args.EventSource.Name);
+                        this.EnableEvents(args.EventSource, EventLevel.LogAlways);
+                    }
+                };
+                this.EventWritten += (sender, args) =>  {
+                    Console.WriteLine("Event written: " + args.EventName);
+                    Console.WriteLine("Event written: " + args.EventId);
+                    foreach(object o in args.Payload) {
+                        Console.WriteLine("\t" + o.ToString());
+                    }
+                };
+            }
+        }
         public static async Task<int> Main(string[] args)
         {
+            var listener = new AdalListener();
             CancellationTokenSource tokenSource = new CancellationTokenSource();
             var parsedArgs = await Args.ParseAsync<CredentialProviderArgs>(args);
 
@@ -84,6 +107,7 @@ namespace NuGetCredentialProvider
 
             if (EnvUtil.MsalEnabled())
             {
+                Console.WriteLine("USING MSAL!");
                 var msalTokenProviderFactory = new MsalTokenProviderFactory();
                 bearerTokenProvidersFactory = new MsalBearerTokenProvidersFactory(multiLogger, msalTokenProviderFactory);
             }

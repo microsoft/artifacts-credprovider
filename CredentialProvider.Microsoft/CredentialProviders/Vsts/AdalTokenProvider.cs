@@ -3,6 +3,7 @@
 // Licensed under the MIT license.
 
 using System;
+using System.Diagnostics.Tracing;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.IdentityModel.Clients.ActiveDirectory;
@@ -110,7 +111,6 @@ namespace NuGetCredentialProvider.CredentialProviders.Vsts
         public async Task<IAdalToken> AcquireTokenWithWindowsIntegratedAuth(CancellationToken cancellationToken)
         {
             var authenticationContext = new AuthenticationContext(authority, tokenCache);
-
             try
             {
                 string upn = WindowsIntegratedAuthUtils.GetUserPrincipalName();
@@ -119,6 +119,7 @@ namespace NuGetCredentialProvider.CredentialProviders.Vsts
                     return null;
                 }
 
+                Console.WriteLine(authenticationContext.GetType().Assembly.ToString());
                 var result = await authenticationContext.AcquireTokenAsync(resource, clientId, new UserCredential(upn));
                 cancellationToken.ThrowIfCancellationRequested();
 
