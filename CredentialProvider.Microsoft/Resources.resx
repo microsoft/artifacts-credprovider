@@ -350,7 +350,32 @@ Windows Integrated Authentication
 
 Device Flow Authentication Timeout
     {14}
-        Device Flow authentication timeout in seconds. Default is 90 seconds.</value>
+        Device Flow authentication timeout in seconds. Default is 90 seconds.
+
+NuGet workarounds
+    {15}
+        Set to "true" or "false" to override any other sources of the 
+        CanShowDialog parameter
+
+Enable MSAL (Experimental: may be changed or removed in a future version)
+    {16}
+        Use the MSAL library to get a bearer token to then get a session token
+
+MSAL Authority (Experimental: may be changed or removed in a future version)
+    {17}
+        Set to override the authority used when fetching an MSAL token.
+        e.g. https://login.microsoftonline.com/organizations
+
+MSAL Token File Cache Enabled (Experimental: may be changed or removed in a future version)
+    {18}
+        Boolean to enable/disable the MSAL token cache. Disabled by default.
+
+Default MSAL Cache Location (Experimental: may be changed or removed in a future version)
+    {19}
+
+Provide MSAL Cache Location (Experimental: may be changed or removed in a future version)
+    {20}
+    Provide the location where the MSAL cache should be read and written to</value>
   </data>
   <data name="CredentialParseFailure" xml:space="preserve">
     <value>Failed to parse credentials</value>
@@ -474,5 +499,36 @@ Device Flow Authentication Timeout
   </data>
   <data name="KeyVaultUrlNotSet" xml:space="preserve">
     <value>KeyVault URL is not set in the application config</value>
+  </data>
+  <data name="LogStartsAt" xml:space="preserve">
+    <value>Log starts at {0}</value>
+  </data>
+  <data name="WhileShuttingDown" xml:space="preserve">
+    <value>While the plugin was shutting down:</value>
+  </data>
+  <data name="CredentialsNotFound" xml:space="preserve">
+    <value>Unable to acquire credentials.</value>
+  </data>
+  <data name="ForcingCanShowDialogFromTo" xml:space="preserve">
+    <value>Forcing canShowDialog from {0} to {1} due to setting from environment variable</value>
+  </data>
+  <data name="UIFlowStarted" xml:space="preserve">
+    <value>Using the {0}  flow for uri {1}. User sign-in required in a pop-up authentication window.</value>
+  </data>
+  <data name="HostAccepted" xml:space="preserve">
+    <value>Matched well-known Azure DevOps Service hostname: {0}</value>
+  </data>
+  <data name="OnPremDetected" xml:space="preserve">
+    <value>Detected an on premise Azure DevOps Server.</value>
+  </data>
+  <data name="UsingCredentialProvider" xml:space="preserve">
+    <value>Using {0} to try to get credentials for {1}.</value>
+    <comment>{0} - credential provider name, {1} - Uri</comment>
+  </data>
+  <data name="ValidHeaders" xml:space="preserve">
+    <value>Detected a hosted Azure DevOps Service.</value>
+  </data>
+  <data name="ExternalUri" xml:space="preserve">
+    <value>{0} is not an Azure Artifacts feed.</value>
   </data>
 </root>

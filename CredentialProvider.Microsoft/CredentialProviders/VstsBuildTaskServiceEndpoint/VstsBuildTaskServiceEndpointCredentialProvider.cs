@@ -67,7 +67,7 @@ namespace NuGetCredentialProvider.CredentialProviders.VstsBuildTaskServiceEndpoi
 
             Verbose(string.Format(Resources.IsRetry, request.IsRetry));
 
-            string uriString = request.Uri.ToString();
+            string uriString = request.Uri.AbsoluteUri;
             bool endpointFound = Credentials.TryGetValue(uriString, out EndpointCredentials matchingEndpoint);
             if (endpointFound)
             {
@@ -108,7 +108,7 @@ namespace NuGetCredentialProvider.CredentialProviders.VstsBuildTaskServiceEndpoi
             {
                 // Parse JSON from VSS_NUGET_EXTERNAL_FEED_ENDPOINTS
                 Verbose(Resources.ParsingJson);
-                Dictionary<string, EndpointCredentials> credsResult = new Dictionary<string, EndpointCredentials>();
+                Dictionary<string, EndpointCredentials> credsResult = new Dictionary<string, EndpointCredentials>(StringComparer.OrdinalIgnoreCase);
                 EndpointCredentialsContainer endpointCredentials = JsonConvert.DeserializeObject<EndpointCredentialsContainer>(feedEndPointsJson);
                 if (endpointCredentials == null)
                 {

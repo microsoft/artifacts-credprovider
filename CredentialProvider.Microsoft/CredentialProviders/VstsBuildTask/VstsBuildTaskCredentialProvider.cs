@@ -58,7 +58,7 @@ namespace NuGetCredentialProvider.CredentialProviders.VstsBuildTask
                 Verbose($"{uriPrefix}");
             }
 
-            string uriString = request.Uri.ToString();
+            string uriString = request.Uri.AbsoluteUri;
             string matchedPrefix = uriPrefixes.FirstOrDefault(prefix => uriString.StartsWith(prefix, StringComparison.OrdinalIgnoreCase));
             Verbose(string.Format(Resources.BuildTaskMatchedPrefix, matchedPrefix != null  ? matchedPrefix : Resources.BuildTaskNoMatchingPrefixes));
 

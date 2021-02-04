@@ -76,16 +76,14 @@ namespace NuGetCredentialProvider.CredentialProviders.Vsts
             }
         }
 
+#pragma warning disable CS1998 // Async method lacks 'await' operators and will run synchronously
         public async Task<IAdalToken> AcquireTokenWithUI(CancellationToken cancellationToken)
+#pragma warning restore CS1998 // Async method lacks 'await' operators and will run synchronously
         {
+#if NETFRAMEWORK
             var authenticationContext = new AuthenticationContext(authority, tokenCache);
 
-            var parameters =
-#if NETFRAMEWORK
-                new PlatformParameters(PromptBehavior.Always);
-#else
-                new PlatformParameters();
-#endif
+            var parameters = new PlatformParameters(PromptBehavior.Always);
 
             try
             {
@@ -103,6 +101,10 @@ namespace NuGetCredentialProvider.CredentialProviders.Vsts
 
                 throw;
             }
+#else
+            // no UI in ADAL on netcore
+            return null;
+#endif
         }
 
         public async Task<IAdalToken> AcquireTokenWithWindowsIntegratedAuth(CancellationToken cancellationToken)

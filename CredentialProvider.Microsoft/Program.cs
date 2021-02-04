@@ -10,6 +10,7 @@ using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
+using NuGet.Common;
 using NuGet.Protocol.Plugins;
 using NuGetCredentialProvider.CredentialProviders;
 using NuGetCredentialProvider.CredentialProviders.KeyVault;
@@ -79,9 +80,21 @@ namespace NuGetCredentialProvider
             };
 
             var authUtil = new AuthUtil(multiLogger);
-            var adalTokenCache = AdalTokenCacheUtils.GetAdalTokenCache(multiLogger);
-            var adalTokenProviderFactory = new VstsAdalTokenProviderFactory(adalTokenCache);
-            var bearerTokenProvidersFactory = new BearerTokenProvidersFactory(multiLogger, adalTokenProviderFactory);
+
+            IBearerTokenProvidersFactory bearerTokenProvidersFactory;
+
+            if (EnvUtil.MsalEnabled())
+            {
+                var msalTokenProviderFactory = new MsalTokenProviderFactory();
+                bearerTokenProvidersFactory = new MsalBearerTokenProvidersFactory(multiLogger, msalTokenProviderFactory);
+            }
+            else
+            {
+                var adalTokenCache = AdalTokenCacheUtils.GetAdalTokenCache(multiLogger);
+                var adalTokenProviderFactory = new VstsAdalTokenProviderFactory(adalTokenCache);
+                bearerTokenProvidersFactory = new BearerTokenProvidersFactory(multiLogger, adalTokenProviderFactory);
+            }
+
             var vstsSessionTokenProvider = new VstsSessionTokenFromBearerTokenProvider(authUtil, multiLogger);
 
             List<ICredentialProvider> credentialProviders = new List<ICredentialProvider>
@@ -125,7 +138,13 @@ namespace NuGetCredentialProvider
                             EnvUtil.AdalTokenCacheLocation,
                             EnvUtil.SessionTokenCacheLocation,
                             EnvUtil.WindowsIntegratedAuthenticationEnvVar,
-                            EnvUtil.DeviceFlowTimeoutEnvVar
+                            EnvUtil.DeviceFlowTimeoutEnvVar,
+                            EnvUtil.ForceCanShowDialogEnvVar,
+                            EnvUtil.MsalEnabledEnvVar,
+                            EnvUtil.MsalAuthorityEnvVar,
+                            EnvUtil.MsalFileCacheEnvVar,
+                            EnvUtil.DefaultMsalCacheLocation,
+                            EnvUtil.MsalFileCacheLocationEnvVar
                         ));
                     return 0;
                 }
@@ -133,13 +152,25 @@ namespace NuGetCredentialProvider
                 // Plug-in mode
                 if (parsedArgs.Plugin)
                 {
-                    using (IPlugin plugin = await PluginFactory.CreateFromCurrentProcessAsync(requestHandlers, ConnectionOptions.CreateDefault(), tokenSource.Token).ConfigureAwait(continueOnCapturedContext: false))
+                    try
                     {
-                        multiLogger.Add(new PluginConnectionLogger(plugin.Connection));
-                        multiLogger.Verbose(Resources.RunningInPlugin);
-                        multiLogger.Verbose(string.Format(Resources.CommandLineArgs, Program.Version, Environment.CommandLine));
+                        using (IPlugin plugin = await PluginFactory.CreateFromCurrentProcessAsync(requestHandlers, ConnectionOptions.CreateDefault(), tokenSource.Token).ConfigureAwait(continueOnCapturedContext: false))
+                        {
+                            multiLogger.Add(new PluginConnectionLogger(plugin.Connection));
+                            multiLogger.Verbose(Resources.RunningInPlugin);
+                            multiLogger.Verbose(string.Format(Resources.CommandLineArgs, Program.Version, Environment.CommandLine));
 
-                        await RunNuGetPluginsAsync(plugin, multiLogger, TimeSpan.FromMinutes(2), tokenSource.Token).ConfigureAwait(continueOnCapturedContext: false);
+                            await WaitForPluginExitAsync(plugin, multiLogger, TimeSpan.FromMinutes(2)).ConfigureAwait(continueOnCapturedContext: false);
+                        }
+                    }
+                    catch (OperationCanceledException ex)
+                    {
+                        // When restoring from multiple sources, one of the sources will throw an unhandled TaskCanceledException
+                        // if it has been restored successfully from a different source.
+
+                        // This is probably more confusing than interesting to users, but may be helpful in debugging,
+                        // so log the exception but not to the console.
+                        multiLogger.Log(LogLevel.Verbose, allowOnConsole:false, ex.ToString());
                     }
 
                     return 0;
@@ -171,6 +202,12 @@ namespace NuGetCredentialProvider
                     GetAuthenticationCredentialsRequest request = new GetAuthenticationCredentialsRequest(parsedArgs.Uri, isRetry: parsedArgs.IsRetry, isNonInteractive: parsedArgs.NonInteractive, parsedArgs.CanShowDialog);
                     GetAuthenticationCredentialsResponse response = await getAuthenticationCredentialsRequestHandler.HandleRequestAsync(request).ConfigureAwait(continueOnCapturedContext: false);
 
+                    // Fail if credentials are not found
+                    if (response?.ResponseCode != MessageResponseCode.Success)
+                    {
+                        return 2;
+                    }
+
                     string resultUsername = response?.Username;
                     string resultPassword = parsedArgs.RedactPassword ? Resources.Redacted : response?.Password;
                     if (parsedArgs.OutputFormat == OutputFormat.Json)
@@ -197,9 +234,10 @@ namespace NuGetCredentialProvider
             }
         }
 
-        internal static async Task RunNuGetPluginsAsync(IPlugin plugin, ILogger logger, TimeSpan timeout, CancellationToken cancellationToken)
+        internal static async Task WaitForPluginExitAsync(IPlugin plugin, ILogger logger, TimeSpan shutdownTimeout)
         {
-            SemaphoreSlim semaphore = new SemaphoreSlim(0);
+            var beginShutdownTaskSource = new TaskCompletionSource<object>();
+            var endShutdownTaskSource = new TaskCompletionSource<object>();
 
             plugin.Connection.Faulted += (sender, a) =>
             {
@@ -207,19 +245,33 @@ namespace NuGetCredentialProvider
                 logger.Error(a.Exception.ToString());
             };
 
-            plugin.BeforeClose += (sender, args) => Volatile.Write(ref shuttingDown, true);
+            plugin.BeforeClose += (sender, args) =>
+            {
+                Volatile.Write(ref shuttingDown, true);
+                beginShutdownTaskSource.TrySetResult(null);
+            };
 
-            plugin.Closed += (sender, a) => semaphore.Release();
+            plugin.Closed += (sender, a) =>
+            {
+                // beginShutdownTaskSource should already be set in BeforeClose, but just in case do it here too
+                beginShutdownTaskSource.TrySetResult(null);
 
-            bool complete = await semaphore.WaitAsync(timeout, cancellationToken).ConfigureAwait(continueOnCapturedContext: false);
+                endShutdownTaskSource.TrySetResult(null);
+            };
 
-            if (!complete)
+            await beginShutdownTaskSource.Task;
+            using (new Timer(_ => endShutdownTaskSource.TrySetCanceled(), null, shutdownTimeout, TimeSpan.FromMilliseconds(-1)))
+            {
+                await endShutdownTaskSource.Task;
+            }
+
+            if (endShutdownTaskSource.Task.IsCanceled)
             {
                 logger.Error(Resources.PluginTimedOut);
             }
         }
 
-        private static FileLogger GetFileLogger()
+        private static ILogger GetFileLogger()
         {
             var location = EnvUtil.FileLogLocation;
             if (string.IsNullOrEmpty(location))
@@ -228,10 +280,8 @@ namespace NuGetCredentialProvider
             }
 
             Directory.CreateDirectory(Path.GetDirectoryName(location));
-            var fileLogger = new FileLogger(location);
-            fileLogger.SetLogLevel(NuGet.Common.LogLevel.Verbose);
 
-            return fileLogger;
+            return new LogEveryMessageFileLogger(location);
         }
     }
 }

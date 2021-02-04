@@ -11,27 +11,28 @@ namespace NuGetCredentialProvider.Logging
     /// <summary>
     /// Logs messages to standard output, with log level included
     /// </summary>
-    internal class StandardOutputLogger : HumanFriendlyTextWriterLogger
+    public class StandardOutputLogger : HumanFriendlyTextWriterLogger
     {
-        public StandardOutputLogger() : base(Console.Out) { }
+        public StandardOutputLogger() : base(Console.Out, writesToConsole: true) { }
     }
 
     /// <summary>
     /// Logs messages to standard error, with log level included
     /// </summary>
-    internal class StandardErrorLogger : HumanFriendlyTextWriterLogger
+    public class StandardErrorLogger : HumanFriendlyTextWriterLogger
     {
-        public StandardErrorLogger() : base(Console.Error) { }
+        public StandardErrorLogger() : base(Console.Error, writesToConsole: true) { }
     }
 
     /// <summary>
     /// Emits a log message in a human-readable format to a TextWriter, including the log level
     /// </summary>
-    internal class HumanFriendlyTextWriterLogger : LoggerBase
+    public class HumanFriendlyTextWriterLogger : LoggerBase
     {
         private readonly TextWriter writer;
 
-        public HumanFriendlyTextWriterLogger(TextWriter writer)
+        public HumanFriendlyTextWriterLogger(TextWriter writer, bool writesToConsole)
+            : base(writesToConsole)
         {
             this.writer = writer;
         }

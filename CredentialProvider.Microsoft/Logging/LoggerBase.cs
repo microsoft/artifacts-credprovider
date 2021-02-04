@@ -9,14 +9,25 @@ using NuGet.Common;
 
 namespace NuGetCredentialProvider.Logging
 {
-    internal abstract class LoggerBase : ILogger
+    public abstract class LoggerBase : ILogger
     {
         private LogLevel minLogLevel = LogLevel.Debug;
         private bool allowLogWrites = false;
         private ConcurrentQueue<Tuple<LogLevel, string, DateTime>> bufferedLogs = new ConcurrentQueue<Tuple<LogLevel, string, DateTime>>();
+        private readonly bool writesToConsole;
 
-        public void Log(LogLevel level, string message)
+        protected LoggerBase(bool writesToConsole)
         {
+            this.writesToConsole = writesToConsole;
+        }
+
+        public void Log(LogLevel level, bool allowOnConsole, string message)
+        {
+            if (writesToConsole && !allowOnConsole)
+            {
+                return;
+            }
+
             if (!allowLogWrites)
             {
                 // cheap reserve, if it swaps out after we add, meh, we miss one log
