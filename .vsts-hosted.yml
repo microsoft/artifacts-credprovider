@@ -1,0 +1,33 @@
+pool:
+  vmImage: 'windows-latest'
+
+resources:
+- repo: self
+
+queue:
+  demands: msbuild
+
+trigger: none
+
+variables:
+  BuildConfiguration: 'Debug'
+  TeamName: 'Package Experience'
+
+steps:
+- template: build/build.yml
+  parameters:
+    nuspecProperties: 'VersionSuffix=-PR-$(Build.BuildNumber)'
+
+- task: Semmle@0
+  env: 
+    SYSTEM_ACCESSTOKEN: $(System.AccessToken)
+  inputs:
+    toolVersion: 'LatestPreRelease'
+    sourceCodeDirectory: '$(Build.SourcesDirectory)'
+    language: 'csharp'
+    cleanupBuildCommands: 'msbuild "$(BUILD.SourcesDirectory)\MicrosoftCredentialProvider.sln /t:Clean'
+    buildCommands: 'msbuild $(BUILD.SourcesDirectory)\MicrosoftCredentialProvider.sln'
+    querySuite: 'Required'
+    timeout: '1800'
+    ram: '16384'
+    addProjectDirToScanningExclusionList: true
