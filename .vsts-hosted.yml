@@ -22,9 +22,15 @@ steps:
     toolVersion: 'LatestPreRelease'
     sourceCodeDirectory: '$(Build.SourcesDirectory)'
     language: 'csharp'
-    cleanupBuildCommands: 'msbuild "$(BUILD.SourcesDirectory)\MicrosoftCredentialProvider.sln /t:Clean'
+    cleanupBuildCommands: 'msbuild $(BUILD.SourcesDirectory)\MicrosoftCredentialProvider.sln /t:Clean'
     buildCommands: 'msbuild $(BUILD.SourcesDirectory)\MicrosoftCredentialProvider.sln'
     querySuite: 'Required'
     timeout: '1800'
     ram: '16384'
     addProjectDirToScanningExclusionList: true
+
+- task: CmdLine@2
+  inputs:
+    script: |
+      echo Set
+      echo Hello world
