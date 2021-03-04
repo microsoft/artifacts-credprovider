@@ -19,7 +19,7 @@ namespace NuGetCredentialProvider {
     // class via a tool like ResGen or Visual Studio.
     // To add or remove a member, edit your .ResX file then rerun ResGen
     // with the /str option, or rebuild your VS project.
-    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Resources.Tools.StronglyTypedResourceBuilder", "15.0.0.0")]
+    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Resources.Tools.StronglyTypedResourceBuilder", "16.0.0.0")]
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
     [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
     internal class Resources {
@@ -365,6 +365,15 @@ namespace NuGetCredentialProvider {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Unable to acquire credentials..
+        /// </summary>
+        internal static string CredentialsNotFound {
+            get {
+                return ResourceManager.GetString("CredentialsNotFound", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Device flow authentication failed. User was presented with device flow, but didn&apos;t react within {0} seconds..
         /// </summary>
         internal static string DeviceFlowTimedOut {
@@ -434,11 +443,29 @@ namespace NuGetCredentialProvider {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to {0} is not an Azure Artifacts feed..
+        /// </summary>
+        internal static string ExternalUri {
+            get {
+                return ResourceManager.GetString("ExternalUri", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Faulted on message: {0}.
         /// </summary>
         internal static string FaultedOnMessage {
             get {
                 return ResourceManager.GetString("FaultedOnMessage", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Forcing canShowDialog from {0} to {1} due to setting from environment variable.
+        /// </summary>
+        internal static string ForcingCanShowDialogFromTo {
+            get {
+                return ResourceManager.GetString("ForcingCanShowDialogFromTo", resourceCulture);
             }
         }
         
@@ -488,6 +515,15 @@ namespace NuGetCredentialProvider {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Matched well-known Azure DevOps Service hostname: {0}.
+        /// </summary>
+        internal static string HostAccepted {
+            get {
+                return ResourceManager.GetString("HostAccepted", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Invalidating SessionToken cache for {0}.
         /// </summary>
         internal static string InvalidatingCachedSessionToken {
@@ -502,6 +538,15 @@ namespace NuGetCredentialProvider {
         internal static string IsRetry {
             get {
                 return ResourceManager.GetString("IsRetry", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Log starts at {0}.
+        /// </summary>
+        internal static string LogStartsAt {
+            get {
+                return ResourceManager.GetString("LogStartsAt", resourceCulture);
             }
         }
         
@@ -529,6 +574,15 @@ namespace NuGetCredentialProvider {
         internal static string NotRunningBearerTokenProvider {
             get {
                 return ResourceManager.GetString("NotRunningBearerTokenProvider", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Detected an on premise Azure DevOps Server..
+        /// </summary>
+        internal static string OnPremDetected {
+            get {
+                return ResourceManager.GetString("OnPremDetected", resourceCulture);
             }
         }
         
@@ -713,6 +767,15 @@ namespace NuGetCredentialProvider {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Using the {0}  flow for uri {1}. User sign-in required in a pop-up authentication window..
+        /// </summary>
+        internal static string UIFlowStarted {
+            get {
+                return ResourceManager.GetString("UIFlowStarted", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to URI: {0}.
         /// </summary>
         internal static string Uri {
@@ -727,6 +790,24 @@ namespace NuGetCredentialProvider {
         internal static string Username {
             get {
                 return ResourceManager.GetString("Username", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Using {0} to try to get credentials for {1}..
+        /// </summary>
+        internal static string UsingCredentialProvider {
+            get {
+                return ResourceManager.GetString("UsingCredentialProvider", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Detected a hosted Azure DevOps Service..
+        /// </summary>
+        internal static string ValidHeaders {
+            get {
+                return ResourceManager.GetString("ValidHeaders", resourceCulture);
             }
         }
         
@@ -772,6 +853,15 @@ namespace NuGetCredentialProvider {
         internal static string VSTSSessionTokenValidity {
             get {
                 return ResourceManager.GetString("VSTSSessionTokenValidity", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to While the plugin was shutting down:.
+        /// </summary>
+        internal static string WhileShuttingDown {
+            get {
+                return ResourceManager.GetString("WhileShuttingDown", resourceCulture);
             }
         }
     }

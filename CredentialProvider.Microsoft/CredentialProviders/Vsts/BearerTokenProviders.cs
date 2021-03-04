@@ -70,10 +70,12 @@ namespace NuGetCredentialProvider.CredentialProviders.Vsts
     public class UserInterfaceBearerTokenProvider : IBearerTokenProvider
     {
         private readonly IAdalTokenProvider adalTokenProvider;
+        private readonly ILogger logger;
 
-        public UserInterfaceBearerTokenProvider(IAdalTokenProvider adalTokenProvider)
+        public UserInterfaceBearerTokenProvider(IAdalTokenProvider adalTokenProvider, ILogger logger)
         {
             this.adalTokenProvider = adalTokenProvider;
+            this.logger = logger;
         }
 
         public bool Interactive { get; } = true;
@@ -81,12 +83,18 @@ namespace NuGetCredentialProvider.CredentialProviders.Vsts
 
         public async Task<string> GetTokenAsync(Uri uri, CancellationToken cancellationToken)
         {
+            logger.Minimal(string.Format(Resources.UIFlowStarted, this.Name, uri.AbsoluteUri));
             return (await adalTokenProvider.AcquireTokenWithUI(cancellationToken))?.AccessToken;
         }
 
         public bool ShouldRun(bool isRetry, bool isNonInteractive, bool canShowDialog)
         {
+#if NETFRAMEWORK
             return !isNonInteractive && canShowDialog && RuntimeInformation.IsOSPlatform(OSPlatform.Windows);
+#else
+            // no ADAL UI in netcore
+            return false;
+#endif
         }
     }
 

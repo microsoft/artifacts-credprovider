@@ -18,6 +18,17 @@ namespace NuGetCredentialProvider.Util
         /// Writes a <see cref="LogLevel.Error"/> event message to the <see cref="ILogger"/> using the specified message.
         /// </summary>
         /// <param name="logger">A <see cref="ILogger"/> instance to write the message to.</param>
+        /// <param name="logLevel">The level to log at.</param>
+        /// <param name="message">The message.</param>
+        public static void Log(this ILogger logger, LogLevel logLevel, string message)
+        {
+            logger.Log(logLevel, true, message);
+        }
+
+        /// <summary>
+        /// Writes a <see cref="LogLevel.Error"/> event message to the <see cref="ILogger"/> using the specified message.
+        /// </summary>
+        /// <param name="logger">A <see cref="ILogger"/> instance to write the message to.</param>
         /// <param name="message">The message.</param>
         public static void Error(this ILogger logger, string message)
         {

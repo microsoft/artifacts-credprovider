@@ -16,6 +16,7 @@ namespace NuGetCredentialProvider.Util
         public const string LogPathEnvVar = "NUGET_CREDENTIALPROVIDER_LOG_PATH";
         public const string SessionTokenCacheEnvVar = "NUGET_CREDENTIALPROVIDER_SESSIONTOKENCACHE_ENABLED";
         public const string WindowsIntegratedAuthenticationEnvVar = "NUGET_CREDENTIALPROVIDER_WINDOWSINTEGRATEDAUTHENTICATION_ENABLED";
+        public const string ForceCanShowDialogEnvVar = "NUGET_CREDENTIALPROVIDER_FORCE_CANSHOWDIALOG_TO";
 
         public const string AuthorityEnvVar = "NUGET_CREDENTIALPROVIDER_ADAL_AUTHORITY";
         public const string AdalFileCacheEnvVar = "NUGET_CREDENTIALPROVIDER_ADAL_FILECACHE_ENABLED";
@@ -30,9 +31,16 @@ namespace NuGetCredentialProvider.Util
         public const string BuildTaskAccessToken = "VSS_NUGET_ACCESSTOKEN";
         public const string BuildTaskExternalEndpoints = "VSS_NUGET_EXTERNAL_FEED_ENDPOINTS";
 
+        public const string MsalEnabledEnvVar = "NUGET_CREDENTIALPROVIDER_MSAL_ENABLED";
+        public const string MsalAuthorityEnvVar = "NUGET_CREDENTIALPROVIDER_MSAL_AUTHORITY";
+        public const string MsalFileCacheEnvVar = "NUGET_CREDENTIALPROVIDER_MSAL_FILECACHE_ENABLED";
+        public const string MsalFileCacheLocationEnvVar = "NUGET_CREDENTIALPROVIDER_MSAL_FILECACHE_LOCATION";
+
         private static readonly string LocalAppDataLocation = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData, Environment.SpecialFolderOption.Create), "MicrosoftCredentialProvider");
 
         public static string AdalTokenCacheLocation { get; } = Path.Combine(LocalAppDataLocation, "ADALTokenCache.dat");
+
+        public static string DefaultMsalCacheLocation { get; } = Path.Combine(LocalAppDataLocation, "MSALTokenCache.dat");
 
         public static string FileLogLocation { get; } = Environment.GetEnvironmentVariable(LogPathEnvVar);
 
@@ -40,7 +48,8 @@ namespace NuGetCredentialProvider.Util
 
         public static Uri GetAuthorityFromEnvironment(ILogger logger)
         {
-            var environmentAuthority = Environment.GetEnvironmentVariable(AuthorityEnvVar);
+            var authorityVariableToUse = MsalEnabled() ? MsalAuthorityEnvVar : AuthorityEnvVar;
+            var environmentAuthority = Environment.GetEnvironmentVariable(authorityVariableToUse);
             if (environmentAuthority == null)
             {
                 return null;
@@ -59,6 +68,22 @@ namespace NuGetCredentialProvider.Util
             return null;
         }
 
+        public static string GetMsalCacheLocation()
+        {
+            string msalCacheFromEnvironment = Environment.GetEnvironmentVariable(MsalFileCacheLocationEnvVar);
+            return string.IsNullOrWhiteSpace(msalCacheFromEnvironment) ? DefaultMsalCacheLocation : msalCacheFromEnvironment;
+        }
+
+        internal static bool MsalEnabled()
+        {
+            return GetEnabledFromEnvironment(MsalEnabledEnvVar, defaultValue: false);
+        }
+
+        public static bool MsalFileCacheEnabled()
+        {
+            return GetEnabledFromEnvironment(MsalFileCacheEnvVar, defaultValue: false);
+        }
+
         public static IList<string> GetHostsFromEnvironment(ILogger logger, string envVar, IEnumerable<string> defaultHosts, [CallerMemberName] string collectionName = null)
         {
             var hosts = new List<string>();
@@ -73,6 +98,17 @@ namespace NuGetCredentialProvider.Util
 
             hosts.AddRange(defaultHosts);
             return hosts;
+        }
+
+        public static bool? ForceCanShowDialogTo()
+        {
+            var fromEnv = Environment.GetEnvironmentVariable(ForceCanShowDialogEnvVar);
+            if(string.IsNullOrWhiteSpace(fromEnv) || !bool.TryParse(fromEnv, out var parsed))
+            {
+                return default;
+            }
+
+            return parsed;
         }
 
         public static bool AdalFileCacheEnabled()

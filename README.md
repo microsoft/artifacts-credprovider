@@ -20,15 +20,17 @@ Install [Visual Studio version 15.9-preview1 or later](https://visualstudio.micr
 
 ### NuGet
 
-[NuGet(.exe)](https://www.nuget.org/downloads) on the command line version `4.8.0.5385` or later is required.
+[NuGet(.exe)](https://www.nuget.org/downloads) on the command line version `4.8.0.5385` or later is required. The recommended NuGet version is `5.5.x` or later as it has some important bug fixes related to cancellations and timeouts. 
 
 ### dotnet
 
-[dotnet SDK](https://www.microsoft.com/net/download) version `2.1.400` or later is required on Windows.
+[dotnet SDK](https://www.microsoft.com/net/download) version `2.1.400` or later is required on Windows. The recommended dotnet version is `3.1.200` or later as it has some important bug fixes related to cancellations and timeouts. 
 
 ## Setup
 
-If you are using `dotnet` or `nuget`, you can use the Azure Artifact Credential Provider by adding it to [NuGet's plugin search path](https://github.com/NuGet/Home/wiki/NuGet-Cross-Plat-Credential-Plugin#plugin-installation-and-discovery). This section contains both manual and scripted instructions for doing so.
+If you are using `dotnet` or `nuget`, you can use the Azure Artifact Credential Provider by adding it to [NuGet's plugin search path](https://github.com/NuGet/Home/wiki/NuGet-cross-plat-authentication-plugin#plugin-installation-and-discovery). This section contains both manual and scripted instructions for doing so.
+
+Dotnet needs the `netcore` version to be installed. NuGet and MSBuild need the `netfx` version to be installed.
 
 ### Installation on Windows
 
@@ -36,29 +38,37 @@ If you are using `dotnet` or `nuget`, you can use the Azure Artifact Credential 
 
 [PowerShell helper script](helpers/installcredprovider.ps1)
 - To install netcore, run `installcredprovider.ps1`
+  - e.g. `iex "& { $(irm https://aka.ms/install-artifacts-credprovider.ps1) }"`
 - To install both netfx and netcore, run `installcredprovider.ps1 -AddNetfx`. The netfx version is needed for nuget.exe.
+  - e.g. `iex "& { $(irm https://aka.ms/install-artifacts-credprovider.ps1) } -AddNetfx"`
 
 #### Manual installation on Windows
 
 1. Download the latest release of [Microsoft.NuGet.CredentialProvider.zip](https://github.com/Microsoft/artifacts-credprovider/releases)
 2. Unzip the file
-3. Copy the `netcore` (and `netfx` for nuget.exe) directory from the extracted archive to `$env:UserProfile\.nuget\plugins`
+3. Copy the `netcore` (and `netfx` for nuget.exe) directory from the extracted archive to `$env:UserProfile\.nuget\plugins` (%UserProfile%/.nuget/plugins/)
 
-Using the above is recommended, but as per [NuGet's plugin discovery rules](https://github.com/NuGet/Home/wiki/NuGet-Cross-Plat-Credential-Plugin#plugin-installation-and-discovery), alternatively you can install the credential provider to a location you prefer, and then set the environment variable NUGET_PLUGIN_PATHS to the .exe of the credential provider found in plugins\netfx\CredentialProvider.Microsoft\CredentialProvider.Microsoft.exe. For example, $env:NUGET_PLUGIN_PATHS="my-alternative-location\CredentialProvider.Microsoft.exe". Note that if you are using both nuget and dotnet, this environment variable is not recommended due to this issue: https://github.com/NuGet/Home/issues/8151
+Using the above is recommended, but as per [NuGet's plugin discovery rules](https://github.com/NuGet/Home/wiki/NuGet-cross-plat-authentication-plugin#plugin-installation-and-discovery), alternatively you can install the credential provider to a location you prefer, and then set the environment variable NUGET_PLUGIN_PATHS to the .exe of the credential provider found in plugins\netfx\CredentialProvider.Microsoft\CredentialProvider.Microsoft.exe. For example, $env:NUGET_PLUGIN_PATHS="my-alternative-location\CredentialProvider.Microsoft.exe". Note that if you are using both nuget and dotnet, this environment variable is not recommended due to this issue: https://github.com/NuGet/Home/issues/8151
 
 ### Installation on Linux and Mac
 
 #### Automatic bash script
 
 [Linux or Mac helper script](helpers/installcredprovider.sh)
+- e.g. `wget -qO- https://aka.ms/install-artifacts-credprovider.sh | bash`
 
 #### Manual installation on Linux and Mac
 
 1. Download the latest release of [Microsoft.NuGet.CredentialProvider.tar.gz](https://github.com/Microsoft/artifacts-credprovider/releases)
 2. Untar the file
-3. Copy the `netcore` directory from the extracted archive to `$HOME\.nuget\plugins`
+3. Copy the `netcore` (and 'netfx' for msbuild /t:restore command) directory from the extracted archive to `$HOME/.nuget/plugins`
 
-Using the above is recommended, but as per [NuGet's plugin discovery rules](https://github.com/NuGet/Home/wiki/NuGet-Cross-Plat-Credential-Plugin#plugin-installation-and-discovery), alternatively you can install the credential provider to a location you prefer, and then set the environment variable NUGET_PLUGIN_PATHS to the .dll of the credential provider found in plugins\netcore\CredentialProvider.Microsoft\CredentialProvider.Microsoft.dll. For example, $env:NUGET_PLUGIN_PATHS="my-alternative-location\CredentialProvider.Microsoft.dll".
+Using the above is recommended, but as per [NuGet's plugin discovery rules](https://github.com/NuGet/Home/wiki/NuGet-cross-plat-authentication-plugin#plugin-installation-and-discovery), alternatively you can install the credential provider to a location you prefer, and then set the environment variable NUGET_PLUGIN_PATHS to the .dll of the credential provider found in plugins\netcore\CredentialProvider.Microsoft\CredentialProvider.Microsoft.dll. For example, $env:NUGET_PLUGIN_PATHS="my-alternative-location\CredentialProvider.Microsoft.dll".
+
+### Automatic usage
+- MSBuild in Visual Studio Developer Command Prompt with Visual Studio 15.9+
+- Azure DevOps Pipelines NuGetAuthenticate task
+- Azure DevOps Pipelines NuGet task, NuGetCommandV2 version 2.145.3+ (Azure DevOps Server 2019 Update 1+)
 
 ## Use
 
@@ -98,9 +108,19 @@ Once you've successfully acquired a token, you can run authenticated commands wi
 
 ### Unattended build agents 
 
-If you're running the command as part of an automated build on an unattended build agent, you can supply an access token directly using the `VSS_NUGET_EXTERNAL_FEED_ENDPOINTS` [environment variable](#environment-variables). The use of [Personal Access Tokens](https://docs.microsoft.com/en-us/azure/devops/organizations/accounts/use-personal-access-tokens-to-authenticate?view=azure-devops) is recommended.
+#### Azure DevOps Pipelines
+Use the [NuGet Authenticate](https://docs.microsoft.com/en-us/azure/devops/pipelines/tasks/package/nuget-authenticate?view=azure-devops) task before running NuGet, dotnet or MSBuild commands that need authentication.
 
-You may need to restart the agent service or the computer before the environment variables are available to the agent.
+#### Other automated build scenarios
+If you're running the command as part of an automated build on an unattended build agent outside of Azure DevOps Pipelines, you can supply an access token directly using the `VSS_NUGET_EXTERNAL_FEED_ENDPOINTS` [environment variable](#environment-variables). The use of [Personal Access Tokens](https://docs.microsoft.com/en-us/azure/devops/organizations/accounts/use-personal-access-tokens-to-authenticate?view=azure-devops) is recommended. You may need to restart the agent service or the computer before the environment variables are available to the agent.
+
+### Docker containers
+[Managing NuGet credentials in Docker scenarios](https://github.com/dotnet/dotnet-docker/blob/master/documentation/scenarios/nuget-credentials.md#using-the-azure-artifact-credential-provider)
+
+### Azure DevOps Server
+The Azure Artifacts Credential Provider may not be necessary for an on-premises Azure DevOps Server on Windows. If the credential provider is needed, it cannot acquire credentials interactively, therefore, the VSS_NUGET_EXTERNAL_FEED_ENDPOINTS environment variable must be used as an alternative. Supply a [Personal Access Token](https://docs.microsoft.com/en-us/azure/devops/organizations/accounts/use-personal-access-tokens-to-authenticate?view=azure-devops) directly using the `VSS_NUGET_EXTERNAL_FEED_ENDPOINTS` [environment variable](#environment-variables). 
+
+From Azure DevOps Server 2020 RC1 forward, the NuGet Authenticate task can be used in Pipelines. 
 
 ## Session Token Cache Locations
 
@@ -241,7 +261,24 @@ Windows Integrated Authentication
 Device Flow Authentication Timeout
     NUGET_CREDENTIALPROVIDER_VSTS_DEVICEFLOWTIMEOUTSECONDS
         Device Flow authentication timeout in seconds. Default is 90 seconds.
+
+NuGet workarounds
+    NUGET_CREDENTIALPROVIDER_FORCE_CANSHOWDIALOG_TO
+        Set to "true" or "false" to override any other sources of the
+        CanShowDialog parameter
 ```
+
+### Troubleshooting
+#### How do I know the cred provider is installed correctly? / I'm still getting username/password prompt after installing
+This means that either nuget/dotnet was unable to find the cred provider from [NuGet's plugin search path](https://github.com/microsoft/artifacts-credprovider#setup), or the cred provider failed to authenticate so the client defaulted to the username/password prompt. Verify the cred provider is correctly installed by checking it exists in the nuget/plugins folder in your user profile (Refer to the [setup docs](https://github.com/microsoft/artifacts-credprovider#setup)). If using nuget.exe and used the [install script](https://github.com/microsoft/artifacts-credprovider#automatic-powershell-script) to install the cred provider, please make sure you ran it with -AddNetfx. 
+
+#### How do I get better error logs from the cred provider?
+Run the nuget.exe/dotnet command with detailed verbosity to see more cred provider logs that may help debugging (`nuget.exe -verbosity detailed`, `dotnet --verbosity detailed`).
+
+#### How do I find out if my issue is a real 401?
+Run the credential provider directly with the following command: `C:\Users\<user>\.nuget\plugins\netfx\CredentialProvider.Microsoft\CredentialProvider.Microsoft.exe  -I -V Verbose -U "https://pkgs.dev.azure.com/{organization}/{project-if-feed-is-project-scoped}/_packaging/{feed}/nuget/v3/index.json"`. Check you have the right permissions from the [feed permissions](https://docs.microsoft.com/en-us/azure/devops/artifacts/feeds/feed-permissions?view=azure-devops). 
+
+In an Azure DevOps Pipeline, verify you have set the right permissions for the pipeline by following the [docs](https://docs.microsoft.com/en-us/azure/devops/artifacts/feeds/feed-permissions?view=azure-devops#package-permissions-in-azure-pipelines).
 
 ## Contribute
 

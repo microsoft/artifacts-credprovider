@@ -46,7 +46,7 @@ namespace NuGetCredentialProvider.RequestHandlers
 
         public override async Task<GetAuthenticationCredentialsResponse> HandleRequestAsync(GetAuthenticationCredentialsRequest request)
         {
-            Logger.Verbose(string.Format(Resources.HandlingAuthRequest, request.Uri, request.IsRetry, request.IsNonInteractive, request.CanShowDialog));
+            Logger.Verbose(string.Format(Resources.HandlingAuthRequest, request.Uri.AbsoluteUri, request.IsRetry, request.IsNonInteractive, request.CanShowDialog));
 
             if (request?.Uri == null)
             {
@@ -59,15 +59,16 @@ namespace NuGetCredentialProvider.RequestHandlers
                     responseCode: MessageResponseCode.Error);
             }
 
-            Logger.Verbose(string.Format(Resources.Uri, request.Uri));
+            Logger.Verbose(string.Format(Resources.Uri, request.Uri.AbsoluteUri));
 
             foreach (ICredentialProvider credentialProvider in credentialProviders)
             {
                 if (await credentialProvider.CanProvideCredentialsAsync(request.Uri) == false)
                 {
-                    Logger.Verbose(string.Format(Resources.SkippingCredentialProvider, credentialProvider, request.Uri.ToString()));
+                    Logger.Verbose(string.Format(Resources.SkippingCredentialProvider, credentialProvider, request.Uri.AbsoluteUri));
                     continue;
                 }
+                Logger.Verbose(string.Format(Resources.UsingCredentialProvider, credentialProvider, request.Uri.AbsoluteUri));
 
                 if (credentialProvider.IsCachable && TryCache(request, out string cachedToken))
                 {
@@ -86,7 +87,7 @@ namespace NuGetCredentialProvider.RequestHandlers
                     {
                         if (cache != null && credentialProvider.IsCachable)
                         {
-                            Logger.Verbose(string.Format(Resources.CachingSessionToken, request.Uri.ToString()));
+                            Logger.Verbose(string.Format(Resources.CachingSessionToken, request.Uri.AbsoluteUri));
                             cache[request.Uri] = response.Password;
                         }
 
@@ -114,6 +115,7 @@ namespace NuGetCredentialProvider.RequestHandlers
                 }
             }
 
+            Logger.Verbose(Resources.CredentialsNotFound);
             return new GetAuthenticationCredentialsResponse(
                 username: null,
                 password: null,
@@ -147,18 +149,18 @@ namespace NuGetCredentialProvider.RequestHandlers
             Logger.Verbose(string.Format(Resources.IsRetry, request.IsRetry));
             if (request.IsRetry)
             {
-                Logger.Verbose(string.Format(Resources.InvalidatingCachedSessionToken, request.Uri.ToString()));
+                Logger.Verbose(string.Format(Resources.InvalidatingCachedSessionToken, request.Uri.AbsoluteUri));
                 cache?.Remove(request.Uri);
                 return false;
             }
             else if (cache.TryGetValue(request.Uri, out string password))
             {
-                Logger.Verbose(string.Format(Resources.FoundCachedSessionToken, request.Uri.ToString()));
+                Logger.Verbose(string.Format(Resources.FoundCachedSessionToken, request.Uri.AbsoluteUri));
                 cachedToken = password;
                 return true;
             }
 
-            Logger.Verbose(string.Format(Resources.CachedSessionTokenNotFound, request.Uri.ToString()));
+            Logger.Verbose(string.Format(Resources.CachedSessionTokenNotFound, request.Uri.AbsoluteUri));
             return false;
         }
     }

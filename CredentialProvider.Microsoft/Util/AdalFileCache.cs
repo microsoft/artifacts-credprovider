@@ -21,7 +21,7 @@ namespace NuGetCredentialProvider.Util
             this.BeforeAccess = BeforeAccessNotification;
             lock (FileLock)
             {
-                this.Deserialize(this.ReadFileBytes());
+                this.DeserializeAdalV3(this.ReadFileBytes());
             }
         }
 
@@ -38,7 +38,7 @@ namespace NuGetCredentialProvider.Util
         {
             lock (FileLock)
             {
-                this.Deserialize(this.ReadFileBytes());
+                this.DeserializeAdalV3(this.ReadFileBytes());
             }
         }
 
@@ -51,7 +51,7 @@ namespace NuGetCredentialProvider.Util
                 lock (FileLock)
                 {
                     // reflect changes in the persistent store
-                    this.WriteFileBytes(this.Serialize());
+                    this.WriteFileBytes(this.SerializeAdalV3());
 
                     // once the write operation took place, restore the HasStateChanged bit to false
                     this.HasStateChanged = false;
