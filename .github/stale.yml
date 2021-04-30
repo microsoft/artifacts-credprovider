@@ -24,7 +24,6 @@ staleLabel: redirect-to-dev-community
 markComment: >
   In order to consolidate to fewer feedback channels, we've moved suggestions and
   issue reporting to [Developer Community](https://developercommunity.visualstudio.com/spaces/21/index.html).
-  Sorry for any confusion resulting from this move.
 limitPerRun: 30
 
 # Limit to only `issues` or `pulls`
