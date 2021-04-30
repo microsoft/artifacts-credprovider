@@ -18,7 +18,7 @@ exemptMilestones: false
 exemptAssignees: false
 
 # Label to use when marking as stale
-staleLabel: direct-to-dev-community
+staleLabel: redirect-to-dev-community
 
 # Comment to post when marking as stale. Set to `false` to disable
 markComment: >
