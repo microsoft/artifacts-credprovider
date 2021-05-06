@@ -16,7 +16,7 @@ The Azure Artifacts Credential Provider automates the acquisition of credentials
 
 ### MSBuild on Windows
 
-Install [Visual Studio version 15.9-preview1 or later](https://visualstudio.microsoft.com/vs/preview/) to get the required version of msbuild (`15.8.166.59604` or later).
+Install [Visual Studio version 15.9-preview1 or later](https://visualstudio.microsoft.com/vs/preview/) to get the required version of MSBuild (`15.8.166.59604` or later). Alternatively, you can download MSBuild directly by downloading the [Build Tools for Visual Studio](https://visualstudio.microsoft.com/downloads/?q=build+tools). MSBuild is also installed as a part of the [.NET Core SDK](https://dotnet.microsoft.com/download).
 
 ### NuGet
 
