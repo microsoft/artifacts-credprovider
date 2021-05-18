@@ -1,0 +1,24 @@
+name: Mark stale issues
+
+on:
+  schedule:
+  - cron: "*/15 * * * *"
+
+jobs:
+  stale:
+    runs-on: ubuntu-latest
+    permissions:
+      issues: write
+    steps:
+    - uses: actions/stale@v3
+      env:
+        ACTIONS_STEP_DEBUG: true
+      with:
+        repo-token: ${{ secrets.GITHUB_TOKEN }}
+        stale-issue-message: "In order to consolidate to fewer feedback channels, we've moved suggestions and issue reporting to [Developer Community](https://developercommunity.visualstudio.com/spaces/21/index.html)."
+        stale-issue-label: 'redirect-to-dev-community'
+        days-before-issue-stale: 1
+        days-before-issue-close: 1
+        operations-per-run: 5
+        debug-only: true
+        enable-statistics: true
