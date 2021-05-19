@@ -129,9 +129,16 @@ namespace NuGetCredentialProvider.CredentialProviders.VstsBuildTaskServiceEndpoi
                         credentials.Username = "VssSessionToken";
                     }
 
-                    if (credsResult.ContainsKey(credentials.Endpoint) == false)
+                    if (!Uri.TryCreate(credentials.Endpoint, UriKind.Absolute, out var endpointUri))
                     {
-                        credsResult.Add(credentials.Endpoint, credentials);
+                        Verbose(Resources.EndpointParseFailure);
+                        break;
+                    }
+
+                    var urlEncodedEndpoint = endpointUri.AbsoluteUri;
+                    if (!credsResult.ContainsKey(urlEncodedEndpoint))
+                    {
+                        credsResult.Add(urlEncodedEndpoint, credentials);
                     }
                 }
 

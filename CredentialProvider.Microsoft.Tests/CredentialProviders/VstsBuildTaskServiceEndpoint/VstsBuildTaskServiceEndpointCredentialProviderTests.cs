@@ -142,5 +142,22 @@ namespace CredentialProvider.Microsoft.Tests.CredentialProviders.VstsBuildTaskSe
             Assert.AreEqual("testUser", result.Username);
             Assert.AreEqual("testToken", result.Password);
         }
+
+
+        [TestMethod]
+        public async Task HandleRequestAsync_MatchesEndpointURLWithSpaces()
+        {
+            Uri sourceUri = new Uri(@"http://example.pkgs.vsts.me/My Collection/_packaging/TestFeed/nuget/v3/index.json");
+
+            string feedEndPointJson = "{\"endpointCredentials\":[{\"endpoint\":\"http://example.pkgs.vsts.me/My Collection/_packaging/TestFeed/nuget/v3/index.json\", \"username\": \"testUser\", \"password\":\"testToken\"}]}";
+            string feedEndPointJsonEnvVar = EnvUtil.BuildTaskExternalEndpoints;
+
+            Environment.SetEnvironmentVariable(feedEndPointJsonEnvVar, feedEndPointJson);
+
+            var result = await vstsCredentialProvider.HandleRequestAsync(new GetAuthenticationCredentialsRequest(sourceUri, false, false, false), CancellationToken.None);
+            Assert.AreEqual(MessageResponseCode.Success, result.ResponseCode);
+            Assert.AreEqual("testUser", result.Username);
+            Assert.AreEqual("testToken", result.Password);
+        }
     }
 }
