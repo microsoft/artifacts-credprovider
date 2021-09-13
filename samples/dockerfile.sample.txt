@@ -1,5 +1,5 @@
-# downloading the dotnet sdk image. Could be any docker sdk image with sdk > 2.1.500
-FROM microsoft/dotnet:2.1-sdk AS dotnet-builder
+# downloading the dotnet sdk image. Could be any docker sdk image with sdk 3.1
+FROM mcr.microsoft.com/dotnet/sdk:3.1 AS dotnet-builder
 ARG FEED_URL
 ARG PAT
 

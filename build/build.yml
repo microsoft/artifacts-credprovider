@@ -4,9 +4,9 @@ parameters:
 
 steps:
 - task: DotNetCoreInstaller@0
-  displayName: Use .NET Core sdk 2.1.0
+  displayName: Use .NET Core sdk 3.1.0
   inputs:
-    version: 2.1.300
+    version: 3.1
 
 - ${{ if eq(parameters.sign, 'true') }}:
   - task: ms-vseng.MicroBuildTasks.30666190-6959-11e5-9f96-f56098202fef.MicroBuildSigningPlugin@1
@@ -60,12 +60,12 @@ steps:
       DropFolder: '$(Build.ArtifactStagingDirectory)\$(BuildConfiguration)\vsix\'
 
 - task: DotNetCoreCLI@2
-  displayName: dotnet publish netcoreapp2.1
+  displayName: dotnet publish netcoreapp3.1
   inputs:
     command: publish
     publishWebProjects: false
     projects: 'CredentialProvider.Microsoft/CredentialProvider.Microsoft.csproj'
-    arguments: '--no-build --framework netcoreapp2.1 --configuration $(BuildConfiguration)'
+    arguments: '--no-build --framework netcoreapp3.1 --configuration $(BuildConfiguration)'
     zipAfterPublish: false
     modifyOutputPath: false
 
@@ -79,7 +79,7 @@ steps:
 - task: CopyFiles@2
   displayName: Copy netcore files into tarball
   inputs:
-    sourceFolder: '$(Build.SourcesDirectory)\CredentialProvider.Microsoft\bin\$(BuildConfiguration)\netcoreapp2.1\publish\'
+    sourceFolder: '$(Build.SourcesDirectory)\CredentialProvider.Microsoft\bin\$(BuildConfiguration)\netcoreapp3.1\publish\'
     contents: '**\*'
     targetFolder: '$(Build.ArtifactStagingDirectory)\tarball\plugins\netcore\CredentialProvider.Microsoft\'
     cleanTargetFolder: true
