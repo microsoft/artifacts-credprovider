@@ -22,7 +22,12 @@ if ([Net.ServicePointManager]::SecurityProtocol.ToString().Split(',').Trim() -no
     [Net.ServicePointManager]::SecurityProtocol += [Net.SecurityProtocolType]::Tls12
 }
 
-$profilePath = [System.Environment]::GetFolderPath([System.Environment+SpecialFolder]::UserProfile)
+if ([System.Environment]::GetFolderPath([System.Environment+SpecialFolder]::UserProfile) -ne '') {
+    $profilePath = [System.Environment]::GetFolderPath([System.Environment+SpecialFolder]::UserProfile)
+} else {
+    $profilePath = $env:UserProfile
+}
+
 $tempPath = [System.IO.Path]::GetTempPath()
 
 $pluginLocation = [System.IO.Path]::Combine($profilePath, ".nuget", "plugins");
