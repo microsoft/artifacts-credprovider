@@ -71,12 +71,12 @@ steps:
       AccessToken: $(DevDivDropManageAccessToken)
 
 - task: DotNetCoreCLI@2
-  displayName: dotnet publish netcoreapp2.1
+  displayName: dotnet publish netcoreapp3.1
   inputs:
     command: publish
     publishWebProjects: false
     projects: 'CredentialProvider.Microsoft/CredentialProvider.Microsoft.csproj'
-    arguments: '--no-build --framework netcoreapp2.1 --configuration $(BuildConfiguration)'
+    arguments: '--no-build --framework netcoreapp3.1 --configuration $(BuildConfiguration)'
     zipAfterPublish: false
     modifyOutputPath: false
 
@@ -90,7 +90,7 @@ steps:
 - task: CopyFiles@2
   displayName: Copy netcore files into tarball
   inputs:
-    sourceFolder: '$(Build.SourcesDirectory)\CredentialProvider.Microsoft\bin\$(BuildConfiguration)\netcoreapp2.1\publish\'
+    sourceFolder: '$(Build.SourcesDirectory)\CredentialProvider.Microsoft\bin\$(BuildConfiguration)\netcoreapp3.1\publish\'
     contents: '**\*'
     targetFolder: '$(Build.ArtifactStagingDirectory)\tarball\plugins\netcore\CredentialProvider.Microsoft\'
     cleanTargetFolder: true
