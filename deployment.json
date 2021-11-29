@@ -1,0 +1,266 @@
+{
+  "id": "/subscriptions/f1c3ac69-665a-49c2-bbd1-0112ef61472c/resourceGroups/Rayala/providers/Microsoft.Resources/deployments/CreateVm-MicrosoftWindowsServer.WindowsServer-201-20210408182431",
+  "name": "CreateVm-MicrosoftWindowsServer.WindowsServer-201-20210408182431",
+  "type": "Microsoft.Resources/deployments",
+  "tags": {
+    "primaryResourceId": "/subscriptions/f1c3ac69-665a-49c2-bbd1-0112ef61472c/resourcegroups/Rayala/providers/Microsoft.Compute/virtualMachines/saishivavm1",
+    "marketplaceItemId": "Microsoft.VirtualMachine",
+    "provisioningHash": "SolutionProvider"
+  },
+  "properties": {
+    "templateHash": "6399724718921101059",
+    "parameters": {
+      "location": {
+        "type": "String",
+        "value": "centralus"
+      },
+      "networkInterfaceName": {
+        "type": "String",
+        "value": "saishivavm1797"
+      },
+      "networkSecurityGroupName": {
+        "type": "String",
+        "value": "saishivavm1nsg358"
+      },
+      "networkSecurityGroupRules": {
+        "type": "Array",
+        "value": [
+          {
+            "name": "RDP",
+            "properties": {
+              "priority": 300,
+              "protocol": "TCP",
+              "access": "Allow",
+              "direction": "Inbound",
+              "sourceAddressPrefix": "*",
+              "sourcePortRange": "*",
+              "destinationAddressPrefix": "*",
+              "destinationPortRange": "3389"
+            }
+          },
+          {
+            "name": "HTTP",
+            "properties": {
+              "priority": 320,
+              "protocol": "TCP",
+              "access": "Allow",
+              "direction": "Inbound",
+              "sourceAddressPrefix": "*",
+              "sourcePortRange": "*",
+              "destinationAddressPrefix": "*",
+              "destinationPortRange": "80"
+            }
+          },
+          {
+            "name": "HTTPS",
+            "properties": {
+              "priority": 340,
+              "protocol": "TCP",
+              "access": "Allow",
+              "direction": "Inbound",
+              "sourceAddressPrefix": "*",
+              "sourcePortRange": "*",
+              "destinationAddressPrefix": "*",
+              "destinationPortRange": "443"
+            }
+          },
+          {
+            "name": "SSH",
+            "properties": {
+              "priority": 360,
+              "protocol": "TCP",
+              "access": "Allow",
+              "direction": "Inbound",
+              "sourceAddressPrefix": "*",
+              "sourcePortRange": "*",
+              "destinationAddressPrefix": "*",
+              "destinationPortRange": "22"
+            }
+          }
+        ]
+      },
+      "subnetName": {
+        "type": "String",
+        "value": "default"
+      },
+      "virtualNetworkId": {
+        "type": "String",
+        "value": "/subscriptions/f1c3ac69-665a-49c2-bbd1-0112ef61472c/resourceGroups/Rayala/providers/Microsoft.Network/virtualNetworks/Rayala-vnet"
+      },
+      "publicIpAddressName": {
+        "type": "String",
+        "value": "saishivavm1ip870"
+      },
+      "publicIpAddressType": {
+        "type": "String",
+        "value": "Dynamic"
+      },
+      "publicIpAddressSku": {
+        "type": "String",
+        "value": "Basic"
+      },
+      "virtualMachineName": {
+        "type": "String",
+        "value": "saishivavm1"
+      },
+      "virtualMachineComputerName": {
+        "type": "String",
+        "value": "saishivavm1"
+      },
+      "virtualMachineRG": {
+        "type": "String",
+        "value": "Rayala"
+      },
+      "osDiskType": {
+        "type": "String",
+        "value": "Standard_LRS"
+      },
+      "virtualMachineSize": {
+        "type": "String",
+        "value": "Standard_DS1_v2"
+      },
+      "adminUsername": {
+        "type": "String",
+        "value": "saishiva"
+      },
+      "adminPassword": {
+        "type": "SecureString"
+      },
+      "patchMode": {
+        "type": "String",
+        "value": "AutomaticByOS"
+      },
+      "enableHotpatching": {
+        "type": "Bool",
+        "value": false
+      },
+      "availabilitySetName": {
+        "type": "String",
+        "value": "vsm"
+      },
+      "autoShutdownStatus": {
+        "type": "String",
+        "value": "Enabled"
+      },
+      "autoShutdownTime": {
+        "type": "String",
+        "value": "19:00"
+      },
+      "autoShutdownTimeZone": {
+        "type": "String",
+        "value": "UTC"
+      },
+      "autoShutdownNotificationStatus": {
+        "type": "String",
+        "value": "Enabled"
+      },
+      "autoShutdownNotificationLocale": {
+        "type": "String",
+        "value": "en"
+      },
+      "autoShutdownNotificationEmail": {
+        "type": "String",
+        "value": "harishg@connectio.co.in"
+      }
+    },
+    "mode": "Incremental",
+    "debugSetting": {
+      "detailLevel": "None"
+    },
+    "provisioningState": "Running",
+    "timestamp": "2021-04-08T12:56:28.498795Z",
+    "duration": "PT26.7570628S",
+    "correlationId": "d4412a49-9f8e-43e2-bee5-c14a8ac4ab3c",
+    "providers": [
+      {
+        "namespace": "Microsoft.Network",
+        "resourceTypes": [
+          {
+            "resourceType": "networkInterfaces",
+            "locations": [
+              "centralus"
+            ]
+          },
+          {
+            "resourceType": "networkSecurityGroups",
+            "locations": [
+              "centralus"
+            ]
+          },
+          {
+            "resourceType": "publicIpAddresses",
+            "locations": [
+              "centralus"
+            ]
+          }
+        ]
+      },
+      {
+        "namespace": "Microsoft.Compute",
+        "resourceTypes": [
+          {
+            "resourceType": "virtualMachines",
+            "locations": [
+              "centralus"
+            ]
+          }
+        ]
+      },
+      {
+        "namespace": "Microsoft.DevTestLab",
+        "resourceTypes": [
+          {
+            "resourceType": "schedules",
+            "locations": [
+              "centralus"
+            ]
+          }
+        ]
+      }
+    ],
+    "dependencies": [
+      {
+        "dependsOn": [
+          {
+            "id": "/subscriptions/f1c3ac69-665a-49c2-bbd1-0112ef61472c/resourceGroups/Rayala/providers/Microsoft.Network/networkSecurityGroups/saishivavm1nsg358",
+            "resourceType": "Microsoft.Network/networkSecurityGroups",
+            "resourceName": "saishivavm1nsg358"
+          },
+          {
+            "id": "/subscriptions/f1c3ac69-665a-49c2-bbd1-0112ef61472c/resourceGroups/Rayala/providers/Microsoft.Network/publicIpAddresses/saishivavm1ip870",
+            "resourceType": "Microsoft.Network/publicIpAddresses",
+            "resourceName": "saishivavm1ip870"
+          }
+        ],
+        "id": "/subscriptions/f1c3ac69-665a-49c2-bbd1-0112ef61472c/resourceGroups/Rayala/providers/Microsoft.Network/networkInterfaces/saishivavm1797",
+        "resourceType": "Microsoft.Network/networkInterfaces",
+        "resourceName": "saishivavm1797"
+      },
+      {
+        "dependsOn": [
+          {
+            "id": "/subscriptions/f1c3ac69-665a-49c2-bbd1-0112ef61472c/resourceGroups/Rayala/providers/Microsoft.Network/networkInterfaces/saishivavm1797",
+            "resourceType": "Microsoft.Network/networkInterfaces",
+            "resourceName": "saishivavm1797"
+          }
+        ],
+        "id": "/subscriptions/f1c3ac69-665a-49c2-bbd1-0112ef61472c/resourceGroups/Rayala/providers/Microsoft.Compute/virtualMachines/saishivavm1",
+        "resourceType": "Microsoft.Compute/virtualMachines",
+        "resourceName": "saishivavm1"
+      },
+      {
+        "dependsOn": [
+          {
+            "id": "/subscriptions/f1c3ac69-665a-49c2-bbd1-0112ef61472c/resourceGroups/Rayala/providers/Microsoft.Compute/virtualMachines/saishivavm1",
+            "resourceType": "Microsoft.Compute/virtualMachines",
+            "resourceName": "saishivavm1"
+          }
+        ],
+        "id": "/subscriptions/f1c3ac69-665a-49c2-bbd1-0112ef61472c/resourceGroups/Rayala/providers/Microsoft.DevTestLab/schedules/shutdown-computevm-saishivavm1",
+        "resourceType": "Microsoft.DevTestLab/schedules",
+        "resourceName": "shutdown-computevm-saishivavm1"
+      }
+    ],
+    "validationLevel": "Template"
+  }
+}

@@ -1,0 +1,38 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "vmName": {"type": "string"},
+        "diskName": {"type": "string"},
+        "location": {"type": "string"},
+        "numberOfDataDisks": {"type": "int"}
+    },
+    "functions": [],
+    "variables": {},
+    "resources": [
+        {
+            "type": "Microsoft.Compute/virtualMachines",
+            "name": "[parameters('vmName')]",
+            "location": "[parameters('location')]",
+            "apiVersion": "2020-12-01",
+            "properties": {
+                // Create and Attach Data Disk to selected Virtual Machine
+                "storageProfile": {
+                    "copy": [
+                        {
+                            "name": "dataDisks",
+                            "count": "[parameters('numberOfDataDisks')]",
+                            "input": {
+                                "name":"[concat(parameters('diskName'),copyIndex('dataDisks',1))]",
+                                "diskSizeGB": 1023,
+                                "lun": "[copyIndex('dataDisks')]",
+                                "createOption": "Empty"
+                            }
+                        }
+                    ]
+                }
+            }
+        }
+    ],
+    "outputs": {}
+}

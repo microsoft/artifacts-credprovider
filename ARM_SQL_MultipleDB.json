@@ -1,0 +1,73 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "serverName": {
+            "type": "string",
+            "metadata": {
+                "description": "Name for the SQL server"
+            }
+        },
+        "databaseNames": {
+            "type": "array",
+            "defaultValue": [
+                "HR Department",
+                "Finance Department",
+                "IT Department"
+            ],
+            "metadata": {
+                "description": "Array of names for the SQL databases"
+            }
+        },
+        "location": {
+            "type": "string",
+            "metadata": {
+                "description": "Location for server and DBs"
+            }
+        },
+        "adminUser": {
+            "type": "string",
+            "metadata": {
+                "description": "Username for admin"
+            }
+        },
+        "adminPassword": {
+            "type": "securestring",
+            "metadata": {
+                "description": "Password for admin"
+            }
+        }
+    },
+    "variables": {},
+    "resources": [
+        {
+            "type": "Microsoft.Sql/servers",
+            "apiVersion": "2020-02-02-preview",
+            "name": "[parameters('serverName')]",
+            "location": "[parameters('location')]",
+            "properties": {
+                "administratorLogin": "[parameters('adminUser')]",
+                "administratorLoginPassword": "[parameters('adminPassword')]",
+                "version": "12.0"
+            }
+        },
+        {
+            "apiVersion": "2020-02-02-preview",
+            "type": "Microsoft.Sql/servers/databases",
+            "sku": {
+                "name": "S0",
+                "tier": "Standard"
+            },
+            "location": "[parameters('location')]",
+            "name": "[concat(string(parameters('serverName')), '/', string(parameters('databaseNames')[copyIndex()]))]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Sql/servers', parameters('serverName'))]"
+            ],
+            "copy": {
+                "name": "databaseCopy",
+                "count": "[length(parameters('databaseNames'))]"
+            },
+            "properties": {}
+        }
+    ]
+}

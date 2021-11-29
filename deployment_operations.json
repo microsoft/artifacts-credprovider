@@ -1,0 +1,74 @@
+[
+  {
+    "id": "/subscriptions/f1c3ac69-665a-49c2-bbd1-0112ef61472c/resourceGroups/Rayala/providers/Microsoft.Resources/deployments/CreateVm-MicrosoftWindowsServer.WindowsServer-201-20210408182431/operations/9618791C15760881",
+    "operationId": "9618791C15760881",
+    "properties": {
+      "provisioningOperation": "Create",
+      "provisioningState": "Running",
+      "timestamp": "2021-04-08T12:56:28.5414853Z",
+      "duration": "PT11.9266954S",
+      "trackingId": "c29cf8cf-7947-4845-b9d5-729781fe847f",
+      "serviceRequestId": "b51113a3-49a8-4ad8-990e-533fd08e24ab",
+      "statusCode": "Created",
+      "targetResource": {
+        "id": "/subscriptions/f1c3ac69-665a-49c2-bbd1-0112ef61472c/resourceGroups/Rayala/providers/Microsoft.Compute/virtualMachines/saishivavm1",
+        "resourceType": "Microsoft.Compute/virtualMachines",
+        "resourceName": "saishivavm1"
+      }
+    }
+  },
+  {
+    "id": "/subscriptions/f1c3ac69-665a-49c2-bbd1-0112ef61472c/resourceGroups/Rayala/providers/Microsoft.Resources/deployments/CreateVm-MicrosoftWindowsServer.WindowsServer-201-20210408182431/operations/D40382E1143DF4EF",
+    "operationId": "D40382E1143DF4EF",
+    "properties": {
+      "provisioningOperation": "Create",
+      "provisioningState": "Succeeded",
+      "timestamp": "2021-04-08T12:56:23.51313Z",
+      "duration": "PT6.8983401S",
+      "trackingId": "99d60144-ff61-468d-9e41-4821b2ca8cb3",
+      "serviceRequestId": "316f6875-1b32-4779-b6bb-910921e24ba7",
+      "statusCode": "Created",
+      "targetResource": {
+        "id": "/subscriptions/f1c3ac69-665a-49c2-bbd1-0112ef61472c/resourceGroups/Rayala/providers/Microsoft.Network/networkInterfaces/saishivavm1797",
+        "resourceType": "Microsoft.Network/networkInterfaces",
+        "resourceName": "saishivavm1797"
+      }
+    }
+  },
+  {
+    "id": "/subscriptions/f1c3ac69-665a-49c2-bbd1-0112ef61472c/resourceGroups/Rayala/providers/Microsoft.Resources/deployments/CreateVm-MicrosoftWindowsServer.WindowsServer-201-20210408182431/operations/235BE353E0F5CF98",
+    "operationId": "235BE353E0F5CF98",
+    "properties": {
+      "provisioningOperation": "Create",
+      "provisioningState": "Succeeded",
+      "timestamp": "2021-04-08T12:56:16.451464Z",
+      "duration": "PT10.1139371S",
+      "trackingId": "51a1dfd1-ee73-4797-ab20-03b59bc0ddd0",
+      "serviceRequestId": "970bde28-82f2-4783-b3f1-f0bc092e28b3",
+      "statusCode": "OK",
+      "targetResource": {
+        "id": "/subscriptions/f1c3ac69-665a-49c2-bbd1-0112ef61472c/resourceGroups/Rayala/providers/Microsoft.Network/networkSecurityGroups/saishivavm1nsg358",
+        "resourceType": "Microsoft.Network/networkSecurityGroups",
+        "resourceName": "saishivavm1nsg358"
+      }
+    }
+  },
+  {
+    "id": "/subscriptions/f1c3ac69-665a-49c2-bbd1-0112ef61472c/resourceGroups/Rayala/providers/Microsoft.Resources/deployments/CreateVm-MicrosoftWindowsServer.WindowsServer-201-20210408182431/operations/74423E7FB8133582",
+    "operationId": "74423E7FB8133582",
+    "properties": {
+      "provisioningOperation": "Create",
+      "provisioningState": "Succeeded",
+      "timestamp": "2021-04-08T12:56:16.5831983Z",
+      "duration": "PT10.2456714S",
+      "trackingId": "6ba5b14f-b942-4a4b-ae35-422c2ee7f671",
+      "serviceRequestId": "9e1dc950-b15b-4ae7-a397-8fab97a83c94",
+      "statusCode": "OK",
+      "targetResource": {
+        "id": "/subscriptions/f1c3ac69-665a-49c2-bbd1-0112ef61472c/resourceGroups/Rayala/providers/Microsoft.Network/publicIpAddresses/saishivavm1ip870",
+        "resourceType": "Microsoft.Network/publicIpAddresses",
+        "resourceName": "saishivavm1ip870"
+      }
+    }
+  }
+]

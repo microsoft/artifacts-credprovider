@@ -1,0 +1,202 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "location": {"type": "string"},
+        "publicIpName": {"type": "string"},
+        "nsgName": {"type": "string"},
+        "networkName": {"type": "string"},
+        "subnetName": {"type": "string"},
+        "nicName": {"type": "string"},
+        "vmName": {"type": "string"},
+        "OS": {
+            "type": "string",
+            "defaultValue": "Windows",
+            "allowedValues": [
+                "Ubuntu",
+                "Windows"
+            ]
+        },
+        "adminUsername": {"type": "string"},
+        "adminPassword": {"type": "securestring"},
+        "vmSize": {"type": "string",
+        "defaultValue":"Standard_A1_v2"
+        }
+    },
+    "functions": [],
+    "variables": {
+        "addressPrefixes": "10.2.0.0/16",
+        "subnet1":"[concat(parameters('subnetName'),1)]",
+        "subnet2":"[concat(parameters('subnetName'),2)]",
+        "subnet1_prefix":"10.2.1.0/24",
+        "subnet2_prefix":"10.2.2.0/24",
+        "subnet1_Ref": "[resourceId('Microsoft.Network/virtualNetworks/subnets', parameters('networkName'),variables('subnet1'))]",
+        "subnet2_Ref": "[resourceId('Microsoft.Network/virtualNetworks/subnets', parameters('networkName'),variables('subnet2'))]",
+        "imageReference": {
+            "Windows": {
+                "publisher": "MicrosoftWindowsServer",
+                "offer": "WindowsServer",
+                "sku": "2019-Datacenter",
+                "version": "latest"
+            }
+        }
+    },
+    "resources": [
+        {
+            "type": "Microsoft.Network/publicIPAddresses",
+            "apiVersion": "2020-08-01",
+            "name":"[concat(parameters('publicIpName'),copyIndex('public_copy',1))]",
+            "location": "[parameters('location')]",
+            "sku": {"name": "Basic","tier": "Regional"},
+            "properties": {
+                "publicIPAddressVersion": "IPv4",
+                "publicIPAllocationMethod": "Dynamic"
+            },
+            "copy": {
+                "name": "public_copy",
+                "count": 2
+            }
+        },
+        {
+            "type": "Microsoft.Network/networkSecurityGroups",
+            "apiVersion": "2020-08-01",
+            "name":"[parameters('nsgName')]",
+            "location": "[parameters('location')]",
+            "properties": {
+                "securityRules": [
+                    {
+                        "name": "HTTP",
+                        "properties": {
+                            "description":"Allow HTTP",
+                            "protocol": "Tcp",
+                            "sourcePortRange": "*",
+                            "destinationPortRange": "80",
+                            "sourceAddressPrefix": "Internet",
+                            "destinationAddressPrefix":"*",
+                            "access": "Allow",
+                            "priority": 100,
+                            "direction": "Inbound"
+                        }
+                    },
+                    {
+                        "name": "RDP",
+                        "properties": {
+                            "description":"Allow RDP",
+                            "protocol": "Tcp",
+                            "sourcePortRange": "*",
+                            "destinationPortRange": "3389",
+                            "sourceAddressPrefix": "Internet",
+                            "destinationAddressPrefix":"*",
+                            "access": "Allow",
+                            "priority": 300,
+                            "direction": "Inbound"
+                        }
+                    }
+                ]
+            }
+        },
+        {
+            "type": "Microsoft.Network/virtualNetworks",
+            "apiVersion": "2020-08-01",
+            "name": "[parameters('networkName')]",
+            "location": "[parameters('location')]",
+            "dependsOn": ["[resourceId('Microsoft.Network/networkSecurityGroups', parameters('nsgName'))]"],
+            "properties": {
+                "addressSpace":{
+                    "addressPrefixes": [
+                        "[variables('addressPrefixes')]"
+                    ]
+                },
+                "subnets": [
+                    {
+                        "name": "[variables('subnet1')]",
+                        "properties": {
+                            "addressPrefix": "[variables('subnet1_prefix')]",
+                            "privateEndpointNetworkPolicies":"Enabled",
+                            "privateLinkServiceNetworkPolicies":"Enabled",
+                            "networkSecurityGroup": {"id": "[resourceId('Microsoft.Network/networkSecurityGroups', parameters('nsgName'))]"}
+                        }
+                    },
+                    {
+                        "name": "[variables('subnet2')]",
+                        "properties": {
+                            "addressPrefix": "[variables('subnet2_prefix')]",
+                            "privateEndpointNetworkPolicies":"Enabled",
+                            "privateLinkServiceNetworkPolicies":"Enabled",
+                            "networkSecurityGroup": {"id": "[resourceId('Microsoft.Network/networkSecurityGroups', parameters('nsgName'))]"}
+                        }
+                    }
+                ],
+                "enableDdosProtection": false,
+                "enableVmProtection": false
+            }
+        },
+        {
+            "type": "Microsoft.Network/networkInterfaces",
+            "apiVersion": "2020-08-01",
+            "name": "[concat(parameters('nicName'),copyIndex('nic_copy',1))]",
+            "location": "[parameters('location')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Network/virtualNetworks', parameters('networkName'))]",
+                "[resourceId('Microsoft.Network/publicIPAddresses', concat(parameters('publicIpName'),copyIndex(1)))]"
+            ],
+            "properties": {
+                "networkSecurityGroup": {"id": "[resourceId('Microsoft.Network/networkSecurityGroups', parameters('nsgName'))]"},
+                "ipConfigurations": [
+                    {
+                        "name": "IpConfig1",
+                        "properties": {
+                            "privateIPAllocationMethod": "Dynamic",
+                            "subnet": {"id": "[if(equals(mod(copyIndex(), 2),0), variables('subnet1_Ref'), variables('subnet2_Ref'))]"},
+                            "publicIPAddress": {"id": "[resourceId('Microsoft.Network/publicIPAddresses', concat(parameters('publicIpName'),copyIndex(1)))]"}
+                        }
+                    }
+                ]
+            },
+            "copy": {
+                "name": "nic_copy",
+                "count":2
+            }
+        },
+        {
+            "type": "Microsoft.Compute/virtualMachines",
+            "name": "[concat(parameters('vmName'), copyIndex(1))]",
+            "apiVersion": "2020-06-01",
+            "location": "[parameters('location')]",
+            "copy": {
+                "name": "virtualMachineLoop",
+                "count": 2
+            },
+            "dependsOn": [
+                "[resourceId('Microsoft.Network/virtualNetworks', parameters('networkName'))]",
+                "[resourceId('Microsoft.Network/networkInterfaces', concat(parameters('nicName'), copyindex(1)))]",
+                "[resourceId('Microsoft.Network/networkSecurityGroups', parameters('nsgName'))]",
+                "[resourceId('Microsoft.Network/publicIPAddresses', concat(parameters('publicIpName'),copyIndex(1)))]"
+            ],
+            "properties": {
+                "hardwareProfile": {
+                    "vmSize": "[parameters('vmSize')]"
+                },
+                "osProfile": {
+                    "computerName": "[concat('vm', copyIndex())]",
+                    "adminUsername": "[parameters('adminUsername')]",
+                    "adminPassword": "[parameters('adminPassword')]"
+                },
+                "storageProfile": {
+                    "imageReference": "[variables('imageReference')[parameters('OS')]]",
+                    "osDisk": {
+                        "createOption": "FromImage"
+                    }
+                },
+                "networkProfile": {
+                    "networkInterfaces": [
+                    {
+                        "id": "[resourceId('Microsoft.Network/networkInterfaces', concat(parameters('nicName'), copyindex(1)))]"
+                    }
+                    ]
+                }
+            }
+        }
+    ],
+    "outputs": {}
+}
