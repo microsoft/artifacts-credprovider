@@ -285,6 +285,11 @@ Run the credential provider directly with the following command: `C:\Users\<user
 
 In an Azure DevOps Pipeline, verify you have set the right permissions for the pipeline by following the [docs](https://docs.microsoft.com/en-us/azure/devops/artifacts/feeds/feed-permissions?view=azure-devops#package-permissions-in-azure-pipelines).
 
+#### Cred provider used to work but now it asks me to update to .NET Core 3.1.
+Because .NET Core 2 is [out of support](https://dotnet.microsoft.com/platform/support/policy/dotnet-core#lifecycle), you should update to .NET Core 3.1 or greater to keep using the latest versions of the credential provider. Starting from version 
+
+If you keep using .NET Core 2.1 you must use Artifacts Credential Provider version 0.1.28 or lower.
+
 ## Contribute
 
 This project welcomes contributions and suggestions; see [CONTRIBUTING](CONTRIBUTING.md) for more information.
