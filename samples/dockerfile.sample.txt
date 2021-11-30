@@ -1,4 +1,4 @@
-# This sample is testsed with artifacts credential provider version 0.1.28 and is incompatible with greatedr versions.
+# This sample is for Artifacts Credential Provider version 0.1.28 and it is incompatible with greater versions due to the .NET Core version this sample uses.
 
 # downloading the dotnet sdk image. Could be any docker sdk image with sdk > 2.1.500
 FROM microsoft/dotnet:2.1-sdk AS dotnet-builder
