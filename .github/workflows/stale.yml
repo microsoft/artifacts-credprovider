@@ -17,6 +17,7 @@ jobs:
         repo-token: ${{ secrets.GITHUB_TOKEN }}
         stale-issue-message: "In order to consolidate to fewer feedback channels, we've moved suggestions and issue reporting to [Developer Community](https://developercommunity.visualstudio.com/spaces/21/index.html)."
         stale-issue-label: 'redirect-to-dev-community'
+        exempt-issue-labels: 'bug'
         days-before-stale: 1
         days-before-close: 1
         days-before-pr-close: -1
