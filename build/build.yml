@@ -4,9 +4,9 @@ parameters:
 
 steps:
 - task: DotNetCoreInstaller@0
-  displayName: Use .NET Core sdk 3.1.0
+  displayName: Use .NET Core sdk 3.1.21
   inputs:
-    version: 3.1
+    version: 3.1.21
 
 - ${{ if eq(parameters.sign, 'true') }}:
   - task: ms-vseng.MicroBuildTasks.30666190-6959-11e5-9f96-f56098202fef.MicroBuildSigningPlugin@1
