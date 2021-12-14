@@ -9,6 +9,7 @@ The Azure Artifacts Credential Provider automates the acquisition of credentials
 -   [Use](#use)
 -   [Session Token Cache Locations](#session-token-cache-locations)
 -   [Environment Variables](#environment-variables)
+-   [Version 1.0.0](#version-1.0.0)
 -   [Help](#help)
 -   [Contribute](#contribute)
 
@@ -144,6 +145,15 @@ The Credential Provider accepts a set of environment variables. Not all of them 
 ```javascript
  {"endpointCredentials": [{"endpoint":"http://example.index.json", "username":"optional", "password":"accesstoken"}]}
 ```
+
+## Release version 1.0.0
+
+Version 1.0.0 was released in [date here]. It changed the required version of .NET Core from 2.1 to 3.1. 
+
+### Breaking changes
+
+- .NET Core 3.1 or greater is now required to run the netcore credential provider.
+- When calling the netcore credential provider directly using dotnet, you now must call the CredentialProvider.Microsoft.exe instead of CredentialProvider.Microsoft.dll. With earlier versions than 1.0.0 you must still call the .dll.
 
 ## Help
 
