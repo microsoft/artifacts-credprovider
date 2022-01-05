@@ -1,9 +1,6 @@
 resources:
 - repo: self
 
-queue:
-  demands: msbuild
-
 pool:
   vmImage: windows-latest
 
