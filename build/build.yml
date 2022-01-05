@@ -61,6 +61,7 @@ steps:
     displayName: Upload VSTS Drop
     inputs:
       DropFolder: '$(Build.ArtifactStagingDirectory)\$(BuildConfiguration)\vsix\'
+      AccessToken: $(DevDivDropManageAccessToken)
 
 - task: DotNetCoreCLI@2
   displayName: dotnet publish netcoreapp2.1
