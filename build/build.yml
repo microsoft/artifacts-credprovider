@@ -3,10 +3,11 @@ parameters:
   nuspecProperties: ''
 
 steps:
-- task: DotNetCoreInstaller@0
-  displayName: Use .NET Core sdk 2.1.0
+- task: UseDotNet@2
+  displayName: Use .NET Core 6 SDK
   inputs:
-    version: 2.1.300
+    packageType: sdk
+    version: 6.x
 
 - ${{ if eq(parameters.sign, 'true') }}:
   - task: ms-vseng.MicroBuildTasks.30666190-6959-11e5-9f96-f56098202fef.MicroBuildSigningPlugin@4
