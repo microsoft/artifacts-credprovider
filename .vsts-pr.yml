@@ -3,6 +3,7 @@ resources:
 
 queue:
   demands: msbuild
+  vmImage: windows-latest
 
 trigger: none
 
