@@ -3,19 +3,29 @@ parameters:
   nuspecProperties: ''
 
 steps:
-- task: DotNetCoreInstaller@0
-  displayName: Use .NET Core sdk 2.1.0
+- task: UseDotNet@2
+  displayName: Install .NET Core 2.1 runtime
   inputs:
-    version: 2.1.300
+    packageType: runtime
+    version: 2.1.x
+
+- task: UseDotNet@2
+  displayName: Use .NET 6 SDK
+  inputs:
+    packageType: sdk
+    version: 6.x
 
 - ${{ if eq(parameters.sign, 'true') }}:
-  - task: ms-vseng.MicroBuildTasks.30666190-6959-11e5-9f96-f56098202fef.MicroBuildSigningPlugin@1
+  - task: ms-vseng.MicroBuildTasks.30666190-6959-11e5-9f96-f56098202fef.MicroBuildSigningPlugin@4
     displayName: Install Signing Plugin
     inputs:
       signType: '$(SignType)'
+      feedSource: 'https://pkgs.dev.azure.com/mseng/_packaging/MicroBuildToolset/nuget/v3/index.json'
 
-  - task: ms-vseng.MicroBuildTasks.32f78468-e895-4f47-962c-58a699361df8.MicroBuildSwixPlugin@1
+  - task: ms-vseng.MicroBuildTasks.32f78468-e895-4f47-962c-58a699361df8.MicroBuildSwixPlugin@4
     displayName: Install Swix Plugin
+    inputs:
+      feedSource: 'https://pkgs.dev.azure.com/mseng/_packaging/MicroBuildToolset/nuget/v3/index.json'
 
   - task: NuGetCommand@2
     displayName: NuGet restore
@@ -54,10 +64,11 @@ steps:
       configuration: '$(BuildConfiguration)'
       msbuildArguments: '/p:OutputPath=$(Build.ArtifactStagingDirectory)\$(BuildConfiguration)\vsix\'
 
-  - task: ms-vseng.MicroBuildTasks.4305a8de-ba66-4d8b-b2d1-0dc4ecbbf5e8.MicroBuildUploadVstsDropFolder@1
+  - task: ms-vseng.MicroBuildTasks.4305a8de-ba66-4d8b-b2d1-0dc4ecbbf5e8.MicroBuildUploadVstsDropFolder@2
     displayName: Upload VSTS Drop
     inputs:
       DropFolder: '$(Build.ArtifactStagingDirectory)\$(BuildConfiguration)\vsix\'
+      AccessToken: $(DevDivDropManageAccessToken)
 
 - task: DotNetCoreCLI@2
   displayName: dotnet publish netcoreapp2.1
