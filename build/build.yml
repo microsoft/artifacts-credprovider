@@ -70,22 +70,23 @@ steps:
       DropFolder: '$(Build.ArtifactStagingDirectory)\$(BuildConfiguration)\vsix\'
       AccessToken: $(DevDivDropManageAccessToken)
 
-- task: DotNetCoreCLI@2
-  displayName: dotnet publish netcoreapp3.1
-  inputs:
-    command: publish
-    publishWebProjects: false
-    projects: 'CredentialProvider.Microsoft/CredentialProvider.Microsoft.csproj'
-    arguments: '--no-build --framework netcoreapp3.1 --configuration $(BuildConfiguration)'
-    zipAfterPublish: false
-    modifyOutputPath: false
-
 - ${{ if ne(parameters.sign, 'true') }}:
   - task: DotNetCoreCLI@2
     displayName: dotnet test
     inputs:
       command: test
       projects: 'CredentialProvider.Microsoft.Tests/CredentialProvider.Microsoft.Tests.csproj'
+
+- task: DotNetCoreCLI@2
+  displayName: dotnet publish net6.0
+  inputs:
+    command: publish
+    publishWebProjects: false
+    projects: 'CredentialProvider.Microsoft/CredentialProvider.Microsoft.csproj'
+    arguments: '--no-build --framework net6.0 --configuration $(BuildConfiguration)'
+    zipAfterPublish: false
+    modifyOutputPath: false
+
 
 # Create .NET 6.0 release for netcore users
 - task: CopyFiles@2
@@ -126,6 +127,16 @@ steps:
     replaceExistingArchive: true
 
 # Clean target folder and create netcore 3.1 and netfx releases
+- task: DotNetCoreCLI@2
+  displayName: dotnet publish netcoreapp3.1
+  inputs:
+    command: publish
+    publishWebProjects: false
+    projects: 'CredentialProvider.Microsoft/CredentialProvider.Microsoft.csproj'
+    arguments: '--no-build --framework netcoreapp3.1 --configuration $(BuildConfiguration)'
+    zipAfterPublish: false
+    modifyOutputPath: false
+
 - task: CopyFiles@2
   displayName: Copy netcore 3.1 files into tarball
   inputs:
