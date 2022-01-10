@@ -87,7 +87,7 @@ steps:
       command: test
       projects: 'CredentialProvider.Microsoft.Tests/CredentialProvider.Microsoft.Tests.csproj'
 
-# Create extra .NET 6.0 release for netcore users
+# Create .NET 6.0 release for netcore users
 - task: CopyFiles@2
   displayName: Copy net6.0 files into tarball
   inputs:
