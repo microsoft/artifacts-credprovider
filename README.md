@@ -9,7 +9,7 @@ The Azure Artifacts Credential Provider automates the acquisition of credentials
 -   [Use](#use)
 -   [Session Token Cache Locations](#session-token-cache-locations)
 -   [Environment Variables](#environment-variables)
--   [Version 1.0.0](#version-1.0.0)
+-   [Release version 1.0.0](#release-version-1.0.0)
 -   [Help](#help)
 -   [Contribute](#contribute)
 
@@ -25,7 +25,7 @@ Install [Visual Studio version 15.9-preview1 or later](https://visualstudio.micr
 
 ### dotnet
 
-[dotnet SDK](https://www.microsoft.com/net/download) version `2.1.400` or later is required on Windows. The recommended dotnet version is `3.1.200` or later as it has some important bug fixes related to cancellations and timeouts. 
+The default installation requires [dotnet SDK](https://www.microsoft.com/net/download) version `3.1.x`. The recommended dotnet version is `3.1.200` or later as it has some important bug fixes related to cancellations and timeouts. 
 
 ## Setup
 
@@ -70,6 +70,8 @@ Examples:
 3. Copy the `netcore` (and 'netfx' for msbuild /t:restore command) directory from the extracted archive to `$HOME/.nuget/plugins`
 
 Using the above is recommended, but as per [NuGet's plugin discovery rules](https://github.com/NuGet/Home/wiki/NuGet-cross-plat-authentication-plugin#plugin-installation-and-discovery), alternatively you can install the credential provider to a location you prefer, and then set the environment variable NUGET_PLUGIN_PATHS to the .dll of the credential provider found in plugins\netcore\CredentialProvider.Microsoft\CredentialProvider.Microsoft.dll. For example, $env:NUGET_PLUGIN_PATHS="my-alternative-location\CredentialProvider.Microsoft.dll".
+
+Users requiring .NET 6 can manually downloade the .NET 6 version `Microsoft.Net6.NuGet.CredentialProvider` of the [1.0.0 release](https://github.com/microsoft/artifacts-credprovider/releases/tag/v1.0.0).
 
 ### Automatic usage
 - MSBuild in Visual Studio Developer Command Prompt with Visual Studio 15.9+
@@ -148,12 +150,9 @@ The Credential Provider accepts a set of environment variables. Not all of them 
 
 ## Release version 1.0.0
 
-Version 1.0.0 was released in [date here]. It changed the required version of .NET Core from 2.1 to 3.1. 
+Release version [1.0.0](https://github.com/microsoft/artifacts-credprovider/releases/tag/v1.0.0) was released in January 2022. Netcore version 1.0.0 of the Artifacts Credential Provider requires .NET Core 3.1. Older versions than 1.0.0 require .NET Core 2.1. 
 
-### Breaking changes
-
-- .NET Core 3.1 or greater is now required to run the netcore credential provider.
-- When calling the netcore credential provider directly using dotnet, you now must call the CredentialProvider.Microsoft.exe instead of CredentialProvider.Microsoft.dll. With earlier versions than 1.0.0 you must still call the .dll.
+[1.0.0 release](https://github.com/microsoft/artifacts-credprovider/releases/tag/v1.0.0) also publishes the credential provider for .NET 6 users as `Microsoft.Net6.NuGet.CredentialProvider`.
 
 ## Help
 

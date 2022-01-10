@@ -9,16 +9,3 @@ trigger: none
 variables:
   BuildConfiguration: 'Debug'
   TeamName: 'Package Experience'
-
-stages:
-- stage:
-  pool:
-    vmImage: windows-latest
-  jobs:
-  - job:
-    pool:
-      vmImage: 'windows-latest'
-    steps:
-    - template: build/build.yml
-      parameters:
-        nuspecProperties: 'VersionSuffix=-PR-$(Build.BuildNumber)'
