@@ -200,6 +200,12 @@ steps:
     publishVstsFeed: '54754426-96db-4f6e-8a3a-64265d1cc147'
   condition: eq(variables['PushNupkg'], 'true')
 
+- task: ManifestGeneratorTask@0
+  displayName: 'SBOM Generator'
+  inputs:
+    BuildDropPath: '$(Build.ArtifactStagingDirectory)\$(BuildConfiguration)\'
+    Verbosity: Verbose
+
 - task: PublishBuildArtifacts@1
   displayName: Publish Artifact $(Build.BuildNumber)
   inputs:
