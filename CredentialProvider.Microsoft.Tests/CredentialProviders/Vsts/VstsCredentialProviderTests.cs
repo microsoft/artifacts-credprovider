@@ -72,6 +72,7 @@ namespace CredentialProvider.Microsoft.Tests.CredentialProviders.Vsts
                 @"https://example.pkgs.codeapp.ms/_packaging/TestFeed/nuget/v3/index.json",
                 @"https://example.pkgs.visualstudio.com/_packaging/TestFeed/nuget/v3/index.json",
                 @"https://example.pkgs.dev.azure.com/_packaging/TestFeed/nuget/v3/index.json",
+                @"https://pkgs.dev.azure.com/OrganisationNameExample/_packaging/TestFeed/nuget/v3/index.json"
             };
 
             foreach (var source in sources)

@@ -55,7 +55,7 @@ namespace NuGetCredentialProvider.CredentialProviders.Vsts
                  ".pkgs.codedev.ms", // DevFabric
                  ".pkgs.codeapp.ms", // AppFabric
                  ".pkgs.visualstudio.com", // Prod
-                 ".pkgs.dev.azure.com" // Prod
+                 "pkgs.dev.azure.com" // Prod
              });
 
             bool isValidHost = validHosts.Any(host => uri.Host.EndsWith(host, StringComparison.OrdinalIgnoreCase));
