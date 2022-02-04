@@ -80,7 +80,7 @@ if (!$releaseId) {
 $releaseUrl = [System.IO.Path]::Combine($releaseUrlBase, $releaseId)
 $releaseUrl = $releaseUrl.Replace("\","/")
 
-$zipFile = "Microsoft.NetCore3.NuGet.CredentialProvider.zip"
+$zipFile = "Microsoft.NetCore2.NuGet.CredentialProvider.zip"
 if ($AddNetfx -eq $True) {
     $zipFile = "Microsoft.NuGet.CredentialProvider.zip"
 }
