@@ -71,7 +71,7 @@ Examples:
 
 Using the above is recommended, but as per [NuGet's plugin discovery rules](https://github.com/NuGet/Home/wiki/NuGet-cross-plat-authentication-plugin#plugin-installation-and-discovery), alternatively you can install the credential provider to a location you prefer, and then set the environment variable NUGET_PLUGIN_PATHS to the .dll of the credential provider found in plugins\netcore\CredentialProvider.Microsoft\CredentialProvider.Microsoft.dll. For example, $env:NUGET_PLUGIN_PATHS="my-alternative-location\CredentialProvider.Microsoft.dll".
 
-Users requiring .NET 6 can manually download the .NET 6 version `Microsoft.Net6.NuGet.CredentialProvider` of the [1.0.0 release](https://github.com/microsoft/artifacts-credprovider/releases/tag/v1.0.0).
+Users requiring .NET 6 can manually downloade the .NET 6 version `Microsoft.Net6.NuGet.CredentialProvider` of the [1.0.0 release](https://github.com/microsoft/artifacts-credprovider/releases/tag/v1.0.0).
 
 ### Automatic usage
 - MSBuild in Visual Studio Developer Command Prompt with Visual Studio 15.9+
