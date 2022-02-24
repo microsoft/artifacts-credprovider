@@ -6,9 +6,9 @@
 
 REPO="Microsoft/artifacts-credprovider"
 FILE="Microsoft.NuGet.CredentialProvider.tar.gz"
-VERSION="latest"
+: ${AZURE_ARTIFACTS_CREDENTIAL_PROVIDER_VERSION="latest"}
 # URL pattern documented at https://help.github.com/en/articles/linking-to-releases as of 2019-03-29
-URI="https://github.com/$REPO/releases/$VERSION/download/$FILE"
+URI="https://github.com/$REPO/releases/${AZURE_ARTIFACTS_CREDENTIAL_PROVIDER_VERSION}/download/$FILE"
 NUGET_PLUGIN_DIR="$HOME/.nuget/plugins"
 
 # Ensure plugin directory exists
