@@ -3,6 +3,10 @@
 # of the artifacts credential provider plugin for dotnet and
 # install it into $HOME/.nuget/plugins.
 # SEE: https://github.com/Microsoft/artifacts-credprovider/blob/master/README.md
+#
+# To install a release other than `latest`, set the `AZURE_ARTIFACTS_CREDENTIAL_PROVIDER_VERSION` environment
+# variable to match the name of a supported release.
+# SEE: https://github.com/microsoft/artifacts-credprovider/releases
 
 REPO="Microsoft/artifacts-credprovider"
 FILE="Microsoft.NuGet.CredentialProvider.tar.gz"
