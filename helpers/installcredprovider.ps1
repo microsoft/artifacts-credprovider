@@ -102,7 +102,7 @@ if ($AddNetfx -eq $True) {
 }
 
 function InstallZip {
-    Write-Host "Using $zipFile"
+    Write-Verbose "Using $zipFile"
 
     $zipErrorString = "Unable to resolve the Credential Provider zip file from $releaseUrl"
     try {
