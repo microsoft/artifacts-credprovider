@@ -11,7 +11,7 @@ In this and subsequent examples, configuration can be either `debug` or `release
 ### Publishing
 
 ```shell
-dotnet publish CredentialProvider.Microsoft --configuration Release --framework netcoreapp2.1
+dotnet publish CredentialProvider.Microsoft --configuration Release --framework net6.0
 ```
 
 ### Packing

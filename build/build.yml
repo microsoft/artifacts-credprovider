@@ -4,10 +4,10 @@ parameters:
 
 steps:
 - task: UseDotNet@2
-  displayName: Install .NET Core 2.1 runtime
+  displayName: Install .NET Core 3.1 runtime
   inputs:
     packageType: runtime
-    version: 2.1.x
+    version: 3.1.x
 
 - task: UseDotNet@2
   displayName: Use .NET 6 SDK
@@ -41,13 +41,13 @@ steps:
     projects: 'CredentialProvider.Microsoft/CredentialProvider.Microsoft.csproj'
     feedsToUse: config
     nugetConfigPath: 'CredentialProvider.Microsoft/NuGet.config'
-  
-- task: MSBuild@1
+
+- task: VSBuild@1
   displayName: Build CredentialProvider
   inputs:
     solution: 'CredentialProvider.Microsoft/CredentialProvider.Microsoft.csproj'
     configuration: '$(BuildConfiguration)'
-    msbuildArguments: '/t:rebuild'
+    msbuildArgs: '/t:rebuild'
 
 - ${{ if eq(parameters.sign, 'true') }}:
   - task: MSBuild@1
@@ -70,16 +70,6 @@ steps:
       DropFolder: '$(Build.ArtifactStagingDirectory)\$(BuildConfiguration)\vsix\'
       AccessToken: $(DevDivDropManageAccessToken)
 
-- task: DotNetCoreCLI@2
-  displayName: dotnet publish netcoreapp2.1
-  inputs:
-    command: publish
-    publishWebProjects: false
-    projects: 'CredentialProvider.Microsoft/CredentialProvider.Microsoft.csproj'
-    arguments: '--no-build --framework netcoreapp2.1 --configuration $(BuildConfiguration)'
-    zipAfterPublish: false
-    modifyOutputPath: false
-
 - ${{ if ne(parameters.sign, 'true') }}:
   - task: DotNetCoreCLI@2
     displayName: dotnet test
@@ -87,10 +77,21 @@ steps:
       command: test
       projects: 'CredentialProvider.Microsoft.Tests/CredentialProvider.Microsoft.Tests.csproj'
 
-- task: CopyFiles@2
-  displayName: Copy netcore files into tarball
+- task: DotNetCoreCLI@2
+  displayName: dotnet publish net6.0
   inputs:
-    sourceFolder: '$(Build.SourcesDirectory)\CredentialProvider.Microsoft\bin\$(BuildConfiguration)\netcoreapp2.1\publish\'
+    command: publish
+    publishWebProjects: false
+    projects: 'CredentialProvider.Microsoft/CredentialProvider.Microsoft.csproj'
+    arguments: '--no-build --framework net6.0 --configuration $(BuildConfiguration)'
+    zipAfterPublish: false
+    modifyOutputPath: false
+
+# Create .NET 6.0 release for netcore users
+- task: CopyFiles@2
+  displayName: Copy net6.0 files into tarball
+  inputs:
+    sourceFolder: '$(Build.SourcesDirectory)\CredentialProvider.Microsoft\bin\$(BuildConfiguration)\net6.0\publish\'
     contents: '**\*'
     targetFolder: '$(Build.ArtifactStagingDirectory)\tarball\plugins\netcore\CredentialProvider.Microsoft\'
     cleanTargetFolder: true
@@ -106,23 +107,71 @@ steps:
     flattenFolders: true
 
 - task: ArchiveFiles@2
-  displayName: Create netcore tarball
+  displayName: Create net6.0 tarball
   inputs:
     rootFolderOrFile: '$(Build.ArtifactStagingDirectory)\tarball\'
     includeRootFolder: false
     archiveType: 'tar'
     tarCompression: 'gz'
-    archiveFile: '$(Build.ArtifactStagingDirectory)\$(BuildConfiguration)\Microsoft.NetCore2.NuGet.CredentialProvider.tar.gz'
+    archiveFile: '$(Build.ArtifactStagingDirectory)\$(BuildConfiguration)\Microsoft.Net6.NuGet.CredentialProvider.tar.gz'
     replaceExistingArchive: true
 
-# NOTE: Changing the name of the zip will break things. Please don't do it.
 - task: ArchiveFiles@2
-  displayName: Create netcore zip
+  displayName: Create net6.0 zip
   inputs:
     rootFolderOrFile: '$(Build.ArtifactStagingDirectory)\tarball\'
     includeRootFolder: false
     archiveType: 'zip'
-    archiveFile: '$(Build.ArtifactStagingDirectory)\$(BuildConfiguration)\Microsoft.NetCore2.NuGet.CredentialProvider.zip'
+    archiveFile: '$(Build.ArtifactStagingDirectory)\$(BuildConfiguration)\Microsoft.Net6.NuGet.CredentialProvider.zip'
+    replaceExistingArchive: true
+
+# Clean target folder and create netcore 3.1 and netfx releases
+- task: DotNetCoreCLI@2
+  displayName: dotnet publish netcoreapp3.1
+  inputs:
+    command: publish
+    publishWebProjects: false
+    projects: 'CredentialProvider.Microsoft/CredentialProvider.Microsoft.csproj'
+    arguments: '--no-build --framework netcoreapp3.1 --configuration $(BuildConfiguration)'
+    zipAfterPublish: false
+    modifyOutputPath: false
+
+- task: CopyFiles@2
+  displayName: Copy netcore 3.1 files into tarball
+  inputs:
+    sourceFolder: '$(Build.SourcesDirectory)\CredentialProvider.Microsoft\bin\$(BuildConfiguration)\netcoreapp3.1\publish\'
+    contents: '**\*'
+    targetFolder: '$(Build.ArtifactStagingDirectory)\tarball\plugins\netcore\CredentialProvider.Microsoft\'
+    cleanTargetFolder: true
+
+- task: CopyFiles@2
+  displayName: Copy license files into tarball
+  inputs:
+    contents: |
+      LICENSE
+      CredentialProvider.Microsoft\EULA_Microsoft Visual Studio Team Services Credential Provider.docx
+      CredentialProvider.Microsoft\ThirdPartyNotices.txt
+    targetFolder: '$(Build.ArtifactStagingDirectory)\tarball\'
+    flattenFolders: true
+
+- task: ArchiveFiles@2
+  displayName: Create netcore 3.1 tarball
+  inputs:
+    rootFolderOrFile: '$(Build.ArtifactStagingDirectory)\tarball\'
+    includeRootFolder: false
+    archiveType: 'tar'
+    tarCompression: 'gz'
+    archiveFile: '$(Build.ArtifactStagingDirectory)\$(BuildConfiguration)\Microsoft.NetCore3.NuGet.CredentialProvider.tar.gz'
+    replaceExistingArchive: true
+
+# NOTE: Changing the name of the zip will break things. Please don't do it.
+- task: ArchiveFiles@2
+  displayName: Create netcore 3.1 zip
+  inputs:
+    rootFolderOrFile: '$(Build.ArtifactStagingDirectory)\tarball\'
+    includeRootFolder: false
+    archiveType: 'zip'
+    archiveFile: '$(Build.ArtifactStagingDirectory)\$(BuildConfiguration)\Microsoft.NetCore3.NuGet.CredentialProvider.zip'
     replaceExistingArchive: true
 
 - task: CopyFiles@2
@@ -133,7 +182,7 @@ steps:
     targetFolder: '$(Build.ArtifactStagingDirectory)\tarball\plugins\netfx\CredentialProvider.Microsoft\'
 
 - task: ArchiveFiles@2
-  displayName: Create tarball
+  displayName: Create netfx tarball
   inputs:
     rootFolderOrFile: '$(Build.ArtifactStagingDirectory)\tarball\'
     includeRootFolder: false
