@@ -1,15 +1,41 @@
 #!/usr/bin/env bash
-# DESCRIPTION: A simple shell script designed to fetch the latest version
-# of the artifacts credential provider plugin for dotnet and
-# install it into $HOME/.nuget/plugins.
-# SEE: https://github.com/Microsoft/artifacts-credprovider/blob/master/README.md
+# DESCRIPTION: A simple shell script designed to fetch a version
+# of the artifacts credential provider plugin and install it into $HOME/.nuget/plugins.
+# Readme: https://github.com/Microsoft/artifacts-credprovider/blob/master/README.md
+
+# Default version to install is the latest version.
+# To install a release other than `latest`, set the `AZURE_ARTIFACTS_CREDENTIAL_PROVIDER_VERSION` environment
+# variable to match the tag name of a supported release, e.g. "v0.1.28".
+# Releases: https://github.com/microsoft/artifacts-credprovider/releases
+
+# To install the NET6 credential provider instead of the default, NetCore3.1, 
+# set the `USE_NET6_ARTIFACTS_CREDENTIAL_PROVIDER` environment variable.
 
 REPO="Microsoft/artifacts-credprovider"
-FILE="Microsoft.NuGet.CredentialProvider.tar.gz"
-VERSION="latest"
-# URL pattern documented at https://help.github.com/en/articles/linking-to-releases as of 2019-03-29
-URI="https://github.com/$REPO/releases/$VERSION/download/$FILE"
 NUGET_PLUGIN_DIR="$HOME/.nuget/plugins"
+: ${AZURE_ARTIFACTS_CREDENTIAL_PROVIDER_VERSION="latest"}
+
+# determine whether we install default or Net6
+if [[ ! -z ${USE_NET6_ARTIFACTS_CREDENTIAL_PROVIDER} ]]; then
+  FILE="Microsoft.Net6.CredentialProvider.tar.gz"
+
+  # throw if version starts with 0. (net6 not supported)
+  if [[ ${AZURE_ARTIFACTS_CREDENTIAL_PROVIDER_VERSION} == 0.* ]]; then 
+    echo "ERROR: To install NET6 cred provider using the USE_NET6_ARTIFACTS_CREDENTIAL_PROVIDER variable, version to be installed must be 1.0.0. or greater. Check your AZURE_ARTIFACTS_CREDENTIAL_PROVIDER_VERSION variable."
+    exit 1
+  fi
+else
+  FILE="Microsoft.NuGet.CredentialProvider.tar.gz"
+fi
+
+# If AZURE_ARTIFACTS_CREDENTIAL_PROVIDER_VERSION is set, install the version specified, otherwise install latest
+if [[ ! -z ${AZURE_ARTIFACTS_CREDENTIAL_PROVIDER_VERSION} ]]; then
+  # browser_download_url from https://api.github.com/repos/Microsoft/artifacts-credprovider/releases/latest 
+  URI="https://github.com/$REPO/releases/download/${AZURE_ARTIFACTS_CREDENTIAL_PROVIDER_VERSION}/$FILE"
+else
+  # URL pattern to get latest documented at https://help.github.com/en/articles/linking-to-releases as of 2019-03-29
+  URI="https://github.com/$REPO/releases/latest/download/$FILE"
+fi
 
 # Ensure plugin directory exists
 if [ ! -d "${NUGET_PLUGIN_DIR}" ]; then
