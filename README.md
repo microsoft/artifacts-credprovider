@@ -150,7 +150,7 @@ The Credential Provider accepts a set of environment variables. Not all of them 
 
 ## Release version 1.0.0
 
-Release version [1.0.0](https://github.com/microsoft/artifacts-credprovider/releases/tag/v1.0.0) was released in March 2022. Netcore version 1.0.0 of the Artifacts Credential Provider requires .NET Core 3.1. Older versions than 1.0.0 required .NET Core 2.1. 
+Release version [1.0.0](https://github.com/microsoft/artifacts-credprovider/releases/tag/v1.0.0) was released in March 2022. Netcore version 1.0.0 of the Artifacts Credential Provider requires .NET Core 3.1. Older versions than 1.0.0 required .NET Core 2.1. `Microsoft.NetCore2.NuGet.CredentialProvider` asset is no longer available. Use  `Microsoft.NetCore3.NuGet.CredentialProvider.zip` instead.
 
 [1.0.0 release](https://github.com/microsoft/artifacts-credprovider/releases/tag/v1.0.0) also publishes the credential provider for .NET 6 users as `Microsoft.Net6.NuGet.CredentialProvider`.
 
