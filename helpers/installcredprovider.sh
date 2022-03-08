@@ -28,7 +28,7 @@ else
 fi
 
 # If AZURE_ARTIFACTS_CREDENTIAL_PROVIDER_VERSION is set, install the version specified, otherwise install latest
-if [[ ! -z ${AZURE_ARTIFACTS_CREDENTIAL_PROVIDER_VERSION} ]]; then
+if [[ ! -z ${AZURE_ARTIFACTS_CREDENTIAL_PROVIDER_VERSION} ]] && [[ ${AZURE_ARTIFACTS_CREDENTIAL_PROVIDER_VERSION} != "latest" ]]; then
   # browser_download_url from https://api.github.com/repos/Microsoft/artifacts-credprovider/releases/latest 
   URI="https://github.com/$REPO/releases/download/${AZURE_ARTIFACTS_CREDENTIAL_PROVIDER_VERSION}/$FILE"
 else
