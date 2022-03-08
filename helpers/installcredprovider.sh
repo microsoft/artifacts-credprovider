@@ -16,7 +16,7 @@ NUGET_PLUGIN_DIR="$HOME/.nuget/plugins"
 
 # determine whether we install default or Net6
 if [[ ! -z ${USE_NET6_ARTIFACTS_CREDENTIAL_PROVIDER} ]]; then
-  FILE="Microsoft.Net6.CredentialProvider.tar.gz"
+  FILE="Microsoft.Net6.NuGet.CredentialProvider.tar.gz"
 
   # throw if version starts with 0. (net6 not supported)
   if [[ ! -z ${AZURE_ARTIFACTS_CREDENTIAL_PROVIDER_VERSION} ]] && [[ ${AZURE_ARTIFACTS_CREDENTIAL_PROVIDER_VERSION} == 0.* ]] || [[ ${AZURE_ARTIFACTS_CREDENTIAL_PROVIDER_VERSION} == v0.* ]]; then 
