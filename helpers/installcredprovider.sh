@@ -5,7 +5,7 @@
 
 # Default version to install is the latest version.
 # To install a release other than `latest`, set the `AZURE_ARTIFACTS_CREDENTIAL_PROVIDER_VERSION` environment
-# variable to match the tag name of a supported release, e.g. "v0.1.28".
+# variable to match the TAG NAME of a supported release, e.g. "v0.1.28".
 # Releases: https://github.com/microsoft/artifacts-credprovider/releases
 
 # To install the NET6 credential provider instead of the default, NetCore3.1, 
@@ -13,14 +13,13 @@
 
 REPO="Microsoft/artifacts-credprovider"
 NUGET_PLUGIN_DIR="$HOME/.nuget/plugins"
-: ${AZURE_ARTIFACTS_CREDENTIAL_PROVIDER_VERSION="latest"}
 
 # determine whether we install default or Net6
 if [[ ! -z ${USE_NET6_ARTIFACTS_CREDENTIAL_PROVIDER} ]]; then
   FILE="Microsoft.Net6.CredentialProvider.tar.gz"
 
   # throw if version starts with 0. (net6 not supported)
-  if [[ ${AZURE_ARTIFACTS_CREDENTIAL_PROVIDER_VERSION} == 0.* ]]; then 
+  if [[ ! -z ${AZURE_ARTIFACTS_CREDENTIAL_PROVIDER_VERSION} ]] && [[ ${AZURE_ARTIFACTS_CREDENTIAL_PROVIDER_VERSION} == 0.* ]] || [[ ${AZURE_ARTIFACTS_CREDENTIAL_PROVIDER_VERSION} == v0.* ]]; then 
     echo "ERROR: To install NET6 cred provider using the USE_NET6_ARTIFACTS_CREDENTIAL_PROVIDER variable, version to be installed must be 1.0.0. or greater. Check your AZURE_ARTIFACTS_CREDENTIAL_PROVIDER_VERSION variable."
     exit 1
   fi
