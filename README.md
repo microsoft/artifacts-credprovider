@@ -9,6 +9,7 @@ The Azure Artifacts Credential Provider automates the acquisition of credentials
 -   [Use](#use)
 -   [Session Token Cache Locations](#session-token-cache-locations)
 -   [Environment Variables](#environment-variables)
+-   [Release version 1.0.0](#release-version-1.0.0)
 -   [Help](#help)
 -   [Contribute](#contribute)
 
@@ -24,7 +25,7 @@ Install [Visual Studio version 15.9-preview1 or later](https://visualstudio.micr
 
 ### dotnet
 
-[dotnet SDK](https://www.microsoft.com/net/download) version `2.1.400` or later is required on Windows. The recommended dotnet version is `3.1.200` or later as it has some important bug fixes related to cancellations and timeouts. 
+The default installation requires [dotnet SDK](https://www.microsoft.com/net/download) version `3.1.x`. The recommended dotnet version is `3.1.200` or later as it has some important bug fixes related to cancellations and timeouts. 
 
 ## Setup
 
@@ -69,6 +70,8 @@ Examples:
 3. Copy the `netcore` (and 'netfx' for msbuild /t:restore command) directory from the extracted archive to `$HOME/.nuget/plugins`
 
 Using the above is recommended, but as per [NuGet's plugin discovery rules](https://github.com/NuGet/Home/wiki/NuGet-cross-plat-authentication-plugin#plugin-installation-and-discovery), alternatively you can install the credential provider to a location you prefer, and then set the environment variable NUGET_PLUGIN_PATHS to the .dll of the credential provider found in plugins\netcore\CredentialProvider.Microsoft\CredentialProvider.Microsoft.dll. For example, $env:NUGET_PLUGIN_PATHS="my-alternative-location\CredentialProvider.Microsoft.dll".
+
+Users requiring .NET 6, such as ARM64 users, can manually download the .NET 6 version `Microsoft.Net6.NuGet.CredentialProvider` of the [1.0.0 release](https://github.com/microsoft/artifacts-credprovider/releases/tag/v1.0.0).
 
 ### Automatic usage
 - MSBuild in Visual Studio Developer Command Prompt with Visual Studio 15.9+
@@ -144,6 +147,12 @@ The Credential Provider accepts a set of environment variables. Not all of them 
 ```javascript
  {"endpointCredentials": [{"endpoint":"http://example.index.json", "username":"optional", "password":"accesstoken"}]}
 ```
+
+## Release version 1.0.0
+
+Release version [1.0.0](https://github.com/microsoft/artifacts-credprovider/releases/tag/v1.0.0) was released in March 2022. Netcore version 1.0.0 of the Artifacts Credential Provider requires .NET Core 3.1. Older versions than 1.0.0 required .NET Core 2.1. `Microsoft.NetCore2.NuGet.CredentialProvider` asset is no longer available. Use  `Microsoft.NetCore3.NuGet.CredentialProvider.zip` instead.
+
+[1.0.0 release](https://github.com/microsoft/artifacts-credprovider/releases/tag/v1.0.0) also publishes the credential provider for .NET 6 users as `Microsoft.Net6.NuGet.CredentialProvider`.
 
 ## Help
 
@@ -284,6 +293,11 @@ Run the nuget.exe/dotnet command with detailed verbosity to see more cred provid
 Run the credential provider directly with the following command: `C:\Users\<user>\.nuget\plugins\netfx\CredentialProvider.Microsoft\CredentialProvider.Microsoft.exe  -I -V Verbose -U "https://pkgs.dev.azure.com/{organization}/{project-if-feed-is-project-scoped}/_packaging/{feed}/nuget/v3/index.json"`. Check you have the right permissions from the [feed permissions](https://docs.microsoft.com/en-us/azure/devops/artifacts/feeds/feed-permissions?view=azure-devops). 
 
 In an Azure DevOps Pipeline, verify you have set the right permissions for the pipeline by following the [docs](https://docs.microsoft.com/en-us/azure/devops/artifacts/feeds/feed-permissions?view=azure-devops#package-permissions-in-azure-pipelines).
+
+#### Cred provider used to work but now it asks me to update to .NET Core 3.1.
+Because .NET Core 2 is [out of support](https://dotnet.microsoft.com/platform/support/policy/dotnet-core#lifecycle), you should update to .NET Core 3.1 or greater to keep using the latest versions of the credential provider. 
+
+If you keep using the unsupported .NET Core 2.1 you must use Artifacts Credential Provider version 0.1.28 or lower.
 
 ## Contribute
 
