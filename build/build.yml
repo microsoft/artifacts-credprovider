@@ -250,7 +250,7 @@ steps:
   condition: eq(variables['PushNupkg'], 'true')
 
 - task: ManifestGeneratorTask@0
-  displayName: 'SBOM Generator Test1'
+  displayName: 'SBOM Generator Test2'
   inputs:
     BuildDropPath: '$(Build.ArtifactStagingDirectory)\$(BuildConfiguration)\'
     Verbosity: Verbose
