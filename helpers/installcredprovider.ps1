@@ -127,6 +127,7 @@ function InstallZip {
     catch {
         $zipErrorString = "$zipErrorString `nError : " + $_.Exception.Message 
         Write-Error "$zipErrorString" 
+        return
     }
 
     # Create temporary location for the zip file handling
