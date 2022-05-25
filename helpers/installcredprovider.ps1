@@ -19,7 +19,7 @@ param(
     [switch]$InstallNet6
 )
 
-$script:ErrorActionPreference = 'Stop'
+$script:ErrorActionPreference='Stop'
 
 # Without this, System.Net.WebClient.DownloadFile will fail on a client with TLS 1.0/1.1 disabled
 if ([Net.ServicePointManager]::SecurityProtocol.ToString().Split(',').Trim() -notcontains 'Tls12') {
@@ -34,8 +34,7 @@ if ($Version.StartsWith("0.") -and $InstallNet6 -eq $True) {
 $userProfilePath = [System.Environment]::GetFolderPath([System.Environment+SpecialFolder]::UserProfile);
 if ($userProfilePath -ne '') {
     $profilePath = $userProfilePath
-}
-else {
+} else {
     $profilePath = $env:UserProfile
 }
 
@@ -76,8 +75,7 @@ if (![string]::IsNullOrEmpty($Version)) {
         $releaseJson = $releases | ConvertFrom-Json
         $correctReleaseVersion = $releaseJson | ? { $_.name -eq $Version }
         $releaseId = $correctReleaseVersion.id
-    }
-    catch {
+    } catch {
         Write-Error $versionError
         return
     }
@@ -89,7 +87,7 @@ if (!$releaseId) {
 }
 
 $releaseUrl = [System.IO.Path]::Combine($releaseUrlBase, $releaseId)
-$releaseUrl = $releaseUrl.Replace("\", "/")
+$releaseUrl = $releaseUrl.Replace("\","/")
 
 $zipFile = "Microsoft.NetCore3.NuGet.CredentialProvider.zip"
 if ($Version.StartsWith("0.")) {
@@ -107,40 +105,18 @@ function InstallZip {
     Write-Verbose "Using $zipFile"
 
     $zipErrorString = "Unable to resolve the Credential Provider zip file from $releaseUrl"
-    $newURL = "$releaseUrl" + "a"
     try {
-        Write-Host "Fetching release $newURL"
-        $release = Invoke-WebRequest -UseBasicParsing $newURL
-    }
-    catch {
-        $zipErrorString = "$zipErrorString`n" + $_.Exception.Message 
-        Write-Error "$zipErrorString" 
-    }
-
-    try {
+        Write-Host "Fetching release $releaseUrl"
+        $release = Invoke-WebRequest -UseBasicParsing $releaseUrl
         $releaseJson = $release.Content | ConvertFrom-Json
         $zipAsset = $releaseJson.assets | ? { $_.name -eq $zipFile }
         $packageSourceUrl = $zipAsset.browser_download_url
-        
-        if (!$releaseJson) {
-            throw("Unable to convert JSON")
-        }
-        if (!$zipAsset) {
-            throw("Unable to retrieve zip asset")
-        }
-        if (!$packageSourceUrl) {
-            throw("Unable to retrieve source URL")
-        }
-    }
-    catch {
-        $zipErrorString = "$zipErrorString`n" + $_ 
+    } catch {
         Write-Error $zipErrorString
         return
     }
 
-    # Check for package source URL
     if (!$packageSourceUrl) {
-        Write-Warning "~~~~~~4"
         Write-Error $zipErrorString
         return
     }
@@ -158,8 +134,7 @@ function InstallZip {
     try {
         $client = New-Object System.Net.WebClient
         $client.DownloadFile($packageSourceUrl, $pluginZip)
-    }
-    catch {
+    } catch {
         Write-Error "Unable to download $packageSourceUrl to the location $pluginZip"
     }
 
