@@ -107,17 +107,9 @@ function InstallZip {
     Write-Verbose "Using $zipFile"
 
     $zipErrorString = "Unable to resolve the Credential Provider zip file from $releaseUrl"
-    $newURL = "$releaseUrl" + "a"
     try {
-        Write-Host "Fetching release $newURL"
-        $release = Invoke-WebRequest -UseBasicParsing $newURL
-    }
-    catch {
-        $zipErrorString = "$zipErrorString`n" + $_.Exception.Message 
-        Write-Error "$zipErrorString" 
-    }
-
-    try {
+        Write-Host "Fetching release $releaseUrl"
+        $release = Invoke-WebRequest -UseBasicParsing $releaseUrl
         $releaseJson = $release.Content | ConvertFrom-Json
         $zipAsset = $releaseJson.assets | ? { $_.name -eq $zipFile }
         $packageSourceUrl = $zipAsset.browser_download_url
@@ -133,16 +125,8 @@ function InstallZip {
         }
     }
     catch {
-        $zipErrorString = "$zipErrorString`n" + $_ 
-        Write-Error $zipErrorString
-        return
-    }
-
-    # Check for package source URL
-    if (!$packageSourceUrl) {
-        Write-Warning "~~~~~~4"
-        Write-Error $zipErrorString
-        return
+        $zipErrorString = "$zipErrorString `nError : " + $_.Exception.Message 
+        Write-Error "$zipErrorString" 
     }
 
     # Create temporary location for the zip file handling
