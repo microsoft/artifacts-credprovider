@@ -19,7 +19,7 @@ param(
     [switch]$InstallNet6
 )
 
-$script:ErrorActionPreference = 'Stop'
+$script:ErrorActionPreference='Stop'
 
 # Without this, System.Net.WebClient.DownloadFile will fail on a client with TLS 1.0/1.1 disabled
 if ([Net.ServicePointManager]::SecurityProtocol.ToString().Split(',').Trim() -notcontains 'Tls12') {
@@ -75,8 +75,7 @@ if (![string]::IsNullOrEmpty($Version)) {
         $releaseJson = $releases | ConvertFrom-Json
         $correctReleaseVersion = $releaseJson | ? { $_.name -eq $Version }
         $releaseId = $correctReleaseVersion.id
-    }
-    catch {
+    } catch {
         Write-Error $versionError
         return
     }
@@ -88,7 +87,7 @@ if (!$releaseId) {
 }
 
 $releaseUrl = [System.IO.Path]::Combine($releaseUrlBase, $releaseId)
-$releaseUrl = $releaseUrl.Replace("\", "/")
+$releaseUrl = $releaseUrl.Replace("\","/")
 
 $zipFile = "Microsoft.NetCore3.NuGet.CredentialProvider.zip"
 if ($Version.StartsWith("0.")) {
@@ -108,16 +107,21 @@ function InstallZip {
     try {
         Write-Host "Fetching release $releaseUrl"
         $release = Invoke-WebRequest -UseBasicParsing $releaseUrl
-        if (!$release) { throw("Unable to make Web Request to $releaseUrl") }
-
+        if (!$release) { 
+			throw ("Unable to make Web Request to $releaseUrl") 
+		}
         $releaseJson = $release.Content | ConvertFrom-Json
-        if (!$releaseJson) { throw("Unable to get content from JSON") }
-
+        if (!$releaseJson) { 
+			throw ("Unable to get content from JSON") 
+		}
         $zipAsset = $releaseJson.assets | ? { $_.name -eq $zipFile }
-        if (!$zipAsset) { throw("Unable to find asset $zipFile from release json object") }  
-
+        if (!$zipAsset) { 
+			throw ("Unable to find asset $zipFile from release json object") 
+		}  
         $packageSourceUrl = $zipAsset.browser_download_url
-        if (!$packageSourceUrl) { throw("Unable to find download url from asset $zipFile") }
+        if (!$packageSourceUrl) { 
+			throw ("Unable to find download url from asset $zipAsset") 
+		}
     }
     catch {
         Write-Error ("Unable to resolve the browser download url from $releaseUrl `nError: " + $_.Exception.Message)
