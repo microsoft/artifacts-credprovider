@@ -75,7 +75,8 @@ if (![string]::IsNullOrEmpty($Version)) {
         $releaseJson = $releases | ConvertFrom-Json
         $correctReleaseVersion = $releaseJson | ? { $_.name -eq $Version }
         $releaseId = $correctReleaseVersion.id
-    } catch {
+    }
+    catch {
         Write-Error $versionError
         return
     }
@@ -108,20 +109,20 @@ function InstallZip {
         Write-Host "Fetching release $releaseUrl"
         $release = Invoke-WebRequest -UseBasicParsing $releaseUrl
         if (!$release) { 
-			throw ("Unable to make Web Request to $releaseUrl") 
-		}
+            throw ("Unable to make Web Request to $releaseUrl") 
+        }
         $releaseJson = $release.Content | ConvertFrom-Json
         if (!$releaseJson) { 
-			throw ("Unable to get content from JSON") 
-		}
+            throw ("Unable to get content from JSON") 
+        }
         $zipAsset = $releaseJson.assets | ? { $_.name -eq $zipFile }
         if (!$zipAsset) { 
-			throw ("Unable to find asset $zipFile from release json object") 
-		}  
+            throw ("Unable to find asset $zipFile from release json object") 
+        }  
         $packageSourceUrl = $zipAsset.browser_download_url
         if (!$packageSourceUrl) { 
-			throw ("Unable to find download url from asset $zipAsset") 
-		}
+            throw ("Unable to find download url from asset $zipAsset") 
+        }
     }
     catch {
         Write-Error ("Unable to resolve the browser download url from $releaseUrl `nError: " + $_.Exception.Message)
