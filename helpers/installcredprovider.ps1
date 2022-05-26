@@ -34,8 +34,7 @@ if ($Version.StartsWith("0.") -and $InstallNet6 -eq $True) {
 $userProfilePath = [System.Environment]::GetFolderPath([System.Environment+SpecialFolder]::UserProfile);
 if ($userProfilePath -ne '') {
     $profilePath = $userProfilePath
-}
-else {
+} else {
     $profilePath = $env:UserProfile
 }
 
@@ -106,27 +105,22 @@ if ($AddNetfx -eq $True) {
 function InstallZip {
     Write-Verbose "Using $zipFile"
 
-    $zipErrorString = "Unable to resolve the Credential Provider zip file from $releaseUrl"
     try {
         Write-Host "Fetching release $releaseUrl"
         $release = Invoke-WebRequest -UseBasicParsing $releaseUrl
+        if (!$release) { throw("Unable to make Web Request to $releaseUrl") }
+
         $releaseJson = $release.Content | ConvertFrom-Json
+        if (!$releaseJson) { throw("Unable to get content from JSON") }
+
         $zipAsset = $releaseJson.assets | ? { $_.name -eq $zipFile }
+        if (!$zipAsset) { throw("Unable to find asset $zipFile from release json object") }  
+
         $packageSourceUrl = $zipAsset.browser_download_url
-                
-        if (!$releaseJson) {
-            throw("Unable to convert JSON")
-        }
-        if (!$zipAsset) {
-            throw("Unable to retrieve zip asset")
-        }
-        if (!$packageSourceUrl) {
-            throw("Unable to retrieve source URL")
-        }
+        if (!$packageSourceUrl) { throw("Unable to find download url from asset $zipFile") }
     }
     catch {
-        $zipErrorString = "$zipErrorString `nError : " + $_.Exception.Message 
-        Write-Error "$zipErrorString" 
+        Write-Error ("Unable to resolve the browser download url from $releaseUrl `nError: " + $_.Exception.Message)
         return
     }
 
