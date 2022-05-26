@@ -75,8 +75,7 @@ if (![string]::IsNullOrEmpty($Version)) {
         $releaseJson = $releases | ConvertFrom-Json
         $correctReleaseVersion = $releaseJson | ? { $_.name -eq $Version }
         $releaseId = $correctReleaseVersion.id
-    }
-    catch {
+    } catch {
         Write-Error $versionError
         return
     }
@@ -142,8 +141,7 @@ function InstallZip {
     try {
         $client = New-Object System.Net.WebClient
         $client.DownloadFile($packageSourceUrl, $pluginZip)
-    }
-    catch {
+    } catch {
         Write-Error "Unable to download $packageSourceUrl to the location $pluginZip"
     }
 
