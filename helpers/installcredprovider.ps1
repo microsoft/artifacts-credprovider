@@ -104,20 +104,27 @@ if ($AddNetfx -eq $True) {
 function InstallZip {
     Write-Verbose "Using $zipFile"
 
-    $zipErrorString = "Unable to resolve the Credential Provider zip file from $releaseUrl"
     try {
         Write-Host "Fetching release $releaseUrl"
         $release = Invoke-WebRequest -UseBasicParsing $releaseUrl
+        if (!$release) { 
+            throw ("Unable to make Web Request to $releaseUrl") 
+        }
         $releaseJson = $release.Content | ConvertFrom-Json
+        if (!$releaseJson) { 
+            throw ("Unable to get content from JSON") 
+        }
         $zipAsset = $releaseJson.assets | ? { $_.name -eq $zipFile }
+        if (!$zipAsset) { 
+            throw ("Unable to find asset $zipFile from release json object") 
+        }  
         $packageSourceUrl = $zipAsset.browser_download_url
-    } catch {
-        Write-Error $zipErrorString
-        return
+        if (!$packageSourceUrl) { 
+            throw ("Unable to find download url from asset $zipAsset") 
+        }
     }
-
-    if (!$packageSourceUrl) {
-        Write-Error $zipErrorString
+    catch {
+        Write-Error ("Unable to resolve the browser download url from $releaseUrl `nError: " + $_.Exception.Message)
         return
     }
 
