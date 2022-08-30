@@ -34,19 +34,12 @@ namespace CredentialProvider.Microsoft.Tests.CredentialProviders.VstsBuildTaskSe
 
             vstsCredentialProvider = new VstsBuildTaskServiceEndpointCredentialProvider(mockLogger.Object);
             environmentLock = EnvironmentLock.WaitAsync().Result;
-            ResetEnvVars();
         }
 
         [TestCleanup]
         public virtual void TestCleanup()
         {
-            ResetEnvVars();
             environmentLock?.Dispose();
-        }
-
-        private void ResetEnvVars()
-        {
-            Environment.SetEnvironmentVariable(EnvUtil.BuildTaskExternalEndpoints, null);
         }
 
         [TestMethod]
