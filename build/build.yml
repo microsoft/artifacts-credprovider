@@ -14,6 +14,9 @@ steps:
   inputs:
     packageType: sdk
     version: 6.x
+    
+- task: NuGetAuthenticate@1
+  displayName: NuGet Authenticate
 
 - ${{ if eq(parameters.sign, 'true') }}:
   - task: ms-vseng.MicroBuildTasks.30666190-6959-11e5-9f96-f56098202fef.MicroBuildSigningPlugin@4
@@ -27,20 +30,11 @@ steps:
     inputs:
       feedSource: 'https://pkgs.dev.azure.com/mseng/_packaging/MicroBuildToolset/nuget/v3/index.json'
 
-  - task: NuGetCommand@2
+  - script: nuget restore CredentialProvider.Microsoft.VSIX/packages.config -OutputDirectory packages
     displayName: NuGet restore
-    inputs:
-      restoreSolution: 'CredentialProvider.Microsoft.VSIX/packages.config'
-      restoreDirectory: 'packages'
-      vstsFeed: '6a2d6fd3-0b16-40f0-b309-7175c4e86490'
 
-- task: DotNetCoreCLI@2
-  displayName: dotnet restore NuGet.config
-  inputs:
-    command: restore
-    projects: 'CredentialProvider.Microsoft/CredentialProvider.Microsoft.csproj'
-    feedsToUse: config
-    nugetConfigPath: 'CredentialProvider.Microsoft/NuGet.config'
+- script: dotnet restore 
+  displayName: dotnet restore NuGet.config CredentialProvider.Microsoft/CredentialProvider.Microsoft.csproj
 
 - task: VSBuild@1
   displayName: Build CredentialProvider
@@ -71,21 +65,11 @@ steps:
       AccessToken: $(DevDivDropManageAccessToken)
 
 - ${{ if ne(parameters.sign, 'true') }}:
-  - task: DotNetCoreCLI@2
+  - script: dotnet test CredentialProvider.Microsoft.Tests/CredentialProvider.Microsoft.Tests.csproj
     displayName: dotnet test
-    inputs:
-      command: test
-      projects: 'CredentialProvider.Microsoft.Tests/CredentialProvider.Microsoft.Tests.csproj'
 
-- task: DotNetCoreCLI@2
+- task: dotnet publish CredentialProvider.Microsoft/CredentialProvider.Microsoft.csproj --no-build --framework net6.0 --configuration $(BuildConfiguration)
   displayName: dotnet publish net6.0
-  inputs:
-    command: publish
-    publishWebProjects: false
-    projects: 'CredentialProvider.Microsoft/CredentialProvider.Microsoft.csproj'
-    arguments: '--no-build --framework net6.0 --configuration $(BuildConfiguration)'
-    zipAfterPublish: false
-    modifyOutputPath: false
 
 # Create .NET 6.0 release for netcore users
 - task: CopyFiles@2
@@ -126,15 +110,8 @@ steps:
     replaceExistingArchive: true
 
 # Clean target folder and create netcore 3.1 and netfx releases
-- task: DotNetCoreCLI@2
+- script: dotnet publish CredentialProvider.Microsoft/CredentialProvider.Microsoft.csproj --no-build --framework netcoreapp3.1 --configuration $(BuildConfiguration)
   displayName: dotnet publish netcoreapp3.1
-  inputs:
-    command: publish
-    publishWebProjects: false
-    projects: 'CredentialProvider.Microsoft/CredentialProvider.Microsoft.csproj'
-    arguments: '--no-build --framework netcoreapp3.1 --configuration $(BuildConfiguration)'
-    zipAfterPublish: false
-    modifyOutputPath: false
 
 - task: CopyFiles@2
   displayName: Copy netcore 3.1 files into tarball
@@ -233,20 +210,11 @@ steps:
 - powershell: 'Write-Output ("##vso[task.setvariable variable=SignType;]")' 
   displayName: Clear SignType
 
-- task: DotNetCoreCLI@2
+- script: dotnet pack CredentialProvider.Microsoft/CredentialProvider.Microsoft.csproj -o $(Build.ArtifactStagingDirectory)\$(BuildConfiguration) -p:${{ parameters.nuspecProperties }}
   displayName: dotnet pack
-  inputs:
-    command: pack
-    packagesToPack: 'CredentialProvider.Microsoft/CredentialProvider.Microsoft.csproj'
-    packDirectory: '$(Build.ArtifactStagingDirectory)\$(BuildConfiguration)'
-    buildProperties: '${{ parameters.nuspecProperties }}'
 
-- task: DotNetCoreCLI@2
+- script: dotnet nuget push $(Build.ArtifactStagingDirectory)/$(BuildConfiguration)/*.nupkg --source MSCredProvider --api-key unimportantValue
   displayName: dotnet push
-  inputs:
-    command: push
-    packagesToPush: '$(Build.ArtifactStagingDirectory)/$(BuildConfiguration)/*.nupkg'
-    publishVstsFeed: '54754426-96db-4f6e-8a3a-64265d1cc147'
   condition: eq(variables['PushNupkg'], 'true')
 
 - task: ManifestGeneratorTask@0
