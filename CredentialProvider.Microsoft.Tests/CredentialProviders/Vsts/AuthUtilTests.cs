@@ -28,6 +28,7 @@ namespace CredentialProvider.Microsoft.Tests.CredentialProviders.Vsts
         private Mock<ILogger> mockLogger;
 
         private TestableAuthUtil authUtil;
+        private IDisposable environmentLock;
 
         [TestInitialize]
         public void TestInitialize()
@@ -35,14 +36,13 @@ namespace CredentialProvider.Microsoft.Tests.CredentialProviders.Vsts
             mockLogger = new Mock<ILogger>();
 
             this.authUtil = new TestableAuthUtil(mockLogger.Object);
+            environmentLock = EnvironmentLock.WaitAsync().Result;
         }
 
         [TestCleanup]
         public void TestCleanup()
         {
-            Environment.SetEnvironmentVariable(EnvUtil.AuthorityEnvVar, string.Empty);
-            Environment.SetEnvironmentVariable(EnvUtil.MsalEnabledEnvVar, string.Empty);
-            Environment.SetEnvironmentVariable(EnvUtil.PpeHostsEnvVar, string.Empty);
+            environmentLock?.Dispose();
         }
 
         [TestMethod]
