@@ -5,6 +5,7 @@
 using System;
 using System.Threading;
 using System.Threading.Tasks;
+using CredentialProvider.Microsoft.Tests.CredentialProviders.Vsts;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
@@ -23,6 +24,8 @@ namespace CredentialProvider.Microsoft.Tests.CredentialProviders.VstsBuildTaskSe
         private Mock<ILogger> mockLogger;
 
         private VstsBuildTaskServiceEndpointCredentialProvider vstsCredentialProvider;
+        
+        private IDisposable environmentLock;
 
         [TestInitialize]
         public void TestInitialize()
@@ -30,13 +33,20 @@ namespace CredentialProvider.Microsoft.Tests.CredentialProviders.VstsBuildTaskSe
             mockLogger = new Mock<ILogger>();
 
             vstsCredentialProvider = new VstsBuildTaskServiceEndpointCredentialProvider(mockLogger.Object);
+            environmentLock = EnvironmentLock.WaitAsync().Result;
+            ResetEnvVars();
         }
 
         [TestCleanup]
         public virtual void TestCleanup()
         {
-            string feedEndPointJsonEnvVar = EnvUtil.BuildTaskExternalEndpoints;
-            Environment.SetEnvironmentVariable(feedEndPointJsonEnvVar, null);
+            ResetEnvVars();
+            environmentLock?.Dispose();
+        }
+
+        private void ResetEnvVars()
+        {
+            Environment.SetEnvironmentVariable(EnvUtil.BuildTaskExternalEndpoints, null);
         }
 
         [TestMethod]

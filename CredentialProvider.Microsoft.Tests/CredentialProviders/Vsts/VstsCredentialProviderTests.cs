@@ -30,8 +30,8 @@ namespace CredentialProvider.Microsoft.Tests.CredentialProviders.Vsts
         private Mock<IAuthUtil> mockAuthUtil;
 
         private VstsCredentialProvider vstsCredentialProvider;
-
-
+        private IDisposable environmentLock;
+        
         [TestInitialize]
         public void TestInitialize()
         {
@@ -59,6 +59,20 @@ namespace CredentialProvider.Microsoft.Tests.CredentialProviders.Vsts
                 mockAuthUtil.Object,
                 mockBearerTokenProvidersFactory.Object,
                 mockVstsSessionTokenFromBearerTokenProvider.Object);
+            environmentLock = EnvironmentLock.WaitAsync().Result;
+            ResetEnvVars();
+        }
+
+        [TestCleanup]
+        public void TestCleanup()
+        {
+            ResetEnvVars();
+            environmentLock?.Dispose();
+        }
+
+        private void ResetEnvVars()
+        {
+            Environment.SetEnvironmentVariable(EnvUtil.SupportedHostsEnvVar, null);
         }
 
         [TestMethod]

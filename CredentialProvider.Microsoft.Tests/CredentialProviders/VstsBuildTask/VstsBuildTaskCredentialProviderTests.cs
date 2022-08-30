@@ -5,6 +5,7 @@
 using System;
 using System.Threading;
 using System.Threading.Tasks;
+using CredentialProvider.Microsoft.Tests.CredentialProviders.Vsts;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using NuGet.Protocol.Plugins;
@@ -22,6 +23,7 @@ namespace CredentialProvider.Microsoft.Tests.CredentialProviders.VstsBuildTask
         private Mock<ILogger> mockLogger;
 
         private VstsBuildTaskCredentialProvider vstsCredentialProvider;
+        private IDisposable environmentLock;
 
         [TestInitialize]
         public void TestInitialize()
@@ -29,15 +31,21 @@ namespace CredentialProvider.Microsoft.Tests.CredentialProviders.VstsBuildTask
             mockLogger = new Mock<ILogger>();
 
             vstsCredentialProvider = new VstsBuildTaskCredentialProvider(mockLogger.Object);
+            environmentLock = EnvironmentLock.WaitAsync().Result;
+            ResetEnvVars();
         }
 
         [TestCleanup]
         public virtual void TestCleanup()
         {
-            string uriPrefixesEnvVar = EnvUtil.BuildTaskUriPrefixes;
-            string accessTokenEnvVar = EnvUtil.BuildTaskAccessToken;
-            Environment.SetEnvironmentVariable(uriPrefixesEnvVar, null);
-            Environment.SetEnvironmentVariable(accessTokenEnvVar, null);
+            ResetEnvVars();
+            environmentLock?.Dispose();
+        }
+
+        private void ResetEnvVars()
+        {
+            Environment.SetEnvironmentVariable(EnvUtil.BuildTaskUriPrefixes, null);
+            Environment.SetEnvironmentVariable(EnvUtil.BuildTaskAccessToken, null);
         }
 
         [TestMethod]
