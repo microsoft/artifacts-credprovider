@@ -68,7 +68,7 @@ steps:
   - script: dotnet test CredentialProvider.Microsoft.Tests/CredentialProvider.Microsoft.Tests.csproj
     displayName: dotnet test
 
-- task: dotnet publish CredentialProvider.Microsoft/CredentialProvider.Microsoft.csproj --no-build --framework net6.0 --configuration $(BuildConfiguration)
+- script: dotnet publish CredentialProvider.Microsoft/CredentialProvider.Microsoft.csproj --no-build --framework net6.0 --configuration $(BuildConfiguration)
   displayName: dotnet publish net6.0
 
 # Create .NET 6.0 release for netcore users
