@@ -2,5 +2,6 @@
 <Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
     <CredentialProviderVersion>1.0.0</CredentialProviderVersion>
+    <TargetFrameworks>netcoreapp3.1;net461;net6.0</TargetFrameworks>
   </PropertyGroup>
 </Project>

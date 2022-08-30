@@ -57,7 +57,7 @@ namespace NuGetCredentialProvider.CredentialProviders.Vsts
 
             DateTime endTime = DateTime.UtcNow + sessionTimeSpan;
             logger.Verbose(string.Format(Resources.VSTSSessionTokenValidity, tokenType.ToString(), sessionTimeSpan.ToString(), endTime.ToUniversalTime().ToString()));
-            VstsSessionTokenClient sessionTokenClient = new VstsSessionTokenClient(request.Uri, bearerToken, authUtil);
+            VstsSessionTokenClient sessionTokenClient = new VstsSessionTokenClient(request.Uri, bearerToken, authUtil, this.logger);
             return await sessionTokenClient.CreateSessionTokenAsync(tokenType, endTime, cancellationToken);
         }
     }

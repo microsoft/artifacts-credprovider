@@ -17,7 +17,7 @@ namespace NuGetCredentialProvider.CredentialProviders.Vsts
         public string Scope { get; set; }
 
         [DataMember]
-        public DateTime ValidTo { get; set; }
+        public DateTime? ValidTo { get; set; }
 
         [DataMember]
         public string Token { get; set; }
