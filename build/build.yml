@@ -65,8 +65,6 @@ steps:
       AccessToken: $(DevDivDropManageAccessToken)
 
 - ${{ if ne(parameters.sign, 'true') }}:
-  - script: set
-    displayName: dump env vars
   - script: dotnet test CredentialProvider.Microsoft.Tests/CredentialProvider.Microsoft.Tests.csproj --logger trx --results-directory $(Agent.TempDirectory)
     displayName: dotnet test
 
