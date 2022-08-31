@@ -65,8 +65,6 @@ steps:
       AccessToken: $(DevDivDropManageAccessToken)
 
 - ${{ if ne(parameters.sign, 'true') }}:
-  - script: set
-    displayName: dump env vars
   - script: dotnet test CredentialProvider.Microsoft.Tests/CredentialProvider.Microsoft.Tests.csproj --logger trx --results-directory $(Agent.TempDirectory)
     displayName: dotnet test
 
@@ -208,14 +206,13 @@ steps:
     artifact: "Symbols"
     targetPath: '$(Build.ArtifactStagingDirectory)\symbols'
 
-
 - powershell: 'Write-Output ("##vso[task.setvariable variable=SignType;]")' 
   displayName: Clear SignType
 
 - script: dotnet pack CredentialProvider.Microsoft/CredentialProvider.Microsoft.csproj -o $(Build.ArtifactStagingDirectory)\$(BuildConfiguration) -p:${{ parameters.nuspecProperties }}
   displayName: dotnet pack
 
-- script: dotnet nuget push $(Build.ArtifactStagingDirectory)/$(BuildConfiguration)/*.nupkg --source MSCredProvider --api-key unimportantValue
+- script: dotnet nuget push $(Build.ArtifactStagingDirectory)\$(BuildConfiguration)\*.nupkg --source artifacts-credprovider --api-key unimportantValue
   displayName: dotnet push
   condition: eq(variables['PushNupkg'], 'true')
 
