@@ -206,7 +206,6 @@ steps:
     artifact: "Symbols"
     targetPath: '$(Build.ArtifactStagingDirectory)\symbols'
 
-
 - powershell: 'Write-Output ("##vso[task.setvariable variable=SignType;]")' 
   displayName: Clear SignType
 
