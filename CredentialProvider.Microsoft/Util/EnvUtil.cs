@@ -40,7 +40,6 @@ namespace NuGetCredentialProvider.Util
 
         public static string AdalTokenCacheLocation { get; } = Path.Combine(LocalAppDataLocation, "MicrosoftCredentialProvider", "ADALTokenCache.dat");
 
-
         // from https://github.com/GitCredentialManager/git-credential-manager/blob/df90676d1249759eef8cec57155c27e869503225/src/shared/Microsoft.Git.CredentialManager/Authentication/MicrosoftAuthentication.cs#L277
             // The Visual Studio MSAL cache is located at "%LocalAppData%\.IdentityService\msal.cache" on Windows.
             // We use the MSAL extension library to provide us consistent cache file access semantics (synchronisation, etc)
