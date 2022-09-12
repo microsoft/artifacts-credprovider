@@ -86,7 +86,7 @@ namespace NuGetCredentialProvider.Util
 
         public static bool MsalFileCacheEnabled()
         {
-            return GetEnabledFromEnvironment(MsalFileCacheEnvVar, defaultValue: false);
+            return GetEnabledFromEnvironment(MsalFileCacheEnvVar, defaultValue: true);
         }
 
         public static IList<string> GetHostsFromEnvironment(ILogger logger, string envVar, IEnumerable<string> defaultHosts, [CallerMemberName] string collectionName = null)
