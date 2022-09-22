@@ -38,17 +38,18 @@ namespace NuGetCredentialProvider.Util
 
         private static readonly string LocalAppDataLocation = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData, Environment.SpecialFolderOption.Create);
 
-        public static string AdalTokenCacheLocation { get; } = Path.Combine(LocalAppDataLocation, "MicrosoftCredentialProvider", "ADALTokenCache.dat");
+        private const string CredenetialProviderFolderName = "MicrosoftCredentialProvider";
+        public static string AdalTokenCacheLocation { get; } = Path.Combine(LocalAppDataLocation, CredenetialProviderFolderName, "ADALTokenCache.dat");
 
         // from https://github.com/GitCredentialManager/git-credential-manager/blob/df90676d1249759eef8cec57155c27e869503225/src/shared/Microsoft.Git.CredentialManager/Authentication/MicrosoftAuthentication.cs#L277
-            // The Visual Studio MSAL cache is located at "%LocalAppData%\.IdentityService\msal.cache" on Windows.
-            // We use the MSAL extension library to provide us consistent cache file access semantics (synchronisation, etc)
-            // as Visual Studio itself follows, as well as other Microsoft developer tools such as the Azure PowerShell CLI.
+        //      The Visual Studio MSAL cache is located at "%LocalAppData%\.IdentityService\msal.cache" on Windows.
+        //      We use the MSAL extension library to provide us consistent cache file access semantics (synchronisation, etc)
+        //      as Visual Studio itself follows, as well as other Microsoft developer tools such as the Azure PowerShell CLI.
         public static string DefaultMsalCacheLocation { get; } = Path.Combine(LocalAppDataLocation, ".IdentityService", "msal.cache");
 
         public static string FileLogLocation { get; } = Environment.GetEnvironmentVariable(LogPathEnvVar);
 
-        public static string SessionTokenCacheLocation { get; } = Path.Combine(LocalAppDataLocation, "MicrosoftCredentialProvider", "SessionTokenCache.dat");
+        public static string SessionTokenCacheLocation { get; } = Path.Combine(LocalAppDataLocation, CredenetialProviderFolderName, "SessionTokenCache.dat");
 
         public static Uri GetAuthorityFromEnvironment(ILogger logger)
         {
