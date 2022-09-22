@@ -215,7 +215,7 @@ namespace CredentialProvider.Microsoft.Tests.CredentialProviders.Vsts
             foreach (var ppeUri in ppeUris)
             {
                 var authorityUri = await authUtil.GetAadAuthorityUriAsync(ppeUri, cancellationToken);
-                authorityUri.Should().Be(new Uri("https://login.windows-ppe.net/organizations"));
+                authorityUri.Should().Be(new Uri("https://login.windows-ppe.net/f8cdef31-a31e-4b4a-93e4-5f571e91255a"));
             }
         }
 
@@ -227,7 +227,7 @@ namespace CredentialProvider.Microsoft.Tests.CredentialProviders.Vsts
 
             var authorityUri = await authUtil.GetAadAuthorityUriAsync(requestUri, cancellationToken);
 
-            authorityUri.Should().Be(organizationsAuthority);
+            authorityUri.Should().Be(new Uri("https://login.microsoftonline.com/f8cdef31-a31e-4b4a-93e4-5f571e91255a"));
         }
 
 
@@ -250,7 +250,7 @@ namespace CredentialProvider.Microsoft.Tests.CredentialProviders.Vsts
 
             var authorityUri = await authUtil.GetAadAuthorityUriAsync(requestUri, cancellationToken);
 
-            authorityUri.Should().Be(new Uri("https://login.windows-ppe.net/organizations"));
+            authorityUri.Should().Be(new Uri("https://login.windows-ppe.net/f8cdef31-a31e-4b4a-93e4-5f571e91255a"));
         }
 
         private void MockResponseHeaders(string key, string value)

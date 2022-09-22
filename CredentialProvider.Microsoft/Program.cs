@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Net.Http.Headers;
 using System.Reflection;
+using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
@@ -22,6 +23,7 @@ using NuGetCredentialProvider.Util;
 using PowerArgs;
 using ILogger = NuGetCredentialProvider.Logging.ILogger;
 
+[assembly: InternalsVisibleToAttribute("CredentialProvider.Microsoft.Tests")]
 namespace NuGetCredentialProvider
 {
     public static class Program

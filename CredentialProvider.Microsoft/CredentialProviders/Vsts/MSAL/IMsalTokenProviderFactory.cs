@@ -8,6 +8,6 @@ namespace NuGetCredentialProvider.CredentialProviders.Vsts
 {
     internal interface IMsalTokenProviderFactory
     {
-        IMsalTokenProvider Get(string authority, ILogger logger);
+        IMsalTokenProvider Get(string authority, bool brokerEnabled, ILogger logger);
     }
 }
