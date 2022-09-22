@@ -267,6 +267,9 @@ Cache Location
     Session Token Cache
     C:\Users\someuser\AppData\Local\MicrosoftCredentialProvider\SessionTokenCache.dat
 
+    MSAL Token Cache
+    C:\Users\someuser\AppData\Local\.IdentityService\msal.cache
+
 Windows Integrated Authentication
     NUGET_CREDENTIALPROVIDER_WINDOWSINTEGRATEDAUTHENTICATION_ENABLED
         Boolean to enable/disable using silent Windows Integrated Authentication

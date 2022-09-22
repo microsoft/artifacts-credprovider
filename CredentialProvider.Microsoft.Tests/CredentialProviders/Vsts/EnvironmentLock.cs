@@ -11,7 +11,7 @@ namespace CredentialProvider.Microsoft.Tests.CredentialProviders.Vsts
 {
     internal static class EnvironmentLock
     {
-        private static readonly Semaphore _lock = new Semaphore(1, 1, "CredentialProvider.Microsoft.Tests.CredentialProviders.Vsts");
+        private static readonly Semaphore _lock = new Semaphore(1, 1);
         private static readonly Dictionary<string,string> savedEnvVars = new Dictionary<string, string>();
 
         public static async Task<IDisposable> WaitAsync()
