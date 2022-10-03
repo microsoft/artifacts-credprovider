@@ -15,7 +15,7 @@ param(
     [switch]$Force,
     # install the version specified
     [string]$Version,
-    # install Net6 version of the netcore cred profider instead of the default NetCore3.1
+    # install Net6 version of the netcore cred provider instead of the default NetCore3.1
     [switch]$InstallNet6
 )
 
