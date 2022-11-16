@@ -33,6 +33,8 @@ steps:
   - task: NuGetCommand@2
     displayName: NuGet restore
     inputs:
+      feedsToUse: config
+      nugetConfigPath: CredentialProvider.Microsoft.VSIX/nuget.config
       restoreSolution: CredentialProvider.Microsoft.VSIX/packages.config
       restoreDirectory: packages
 
