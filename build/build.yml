@@ -30,8 +30,11 @@ steps:
     inputs:
       feedSource: 'https://pkgs.dev.azure.com/mseng/_packaging/MicroBuildToolset/nuget/v3/index.json'
 
-  - script: nuget restore CredentialProvider.Microsoft.VSIX/packages.config -OutputDirectory packages
+  - task: NuGetCommand@2
     displayName: NuGet restore
+    inputs:
+      restoreSolution: CredentialProvider.Microsoft.VSIX/packages.config
+      restoreDirectory: packages
 
 - script: dotnet restore 
   displayName: dotnet restore NuGet.config CredentialProvider.Microsoft/CredentialProvider.Microsoft.csproj
