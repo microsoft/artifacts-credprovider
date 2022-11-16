@@ -33,9 +33,10 @@ steps:
   - task: NuGetCommand@2
     displayName: NuGet restore
     inputs:
+      command: restore
+      restoreSolution: CredentialProvider.Microsoft.VSIX/packages.config
       feedsToUse: config
       nugetConfigPath: CredentialProvider.Microsoft.VSIX/nuget.config
-      restoreSolution: CredentialProvider.Microsoft.VSIX/packages.config
       restoreDirectory: packages
 
 - script: dotnet restore 
