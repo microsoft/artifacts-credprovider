@@ -23,6 +23,7 @@ namespace NuGetCredentialProvider.Util
         {
             this.cacheFilePath = cacheFilePath;
             this.logger = logger;
+            this.cancellationToken = cancellationToken;
             this.mutexName = @"Global\" + cacheFilePath.Replace(Path.DirectorySeparatorChar, '_');
         }
 

@@ -46,7 +46,7 @@ namespace NuGetCredentialProvider.CredentialProviders.Vsts
                 var fileName = Path.GetFileName(cacheLocation);
                 var directory = Path.GetDirectoryName(cacheLocation);
 
-                var builder = new StorageCreationPropertiesBuilder(fileName, directory, this.clientId);
+                var builder = new StorageCreationPropertiesBuilder(fileName, directory).WithCacheChangedEvent(this.clientId);
                 StorageCreationProperties creationProps = builder.Build();
                 helper = await MsalCacheHelper.CreateAsync(creationProps);
             }
