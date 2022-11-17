@@ -69,6 +69,7 @@ steps:
     inputs:
       DropFolder: '$(Build.ArtifactStagingDirectory)\$(BuildConfiguration)\vsix\'
       DropServiceUri: https://mseng.artifacts.visualstudio.com
+      DropRetentionDays: 365
       AccessToken: $(System.AccessToken)
 
 - ${{ if ne(parameters.sign, 'true') }}:
