@@ -3,5 +3,6 @@
   <PropertyGroup>
     <CredentialProviderVersion>1.0.0</CredentialProviderVersion>
     <TargetFrameworks>netcoreapp3.1;net461;net6.0</TargetFrameworks>
+    <NoSwixBuildPlugin>true</NoSwixBuildPlugin>
   </PropertyGroup>
 </Project>
