@@ -198,7 +198,7 @@ steps:
 
 - ${{ if eq(parameters.sign, 'true') }}:
   - task: PublishSymbols@2
-    displayName: Publish Symbols
+    displayName: Publish symbols
     inputs:
       SymbolsFolder: '$(Build.ArtifactStagingDirectory)\symbols'
       SearchPattern:  '**\*.pdb'
