@@ -69,6 +69,7 @@ steps:
     inputs:
       DropFolder: '$(Build.ArtifactStagingDirectory)\$(BuildConfiguration)\vsix\'
       DropServiceUri: https://mseng.artifacts.visualstudio.com
+      AccessToken: $(System.AccessToken)
 
 - ${{ if ne(parameters.sign, 'true') }}:
   - script: dotnet test CredentialProvider.Microsoft.Tests/CredentialProvider.Microsoft.Tests.csproj --logger trx --results-directory $(Agent.TempDirectory)
