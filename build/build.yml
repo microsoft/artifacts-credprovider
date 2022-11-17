@@ -196,17 +196,19 @@ steps:
       **\CredentialProvider.Microsoft.pdb
     TargetFolder: '$(Build.ArtifactStagingDirectory)\symbols'
 
-- task: PublishSymbols@2
-  inputs:
-    SymbolsFolder: '$(Build.ArtifactStagingDirectory)\symbols'
-    SearchPattern:  '**\*.pdb'
-    IndexSources: false
-    PublishSymbols: ${{ eq(parameters.sign, 'true') }}
-    SymbolServerType: TeamServices
-    SymbolsProduct: 'artifacts-credprovider'
-  env:
-    ArtifactServices.Symbol.AccountName: 'microsoft'
-    ArtifactServices.Symbol.UseAAD: 'true'
+- ${{ if eq(parameters.sign, 'true') }}:
+  - task: PublishSymbols@2
+    displayName: Publish Symbols
+    inputs:
+      SymbolsFolder: '$(Build.ArtifactStagingDirectory)\symbols'
+      SearchPattern:  '**\*.pdb'
+      IndexSources: false
+      PublishSymbols: true
+      SymbolServerType: TeamServices
+      SymbolsProduct: 'artifacts-credprovider'
+    env:
+      ArtifactServices.Symbol.AccountName: 'microsoft'
+      ArtifactServices.Symbol.UseAAD: 'true'
 
 - task: PublishPipelineArtifact@1
   displayName: 'Upload symbols'
