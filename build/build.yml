@@ -42,12 +42,12 @@ steps:
 - script: dotnet restore 
   displayName: dotnet restore NuGet.config CredentialProvider.Microsoft/CredentialProvider.Microsoft.csproj
 
-- task: VSBuild@1
+- task: MSBuild@1
   displayName: Build CredentialProvider
   inputs:
     solution: 'CredentialProvider.Microsoft/CredentialProvider.Microsoft.csproj'
     configuration: '$(BuildConfiguration)'
-    msbuildArgs: '/t:rebuild'
+    msbuildArguments: '/t:rebuild /p:TreatWarningsAsErrors=true'
 
 - ${{ if eq(parameters.sign, 'true') }}:
   - task: MSBuild@1
@@ -55,14 +55,14 @@ steps:
     inputs:
       solution: 'CredentialProvider.Microsoft.VSIX/Microsoft.CredentialProvider.swixproj'
       configuration: '$(BuildConfiguration)'
-      msbuildArguments: '/p:OutputPath=$(Build.ArtifactStagingDirectory)\$(BuildConfiguration)\vsix\'
+      msbuildArguments: '/p:OutputPath=$(Build.ArtifactStagingDirectory)\$(BuildConfiguration)\vsix\ /p:TreatWarningsAsErrors=true'
 
   - task: MSBuild@1
     displayName: Build vsmanproj
     inputs:
       solution: 'CredentialProvider.Microsoft.VSIX/Microsoft.CredentialProvider.vsmanproj'
       configuration: '$(BuildConfiguration)'
-      msbuildArguments: '/p:OutputPath=$(Build.ArtifactStagingDirectory)\$(BuildConfiguration)\vsix\'
+      msbuildArguments: '/p:OutputPath=$(Build.ArtifactStagingDirectory)\$(BuildConfiguration)\vsix\ /p:TreatWarningsAsErrors=true'
 
   - task: ms-vseng.MicroBuildTasks.4305a8de-ba66-4d8b-b2d1-0dc4ecbbf5e8.MicroBuildUploadVstsDropFolder@2
     displayName: Upload VSTS Drop
