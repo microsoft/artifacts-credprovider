@@ -8,7 +8,7 @@ trigger:
 - master
 
 variables:
-  BuildConfiguration: 'Debug'
+  BuildConfiguration: 'Release'
   PushNupkg: 'True'
   TeamName: 'Package Experience'
 
