@@ -217,7 +217,7 @@ steps:
 - powershell: 'Write-Output ("##vso[task.setvariable variable=SignType;]")' 
   displayName: Clear SignType
 
-- script: dotnet pack CredentialProvider.Microsoft/CredentialProvider.Microsoft.csproj -o $(Build.ArtifactStagingDirectory)\$(BuildConfiguration) -p:${{ parameters.nuspecProperties }}
+- script: dotnet pack CredentialProvider.Microsoft/CredentialProvider.Microsoft.csproj -c $(BuildConfiguration) -o $(Build.ArtifactStagingDirectory)\$(BuildConfiguration) -p:${{ parameters.nuspecProperties }}
   displayName: dotnet pack
 
 - script: dotnet nuget push $(Build.ArtifactStagingDirectory)\$(BuildConfiguration)\*.nupkg --source artifacts-credprovider --api-key unimportantValue
