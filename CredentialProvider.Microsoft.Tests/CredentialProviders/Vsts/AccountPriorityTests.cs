@@ -23,7 +23,7 @@ namespace CredentialProvider.Microsoft.Tests.CredentialProviders.Vsts
 
         private static readonly Guid ContosoTenant = Guid.NewGuid();
         private static readonly Guid FabrikamTenant = Guid.NewGuid();
-        
+
         private static readonly IAccount FabrikamUser = new TestAccount
         {
             Username = "billg@fabrikam.com",
@@ -59,7 +59,7 @@ namespace CredentialProvider.Microsoft.Tests.CredentialProviders.Vsts
         {
             foreach (var accounts in Permutations)
             {
-                var sorted = MsalTokenProvider.PrioritizeAccounts(accounts, AuthUtil.MsaAuthorityTenant, null);
+                var sorted = MsalTokenProvider.PrioritizeAccounts(accounts, AuthUtil.FirstPartyTenant, null);
                 Assert.AreEqual(sorted[0].Item1.Username, MsaUser.Username);
             }
         }

@@ -78,20 +78,20 @@ namespace NuGetCredentialProvider.CredentialProviders.Vsts
             return new MsalToken(result);
         }
 
-        internal static List<(IAccount, string, int)> PrioritizeAccounts(IEnumerable<IAccount> accounts, Guid? authorityTenant, string loginHint)
+        internal static List<(IAccount, string, int)> PrioritizeAccounts(IEnumerable<IAccount> accounts, Guid authorityTenant, string loginHint)
         {
             return accounts
                 .Select(account => {
                     int matchScore = 0;
                     if (Guid.TryParse(account.HomeAccountId.TenantId, out Guid accountTenant)) {
-                        if (authorityTenant.HasValue)
+                        if (authorityTenant != Guid.Empty)
                         {
-                            if (authorityTenant.Value == accountTenant)
+                            if (authorityTenant == accountTenant)
                             {
                                 matchScore += 1;
                             }
-                            // for some reason there are two MSA tenants?
-                            else if (authorityTenant.Value == AuthUtil.MsaAuthorityTenant && accountTenant == AuthUtil.MsaAccountTenant)
+                            // MSAs have their own tenant but will auth against the AAD first party app
+                            else if (authorityTenant == AuthUtil.FirstPartyTenant && accountTenant == AuthUtil.MsaAccountTenant)
                             {
                                 matchScore += 1;
                             }
