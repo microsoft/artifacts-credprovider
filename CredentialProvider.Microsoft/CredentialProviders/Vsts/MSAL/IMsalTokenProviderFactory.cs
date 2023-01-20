@@ -2,12 +2,13 @@
 //
 // Licensed under the MIT license.
 
+using System;
 using NuGetCredentialProvider.Logging;
 
 namespace NuGetCredentialProvider.CredentialProviders.Vsts
 {
     internal interface IMsalTokenProviderFactory
     {
-        IMsalTokenProvider Get(string authority, bool brokerEnabled, ILogger logger);
+        IMsalTokenProvider Get(Uri authority, bool brokerEnabled, ILogger logger);
     }
 }

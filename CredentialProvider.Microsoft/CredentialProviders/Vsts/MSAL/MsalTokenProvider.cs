@@ -20,7 +20,7 @@ namespace NuGetCredentialProvider.CredentialProviders.Vsts
     internal class MsalTokenProvider : IMsalTokenProvider
     {
         private const string NativeClientRedirect = "https://login.microsoftonline.com/common/oauth2/nativeclient";
-        private readonly string authority;
+        private readonly Uri authority;
         private readonly string resource;
         private readonly string clientId;
         private readonly bool brokerEnabled;
@@ -28,7 +28,7 @@ namespace NuGetCredentialProvider.CredentialProviders.Vsts
         private bool cacheEnabled = false;
         private string cacheLocation;
 
-        internal MsalTokenProvider(string authority, string resource, string clientId, bool brokerEnabled, ILogger logger)
+        internal MsalTokenProvider(Uri authority, string resource, string clientId, bool brokerEnabled, ILogger logger)
         {
             this.authority = authority;
             this.resource = resource;
@@ -134,16 +134,13 @@ namespace NuGetCredentialProvider.CredentialProviders.Vsts
                 accounts.Add(PublicClientApplication.OperatingSystemAccount);
             }
 
-            Guid? authorityTenant = null;
-            try
+            if (Guid.TryParse(this.authority.AbsolutePath.Trim('/'), out Guid authorityTenant))
             {
-                authorityTenant = Guid.Parse((new Uri(this.authority)).AbsolutePath.Trim('/'));
-                this.Logger.Verbose($"Found tenant `{authorityTenant.Value}` authority URL: `{this.authority}`.");
-
+                this.Logger.Verbose($"Found tenant `{authorityTenant}` authority URL: `{this.authority}`");
             }
-            catch (Exception e)
+            else
             {
-                this.Logger.Verbose($"Could not determine tenant from authority URL `{this.authority}`: {e.Message}");
+                this.Logger.Verbose($"Could not determine tenant from authority URL `{this.authority}`");
             }
 
             var sortedAccounts = PrioritizeAccounts(accounts, authorityTenant, loginHint);

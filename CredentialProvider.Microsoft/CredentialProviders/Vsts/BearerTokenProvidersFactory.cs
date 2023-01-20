@@ -2,6 +2,7 @@
 //
 // Licensed under the MIT license.
 
+using System;
 using System.Collections.Generic;
 using NuGetCredentialProvider.Logging;
 
@@ -18,7 +19,7 @@ namespace NuGetCredentialProvider.CredentialProviders.Vsts
             this.logger = logger;
         }
 
-        public IEnumerable<IBearerTokenProvider> Get(string authority)
+        public IEnumerable<IBearerTokenProvider> Get(Uri authority)
         {
             IAdalTokenProvider adalTokenProvider = adalTokenProviderFactory.Get(authority);
             return new IBearerTokenProvider[]

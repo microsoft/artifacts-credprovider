@@ -31,7 +31,7 @@ namespace CredentialProvider.Microsoft.Tests.CredentialProviders.Vsts
 
         private VstsCredentialProvider vstsCredentialProvider;
         private IDisposable environmentLock;
-        
+
         [TestInitialize]
         public void TestInitialize()
         {
@@ -44,7 +44,7 @@ namespace CredentialProvider.Microsoft.Tests.CredentialProviders.Vsts
             mockBearerTokenProvider2.Setup(x => x.ShouldRun(It.IsAny<bool>(), It.IsAny<bool>(), It.IsAny<bool>())).Returns(true);
             mockBearerTokenProvider2.Setup(x => x.GetTokenAsync(It.IsAny<Uri>(), It.IsAny<CancellationToken>())).ReturnsAsync((string)null);
             mockBearerTokenProvidersFactory = new Mock<IBearerTokenProvidersFactory>();
-            mockBearerTokenProvidersFactory.Setup(x => x.Get(It.IsAny<string>())).Returns(new[] { mockBearerTokenProvider1.Object, mockBearerTokenProvider2.Object });
+            mockBearerTokenProvidersFactory.Setup(x => x.Get(It.IsAny<Uri>())).Returns(new[] { mockBearerTokenProvider1.Object, mockBearerTokenProvider2.Object });
 
             mockVstsSessionTokenFromBearerTokenProvider = new Mock<IAzureDevOpsSessionTokenFromBearerTokenProvider>();
             mockVstsSessionTokenFromBearerTokenProvider.Setup(x => x.GetAzureDevOpsSessionTokenFromBearerToken(It.IsAny<GetAuthenticationCredentialsRequest>(), It.IsAny<string>(), It.IsAny<bool>(), It.IsAny<CancellationToken>()));

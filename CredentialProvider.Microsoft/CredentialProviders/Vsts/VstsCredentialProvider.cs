@@ -37,7 +37,7 @@ namespace NuGetCredentialProvider.CredentialProviders.Vsts
 
         public override async Task<bool> CanProvideCredentialsAsync(Uri uri)
         {
-            // If for any reason we reach this point and any of the three build task env vars are set, 
+            // If for any reason we reach this point and any of the three build task env vars are set,
             // we should not try get credentials with this cred provider.
             string feedEndPointsJsonEnvVar = Environment.GetEnvironmentVariable(EnvUtil.BuildTaskExternalEndpoints);
             string uriPrefixesStringEnvVar = Environment.GetEnvironmentVariable(EnvUtil.BuildTaskUriPrefixes);
@@ -95,7 +95,7 @@ namespace NuGetCredentialProvider.CredentialProviders.Vsts
             Uri authority = await authUtil.GetAadAuthorityUriAsync(request.Uri, cancellationToken);
             Verbose(string.Format(Resources.AdalUsingAuthority, authority));
 
-            IEnumerable<IBearerTokenProvider> bearerTokenProviders = bearerTokenProvidersFactory.Get(authority.ToString());
+            IEnumerable<IBearerTokenProvider> bearerTokenProviders = bearerTokenProvidersFactory.Get(authority);
             cancellationToken.ThrowIfCancellationRequested();
 
             // Try each bearer token provider (e.g. ADAL cache, ADAL WIA, ADAL UI, ADAL DeviceCode) in order.
