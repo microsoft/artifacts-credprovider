@@ -3,7 +3,9 @@
 // Licensed under the MIT license.
 
 using System;
+using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Runtime.InteropServices;
 using System.Threading;
 using System.Threading.Tasks;
@@ -12,8 +14,6 @@ using Microsoft.Identity.Client.Broker;
 using Microsoft.Identity.Client.Extensions.Msal;
 using NuGetCredentialProvider.Logging;
 using NuGetCredentialProvider.Util;
-using System.Collections.Generic;
-using System.Linq;
 
 namespace NuGetCredentialProvider.CredentialProviders.Vsts
 {
@@ -245,23 +245,20 @@ namespace NuGetCredentialProvider.CredentialProviders.Vsts
                     },
                     enablePiiLogging: EnvUtil.GetLogPIIEnabled()
                 );
-            
+
             if (this.brokerEnabled)
             {
                 if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
                 {
                     this.Logger.Verbose($"MSAL using WithBrokerPreview");
-                    publicClientBuilder = publicClientBuilder.WithBrokerPreview();
-
-                    //  needed for WAM
-                    publicClientBuilder = publicClientBuilder.WithParentActivityOrWindow(() => GetConsoleOrTerminalWindow());
-
-                    publicClientBuilder = publicClientBuilder.WithWindowsBrokerOptions(new WindowsBrokerOptions() {
-                        HeaderText = "Azure DevOps Artifacts",
-                        // System.NotImplementedException: The new broker implementation does not yet support Windows account discovery (ListWindowsWorkAndSchoolAccounts option)
-                        // https://github.com/AzureAD/microsoft-authentication-library-for-dotnet/pull/3602
-                        // ListWindowsWorkAndSchoolAccounts = true,
-                    });
+                    publicClientBuilder = publicClientBuilder
+                        .WithBrokerPreview()
+                        .WithParentActivityOrWindow(() => GetConsoleOrTerminalWindow())
+                        .WithWindowsBrokerOptions(new WindowsBrokerOptions()
+                        {
+                            HeaderText = "Azure DevOps Artifacts",
+                            ListWindowsWorkAndSchoolAccounts = true
+                        });
                 }
                 else
                 {
@@ -282,7 +279,7 @@ namespace NuGetCredentialProvider.CredentialProviders.Vsts
 
 #region https://github.com/AzureAD/microsoft-authentication-library-for-dotnet/wiki/WAM
         enum GetAncestorFlags
-        {   
+        {
             GetParent = 1,
             GetRoot = 2,
             /// <summary>
@@ -308,7 +305,7 @@ namespace NuGetCredentialProvider.CredentialProviders.Vsts
         {
             IntPtr consoleHandle = GetConsoleWindow();
             IntPtr handle = GetAncestor(consoleHandle, GetAncestorFlags.GetRootOwner );
-            
+
             return handle;
         }
 #endregion
