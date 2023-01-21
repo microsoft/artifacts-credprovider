@@ -176,16 +176,18 @@ namespace NuGetCredentialProvider.CredentialProviders.Vsts
         {
             var deviceFlowTimeout = EnvUtil.GetDeviceFlowTimeoutFromEnvironmentInSeconds(logging);
 
-            CancellationTokenSource cts = new CancellationTokenSource(TimeSpan.FromSeconds(deviceFlowTimeout));
-            var linkedCancellationToken = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken, cts.Token).Token;
+            using CancellationTokenSource cts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
+            cts.CancelAfter(TimeSpan.FromSeconds(deviceFlowTimeout));
+
             var publicClient = await GetPCAAsync(useLocalHost: true).ConfigureAwait(false);
 
             try
             {
-                var msalBuilder = publicClient.AcquireTokenInteractive(new string[] { resource });
-                msalBuilder.WithPrompt(Prompt.SelectAccount);
-                msalBuilder.WithUseEmbeddedWebView(false);
-                var result = await msalBuilder.ExecuteAsync(linkedCancellationToken);
+                var result = await publicClient.AcquireTokenInteractive(new string[] { resource })
+                    .WithPrompt(Prompt.SelectAccount)
+                    .WithUseEmbeddedWebView(false)
+                    .ExecuteAsync(cts.Token);
+
                 return new MsalToken(result);
             }
             catch (MsalServiceException e)
