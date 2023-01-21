@@ -105,7 +105,7 @@ namespace CredentialProvider.Microsoft.Tests.CredentialProviders.Vsts
         {
             foreach (var accounts in Permutations)
             {
-                var sorted = MsalTokenProvider.PrioritizeAccounts(accounts, null, null);
+                var sorted = MsalTokenProvider.PrioritizeAccounts(accounts, Guid.Empty, null);
                 Assert.AreEqual(sorted[0].Item1.Username, MsaUser.Username);
             }
         }
