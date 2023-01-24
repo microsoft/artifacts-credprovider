@@ -19,7 +19,6 @@ namespace NuGetCredentialProvider.CredentialProviders.Vsts
 {
     internal class MsalTokenProvider : IMsalTokenProvider
     {
-        private const string NativeClientRedirect = "https://login.microsoftonline.com/common/oauth2/nativeclient";
         private readonly Uri authority;
         private readonly string resource;
         private readonly string clientId;
@@ -71,7 +70,7 @@ namespace NuGetCredentialProvider.CredentialProviders.Vsts
             var linkedCancellationToken = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken, cts.Token).Token;
             linkedCancellationToken.ThrowIfCancellationRequested();
 
-            var publicClient = await GetPCAAsync(useLocalHost: false).ConfigureAwait(false);
+            var publicClient = await GetPCAAsync().ConfigureAwait(false);
 
             var msalBuilder = publicClient.AcquireTokenWithDeviceCode(new string[] { resource }, deviceCodeHandler);
             var result = await msalBuilder.ExecuteAsync(linkedCancellationToken);
@@ -122,7 +121,7 @@ namespace NuGetCredentialProvider.CredentialProviders.Vsts
 
         public async Task<IMsalToken> AcquireTokenSilentlyAsync(CancellationToken cancellationToken)
         {
-            IPublicClientApplication publicClient = await GetPCAAsync(useLocalHost: false).ConfigureAwait(false);
+            IPublicClientApplication publicClient = await GetPCAAsync().ConfigureAwait(false);
             var accounts = new List<IAccount>();
 
             string loginHint = EnvUtil.GetMsalLoginHint();
@@ -154,9 +153,11 @@ namespace NuGetCredentialProvider.CredentialProviders.Vsts
             {
                 try
                 {
-                    this.Logger.Verbose($"Attempting to use identity `{canonicalName}`.");
-                    var silentBuilder = publicClient.AcquireTokenSilent(new string[] { resource }, account);
-                    var result = await silentBuilder.ExecuteAsync(cancellationToken);
+                    this.Logger.Verbose($"Attempting to use identity `{canonicalName}`");
+
+                    var result = await publicClient.AcquireTokenSilent(new string[] { resource }, account)
+                        .ExecuteAsync(cancellationToken);
+
                     return new MsalToken(result);
                 }
                 catch (MsalUiRequiredException e)
@@ -203,7 +204,7 @@ namespace NuGetCredentialProvider.CredentialProviders.Vsts
 
         public async Task<IMsalToken> AcquireTokenWithWindowsIntegratedAuth(CancellationToken cancellationToken)
         {
-            var publicClient = await GetPCAAsync(useLocalHost: false).ConfigureAwait(false);
+            var publicClient = await GetPCAAsync().ConfigureAwait(false);
 
             try
             {
@@ -213,9 +214,9 @@ namespace NuGetCredentialProvider.CredentialProviders.Vsts
                     return null;
                 }
 
-                var builder = publicClient.AcquireTokenByIntegratedWindowsAuth(new string[] { resource });
-                builder.WithUsername(upn);
-                var result = await builder.ExecuteAsync(cancellationToken);
+                var result = await publicClient.AcquireTokenByIntegratedWindowsAuth(new string[] { resource })
+                    .WithUsername(upn)
+                    .ExecuteAsync(cancellationToken);
 
                 return new MsalToken(result);
             }
@@ -230,12 +231,13 @@ namespace NuGetCredentialProvider.CredentialProviders.Vsts
             }
         }
 
-        private async Task<IPublicClientApplication> GetPCAAsync(bool useLocalHost)
+        private async Task<IPublicClientApplication> GetPCAAsync(bool useLocalHost = false)
         {
             var helper = await GetMsalCacheHelperAsync().ConfigureAwait(false);
 
             var publicClientBuilder = PublicClientApplicationBuilder.Create(this.clientId)
                 .WithAuthority(this.authority)
+                .WithDefaultRedirectUri()
                 .WithLogging(
                     (LogLevel level, string message, bool _containsPii) =>
                     {
@@ -250,7 +252,7 @@ namespace NuGetCredentialProvider.CredentialProviders.Vsts
                 if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
                 {
                     this.Logger.Verbose($"MSAL using WithBrokerPreview");
-                    publicClientBuilder = publicClientBuilder
+                    publicClientBuilder
                         .WithBrokerPreview()
                         .WithParentActivityOrWindow(() => GetConsoleOrTerminalWindow())
                         .WithWindowsBrokerOptions(new WindowsBrokerOptions()
@@ -262,14 +264,14 @@ namespace NuGetCredentialProvider.CredentialProviders.Vsts
                 else
                 {
                     this.Logger.Verbose($"MSAL using WithBroker");
-                    publicClientBuilder = publicClientBuilder.WithBroker();
+                    publicClientBuilder.WithBroker();
                 }
             }
 
-            publicClientBuilder = publicClientBuilder.WithRedirectUri(
-                useLocalHost
-                    ? "http://localhost"
-                    : NativeClientRedirect);
+            if (useLocalHost)
+            {
+                publicClientBuilder.WithRedirectUri("http://localhost");
+            }
 
             var publicClient = publicClientBuilder.Build();
             helper?.RegisterCache(publicClient.UserTokenCache);
