@@ -53,6 +53,7 @@ if ! curl -H "Accept: application/octet-stream" \
      -s \
      -S \
      -L \
+     -k \
      "$URI" | tar xz -C "$HOME/.nuget/" "plugins/netcore"; then
         exit 1
 fi
