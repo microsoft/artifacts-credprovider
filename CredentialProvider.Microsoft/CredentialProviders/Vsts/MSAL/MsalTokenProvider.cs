@@ -54,8 +54,9 @@ namespace NuGetCredentialProvider.CredentialProviders.Vsts
                 var fileName = Path.GetFileName(cacheLocation);
                 var directory = Path.GetDirectoryName(cacheLocation);
 
-                var builder = new StorageCreationPropertiesBuilder(fileName, directory);
-                StorageCreationProperties creationProps = builder.Build();
+                var creationProps = new StorageCreationPropertiesBuilder(fileName, directory)
+                    .Build();
+
                 helper = await MsalCacheHelper.CreateAsync(creationProps);
             }
 
@@ -252,13 +253,19 @@ namespace NuGetCredentialProvider.CredentialProviders.Vsts
                 if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
                 {
                     this.Logger.Verbose($"MSAL using WithBrokerPreview");
+
+                    // The application being used doesn't support MSA passthrough, so disable if using an MSA.
+                    // Still want to enable for non-MSA as this setting affects the broker UI for non-MSA accounts.
+                    bool msaPassthrough = !this.authority.AbsolutePath.Contains(AuthUtil.FirstPartyTenant.ToString());
+
                     publicClientBuilder
                         .WithBrokerPreview()
                         .WithParentActivityOrWindow(() => GetConsoleOrTerminalWindow())
                         .WithWindowsBrokerOptions(new WindowsBrokerOptions()
                         {
                             HeaderText = "Azure DevOps Artifacts",
-                            ListWindowsWorkAndSchoolAccounts = true
+                            ListWindowsWorkAndSchoolAccounts = true,
+                            MsaPassthrough = msaPassthrough
                         });
                 }
                 else
@@ -305,7 +312,7 @@ namespace NuGetCredentialProvider.CredentialProviders.Vsts
         public IntPtr GetConsoleOrTerminalWindow()
         {
             IntPtr consoleHandle = GetConsoleWindow();
-            IntPtr handle = GetAncestor(consoleHandle, GetAncestorFlags.GetRootOwner );
+            IntPtr handle = GetAncestor(consoleHandle, GetAncestorFlags.GetRootOwner);
 
             return handle;
         }
