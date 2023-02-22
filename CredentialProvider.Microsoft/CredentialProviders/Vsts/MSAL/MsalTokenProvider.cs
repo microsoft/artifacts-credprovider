@@ -47,7 +47,7 @@ namespace NuGetCredentialProvider.CredentialProviders.Vsts
         {
             // There are options to set up the cache correctly using StorageCreationProperties on other OS's but that will need to be tested
             // for now only support windows
-            if (helper == null && this.cacheEnabled && RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+            if (helper == null && this.cacheEnabled)
             {
                 this.Logger.Verbose($"Using MSAL cache at `{cacheLocation}`.");
 
