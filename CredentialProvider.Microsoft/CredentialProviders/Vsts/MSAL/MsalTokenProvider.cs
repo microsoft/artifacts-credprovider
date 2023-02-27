@@ -4,7 +4,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Threading;
@@ -45,19 +44,63 @@ namespace NuGetCredentialProvider.CredentialProviders.Vsts
 
         private async Task<MsalCacheHelper> GetMsalCacheHelperAsync()
         {
-            // There are options to set up the cache correctly using StorageCreationProperties on other OS's but that will need to be tested
-            // for now only support windows
             if (helper == null && this.cacheEnabled)
             {
-                this.Logger.Verbose($"Using MSAL cache at `{cacheLocation}`.");
+                this.Logger.Verbose($"Using MSAL cache at `{cacheLocation}`");
 
-                var fileName = Path.GetFileName(cacheLocation);
-                var directory = Path.GetDirectoryName(cacheLocation);
+                const string cacheFileName = "msal.cache";
 
-                var creationProps = new StorageCreationPropertiesBuilder(fileName, directory)
-                    .Build();
+                // Copied from GCM https://github.com/GitCredentialManager/git-credential-manager/blob/bdc20d91d325d66647f2837ffb4e2b2fe98d7e70/src/shared/Core/Authentication/MicrosoftAuthentication.cs#L371-L407
+                try
+                {
+                    var storageProps = CreateTokenCacheProperties(useLinuxFallback: false);
 
-                helper = await MsalCacheHelper.CreateAsync(creationProps);
+                    helper = await MsalCacheHelper.CreateAsync(storageProps);
+                }
+                catch (MsalCachePersistenceException ex)
+                {
+                    this.Logger.Warning("warning: cannot persist Microsoft authentication token cache securely!");
+                    this.Logger.Verbose(ex.ToString());
+
+                    if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
+                    {
+                        // On macOS sometimes the Keychain returns the "errSecAuthFailed" error - we don't know why
+                        // but it appears to be something to do with not being able to access the keychain.
+                        // Locking and unlocking (or restarting) often fixes this.
+                        this.Logger.Error(
+                            "warning: there is a problem accessing the login Keychain - either manually lock and unlock the " +
+                            "login Keychain, or restart the computer to remedy this");
+                    }
+                    else if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
+                    {
+                        // On Linux the SecretService/keyring might not be available so we must fall-back to a plaintext file.
+                        this.Logger.Warning("warning: using plain-text fallback token cache");
+
+                        var storageProps = CreateTokenCacheProperties(useLinuxFallback: true);
+                        helper = await MsalCacheHelper.CreateAsync(storageProps);
+                    }
+                }
+
+                StorageCreationProperties CreateTokenCacheProperties(bool useLinuxFallback)
+                {
+                    var builder = new StorageCreationPropertiesBuilder(cacheFileName, cacheLocation)
+                        .WithMacKeyChain("Microsoft.Developer.IdentityService", "MSALCache");
+
+                    if (useLinuxFallback)
+                    {
+                        builder.WithLinuxUnprotectedFile();
+                    }
+                    else
+                    {
+                        // The SecretService/keyring is used on Linux with the following collection name and attributes
+                        builder.WithLinuxKeyring(cacheFileName,
+                            "default", "MSALCache",
+                            new KeyValuePair<string, string>("MsalClientID", "Microsoft.Developer.IdentityService"),
+                            new KeyValuePair<string, string>("Microsoft.Developer.IdentityService", "1.0.0.0"));
+                    }
+
+                    return builder.Build();
+                }
             }
 
             return helper;
