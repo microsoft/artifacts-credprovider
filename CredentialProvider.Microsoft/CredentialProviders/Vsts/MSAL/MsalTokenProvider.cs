@@ -56,6 +56,8 @@ namespace NuGetCredentialProvider.CredentialProviders.Vsts
                     var storageProps = CreateTokenCacheProperties(useLinuxFallback: false);
 
                     helper = await MsalCacheHelper.CreateAsync(storageProps);
+
+                    helper.VerifyPersistence();
                 }
                 catch (MsalCachePersistenceException ex)
                 {
