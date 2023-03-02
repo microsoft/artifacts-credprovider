@@ -4,7 +4,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Runtime.InteropServices;
 using System.Threading;
 using System.Threading.Tasks;
@@ -123,79 +122,67 @@ namespace NuGetCredentialProvider.CredentialProviders.Vsts
             return new MsalToken(result);
         }
 
-        internal static List<(IAccount, string, int)> PrioritizeAccounts(IEnumerable<IAccount> accounts, Guid authorityTenant, string loginHint)
+        internal static List<(IAccount, string)> GetApplicableAccounts(IEnumerable<IAccount> accounts, Guid authorityTenantId, string loginHint)
         {
-            return accounts
-                .Select(account => {
-                    int matchScore = 0;
-                    if (Guid.TryParse(account.HomeAccountId.TenantId, out Guid accountTenant)) {
-                        if (authorityTenant != Guid.Empty)
-                        {
-                            if (authorityTenant == accountTenant)
-                            {
-                                matchScore += 1;
-                            }
-                            // MSAs have their own tenant but will auth against the AAD first party app
-                            else if (authorityTenant == AuthUtil.FirstPartyTenant && accountTenant == AuthUtil.MsaAccountTenant)
-                            {
-                                matchScore += 1;
-                            }
-                        }
-                        else
-                        {
-                            // if the authority is not provided, that probably means it's not AAD-backed,
-                            // but rather it is MSA-backed.
-                            if (accountTenant == AuthUtil.MsaAccountTenant)
-                            {
-                                matchScore += 1;
-                            }
-                        }
-                    }
+            var applicableAccounts = new List<(IAccount, string)>();
 
-                    if (!string.IsNullOrEmpty(loginHint) && 0 <= account.Username.IndexOf(loginHint, StringComparison.Ordinal))
+            foreach (var account in accounts)
+            {
+                string canonicalName = $"{account.HomeAccountId?.TenantId}\\{account.Username}";
+
+                // If a login hint is provided and matches, try that first
+                if (!string.IsNullOrEmpty(loginHint) && account.Username == loginHint)
+                {
+                    applicableAccounts.Insert(0, (account, canonicalName));
+                    continue;
+                }
+
+                if (Guid.TryParse(account.HomeAccountId?.TenantId, out Guid accountTenantId))
+                {
+                    if (accountTenantId == authorityTenantId)
                     {
-                        matchScore += 10;
+                        applicableAccounts.Add((account, canonicalName));
                     }
+                    else if (accountTenantId == AuthUtil.MsaAccountTenant && (authorityTenantId == AuthUtil.FirstPartyTenant || authorityTenantId == Guid.Empty))
+                    {
+                        applicableAccounts.Add((account, canonicalName));
+                    }
+                }
+            }
 
-                    string canonicalName = $"{account.HomeAccountId.TenantId}\\{account.Username}";
-
-                    return (account, canonicalName, matchScore);
-                })
-                .OrderByDescending( a => a.matchScore)
-                .ToList();
+            return applicableAccounts;
         }
 
         public async Task<IMsalToken> AcquireTokenSilentlyAsync(CancellationToken cancellationToken)
         {
             IPublicClientApplication publicClient = await GetPCAAsync().ConfigureAwait(false);
-            var accounts = new List<IAccount>();
 
-            string loginHint = EnvUtil.GetMsalLoginHint();
+            var accounts = await publicClient.GetAccountsAsync();
 
-            accounts.AddRange(await publicClient.GetAccountsAsync());
-
-            if (this.brokerEnabled && accounts.Count == 0 && RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+            foreach (var account in accounts)
             {
-                accounts.Add(PublicClientApplication.OperatingSystemAccount);
+                this.Logger.Verbose($"Found in cache: {account.HomeAccountId?.TenantId}\\{account.Username}");
             }
 
-            if (Guid.TryParse(this.authority.AbsolutePath.Trim('/'), out Guid authorityTenant))
+            if (Guid.TryParse(this.authority.AbsolutePath.Trim('/'), out Guid authorityTenantId))
             {
-                this.Logger.Verbose($"Found tenant `{authorityTenant}` authority URL: `{this.authority}`");
+                this.Logger.Verbose($"Found tenant `{authorityTenantId}` authority URL: `{this.authority}`");
             }
             else
             {
                 this.Logger.Verbose($"Could not determine tenant from authority URL `{this.authority}`");
             }
 
-            var sortedAccounts = PrioritizeAccounts(accounts, authorityTenant, loginHint);
+            string loginHint = EnvUtil.GetMsalLoginHint();
 
-            foreach ((IAccount account, string canonicalName, _) in sortedAccounts)
+            var applicableAccounts = GetApplicableAccounts(accounts, authorityTenantId, loginHint);
+
+            if (this.brokerEnabled && RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
             {
-                this.Logger.Verbose($"Found in cache: {canonicalName}");
+                applicableAccounts.Add((PublicClientApplication.OperatingSystemAccount, PublicClientApplication.OperatingSystemAccount.HomeAccountId.Identifier));
             }
 
-            foreach ((IAccount account, string canonicalName, _) in sortedAccounts)
+            foreach ((IAccount account, string canonicalName) in applicableAccounts)
             {
                 try
                 {

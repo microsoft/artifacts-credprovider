@@ -45,7 +45,8 @@ namespace CredentialProvider.Microsoft.Tests.CredentialProviders.Vsts
             HomeAccountId = new AccountId(string.Empty, string.Empty, AuthUtil.MsaAccountTenant.ToString()),
         };
 
-        private static readonly List<List<IAccount>> Permutations = new List<List<IAccount>>() {
+        private static readonly List<List<IAccount>> Permutations = new List<List<IAccount>>()
+        {
             new List<IAccount> { ContosoUser, MsaUser, FabrikamUser },
             new List<IAccount> { ContosoUser, FabrikamUser, MsaUser },
             new List<IAccount> { MsaUser, ContosoUser, FabrikamUser },
@@ -59,8 +60,8 @@ namespace CredentialProvider.Microsoft.Tests.CredentialProviders.Vsts
         {
             foreach (var accounts in Permutations)
             {
-                var sorted = MsalTokenProvider.PrioritizeAccounts(accounts, AuthUtil.FirstPartyTenant, null);
-                Assert.AreEqual(sorted[0].Item1.Username, MsaUser.Username);
+                var applicable = MsalTokenProvider.GetApplicableAccounts(accounts, AuthUtil.FirstPartyTenant, loginHint: null);
+                Assert.AreEqual(applicable[0].Item1.Username, MsaUser.Username);
             }
         }
 
@@ -69,8 +70,8 @@ namespace CredentialProvider.Microsoft.Tests.CredentialProviders.Vsts
         {
             foreach (var accounts in Permutations)
             {
-                var sorted = MsalTokenProvider.PrioritizeAccounts(accounts, ContosoTenant, null);
-                Assert.AreEqual(sorted[0].Item1.Username, ContosoUser.Username);
+                var applicable = MsalTokenProvider.GetApplicableAccounts(accounts, ContosoTenant, loginHint: null);
+                Assert.AreEqual(applicable[0].Item1.Username, ContosoUser.Username);
             }
         }
 
@@ -79,8 +80,8 @@ namespace CredentialProvider.Microsoft.Tests.CredentialProviders.Vsts
         {
             foreach (var accounts in Permutations)
             {
-                var sorted = MsalTokenProvider.PrioritizeAccounts(accounts, FabrikamTenant, null);
-                Assert.AreEqual(sorted[0].Item1.Username, FabrikamUser.Username);
+                var applicable = MsalTokenProvider.GetApplicableAccounts(accounts, FabrikamTenant, loginHint: null);
+                Assert.AreEqual(applicable[0].Item1.Username, FabrikamUser.Username);
             }
         }
 
@@ -93,8 +94,8 @@ namespace CredentialProvider.Microsoft.Tests.CredentialProviders.Vsts
                 {
                     foreach (var loginHint in Permutations[0].Select(a => a.Username))
                     {
-                        var sorted = MsalTokenProvider.PrioritizeAccounts(accounts, tenantId, loginHint);
-                        Assert.AreEqual(sorted[0].Item1.Username, loginHint);
+                        var applicable = MsalTokenProvider.GetApplicableAccounts(accounts, tenantId, loginHint);
+                        Assert.AreEqual(applicable[0].Item1.Username, loginHint);
                     }
                 }
             }
@@ -105,8 +106,8 @@ namespace CredentialProvider.Microsoft.Tests.CredentialProviders.Vsts
         {
             foreach (var accounts in Permutations)
             {
-                var sorted = MsalTokenProvider.PrioritizeAccounts(accounts, Guid.Empty, null);
-                Assert.AreEqual(sorted[0].Item1.Username, MsaUser.Username);
+                var applicable = MsalTokenProvider.GetApplicableAccounts(accounts, Guid.Empty, loginHint: null);
+                Assert.AreEqual(applicable[0].Item1.Username, MsaUser.Username);
             }
         }
     }
