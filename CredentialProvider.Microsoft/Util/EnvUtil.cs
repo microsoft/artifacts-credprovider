@@ -120,7 +120,7 @@ namespace NuGetCredentialProvider.Util
 
         public static bool MsalAllowBrokerEnabled()
         {
-            return GetEnabledFromEnvironment(MsalAllowBrokerEnvVar, defaultValue: true);
+            return GetEnabledFromEnvironment(MsalAllowBrokerEnvVar, defaultValue: RuntimeInformation.IsOSPlatform(OSPlatform.Windows));
         }
 
         public static IList<string> GetHostsFromEnvironment(ILogger logger, string envVar, IEnumerable<string> defaultHosts, [CallerMemberName] string collectionName = null)
