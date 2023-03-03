@@ -3,11 +3,12 @@
 // Licensed under the MIT license.
 
 using System;
-using System.IO;
+using System.Collections.Generic;
 using System.Runtime.InteropServices;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Identity.Client;
+using Microsoft.Identity.Client.Broker;
 using Microsoft.Identity.Client.Extensions.Msal;
 using NuGetCredentialProvider.Logging;
 using NuGetCredentialProvider.Util;
@@ -16,39 +17,91 @@ namespace NuGetCredentialProvider.CredentialProviders.Vsts
 {
     internal class MsalTokenProvider : IMsalTokenProvider
     {
-        private const string NativeClientRedirect = "https://login.microsoftonline.com/common/oauth2/nativeclient";
-        private readonly string authority;
+        private readonly Uri authority;
         private readonly string resource;
         private readonly string clientId;
+        private readonly bool brokerEnabled;
         private static MsalCacheHelper helper;
         private bool cacheEnabled = false;
         private string cacheLocation;
 
-        internal MsalTokenProvider(string authority, string resource, string clientId, ILogger logger)
+        internal MsalTokenProvider(Uri authority, string resource, string clientId, bool brokerEnabled, ILogger logger)
         {
             this.authority = authority;
             this.resource = resource;
             this.clientId = clientId;
+            this.brokerEnabled = brokerEnabled;
             this.Logger = logger;
 
             this.cacheEnabled = EnvUtil.MsalFileCacheEnabled();
             this.cacheLocation = this.cacheEnabled ? EnvUtil.GetMsalCacheLocation() : null;
         }
 
+        public string NameSuffix => $"with{(this.brokerEnabled ? "" : "out")} WAM broker.";
+
         public ILogger Logger { get; private set; }
 
         private async Task<MsalCacheHelper> GetMsalCacheHelperAsync()
         {
-            // There are options to set up the cache correctly using StorageCreationProperties on other OS's but that will need to be tested
-            // for now only support windows
-            if (helper == null && this.cacheEnabled && RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+            if (helper == null && this.cacheEnabled)
             {
-                var fileName = Path.GetFileName(cacheLocation);
-                var directory = Path.GetDirectoryName(cacheLocation);
+                this.Logger.Verbose($"Using MSAL cache at `{cacheLocation}`");
 
-                var builder = new StorageCreationPropertiesBuilder(fileName, directory).WithCacheChangedEvent(this.clientId);
-                StorageCreationProperties creationProps = builder.Build();
-                helper = await MsalCacheHelper.CreateAsync(creationProps);
+                const string cacheFileName = "msal.cache";
+
+                // Copied from GCM https://github.com/GitCredentialManager/git-credential-manager/blob/bdc20d91d325d66647f2837ffb4e2b2fe98d7e70/src/shared/Core/Authentication/MicrosoftAuthentication.cs#L371-L407
+                try
+                {
+                    var storageProps = CreateTokenCacheProperties(useLinuxFallback: false);
+
+                    helper = await MsalCacheHelper.CreateAsync(storageProps);
+
+                    helper.VerifyPersistence();
+                }
+                catch (MsalCachePersistenceException ex)
+                {
+                    this.Logger.Warning("warning: cannot persist Microsoft authentication token cache securely!");
+                    this.Logger.Verbose(ex.ToString());
+
+                    if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
+                    {
+                        // On macOS sometimes the Keychain returns the "errSecAuthFailed" error - we don't know why
+                        // but it appears to be something to do with not being able to access the keychain.
+                        // Locking and unlocking (or restarting) often fixes this.
+                        this.Logger.Error(
+                            "warning: there is a problem accessing the login Keychain - either manually lock and unlock the " +
+                            "login Keychain, or restart the computer to remedy this");
+                    }
+                    else if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
+                    {
+                        // On Linux the SecretService/keyring might not be available so we must fall-back to a plaintext file.
+                        this.Logger.Warning("warning: using plain-text fallback token cache");
+
+                        var storageProps = CreateTokenCacheProperties(useLinuxFallback: true);
+                        helper = await MsalCacheHelper.CreateAsync(storageProps);
+                    }
+                }
+
+                StorageCreationProperties CreateTokenCacheProperties(bool useLinuxFallback)
+                {
+                    var builder = new StorageCreationPropertiesBuilder(cacheFileName, cacheLocation)
+                        .WithMacKeyChain("Microsoft.Developer.IdentityService", "MSALCache");
+
+                    if (useLinuxFallback)
+                    {
+                        builder.WithLinuxUnprotectedFile();
+                    }
+                    else
+                    {
+                        // The SecretService/keyring is used on Linux with the following collection name and attributes
+                        builder.WithLinuxKeyring(cacheFileName,
+                            "default", "MSALCache",
+                            new KeyValuePair<string, string>("MsalClientID", "Microsoft.Developer.IdentityService"),
+                            new KeyValuePair<string, string>("Microsoft.Developer.IdentityService", "1.0.0.0"));
+                    }
+
+                    return builder.Build();
+                }
             }
 
             return helper;
@@ -64,44 +117,90 @@ namespace NuGetCredentialProvider.CredentialProviders.Vsts
 
             var publicClient = await GetPCAAsync().ConfigureAwait(false);
 
-            try
+            var msalBuilder = publicClient.AcquireTokenWithDeviceCode(new string[] { resource }, deviceCodeHandler);
+            var result = await msalBuilder.ExecuteAsync(linkedCancellationToken);
+            return new MsalToken(result);
+        }
+
+        internal static List<(IAccount, string)> GetApplicableAccounts(IEnumerable<IAccount> accounts, Guid authorityTenantId, string loginHint)
+        {
+            var applicableAccounts = new List<(IAccount, string)>();
+
+            foreach (var account in accounts)
             {
-                var msalBuilder = publicClient.AcquireTokenWithDeviceCode(new string[] { resource }, deviceCodeHandler);
-                var result = await msalBuilder.ExecuteAsync(linkedCancellationToken);
-                return new MsalToken(result);
+                string canonicalName = $"{account.HomeAccountId?.TenantId}\\{account.Username}";
+
+                // If a login hint is provided and matches, try that first
+                if (!string.IsNullOrEmpty(loginHint) && account.Username == loginHint)
+                {
+                    applicableAccounts.Insert(0, (account, canonicalName));
+                    continue;
+                }
+
+                if (Guid.TryParse(account.HomeAccountId?.TenantId, out Guid accountTenantId))
+                {
+                    if (accountTenantId == authorityTenantId)
+                    {
+                        applicableAccounts.Add((account, canonicalName));
+                    }
+                    else if (accountTenantId == AuthUtil.MsaAccountTenant && (authorityTenantId == AuthUtil.FirstPartyTenant || authorityTenantId == Guid.Empty))
+                    {
+                        applicableAccounts.Add((account, canonicalName));
+                    }
+                }
             }
-            finally
-            {
-                var helper = await GetMsalCacheHelperAsync();
-                helper?.UnregisterCache(publicClient.UserTokenCache);
-            }
+
+            return applicableAccounts;
         }
 
         public async Task<IMsalToken> AcquireTokenSilentlyAsync(CancellationToken cancellationToken)
         {
-            var publicClient = await GetPCAAsync().ConfigureAwait(false);
+            IPublicClientApplication publicClient = await GetPCAAsync().ConfigureAwait(false);
+
             var accounts = await publicClient.GetAccountsAsync();
 
-            try
+            foreach (var account in accounts)
             {
-                foreach (var account in accounts)
-                {
-                    try
-                    {
-                        var silentBuilder = publicClient.AcquireTokenSilent(new string[] { resource }, account);
-                        var result = await silentBuilder.ExecuteAsync(cancellationToken);
-                        return new MsalToken(result);
-                    }
-                    catch (MsalUiRequiredException)
-                    { }
-                    catch (MsalServiceException)
-                    { }
-                }
+                this.Logger.Verbose($"Found in cache: {account.HomeAccountId?.TenantId}\\{account.Username}");
             }
-            finally
+
+            if (Guid.TryParse(this.authority.AbsolutePath.Trim('/'), out Guid authorityTenantId))
             {
-                var helper = await GetMsalCacheHelperAsync();
-                helper?.UnregisterCache(publicClient.UserTokenCache);
+                this.Logger.Verbose($"Found tenant `{authorityTenantId}` authority URL: `{this.authority}`");
+            }
+            else
+            {
+                this.Logger.Verbose($"Could not determine tenant from authority URL `{this.authority}`");
+            }
+
+            string loginHint = EnvUtil.GetMsalLoginHint();
+
+            var applicableAccounts = GetApplicableAccounts(accounts, authorityTenantId, loginHint);
+
+            if (this.brokerEnabled && RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+            {
+                applicableAccounts.Add((PublicClientApplication.OperatingSystemAccount, PublicClientApplication.OperatingSystemAccount.HomeAccountId.Identifier));
+            }
+
+            foreach ((IAccount account, string canonicalName) in applicableAccounts)
+            {
+                try
+                {
+                    this.Logger.Verbose($"Attempting to use identity `{canonicalName}`");
+
+                    var result = await publicClient.AcquireTokenSilent(new string[] { resource }, account)
+                        .ExecuteAsync(cancellationToken);
+
+                    return new MsalToken(result);
+                }
+                catch (MsalUiRequiredException e)
+                {
+                    this.Logger.Verbose(e.Message);
+                }
+                catch (MsalServiceException e)
+                {
+                    this.Logger.Warning(e.Message);
+                }
             }
 
             return null;
@@ -111,16 +210,18 @@ namespace NuGetCredentialProvider.CredentialProviders.Vsts
         {
             var deviceFlowTimeout = EnvUtil.GetDeviceFlowTimeoutFromEnvironmentInSeconds(logging);
 
-            CancellationTokenSource cts = new CancellationTokenSource(TimeSpan.FromSeconds(deviceFlowTimeout));
-            var linkedCancellationToken = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken, cts.Token).Token;
+            using CancellationTokenSource cts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
+            cts.CancelAfter(TimeSpan.FromSeconds(deviceFlowTimeout));
+
             var publicClient = await GetPCAAsync(useLocalHost: true).ConfigureAwait(false);
 
             try
             {
-                var msalBuilder = publicClient.AcquireTokenInteractive(new string[] { resource });
-                msalBuilder.WithPrompt(Prompt.SelectAccount);
-                msalBuilder.WithUseEmbeddedWebView(false);
-                var result = await msalBuilder.ExecuteAsync(linkedCancellationToken);
+                var result = await publicClient.AcquireTokenInteractive(new string[] { resource })
+                    .WithPrompt(Prompt.SelectAccount)
+                    .WithUseEmbeddedWebView(false)
+                    .ExecuteAsync(cts.Token);
+
                 return new MsalToken(result);
             }
             catch (MsalServiceException e)
@@ -131,11 +232,6 @@ namespace NuGetCredentialProvider.CredentialProviders.Vsts
                 }
 
                 throw;
-            }
-            finally
-            {
-                var helper = await GetMsalCacheHelperAsync();
-                helper?.UnregisterCache(publicClient.UserTokenCache);
             }
         }
 
@@ -151,9 +247,9 @@ namespace NuGetCredentialProvider.CredentialProviders.Vsts
                     return null;
                 }
 
-                var builder = publicClient.AcquireTokenByIntegratedWindowsAuth(new string[] { resource});
-                builder.WithUsername(upn);
-                var result = await builder.ExecuteAsync(cancellationToken);
+                var result = await publicClient.AcquireTokenByIntegratedWindowsAuth(new string[] { resource })
+                    .WithUsername(upn)
+                    .ExecuteAsync(cancellationToken);
 
                 return new MsalToken(result);
             }
@@ -166,32 +262,92 @@ namespace NuGetCredentialProvider.CredentialProviders.Vsts
 
                 throw;
             }
-            finally
-            {
-                var helper = await GetMsalCacheHelperAsync();
-                helper?.UnregisterCache(publicClient.UserTokenCache);
-            }
-       }
+        }
 
         private async Task<IPublicClientApplication> GetPCAAsync(bool useLocalHost = false)
         {
             var helper = await GetMsalCacheHelperAsync().ConfigureAwait(false);
 
             var publicClientBuilder = PublicClientApplicationBuilder.Create(this.clientId)
-                .WithAuthority(this.authority);
+                .WithAuthority(this.authority)
+                .WithDefaultRedirectUri()
+                .WithLogging(
+                    (LogLevel level, string message, bool _containsPii) =>
+                    {
+                        // We ignore containsPii param because we are passing in enablePiiLogging below.
+                        this.Logger.Verbose($"MSAL Log ({level}): {message}");
+                    },
+                    enablePiiLogging: EnvUtil.GetLogPIIEnabled()
+                );
+
+            if (this.brokerEnabled)
+            {
+                if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+                {
+                    this.Logger.Verbose($"MSAL using WithBrokerPreview");
+
+                    // The application being used doesn't support MSA passthrough, so disable if using an MSA.
+                    // Still want to enable for non-MSA as this setting affects the broker UI for non-MSA accounts.
+                    bool msaPassthrough = !this.authority.AbsolutePath.Contains(AuthUtil.FirstPartyTenant.ToString());
+
+                    publicClientBuilder
+                        .WithBrokerPreview()
+                        .WithParentActivityOrWindow(() => GetConsoleOrTerminalWindow())
+                        .WithWindowsBrokerOptions(new WindowsBrokerOptions()
+                        {
+                            HeaderText = "Azure DevOps Artifacts",
+                            ListWindowsWorkAndSchoolAccounts = true,
+                            MsaPassthrough = msaPassthrough
+                        });
+                }
+                else
+                {
+                    this.Logger.Verbose($"MSAL using WithBroker");
+                    publicClientBuilder.WithBroker();
+                }
+            }
 
             if (useLocalHost)
             {
                 publicClientBuilder.WithRedirectUri("http://localhost");
-            }
-            else
-            {
-                publicClientBuilder.WithRedirectUri(NativeClientRedirect);
             }
 
             var publicClient = publicClientBuilder.Build();
             helper?.RegisterCache(publicClient.UserTokenCache);
             return publicClient;
         }
+
+#region https://github.com/AzureAD/microsoft-authentication-library-for-dotnet/wiki/WAM
+        enum GetAncestorFlags
+        {
+            GetParent = 1,
+            GetRoot = 2,
+            /// <summary>
+            /// Retrieves the owned root window by walking the chain of parent and owner windows returned by GetParent.
+            /// </summary>
+            GetRootOwner = 3
+        }
+
+        /// <summary>
+        /// Retrieves the handle to the ancestor of the specified window.
+        /// </summary>
+        /// <param name="hwnd">A handle to the window whose ancestor is to be retrieved.
+        /// If this parameter is the desktop window, the function returns NULL. </param>
+        /// <param name="flags">The ancestor to be retrieved.</param>
+        /// <returns>The return value is the handle to the ancestor window.</returns>
+        [DllImport("user32.dll", ExactSpelling = true)]
+        static extern IntPtr GetAncestor(IntPtr hwnd, GetAncestorFlags flags);
+
+        [DllImport("kernel32.dll")]
+        static extern IntPtr GetConsoleWindow();
+
+        public IntPtr GetConsoleOrTerminalWindow()
+        {
+            IntPtr consoleHandle = GetConsoleWindow();
+            IntPtr handle = GetAncestor(consoleHandle, GetAncestorFlags.GetRootOwner);
+
+            return handle;
+        }
+#endregion
     }
 }

@@ -8,7 +8,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using NuGet.Protocol.Plugins;
 using NuGetCredentialProvider.CredentialProviders;
-using NuGetCredentialProvider.CredentialProviders.Vsts;
 using NuGetCredentialProvider.Logging;
 using NuGetCredentialProvider.Util;
 

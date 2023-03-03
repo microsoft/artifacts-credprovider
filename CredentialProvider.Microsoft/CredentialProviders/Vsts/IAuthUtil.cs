@@ -33,10 +33,11 @@ namespace NuGetCredentialProvider.CredentialProviders.Vsts
     {
         public const string VssResourceTenant = "X-VSS-ResourceTenant";
         public const string VssAuthorizationEndpoint = "X-VSS-AuthorizationEndpoint";
-        private const string OrganizationsTenant = "organizations";
         private const string CommonTenant = "common";
+        public static readonly Guid FirstPartyTenant = Guid.Parse("f8cdef31-a31e-4b4a-93e4-5f571e91255a");
+        public static readonly Guid MsaAccountTenant = Guid.Parse("9188040d-6c67-4c5b-b112-36a304b66dad");
         public const string VssE2EID = "X-VSS-E2EID";
-        
+
         private readonly ILogger logger;
 
         public AuthUtil(ILogger logger)
@@ -54,7 +55,7 @@ namespace NuGetCredentialProvider.CredentialProviders.Vsts
 
             var headers = await GetResponseHeadersAsync(uri, cancellationToken);
             var bearerHeaders = headers.WwwAuthenticate.Where(x => x.Scheme.Equals("Bearer", StringComparison.Ordinal));
-            
+
             foreach (var param in bearerHeaders)
             {
                 if (param.Parameter == null)
@@ -81,7 +82,10 @@ namespace NuGetCredentialProvider.CredentialProviders.Vsts
             var aadBase = UsePpeAadUrl(uri) ? "https://login.windows-ppe.net" : "https://login.microsoftonline.com";
             logger.Verbose(string.Format(Resources.AADAuthorityNotFound, aadBase));
 
-            var tenant = EnvUtil.MsalEnabled() ? OrganizationsTenant: CommonTenant;
+            // WAM gets confused about the Common tenant, so we'll just assume that if there isn't
+            // a tenant GUID provided, that it's a consumer tenant.
+            var tenant = EnvUtil.MsalEnabled() ? FirstPartyTenant.ToString() : CommonTenant;
+
             return new Uri($"{aadBase}/{tenant}");
         }
 
