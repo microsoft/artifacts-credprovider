@@ -23,7 +23,6 @@ using NuGetCredentialProvider.Util;
 using PowerArgs;
 using ILogger = NuGetCredentialProvider.Logging.ILogger;
 
-[assembly: InternalsVisibleToAttribute("CredentialProvider.Microsoft.Tests")]
 namespace NuGetCredentialProvider
 {
     public static class Program

@@ -60,7 +60,7 @@ namespace CredentialProvider.Microsoft.Tests.CredentialProviders.Vsts
         {
             foreach (var accounts in Permutations)
             {
-                var applicable = MsalTokenProvider.GetApplicableAccounts(accounts, AuthUtil.FirstPartyTenant, loginHint: null);
+                var applicable = MsalUtil.GetApplicableAccounts(accounts, AuthUtil.FirstPartyTenant, loginHint: null);
                 Assert.AreEqual(applicable[0].Item1.Username, MsaUser.Username);
             }
         }
@@ -70,7 +70,7 @@ namespace CredentialProvider.Microsoft.Tests.CredentialProviders.Vsts
         {
             foreach (var accounts in Permutations)
             {
-                var applicable = MsalTokenProvider.GetApplicableAccounts(accounts, ContosoTenant, loginHint: null);
+                var applicable = MsalUtil.GetApplicableAccounts(accounts, ContosoTenant, loginHint: null);
                 Assert.AreEqual(applicable[0].Item1.Username, ContosoUser.Username);
             }
         }
@@ -80,7 +80,7 @@ namespace CredentialProvider.Microsoft.Tests.CredentialProviders.Vsts
         {
             foreach (var accounts in Permutations)
             {
-                var applicable = MsalTokenProvider.GetApplicableAccounts(accounts, FabrikamTenant, loginHint: null);
+                var applicable = MsalUtil.GetApplicableAccounts(accounts, FabrikamTenant, loginHint: null);
                 Assert.AreEqual(applicable[0].Item1.Username, FabrikamUser.Username);
             }
         }
@@ -94,7 +94,7 @@ namespace CredentialProvider.Microsoft.Tests.CredentialProviders.Vsts
                 {
                     foreach (var loginHint in Permutations[0].Select(a => a.Username))
                     {
-                        var applicable = MsalTokenProvider.GetApplicableAccounts(accounts, tenantId, loginHint);
+                        var applicable = MsalUtil.GetApplicableAccounts(accounts, tenantId, loginHint);
                         Assert.AreEqual(applicable[0].Item1.Username, loginHint);
                     }
                 }
@@ -106,7 +106,7 @@ namespace CredentialProvider.Microsoft.Tests.CredentialProviders.Vsts
         {
             foreach (var accounts in Permutations)
             {
-                var applicable = MsalTokenProvider.GetApplicableAccounts(accounts, Guid.Empty, loginHint: null);
+                var applicable = MsalUtil.GetApplicableAccounts(accounts, Guid.Empty, loginHint: null);
                 Assert.AreEqual(applicable[0].Item1.Username, MsaUser.Username);
             }
         }
