@@ -6,6 +6,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Runtime.CompilerServices;
+using System.Runtime.InteropServices;
 using NuGetCredentialProvider.CredentialProviders.Vsts;
 using NuGetCredentialProvider.Logging;
 
@@ -14,6 +15,7 @@ namespace NuGetCredentialProvider.Util
     public static class EnvUtil
     {
         public const string LogPathEnvVar = "NUGET_CREDENTIALPROVIDER_LOG_PATH";
+        public const string LogPIIEnvVar = "NUGET_CREDENTIALPROVIDER_LOG_PII";
         public const string SessionTokenCacheEnvVar = "NUGET_CREDENTIALPROVIDER_SESSIONTOKENCACHE_ENABLED";
         public const string WindowsIntegratedAuthenticationEnvVar = "NUGET_CREDENTIALPROVIDER_WINDOWSINTEGRATEDAUTHENTICATION_ENABLED";
         public const string ForceCanShowDialogEnvVar = "NUGET_CREDENTIALPROVIDER_FORCE_CANSHOWDIALOG_TO";
@@ -32,24 +34,46 @@ namespace NuGetCredentialProvider.Util
         public const string BuildTaskExternalEndpoints = "VSS_NUGET_EXTERNAL_FEED_ENDPOINTS";
 
         public const string MsalEnabledEnvVar = "NUGET_CREDENTIALPROVIDER_MSAL_ENABLED";
+        public const string MsalLoginHintEnvVar = "NUGET_CREDENTIALPROVIDER_MSAL_LOGIN_HINT";
         public const string MsalAuthorityEnvVar = "NUGET_CREDENTIALPROVIDER_MSAL_AUTHORITY";
         public const string MsalFileCacheEnvVar = "NUGET_CREDENTIALPROVIDER_MSAL_FILECACHE_ENABLED";
         public const string MsalFileCacheLocationEnvVar = "NUGET_CREDENTIALPROVIDER_MSAL_FILECACHE_LOCATION";
+        public const string MsalAllowBrokerEnvVar = "NUGET_CREDENTIALPROVIDER_MSAL_ALLOW_BROKER";
+
+        public static bool GetLogPIIEnabled()
+        {
+            return GetEnabledFromEnvironment(LogPIIEnvVar, defaultValue: false);
+        }
 
         private static readonly string LocalAppDataLocation = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData, Environment.SpecialFolderOption.Create);
 
-        private const string CredenetialProviderFolderName = "MicrosoftCredentialProvider";
-        public static string AdalTokenCacheLocation { get; } = Path.Combine(LocalAppDataLocation, CredenetialProviderFolderName, "ADALTokenCache.dat");
+        private const string CredentialProviderFolderName = "MicrosoftCredentialProvider";
+        public static string AdalTokenCacheLocation { get; } = Path.Combine(LocalAppDataLocation, CredentialProviderFolderName, "ADALTokenCache.dat");
 
         // from https://github.com/GitCredentialManager/git-credential-manager/blob/df90676d1249759eef8cec57155c27e869503225/src/shared/Microsoft.Git.CredentialManager/Authentication/MicrosoftAuthentication.cs#L277
         //      The Visual Studio MSAL cache is located at "%LocalAppData%\.IdentityService\msal.cache" on Windows.
-        //      We use the MSAL extension library to provide us consistent cache file access semantics (synchronisation, etc)
+        //      We use the MSAL extension library to provide us consistent cache file access semantics (synchronization, etc)
         //      as Visual Studio itself follows, as well as other Microsoft developer tools such as the Azure PowerShell CLI.
-        public static string DefaultMsalCacheLocation { get; } = Path.Combine(LocalAppDataLocation, ".IdentityService", "msal.cache");
+        public static string DefaultMsalCacheLocation
+        {
+            get
+            {
+                if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+                {
+                    // The shared MSAL cache is located at "%LocalAppData%\.IdentityService\msal.cache" on Windows.
+                    return Path.Combine(LocalAppDataLocation, ".IdentityService");
+                }
+                else
+                {
+                    // The shared MSAL cache metadata is located at "~/.local/.IdentityService/msal.cache" on UNIX.
+                    return Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), ".local", ".IdentityService");
+                }
+            }
+        }
 
         public static string FileLogLocation { get; } = Environment.GetEnvironmentVariable(LogPathEnvVar);
 
-        public static string SessionTokenCacheLocation { get; } = Path.Combine(LocalAppDataLocation, CredenetialProviderFolderName, "SessionTokenCache.dat");
+        public static string SessionTokenCacheLocation { get; } = Path.Combine(LocalAppDataLocation, CredentialProviderFolderName, "SessionTokenCache.dat");
 
         public static Uri GetAuthorityFromEnvironment(ILogger logger)
         {
@@ -73,6 +97,11 @@ namespace NuGetCredentialProvider.Util
             return null;
         }
 
+        public static string GetMsalLoginHint()
+        {
+            return Environment.GetEnvironmentVariable(MsalLoginHintEnvVar);
+        }
+
         public static string GetMsalCacheLocation()
         {
             string msalCacheFromEnvironment = Environment.GetEnvironmentVariable(MsalFileCacheLocationEnvVar);
@@ -87,6 +116,11 @@ namespace NuGetCredentialProvider.Util
         public static bool MsalFileCacheEnabled()
         {
             return GetEnabledFromEnvironment(MsalFileCacheEnvVar, defaultValue: true);
+        }
+
+        public static bool MsalAllowBrokerEnabled()
+        {
+            return GetEnabledFromEnvironment(MsalAllowBrokerEnvVar, defaultValue: RuntimeInformation.IsOSPlatform(OSPlatform.Windows));
         }
 
         public static IList<string> GetHostsFromEnvironment(ILogger logger, string envVar, IEnumerable<string> defaultHosts, [CallerMemberName] string collectionName = null)

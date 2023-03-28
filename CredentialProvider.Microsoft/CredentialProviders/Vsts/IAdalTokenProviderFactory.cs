@@ -2,10 +2,12 @@
 //
 // Licensed under the MIT license.
 
+using System;
+
 namespace NuGetCredentialProvider.CredentialProviders.Vsts
 {
     public interface IAdalTokenProviderFactory
     {
-        IAdalTokenProvider Get(string authority);
+        IAdalTokenProvider Get(Uri authority);
     }
 }

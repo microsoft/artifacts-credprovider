@@ -2,8 +2,10 @@
 //
 // Licensed under the MIT license.
 
+using System;
 using System.Collections.Generic;
 using NuGetCredentialProvider.Logging;
+using NuGetCredentialProvider.Util;
 
 namespace NuGetCredentialProvider.CredentialProviders.Vsts
 {
@@ -12,22 +14,26 @@ namespace NuGetCredentialProvider.CredentialProviders.Vsts
         private readonly ILogger logger;
         private readonly IMsalTokenProviderFactory msalTokenProviderFactory;
 
-        public MsalBearerTokenProvidersFactory(ILogger logger,IMsalTokenProviderFactory msalTokenProviderFactory)
+        public MsalBearerTokenProvidersFactory(ILogger logger, IMsalTokenProviderFactory msalTokenProviderFactory)
         {
             this.msalTokenProviderFactory = msalTokenProviderFactory;
             this.logger = logger;
         }
 
-        public IEnumerable<IBearerTokenProvider> Get(string authority)
+        public IEnumerable<IBearerTokenProvider> Get(Uri authority)
         {
-            IMsalTokenProvider msalTokenProvider = msalTokenProviderFactory.Get(authority, logger);
-            return new IBearerTokenProvider[]
+            var options = EnvUtil.MsalAllowBrokerEnabled()
+                ? new [] {true, false}
+                : new [] {false};
+
+            foreach(bool brokerEnabled in options)
             {
-                new MsalCacheBearerTokenProvider(msalTokenProvider),
-                new MsalWindowsIntegratedAuthBearerTokenProvider(msalTokenProvider),
-                new MsalUserInterfaceBearerTokenProvider(msalTokenProvider),
-                new MsalDeviceCodeFlowBearerTokenProvider(msalTokenProvider)
-            };
+                IMsalTokenProvider msalTokenProvider = msalTokenProviderFactory.Get(authority, brokerEnabled, logger);
+                yield return new MsalSilentBearerTokenProvider(msalTokenProvider);
+                yield return new MsalWindowsIntegratedAuthBearerTokenProvider(msalTokenProvider);
+                yield return new MsalUserInterfaceBearerTokenProvider(msalTokenProvider);
+                yield return new MsalDeviceCodeFlowBearerTokenProvider(msalTokenProvider);
+            }
         }
     }
 }

@@ -19,9 +19,9 @@ namespace NuGetCredentialProvider.CredentialProviders.Vsts
         private readonly string clientId;
         private readonly TokenCache tokenCache;
 
-        internal AdalTokenProvider(string authority, string resource, string clientId, TokenCache tokenCache)
+        internal AdalTokenProvider(Uri authority, string resource, string clientId, TokenCache tokenCache)
         {
-            this.authority = authority;
+            this.authority = authority.ToString();
             this.resource = resource;
             this.clientId = clientId;
             this.tokenCache = tokenCache;

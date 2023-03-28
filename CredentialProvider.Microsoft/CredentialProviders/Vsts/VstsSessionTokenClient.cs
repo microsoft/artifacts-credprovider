@@ -76,6 +76,8 @@ namespace NuGetCredentialProvider.CredentialProviders.Vsts
             using (var request = CreateRequest(uriBuilder.Uri, validTo))
             using (var response = await httpClient.SendAsync(request, cancellationToken))
             {
+                logger.LogResponse(NuGet.Common.LogLevel.Verbose, true, response);
+
                 string serializedResponse;
                 if (response.StatusCode == System.Net.HttpStatusCode.BadRequest)
                 {
@@ -88,6 +90,8 @@ namespace NuGetCredentialProvider.CredentialProviders.Vsts
                     using(var response2 = await httpClient.SendAsync(request2, cancellationToken))
                     {
                         response2.EnsureSuccessStatusCode();
+                        logger.LogResponse(NuGet.Common.LogLevel.Verbose, true, response2);
+
                         serializedResponse = await response2.Content.ReadAsStringAsync();
                     }
                 }

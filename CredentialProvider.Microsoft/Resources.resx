@@ -355,25 +355,26 @@ Device Flow Authentication Timeout
 NuGet workarounds
     {15}
         Set to "true" or "false" to override any other sources of the 
-        CanShowDialog parameter
+        CanShowDialog parameter.
 
-Enable MSAL (Experimental: may be changed or removed in a future version)
+Enable MSAL
     {16}
-        Use the MSAL library to get a bearer token to then get a session token
+        Use the MSAL library to get a bearer token to then get a session token.
+        Defaults to `true`.
 
-MSAL Authority (Experimental: may be changed or removed in a future version)
+MSAL Authority
     {17}
         Set to override the authority used when fetching an MSAL token.
         e.g. https://login.microsoftonline.com/organizations
 
-MSAL Token File Cache Enabled (Experimental: may be changed or removed in a future version)
+MSAL Token File Cache Enabled
     {18}
         Boolean to enable/disable the MSAL token cache. Disabled by default.
 
-Default MSAL Cache Location (Experimental: may be changed or removed in a future version)
+Default MSAL Cache Location
     {19}
 
-Provide MSAL Cache Location (Experimental: may be changed or removed in a future version)
+Provide MSAL Cache Location
     {20}
     Provide the location where the MSAL cache should be read and written to</value>
   </data>
