@@ -260,7 +260,7 @@
     <value>Could not obtain credentials for {0}</value>
   </data>
   <data name="VSTSSessionTokenCreated" xml:space="preserve">
-    <value>Found SessionToken for {0}</value>
+    <value>Created SessionToken for {0}</value>
   </data>
   <data name="VSTSSessionTokenValidity" xml:space="preserve">
     <value>Requesting a {0} token valid for duration {1}, valid until {2} UTC. Note that the generated token may have different validity than requested.</value>

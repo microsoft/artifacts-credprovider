@@ -4,7 +4,7 @@ using Microsoft.Identity.Client;
 
 namespace NuGetCredentialProvider.CredentialProviders.Vsts
 {
-    public class MsalUtil
+    public static class MsalUtil
     {
         public static List<(IAccount, string)> GetApplicableAccounts(IEnumerable<IAccount> accounts, Guid authorityTenantId, string loginHint)
         {
@@ -35,6 +35,20 @@ namespace NuGetCredentialProvider.CredentialProviders.Vsts
             }
 
             return applicableAccounts;
+        }
+
+        public static AcquireTokenSilentParameterBuilder WithAccountTenantId(this AcquireTokenSilentParameterBuilder builder, IAccount account)
+        {
+            // Workaround for https://github.com/AzureAD/microsoft-authentication-library-for-dotnet/issues/3077
+            // Even if using the organizations tenant the presence of an MSA will attempt to use the consumers tenant
+            // which is not supported by the Azure DevOps application. Detect this case and use the first party tenant.
+
+            if (Guid.TryParse(account.HomeAccountId?.TenantId, out Guid accountTenantId) && accountTenantId == AuthUtil.MsaAccountTenant)
+            {
+                builder = builder.WithTenantId(AuthUtil.FirstPartyTenant.ToString());
+            }
+
+            return builder;
         }
     }
 }
