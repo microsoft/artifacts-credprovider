@@ -33,10 +33,11 @@ namespace NuGetCredentialProvider.CredentialProviders.Vsts
     {
         public const string VssResourceTenant = "X-VSS-ResourceTenant";
         public const string VssAuthorizationEndpoint = "X-VSS-AuthorizationEndpoint";
+        public const string VssE2EID = "X-VSS-E2EID";
+        private const string OrganizationsTenant = "organizations";
         private const string CommonTenant = "common";
         public static readonly Guid FirstPartyTenant = Guid.Parse("f8cdef31-a31e-4b4a-93e4-5f571e91255a");
         public static readonly Guid MsaAccountTenant = Guid.Parse("9188040d-6c67-4c5b-b112-36a304b66dad");
-        public const string VssE2EID = "X-VSS-E2EID";
 
         private readonly ILogger logger;
 
@@ -84,7 +85,7 @@ namespace NuGetCredentialProvider.CredentialProviders.Vsts
 
             // WAM gets confused about the Common tenant, so we'll just assume that if there isn't
             // a tenant GUID provided, that it's a consumer tenant.
-            var tenant = EnvUtil.MsalEnabled() ? FirstPartyTenant.ToString() : CommonTenant;
+            var tenant = EnvUtil.MsalEnabled() ? OrganizationsTenant : CommonTenant;
 
             return new Uri($"{aadBase}/{tenant}");
         }

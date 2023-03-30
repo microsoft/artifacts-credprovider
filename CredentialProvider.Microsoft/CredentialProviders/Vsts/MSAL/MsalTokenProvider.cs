@@ -158,6 +158,7 @@ namespace NuGetCredentialProvider.CredentialProviders.Vsts
                     this.Logger.Verbose($"Attempting to use identity `{canonicalName}`");
 
                     var result = await publicClient.AcquireTokenSilent(new string[] { resource }, account)
+                        .WithAccountTenantId(account)
                         .ExecuteAsync(cancellationToken);
 
                     return new MsalToken(result);
@@ -255,10 +256,6 @@ namespace NuGetCredentialProvider.CredentialProviders.Vsts
                 {
                     this.Logger.Verbose($"MSAL using WithBrokerPreview");
 
-                    // The application being used doesn't support MSA passthrough, so disable if using an MSA.
-                    // Still want to enable for non-MSA as this setting affects the broker UI for non-MSA accounts.
-                    bool msaPassthrough = !this.authority.AbsolutePath.Contains(AuthUtil.FirstPartyTenant.ToString());
-
                     publicClientBuilder
                         .WithBrokerPreview()
                         .WithParentActivityOrWindow(() => GetConsoleOrTerminalWindow())
@@ -266,7 +263,7 @@ namespace NuGetCredentialProvider.CredentialProviders.Vsts
                         {
                             HeaderText = "Azure DevOps Artifacts",
                             ListWindowsWorkAndSchoolAccounts = true,
-                            MsaPassthrough = msaPassthrough
+                            MsaPassthrough = true
                         });
                 }
                 else
