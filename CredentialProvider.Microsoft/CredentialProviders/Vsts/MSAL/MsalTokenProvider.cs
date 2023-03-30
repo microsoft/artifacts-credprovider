@@ -178,12 +178,18 @@ namespace NuGetCredentialProvider.CredentialProviders.Vsts
 
         public async Task<IMsalToken> AcquireTokenWithUI(CancellationToken cancellationToken, ILogger logging)
         {
+            var publicClient = await GetPCAAsync(useLocalHost: true).ConfigureAwait(false);
+
+            if (!publicClient.IsUserInteractive())
+            {
+                this.Logger.Verbose("Not user interactive");
+                return null;
+            }
+
             var deviceFlowTimeout = EnvUtil.GetDeviceFlowTimeoutFromEnvironmentInSeconds(logging);
 
             using CancellationTokenSource cts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
             cts.CancelAfter(TimeSpan.FromSeconds(deviceFlowTimeout));
-
-            var publicClient = await GetPCAAsync(useLocalHost: true).ConfigureAwait(false);
 
             try
             {
