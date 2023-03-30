@@ -3,10 +3,7 @@
 # To install netcore, run installcredprovider.ps1
 # To install netcore and netfx, run installcredprovider.ps1 -AddNetfx
 # To overwrite existing plugin with the latest version, run installcredprovider.ps1 -Force
-# To use a specific version of a credential provider, run installcredprovider.ps1 -Version "0.1.17" or installcredprovider.ps1 -Version "0.1.17" -Force
-# To install Net6 version of the netcore cred provider instead of the default NetCore3.1, run installcredprovider.ps1 - InstallNet6
-# Note that you are not able to install the Net6 version if also using the version flag and installing a version lower than 1.0.0
-# More: https://github.com/Microsoft/artifacts-credprovider/blob/master/README.md
+# To use a specific version of a credential provider, run installcredprovider.ps1 -Version "1.0.1" or installcredprovider.ps1 -Version "1.0.1" -Force
 
 param(
     # whether or not to install netfx folder for nuget
@@ -15,8 +12,8 @@ param(
     [switch]$Force,
     # install the version specified
     [string]$Version,
-    # install Net6 version of the netcore cred provider instead of the default NetCore3.1
-    [switch]$InstallNet6
+    # install Net6 version of the netcore cred provider instead of NetCore3.1
+    [switch]$InstallNet6 = $true
 )
 
 $script:ErrorActionPreference='Stop'
@@ -107,20 +104,20 @@ function InstallZip {
     try {
         Write-Host "Fetching release $releaseUrl"
         $release = Invoke-WebRequest -UseBasicParsing $releaseUrl
-        if (!$release) { 
-            throw ("Unable to make Web Request to $releaseUrl") 
+        if (!$release) {
+            throw ("Unable to make Web Request to $releaseUrl")
         }
         $releaseJson = $release.Content | ConvertFrom-Json
-        if (!$releaseJson) { 
-            throw ("Unable to get content from JSON") 
+        if (!$releaseJson) {
+            throw ("Unable to get content from JSON")
         }
         $zipAsset = $releaseJson.assets | ? { $_.name -eq $zipFile }
-        if (!$zipAsset) { 
-            throw ("Unable to find asset $zipFile from release json object") 
-        }  
+        if (!$zipAsset) {
+            throw ("Unable to find asset $zipFile from release json object")
+        }
         $packageSourceUrl = $zipAsset.browser_download_url
-        if (!$packageSourceUrl) { 
-            throw ("Unable to find download url from asset $zipAsset") 
+        if (!$packageSourceUrl) {
+            throw ("Unable to find download url from asset $zipAsset")
         }
     }
     catch {
@@ -151,7 +148,7 @@ function InstallZip {
     [System.IO.Compression.ZipFile]::ExtractToDirectory($pluginZip, $tempZipLocation)
 }
 
-# Call InstallZip function 
+# Call InstallZip function
 InstallZip
 
 # Remove existing content and copy netfx directories to plugins directory
