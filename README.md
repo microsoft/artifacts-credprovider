@@ -21,11 +21,11 @@ Install [Visual Studio version 15.9-preview1 or later](https://visualstudio.micr
 
 ### NuGet
 
-[NuGet(.exe)](https://www.nuget.org/downloads) on the command line version `4.8.0.5385` or later is required. The recommended NuGet version is `5.5.x` or later as it has some important bug fixes related to cancellations and timeouts. 
+[NuGet(.exe)](https://www.nuget.org/downloads) on the command line version `4.8.0.5385` or later is required. The recommended NuGet version is `5.5.x` or later as it has some important bug fixes related to cancellations and timeouts.
 
 ### dotnet
 
-The default installation requires [dotnet SDK](https://www.microsoft.com/net/download) version `3.1.x`. The recommended dotnet version is `3.1.200` or later as it has some important bug fixes related to cancellations and timeouts. 
+The default installation requires [dotnet SDK](https://www.microsoft.com/net/download) version `6.0.x`.
 
 ## Setup
 
@@ -84,7 +84,7 @@ Because the Credential Provider is a NuGet plugin, it is most commonly used indi
 
 ### dotnet
 
-The first time you perform an operation that requires authentication using `dotnet`, you must either use the `--interactive` flag to allow `dotnet` to prompt you for credentials, or provide them via an environment variable. 
+The first time you perform an operation that requires authentication using `dotnet`, you must either use the `--interactive` flag to allow `dotnet` to prompt you for credentials, or provide them via an environment variable.
 
 If you're running interactively navigate to your project directory and run:
 
@@ -114,7 +114,7 @@ msbuild /t:restore /p:nugetInteractive=true
 
 Once you've successfully acquired a token, you can run authenticated commands without the `/p:nugetInteractive=true` switch.
 
-### Unattended build agents 
+### Unattended build agents
 
 #### Azure DevOps Pipelines
 Use the [NuGet Authenticate](https://docs.microsoft.com/en-us/azure/devops/pipelines/tasks/package/nuget-authenticate?view=azure-devops) task before running NuGet, dotnet or MSBuild commands that need authentication.
@@ -126,9 +126,9 @@ If you're running the command as part of an automated build on an unattended bui
 [Managing NuGet credentials in Docker scenarios](https://github.com/dotnet/dotnet-docker/blob/master/documentation/scenarios/nuget-credentials.md#using-the-azure-artifact-credential-provider)
 
 ### Azure DevOps Server
-The Azure Artifacts Credential Provider may not be necessary for an on-premises Azure DevOps Server on Windows. If the credential provider is needed, it cannot acquire credentials interactively, therefore, the VSS_NUGET_EXTERNAL_FEED_ENDPOINTS environment variable must be used as an alternative. Supply a [Personal Access Token](https://docs.microsoft.com/en-us/azure/devops/organizations/accounts/use-personal-access-tokens-to-authenticate?view=azure-devops) directly using the `VSS_NUGET_EXTERNAL_FEED_ENDPOINTS` [environment variable](#environment-variables). 
+The Azure Artifacts Credential Provider may not be necessary for an on-premises Azure DevOps Server on Windows. If the credential provider is needed, it cannot acquire credentials interactively, therefore, the VSS_NUGET_EXTERNAL_FEED_ENDPOINTS environment variable must be used as an alternative. Supply a [Personal Access Token](https://docs.microsoft.com/en-us/azure/devops/organizations/accounts/use-personal-access-tokens-to-authenticate?view=azure-devops) directly using the `VSS_NUGET_EXTERNAL_FEED_ENDPOINTS` [environment variable](#environment-variables).
 
-From Azure DevOps Server 2020 RC1 forward, the NuGet Authenticate task can be used in Pipelines. 
+From Azure DevOps Server 2020 RC1 forward, the NuGet Authenticate task can be used in Pipelines.
 
 ## Session Token Cache Locations
 
@@ -162,7 +162,7 @@ The windows plugin, delivered in the `netfx` folder of `Microsoft.NuGet.Credenti
 C:\> .\CredentialProvider.Microsoft.exe -h
 Command-line v0.1.17: .\CredentialProvider.Microsoft.exe  -h
 
-The Azure Artifacts credential provider can be used to aquire credentials for Azure Artifacts.
+The Azure Artifacts credential provider can be used to acquire credentials for Azure Artifacts.
 
 Note: The Azure Artifacts Credential Provider is mainly intended for use via integrations with development tools such as .NET Core and nuget.exe.
 While it can be used via this CLI in "stand-alone mode", please pay special attention to certain options such as -IsRetry below.
@@ -287,18 +287,18 @@ NuGet workarounds
 
 ### Troubleshooting
 #### How do I know the cred provider is installed correctly? / I'm still getting username/password prompt after installing
-This means that either nuget/dotnet was unable to find the cred provider from [NuGet's plugin search path](https://github.com/microsoft/artifacts-credprovider#setup), or the cred provider failed to authenticate so the client defaulted to the username/password prompt. Verify the cred provider is correctly installed by checking it exists in the nuget/plugins folder in your user profile (Refer to the [setup docs](https://github.com/microsoft/artifacts-credprovider#setup)). If using nuget.exe and used the [install script](https://github.com/microsoft/artifacts-credprovider#automatic-powershell-script) to install the cred provider, please make sure you ran it with -AddNetfx. 
+This means that either nuget/dotnet was unable to find the cred provider from [NuGet's plugin search path](https://github.com/microsoft/artifacts-credprovider#setup), or the cred provider failed to authenticate so the client defaulted to the username/password prompt. Verify the cred provider is correctly installed by checking it exists in the nuget/plugins folder in your user profile (Refer to the [setup docs](https://github.com/microsoft/artifacts-credprovider#setup)). If using nuget.exe and used the [install script](https://github.com/microsoft/artifacts-credprovider#automatic-powershell-script) to install the cred provider, please make sure you ran it with -AddNetfx.
 
 #### How do I get better error logs from the cred provider?
 Run the nuget.exe/dotnet command with detailed verbosity to see more cred provider logs that may help debugging (`nuget.exe -verbosity detailed`, `dotnet --verbosity detailed`).
 
 #### How do I find out if my issue is a real 401?
-Run the credential provider directly with the following command: `C:\Users\<user>\.nuget\plugins\netfx\CredentialProvider.Microsoft\CredentialProvider.Microsoft.exe  -I -V Verbose -U "https://pkgs.dev.azure.com/{organization}/{project-if-feed-is-project-scoped}/_packaging/{feed}/nuget/v3/index.json"`. Check you have the right permissions from the [feed permissions](https://docs.microsoft.com/en-us/azure/devops/artifacts/feeds/feed-permissions?view=azure-devops). 
+Run the credential provider directly with the following command: `C:\Users\<user>\.nuget\plugins\netfx\CredentialProvider.Microsoft\CredentialProvider.Microsoft.exe  -I -V Verbose -U "https://pkgs.dev.azure.com/{organization}/{project-if-feed-is-project-scoped}/_packaging/{feed}/nuget/v3/index.json"`. Check you have the right permissions from the [feed permissions](https://docs.microsoft.com/en-us/azure/devops/artifacts/feeds/feed-permissions?view=azure-devops).
 
 In an Azure DevOps Pipeline, verify you have set the right permissions for the pipeline by following the [docs](https://docs.microsoft.com/en-us/azure/devops/artifacts/feeds/feed-permissions?view=azure-devops#package-permissions-in-azure-pipelines).
 
-#### Cred provider used to work but now it asks me to update to .NET Core 3.1.
-Because .NET Core 2 is [out of support](https://dotnet.microsoft.com/platform/support/policy/dotnet-core#lifecycle), you should update to .NET Core 3.1 or greater to keep using the latest versions of the credential provider. 
+#### Cred provider used to work but now it asks me to update to .NET 6.0 or .NET Core 3.1.
+Because .NET Core 2 is [out of support](https://dotnet.microsoft.com/platform/support/policy/dotnet-core#lifecycle), you should update to .NET Core 3.1 or greater to keep using the latest versions of the credential provider.
 
 If you keep using the unsupported .NET Core 2.1 you must use Artifacts Credential Provider version 0.1.28 or lower.
 
