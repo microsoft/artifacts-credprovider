@@ -11,15 +11,12 @@ jobs:
       issues: write
     steps:
     - uses: actions/stale@v3
-      env:
-        ACTIONS_STEP_DEBUG: true
       with:
         repo-token: ${{ secrets.GITHUB_TOKEN }}
-        stale-issue-message: "In order to consolidate to fewer feedback channels, we've moved suggestions and issue reporting to [Developer Community](https://developercommunity.visualstudio.com/spaces/21/index.html)."
-        stale-issue-label: 'redirect-to-dev-community'
-        exempt-issue-labels: 'bug'
-        days-before-stale: 1
-        days-before-close: 1
+        stale-issue-message: 'This issue has had no activity in 90 days. Please comment if it is not actually stale.'
+        stale-issue-label: 'stale'
+        exempt-issue-labels: 'keep'
+        days-before-stale: 90
+        days-before-close: 7
         days-before-pr-close: -1
-        operations-per-run: 30
         enable-statistics: true
