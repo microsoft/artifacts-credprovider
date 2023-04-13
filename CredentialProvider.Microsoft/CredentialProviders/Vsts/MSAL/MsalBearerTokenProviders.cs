@@ -3,11 +3,9 @@
 // Licensed under the MIT license.
 
 using System;
-using System.Runtime.InteropServices;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Identity.Client;
-using NuGetCredentialProvider.Logging;
 using NuGetCredentialProvider.Util;
 
 namespace NuGetCredentialProvider.CredentialProviders.Vsts
@@ -34,7 +32,11 @@ namespace NuGetCredentialProvider.CredentialProviders.Vsts
 
         public bool ShouldRun(bool isRetry, bool isNonInteractive, bool canShowDialog)
         {
-            return !isRetry;
+            // Always run this and rely on MSAL to return a valid token. Previously, AcquireTokenByIntegratedWindowsAuth
+            // would return cached tokens based on the user principal name, so this token provider could be skipped. Now,
+            // cached and broker accounts and any cached tokens are returned via AcquireTokenSilent. MSAL will ensure any
+            // returned token is refreshed as needed to be valid upon return.
+            return true;
         }
     }
 
@@ -86,7 +88,7 @@ namespace NuGetCredentialProvider.CredentialProviders.Vsts
 
         public bool ShouldRun(bool isRetry, bool isNonInteractive, bool canShowDialog)
         {
-            // MSAL will use the system browser, this will work on ALL os's
+            // MSAL will use the system browser, this will work on all OS's
             return !isNonInteractive && canShowDialog;
         }
     }
