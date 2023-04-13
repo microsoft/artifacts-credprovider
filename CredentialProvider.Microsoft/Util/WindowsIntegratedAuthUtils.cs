@@ -6,7 +6,7 @@ namespace NuGetCredentialProvider.Util
 {
     internal static class WindowsIntegratedAuthUtils
     {
-        // Adapted from https://github.com/AzureAD/azure-activedirectory-library-for-dotnet/blob/dev/core/src/Platforms/net45/NetDesktopPlatformProxy.cs
+        // Adapted from https://github.com/AzureAD/azure-activedirectory-library-for-dotnet/blob/dev/src/Microsoft.IdentityModel.Clients.ActiveDirectory/Platforms/net45/NetDesktopPlatformProxy.cs
         [DllImport("secur32.dll", CharSet = CharSet.Unicode, SetLastError = true)]
         [return: MarshalAs(UnmanagedType.U1)]
         private static extern bool GetUserNameEx(int nameFormat, StringBuilder userName, ref uint userNameSize);
