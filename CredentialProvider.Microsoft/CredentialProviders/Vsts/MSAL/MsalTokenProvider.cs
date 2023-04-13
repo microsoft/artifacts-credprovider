@@ -257,14 +257,13 @@ namespace NuGetCredentialProvider.CredentialProviders.Vsts
                     this.Logger.Verbose($"MSAL using WithBrokerPreview");
 
                     publicClientBuilder
-                        .WithBrokerPreview()
-                        .WithParentActivityOrWindow(() => GetConsoleOrTerminalWindow())
-                        .WithWindowsBrokerOptions(new WindowsBrokerOptions()
+                        .WithBroker(new BrokerOptions(BrokerOptions.OperatingSystems.Windows)
                         {
-                            HeaderText = "Azure DevOps Artifacts",
-                            ListWindowsWorkAndSchoolAccounts = true,
+                            Title = "Azure DevOps Artifacts",
+                            ListOperatingSystemAccounts = true,
                             MsaPassthrough = true
-                        });
+                        })
+                        .WithParentActivityOrWindow(() => GetConsoleOrTerminalWindow());
                 }
                 else
                 {
@@ -283,7 +282,7 @@ namespace NuGetCredentialProvider.CredentialProviders.Vsts
             return publicClient;
         }
 
-#region https://github.com/AzureAD/microsoft-authentication-library-for-dotnet/wiki/WAM
+#region https://github.com/AzureAD/microsoft-authentication-library-for-dotnet/issues/3590
         enum GetAncestorFlags
         {
             GetParent = 1,
