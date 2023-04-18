@@ -110,7 +110,7 @@ namespace NuGetCredentialProvider.Util
 
         internal static bool MsalEnabled()
         {
-            return GetEnabledFromEnvironment(MsalEnabledEnvVar, defaultValue: true);
+            return GetEnabledFromEnvironment(MsalEnabledEnvVar, defaultValue: false);
         }
 
         public static bool MsalFileCacheEnabled()
