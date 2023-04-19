@@ -82,10 +82,10 @@ namespace CredentialProvider.Microsoft.Tests.CredentialProviders.Vsts
             {
                 @"http://example.pkgs.vsts.me/_packaging/TestFeed/nuget/v3/index.json",
                 @"https://example.pkgs.vsts.me/_packaging/TestFeed/nuget/v3/index.json",
-                @"https://example.pkgs.codedev.ms/_packaging/TestFeed/nuget/v3/index.json",
-                @"https://example.pkgs.codeapp.ms/_packaging/TestFeed/nuget/v3/index.json",
+                @"https://pkgs.codedev.ms/example/_packaging/TestFeed/nuget/v3/index.json",
+                @"https://pkgs.codeapp.ms/example/_packaging/TestFeed/nuget/v3/index.json",
                 @"https://example.pkgs.visualstudio.com/_packaging/TestFeed/nuget/v3/index.json",
-                @"https://example.pkgs.dev.azure.com/_packaging/TestFeed/nuget/v3/index.json",
+                @"https://pkgs.dev.azure.com/example/_packaging/TestFeed/nuget/v3/index.json",
             };
 
             foreach (var source in sources)
@@ -100,7 +100,7 @@ namespace CredentialProvider.Microsoft.Tests.CredentialProviders.Vsts
         }
 
         [TestMethod]
-        public async Task CanProvideCredentials_ReturnsTrueForOverridenSources()
+        public async Task CanProvideCredentials_ReturnsTrueForOverriddenSources()
         {
             var sources = new[]
             {
@@ -113,7 +113,7 @@ namespace CredentialProvider.Microsoft.Tests.CredentialProviders.Vsts
             foreach (var source in sources)
             {
                 var canProvideCredentials = await vstsCredentialProvider.CanProvideCredentialsAsync(source);
-                canProvideCredentials.Should().BeTrue($"because {source} is an overriden host");
+                canProvideCredentials.Should().BeTrue($"because {source} is an overridden host");
             }
 
             mockAuthUtil

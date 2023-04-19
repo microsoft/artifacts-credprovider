@@ -49,16 +49,18 @@ namespace NuGetCredentialProvider.CredentialProviders.Vsts
                 return false;
             }
 
-             var validHosts = EnvUtil.GetHostsFromEnvironment(Logger, EnvUtil.SupportedHostsEnvVar, new[]
-             {
-                 ".pkgs.vsts.me", // DevFabric
-                 ".pkgs.codedev.ms", // DevFabric
-                 ".pkgs.codeapp.ms", // AppFabric
-                 ".pkgs.visualstudio.com", // Prod
-                 ".pkgs.dev.azure.com" // Prod
-             });
+            var validHosts = EnvUtil.GetHostsFromEnvironment(Logger, EnvUtil.SupportedHostsEnvVar, new[]
+            {
+                ".pkgs.vsts.me", // DevFabric
+                "pkgs.codedev.ms", // DevFabric
+                "pkgs.codeapp.ms", // AppFabric
+                ".pkgs.visualstudio.com", // Prod
+                "pkgs.dev.azure.com" // Prod
+            });
 
-            bool isValidHost = validHosts.Any(host => uri.Host.EndsWith(host, StringComparison.OrdinalIgnoreCase));
+            bool isValidHost = validHosts.Any(host => host.StartsWith(".") ?
+                uri.Host.EndsWith(host, StringComparison.OrdinalIgnoreCase) :
+                uri.Host.Equals(host, StringComparison.OrdinalIgnoreCase));
             if (isValidHost)
             {
                 Verbose(string.Format(Resources.HostAccepted, uri.Host));
