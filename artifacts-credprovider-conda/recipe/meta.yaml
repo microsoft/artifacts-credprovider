@@ -1,0 +1,10 @@
+package:
+  name: artifacts-credprovider-conda
+  version: 0.0.1
+
+source:
+  path: ../src
+  folder: src
+
+build:
+  noarch: generic
