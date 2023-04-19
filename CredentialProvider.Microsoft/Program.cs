@@ -7,7 +7,6 @@ using System.Collections.Generic;
 using System.IO;
 using System.Net.Http.Headers;
 using System.Reflection;
-using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
