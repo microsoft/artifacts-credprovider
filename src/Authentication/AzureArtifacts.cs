@@ -18,7 +18,7 @@ public static class AzureArtifacts
                 (Identity.Client.LogLevel level, string message, bool _) =>
                 {
                     // We ignore containsPii param because we are passing in enablePiiLogging below.
-                    logger.LogTrace($"MSAL Log ({level}): {message}");
+                    logger.LogTrace(Resources.MsalLogMessage, level, message);
                 },
                 enablePiiLogging: false
             );
@@ -36,7 +36,7 @@ public static class AzureArtifacts
 
         if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
         {
-            logger.LogTrace($"MSAL using WAM Broker");
+            logger.LogTrace(Resources.MsalUsingWamBroker);
 
             builder
                 .WithBroker(new BrokerOptions(BrokerOptions.OperatingSystems.Windows)
@@ -49,7 +49,7 @@ public static class AzureArtifacts
         }
         else
         {
-            logger.LogTrace($"MSAL using WithBroker");
+            logger.LogTrace(Resources.MsalUsingBroker);
             builder.WithBroker();
         }
 

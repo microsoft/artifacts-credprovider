@@ -34,18 +34,14 @@ public class MsalSilentTokenProvider : ITokenProvider
 
         foreach (var account in accounts)
         {
-            this.logger.LogTrace($"Found in cache: {account.HomeAccountId?.TenantId}\\{account.Username}");
+            this.logger.LogTrace(Resources.MsalAccountInCache, $"{account.HomeAccountId?.TenantId}\\{account.Username}");
         }
 
         var authority = new Uri(app.Authority);
 
-        if (Guid.TryParse(authority.AbsolutePath.Trim('/'), out Guid authorityTenantId))
+        if (!Guid.TryParse(authority.AbsolutePath.Trim('/'), out Guid authorityTenantId))
         {
-            this.logger.LogTrace($"Found tenant `{authorityTenantId}` authority URL: `{authority}`");
-        }
-        else
-        {
-            this.logger.LogTrace($"Could not determine tenant from authority URL `{authority}`");
+            this.logger.LogTrace(Resources.MsalNoAuthorityTenant, authority);
         }
 
         var applicableAccounts = MsalExtensions.GetApplicableAccounts(accounts, authorityTenantId, tokenRequest.LoginHint);
@@ -59,7 +55,7 @@ public class MsalSilentTokenProvider : ITokenProvider
         {
             try
             {
-                this.logger.LogTrace($"Attempting to use identity `{canonicalName}`");
+                this.logger.LogTrace(Resources.MsalAccountAttempt, canonicalName);
 
                 var result = await app.AcquireTokenSilent(Constants.AzureDevOpsScopes, account)
                     .WithAccountTenantId(account)

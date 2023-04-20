@@ -31,7 +31,7 @@ public class MsalIntegratedWindowsAuthTokenProvider : ITokenProvider
             string? upn = WindowsIntegratedAuth.GetUserPrincipalName();
             if (upn == null)
             {
-                logger.LogTrace($"Unable to obtain user principal name (error: {Marshal.GetLastWin32Error()})");
+                logger.LogTrace(Resources.MsalUserPrincipalNameError, Marshal.GetLastWin32Error());
                 return null;
             }
 

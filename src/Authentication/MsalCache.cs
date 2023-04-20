@@ -33,7 +33,7 @@ public static class MsalCache
     {
         MsalCacheHelper? helper = null;
 
-        logger.LogTrace($"Using MSAL cache at `{cacheLocation}`");
+        logger.LogTrace(Resources.MsalCacheLocation, cacheLocation);
 
         const string cacheFileName = "msal.cache";
 
@@ -48,7 +48,7 @@ public static class MsalCache
         }
         catch (MsalCachePersistenceException ex)
         {
-            logger.LogWarning("warning: cannot persist Microsoft authentication token cache securely!");
+            logger.LogWarning(Resources.MsalCachePersistenceWarning);
             logger.LogTrace(ex.ToString());
 
             if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
@@ -56,14 +56,12 @@ public static class MsalCache
                 // On macOS sometimes the Keychain returns the "errSecAuthFailed" error - we don't know why
                 // but it appears to be something to do with not being able to access the keychain.
                 // Locking and unlocking (or restarting) often fixes this.
-                logger.LogError(
-                    "warning: there is a problem accessing the login Keychain - either manually lock and unlock the " +
-                    "login Keychain, or restart the computer to remedy this");
+                logger.LogError(Resources.MsalCachePersistenceMacOsWarning);
             }
             else if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
             {
                 // On Linux the SecretService/keyring might not be available so we must fall-back to a plaintext file.
-                logger.LogWarning("warning: using plain-text fallback token cache");
+                logger.LogWarning(Resources.MsalCacheUnprotectedFileWarning);
 
                 var storageProps = CreateTokenCacheProperties(useLinuxFallback: true);
                 helper = await MsalCacheHelper.CreateAsync(storageProps);
