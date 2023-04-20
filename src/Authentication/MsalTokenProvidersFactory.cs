@@ -25,6 +25,6 @@ public class MsalTokenProvidersFactory : ITokenProvidersFactory
         }
 
         yield return new MsalInteractiveTokenProvider(app, logger);
-        yield return new MsalDeviceCodeFlowTokenProvider(app, logger);
+        yield return new MsalDeviceCodeTokenProvider(app, logger);
     }
 }

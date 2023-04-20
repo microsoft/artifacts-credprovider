@@ -28,7 +28,7 @@ public class MsalSilentTokenProvider : ITokenProvider
         return true;
     }
 
-    public async Task<AuthenticationResult?> GetTokenAsync(TokenRequest tokenRequest, CancellationToken cancellationToken)
+    public async Task<AuthenticationResult?> GetTokenAsync(TokenRequest tokenRequest, CancellationToken cancellationToken = default)
     {
         var accounts = await app.GetAccountsAsync();
 
@@ -46,7 +46,7 @@ public class MsalSilentTokenProvider : ITokenProvider
 
         var applicableAccounts = MsalExtensions.GetApplicableAccounts(accounts, authorityTenantId, tokenRequest.LoginHint);
 
-        if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+        if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows) && app.AppConfig.IsBrokerEnabled)
         {
             applicableAccounts.Add((PublicClientApplication.OperatingSystemAccount, PublicClientApplication.OperatingSystemAccount.HomeAccountId.Identifier));
         }

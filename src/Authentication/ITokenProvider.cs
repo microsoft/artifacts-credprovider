@@ -10,5 +10,5 @@ public interface ITokenProvider
 
     bool CanGetToken(TokenRequest tokenRequest);
 
-    Task<AuthenticationResult?> GetTokenAsync(TokenRequest tokenRequest, CancellationToken cancellationToken);
+    Task<AuthenticationResult?> GetTokenAsync(TokenRequest tokenRequest, CancellationToken cancellationToken = default);
 }

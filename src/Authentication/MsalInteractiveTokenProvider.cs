@@ -22,7 +22,7 @@ public class MsalInteractiveTokenProvider : ITokenProvider
         return tokenRequest.IsInteractive && tokenRequest.CanShowDialog;
     }
 
-    public async Task<AuthenticationResult?> GetTokenAsync(TokenRequest tokenRequest, CancellationToken cancellationToken)
+    public async Task<AuthenticationResult?> GetTokenAsync(TokenRequest tokenRequest, CancellationToken cancellationToken = default)
     {
         using CancellationTokenSource cts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
         cts.CancelAfter(tokenRequest.InteractiveTimeout);

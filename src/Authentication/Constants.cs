@@ -1,6 +1,6 @@
 namespace Microsoft.Artifacts.Authentication;
 
-internal static class Constants
+public static class Constants
 {
     private const string AzureDevOpsResource = "499b84ac-1321-427f-aa17-267ca6975798/.default";
     public static readonly IEnumerable<string> AzureDevOpsScopes = Array.AsReadOnly(new[] { AzureDevOpsResource });

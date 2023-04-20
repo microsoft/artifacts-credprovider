@@ -24,7 +24,7 @@ public class MsalIntegratedWindowsAuthTokenProvider : ITokenProvider
         return WindowsIntegratedAuth.IsSupported() && tokenRequest.IsWindowsIntegratedAuthEnabled;
     }
 
-    public async Task<AuthenticationResult?> GetTokenAsync(TokenRequest tokenRequest, CancellationToken cancellationToken)
+    public async Task<AuthenticationResult?> GetTokenAsync(TokenRequest tokenRequest, CancellationToken cancellationToken = default)
     {
         try
         {
