@@ -1,0 +1,18 @@
+package:
+  name: artifacts-credprovider-conda
+  version: 0.0.1
+
+source:
+  path: ../src
+  folder: src
+
+build:
+  noarch: generic
+
+about:
+  home: https://github.com/microsoft/artifacts-credprovider
+  license: MIT
+  summary: Conda credential provider wrapper to authenticate against Azure Artifacts feeds.
+  description: |
+    The artifacts-credprovider-conda package provides authentication to consume
+    Conda pacakges from Azure Artifacts feed within Azure DevOps.

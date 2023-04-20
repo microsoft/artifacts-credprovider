@@ -1,0 +1,3 @@
+echo Cleanup environment variable from activation script...
+set NUGET_CREDENTIALPROVIDER_MSAL_ENABLED=
+set ARTIFACTS_CONDA_TOKEN=

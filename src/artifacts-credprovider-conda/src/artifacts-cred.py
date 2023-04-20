@@ -170,7 +170,5 @@ result = sys.stdin.buffer.read()
 jsonResult = json.loads(result)
 resultUrl = jsonResult['channel_alias']['scheme'] + "://" + jsonResult['channel_alias']['location']
 cred = ArtifactsKeyringBackend()
-token = cred.get_credential(
-    resultUrl + "/pkgs/main/win-64/repodata.json", # todo:remove second part after we support shorter URL server side
-    None)
+token = cred.get_credential(resultUrl,None)
 print(token) # pipe the result back to the shell script
