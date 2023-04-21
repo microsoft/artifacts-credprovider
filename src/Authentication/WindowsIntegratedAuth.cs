@@ -1,3 +1,7 @@
+// Copyright (c) Microsoft. All rights reserved.
+//
+// Licensed under the MIT license.
+
 using System.Runtime.InteropServices;
 using System.Text;
 

@@ -1,3 +1,7 @@
+// Copyright (c) Microsoft. All rights reserved.
+//
+// Licensed under the MIT license.
+
 namespace Microsoft.Artifacts.Authentication.Tests;
 
 // Tests are meant to be run manually as it requires interactive logins, multiple accounts, and domain joined machines.

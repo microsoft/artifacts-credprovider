@@ -1,3 +1,7 @@
+// Copyright (c) Microsoft. All rights reserved.
+//
+// Licensed under the MIT license.
+
 using Microsoft.Extensions.Logging;
 using Microsoft.Identity.Client;
 

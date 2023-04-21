@@ -1,4 +1,8 @@
-﻿using Microsoft.Identity.Client;
+// Copyright (c) Microsoft. All rights reserved.
+//
+// Licensed under the MIT license.
+
+using Microsoft.Identity.Client;
 
 namespace Microsoft.Artifacts.Authentication;
 
