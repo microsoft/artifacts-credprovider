@@ -28,14 +28,22 @@ public class MsalDeviceCodeTokenProvider : ITokenProvider
         using CancellationTokenSource cts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
         cts.CancelAfter(tokenRequest.InteractiveTimeout);
 
-        var result = await app.AcquireTokenWithDeviceCode(Constants.AzureDevOpsScopes, tokenRequest.DeviceCodeResultCallback ?? ((DeviceCodeResult deviceCodeResult) =>
-            {
-                logger.LogInformation(deviceCodeResult.Message);
+        try
+        {
+            var result = await app.AcquireTokenWithDeviceCode(Constants.AzureDevOpsScopes, tokenRequest.DeviceCodeResultCallback ?? ((DeviceCodeResult deviceCodeResult) =>
+                {
+                    logger.LogInformation(deviceCodeResult.Message);
 
-                return Task.CompletedTask;
-            }))
-            .ExecuteAsync(cts.Token);
+                    return Task.CompletedTask;
+                }))
+                .ExecuteAsync(cts.Token);
 
-        return result;
+            return result;
+        }
+        catch (OperationCanceledException ex) when (cts.IsCancellationRequested)
+        {
+            logger.LogWarning(ex.Message);
+            return null;
+        }
     }
 }

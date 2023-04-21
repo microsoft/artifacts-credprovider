@@ -16,13 +16,16 @@ public class MsalAuthenticationTests
         })
         .CreateLogger(nameof(MsalAuthenticationTests));
 
+    private static MsalCacheHelper cache = MsalCache
+        .GetMsalCacheHelperAsync(MsalCache.DefaultMsalCacheLocation, logger).GetAwaiter().GetResult();
+
     private IPublicClientApplication app = AzureArtifacts
         .CreateDefaultBuilder(AuthorityUri, logger)
         .WithBroker(true, logger)
         // The test hosting process (testhost.exe) may not have an associated console window, so use
         // the foreground window which is correct enough when debugging and running tests locally.
         .WithParentActivityOrWindow(() => GetForegroundWindow())
-        .Build();
+        .Build(cache);
 
     [TestMethod]
     public async Task MsalAcquireTokenSilentTest()
@@ -74,4 +77,16 @@ public class MsalAuthenticationTests
 
     [System.Runtime.InteropServices.DllImport("user32.dll")]
     private static extern IntPtr GetForegroundWindow();
+}
+
+internal static class MsalCacheExtensions
+{
+    public static IPublicClientApplication Build(this PublicClientApplicationBuilder builder, MsalCacheHelper? cache = null)
+    {
+        IPublicClientApplication app = builder.Build();
+
+        cache?.RegisterCache(app.UserTokenCache);
+
+        return app;
+    }
 }

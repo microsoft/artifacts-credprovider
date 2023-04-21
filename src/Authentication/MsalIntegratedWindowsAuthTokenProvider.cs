@@ -41,15 +41,15 @@ public class MsalIntegratedWindowsAuthTokenProvider : ITokenProvider
 
             return result;
         }
-        catch (MsalServiceException e)
+        catch (MsalClientException ex) when (ex.ErrorCode == MsalError.WsTrustEndpointNotFoundInMetadataDocument)
         {
-            // TODO: Review this, likely want to suppress the wstrust and other known cases
-            if (e.ErrorCode.Contains(MsalError.AuthenticationCanceledError))
-            {
-                return null;
-            }
-
-            throw;
+            logger.LogTrace(ex.Message);
+            return null;
+        }
+        catch (MsalUiRequiredException ex)
+        {
+            logger.LogTrace(ex.Message);
+            return null;
         }
     }
 }

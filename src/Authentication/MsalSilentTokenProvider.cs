@@ -63,13 +63,13 @@ public class MsalSilentTokenProvider : ITokenProvider
 
                 return result;
             }
-            catch (MsalUiRequiredException e)
+            catch (MsalUiRequiredException ex)
             {
-                this.logger.LogTrace(e.Message);
+                this.logger.LogTrace(ex.Message);
             }
-            catch (MsalServiceException e)
+            catch (MsalServiceException ex)
             {
-                this.logger.LogWarning(e.Message);
+                this.logger.LogWarning(ex.Message);
             }
         }
 

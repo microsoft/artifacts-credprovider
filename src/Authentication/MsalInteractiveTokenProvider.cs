@@ -6,10 +6,12 @@ namespace Microsoft.Artifacts.Authentication;
 public class MsalInteractiveTokenProvider : ITokenProvider
 {
     private readonly IPublicClientApplication app;
+    private readonly ILogger logger;
 
     public MsalInteractiveTokenProvider(IPublicClientApplication app, ILogger logger)
     {
         this.app = app ?? throw new ArgumentNullException(nameof(app));
+        this.logger = logger ?? throw new ArgumentNullException(nameof(logger));
     }
 
     public string Name => "MSAL Interactive";
@@ -36,15 +38,15 @@ public class MsalInteractiveTokenProvider : ITokenProvider
 
             return result;
         }
-        catch (MsalServiceException e)
+        catch (MsalClientException ex) when (ex.ErrorCode == MsalError.AuthenticationCanceledError)
         {
-            // TODO: review as this should be from MsalClientException?
-            if (e.ErrorCode.Contains(MsalError.AuthenticationCanceledError))
-            {
-                return null;
-            }
-
-            throw;
+            logger.LogWarning(ex.Message);
+            return null;
+        }
+        catch (OperationCanceledException ex) when (cts.IsCancellationRequested)
+        {
+            logger.LogWarning(ex.Message);
+            return null;
         }
     }
 }
