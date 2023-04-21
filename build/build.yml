@@ -220,7 +220,7 @@ steps:
 - script: dotnet pack MicrosoftCredentialProvider.sln -c $(BuildConfiguration) -o $(Build.ArtifactStagingDirectory)\$(BuildConfiguration) -p:${{ parameters.nuspecProperties }}
   displayName: dotnet pack
 
-- script: dotnet nuget push $(Build.ArtifactStagingDirectory)\$(BuildConfiguration)\*.nupkg --source artifacts-credprovider --api-key unimportantValue
+- script: dotnet nuget push $(Build.ArtifactStagingDirectory)\$(BuildConfiguration)\*.nupkg --source artifacts-credprovider --api-key az --skip-duplicate
   displayName: dotnet push
   condition: eq(variables['PushNupkg'], 'true')
 
