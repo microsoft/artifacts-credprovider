@@ -171,5 +171,4 @@ jsonResult = json.loads(result)
 resultUrl = jsonResult['channel_alias']['scheme'] + "://" + jsonResult['channel_alias']['location']
 cred = ArtifactsKeyringBackend()
 token = cred.get_credential(resultUrl,None)
-print(resultUrl)
 print(token) # pipe the result back to the shell script
