@@ -3,18 +3,9 @@ using Microsoft.Identity.Client;
 
 namespace Microsoft.Artifacts.Authentication;
 
-public class MsalTokenProvidersFactory : ITokenProvidersFactory
+public class MsalTokenProviders
 {
-    private readonly IPublicClientApplication app;
-    private readonly ILogger logger;
-
-    public MsalTokenProvidersFactory(IPublicClientApplication app, ILogger logger)
-    {
-        this.app = app ?? throw new ArgumentNullException(nameof(app));
-        this.logger = logger ?? throw new ArgumentNullException(nameof(logger));
-    }
-
-    public IEnumerable<ITokenProvider> Get(Uri authority)
+    public static IEnumerable<ITokenProvider> Get(IPublicClientApplication app, ILogger logger)
     {
         // TODO: Would be more useful if MsalSilentTokenProvider enumerated over each account from the outside
         yield return new MsalSilentTokenProvider(app, logger);

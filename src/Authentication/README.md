@@ -16,9 +16,8 @@ var app = AzureArtifacts.CreateDefaultBuilder(authority, logger)
     })
     .Build();
 
-// Can use MsalTokenProvidersFactory which works for most cases, or compose the token providers manually
-var factory = new MsalTokenProvidersFactory(app, logger);
-var providers = factory.Get(authority);
+// Can use MsalTokenProviders which works for most cases, or compose the token providers manually
+var providers = MsalTokenProviders.Get(app, logger);
 
 var tokenRequest = new TokenRequest
 {

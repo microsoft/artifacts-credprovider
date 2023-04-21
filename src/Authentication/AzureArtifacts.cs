@@ -13,15 +13,7 @@ public static class AzureArtifacts
     {
         var builder = PublicClientApplicationBuilder.Create(AzureArtifacts.ClientId)
             .WithAuthority(authority)
-            .WithRedirectUri("http://localhost")
-            .WithLogging(
-                (Identity.Client.LogLevel level, string message, bool _) =>
-                {
-                    // We ignore containsPii param because we are passing in enablePiiLogging below.
-                    logger.LogTrace(Resources.MsalLogMessage, level, message);
-                },
-                enablePiiLogging: false
-            );
+            .WithRedirectUri("http://localhost");
 
         return builder;
     }
