@@ -24,7 +24,7 @@ public class MsalAuthenticationTests
         .GetMsalCacheHelperAsync(MsalCache.DefaultMsalCacheLocation, logger).GetAwaiter().GetResult();
 
     private IPublicClientApplication app = AzureArtifacts
-        .CreateDefaultBuilder(AuthorityUri, logger)
+        .CreateDefaultBuilder(AuthorityUri)
         .WithBroker(true, logger)
         // The test hosting process (testhost.exe) may not have an associated console window, so use
         // the foreground window which is correct enough when debugging and running tests locally.

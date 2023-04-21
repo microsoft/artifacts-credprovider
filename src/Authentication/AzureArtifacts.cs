@@ -13,7 +13,7 @@ public static class AzureArtifacts
 {
     public const string ClientId = "d5a56ea4-7369-46b8-a538-c370805301bf";
 
-    public static PublicClientApplicationBuilder CreateDefaultBuilder(Uri authority, ILogger logger)
+    public static PublicClientApplicationBuilder CreateDefaultBuilder(Uri authority)
     {
         var builder = PublicClientApplicationBuilder.Create(AzureArtifacts.ClientId)
             .WithAuthority(authority)

@@ -9,7 +9,8 @@ The Azure Artifacts credential provider authentication library provides extensio
 Example usage to create a PublicClientApplication with recommended settings and defaults for Azure Artifacts and enumerate providers:
 
 ```csharp
-var app = AzureArtifacts.CreateDefaultBuilder(authority, logger)
+var app = AzureArtifacts.CreateDefaultBuilder(authority)
+    .WithBroker(true, logger)
     .WithLogging((LogLevel level, string message, bool containsPii) =>
     {
         // Application specific logging
