@@ -1,5 +1,8 @@
 {
   "image": "mcr.microsoft.com/devcontainers/dotnet:6.0",
   "features": {
+    "ghcr.io/devcontainers/features/dotnet:1": {
+      "version": "3.1"
+    }
   }
 }
