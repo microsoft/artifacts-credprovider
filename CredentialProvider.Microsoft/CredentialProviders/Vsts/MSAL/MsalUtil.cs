@@ -1,6 +1,8 @@
 using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using Microsoft.Identity.Client;
+using Microsoft.Identity.Client.NativeInterop;
 
 namespace NuGetCredentialProvider.CredentialProviders.Vsts
 {
@@ -49,6 +51,33 @@ namespace NuGetCredentialProvider.CredentialProviders.Vsts
             }
 
             return builder;
+        }
+
+        public static void InitializeBroker()
+        {
+            if (!Util.EnvUtil.MsalEnabled() || !Util.EnvUtil.MsalAllowBrokerEnabled())
+            {
+                return;
+            }
+
+            var task = Task.Run(() =>
+            {
+                try
+                {
+                    IDisposable core = null;
+
+                    AppDomain.CurrentDomain.ProcessExit += (sender, e) =>
+                    {
+                        core?.Dispose();
+                    };
+
+                    core = new Core();
+                }
+                catch (MsalRuntimeException ex) when (ex.Status == ResponseStatus.ApiContractViolation)
+                {
+                    // Failed to initialize msal runtime - can happen on older versions of Windows. Means broker is not available.
+                }
+            });
         }
     }
 }

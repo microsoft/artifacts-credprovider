@@ -60,6 +60,8 @@ namespace NuGetCredentialProvider
 
         public static async Task<int> Main(string[] args)
         {
+            MsalUtil.InitializeBroker();
+
             CancellationTokenSource tokenSource = new CancellationTokenSource();
             var parsedArgs = await Args.ParseAsync<CredentialProviderArgs>(args);
 
