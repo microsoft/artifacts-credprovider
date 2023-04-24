@@ -3,6 +3,7 @@
 // Licensed under the MIT license.
 
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
 using System.Net.Http.Headers;
@@ -39,6 +40,7 @@ namespace NuGetCredentialProvider.CredentialProviders.Vsts
         public static readonly Guid FirstPartyTenant = Guid.Parse("f8cdef31-a31e-4b4a-93e4-5f571e91255a");
         public static readonly Guid MsaAccountTenant = Guid.Parse("9188040d-6c67-4c5b-b112-36a304b66dad");
 
+        private readonly Dictionary<Uri, HttpResponseHeaders> cache = new();
         private readonly ILogger logger;
 
         public AuthUtil(ILogger logger)
@@ -137,6 +139,11 @@ namespace NuGetCredentialProvider.CredentialProviders.Vsts
 
         protected virtual async Task<HttpResponseHeaders> GetResponseHeadersAsync(Uri uri, CancellationToken cancellationToken)
         {
+            if (cache.TryGetValue(uri, out HttpResponseHeaders headers))
+            {
+                return headers;
+            }
+
             using (var httpClient = new HttpClient())
             using (var request = new HttpRequestMessage(HttpMethod.Get, uri))
             {
@@ -145,10 +152,10 @@ namespace NuGetCredentialProvider.CredentialProviders.Vsts
                     httpClient.DefaultRequestHeaders.UserAgent.Add(userAgent);
                 }
 
-
                 logger.Verbose($"GET {uri}");
-                using (var response = await httpClient.SendAsync(request, cancellationToken))
+                using (var response = await httpClient.SendAsync(request, HttpCompletionOption.ResponseHeadersRead, cancellationToken))
                 {
+                    cache[uri] = response.Headers;
                     return response.Headers;
                 }
             }
