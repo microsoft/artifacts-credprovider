@@ -330,6 +330,8 @@ ASALocalRun/
 .mfractor/
 
 .vscode
+!.vscode/launch.json
+!.vscode/tasks.json
 
 # MicroBuild build output
 MicroBuild
