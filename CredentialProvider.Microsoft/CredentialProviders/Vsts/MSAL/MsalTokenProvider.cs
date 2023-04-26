@@ -247,6 +247,7 @@ namespace NuGetCredentialProvider.CredentialProviders.Vsts
             var publicClientBuilder = PublicClientApplicationBuilder.Create(this.clientId)
                 .WithAuthority(this.authority)
                 .WithDefaultRedirectUri()
+                .WithHttpClientFactory(HttpClientFactory.Default)
                 .WithLogging(
                     (LogLevel level, string message, bool _containsPii) =>
                     {

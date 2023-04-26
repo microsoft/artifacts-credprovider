@@ -10,14 +10,13 @@ using System.Threading;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
 using NuGetCredentialProvider.Logging;
+using NuGetCredentialProvider.Util;
 
 namespace NuGetCredentialProvider.CredentialProviders.Vsts
 {
     public class VstsSessionTokenClient : IVstsSessionTokenClient
     {
         private const string TokenScope = "vso.packaging_write vso.drop_write";
-
-        private static readonly HttpClient httpClient = new HttpClient();
 
         private readonly Uri vstsUri;
         private readonly string bearerToken;
@@ -37,11 +36,6 @@ namespace NuGetCredentialProvider.CredentialProviders.Vsts
             var request = new HttpRequestMessage(HttpMethod.Post, uri);
             request.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
             request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", bearerToken);
-
-            foreach (var userAgent in Program.UserAgent)
-            {
-                request.Headers.UserAgent.Add(userAgent);
-            }
 
             var tokenRequest = new VstsSessionToken()
             {
@@ -73,6 +67,8 @@ namespace NuGetCredentialProvider.CredentialProviders.Vsts
 
             uriBuilder.Path = uriBuilder.Path.TrimEnd('/') + "/_apis/Token/SessionTokens";
 
+            var httpClient = HttpClientFactory.Default.GetHttpClient();
+
             using (var request = CreateRequest(uriBuilder.Uri, validTo))
             using (var response = await httpClient.SendAsync(request, cancellationToken))
             {
@@ -81,7 +77,7 @@ namespace NuGetCredentialProvider.CredentialProviders.Vsts
                 string serializedResponse;
                 if (response.StatusCode == System.Net.HttpStatusCode.BadRequest)
                 {
-                    
+
                     request.Dispose();
                     response.Dispose();
 
@@ -100,7 +96,7 @@ namespace NuGetCredentialProvider.CredentialProviders.Vsts
                     response.EnsureSuccessStatusCode();
                     serializedResponse = await response.Content.ReadAsStringAsync();
                 }
-                
+
                 var responseToken = JsonConvert.DeserializeObject<VstsSessionToken>(serializedResponse);
 
                 if (validTo.Subtract(responseToken.ValidTo.Value).TotalHours > 1.0)
