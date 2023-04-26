@@ -1,0 +1,26 @@
+<Project>
+  <!--
+        Support for resx generators outside of VS
+        https://github.com/dotnet/msbuild/issues/4751
+  -->
+  <PropertyGroup>
+    <!--
+        This is required because OmniSharp (VSCode) calls the build in a way
+        that will skip resource generation. Without this line, OmniSharp won't
+        find the generated .cs files and analysis will fail.
+    -->
+    <CoreCompileDependsOn>PrepareResources;$(CoreCompileDependsOn)</CoreCompileDependsOn>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Update="@(EmbeddedResource)">
+      <Generator>MSBuild:Compile</Generator>
+      <ResourceNamespace>$(RootNamespace)$([MSBuild]::ValueOrDefault('.%(RelativeDir)', '').Replace('\', '.').Replace('/', '.').TrimEnd('.'))</ResourceNamespace>
+      <StronglyTypedFileName>$(IntermediateOutputPath)%(ResourceNamespace).%(Filename).g$(DefaultLanguageSourceExtension)</StronglyTypedFileName>
+      <StronglyTypedLanguage>$(Language)</StronglyTypedLanguage>
+      <StronglyTypedNamespace>%(ResourceNamespace)</StronglyTypedNamespace>
+      <StronglyTypedClassName>%(Filename)</StronglyTypedClassName>
+    </EmbeddedResource>
+  </ItemGroup>
+
+</Project>

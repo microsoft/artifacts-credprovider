@@ -38,12 +38,12 @@ steps:
     workingDirectory: CredentialProvider.Microsoft.VSIX
 
 - script: dotnet restore
-  displayName: dotnet restore NuGet.config CredentialProvider.Microsoft/CredentialProvider.Microsoft.csproj
+  displayName: dotnet restore MicrosoftCredentialProvider.sln
 
 - task: MSBuild@1
   displayName: Build CredentialProvider
   inputs:
-    solution: 'CredentialProvider.Microsoft/CredentialProvider.Microsoft.csproj'
+    solution: 'MicrosoftCredentialProvider.sln'
     configuration: '$(BuildConfiguration)'
     msbuildArguments: '/t:rebuild /p:TreatWarningsAsErrors=true'
 
@@ -71,7 +71,7 @@ steps:
       AccessToken: $(System.AccessToken)
 
 - ${{ if ne(parameters.sign, 'true') }}:
-  - script: dotnet test CredentialProvider.Microsoft.Tests/CredentialProvider.Microsoft.Tests.csproj --logger trx --results-directory $(Agent.TempDirectory)
+  - script: dotnet test MicrosoftCredentialProvider.sln --logger trx --results-directory $(Agent.TempDirectory)
     displayName: dotnet test
 
 - script: dotnet publish CredentialProvider.Microsoft/CredentialProvider.Microsoft.csproj --no-build --framework net6.0 --configuration $(BuildConfiguration)
@@ -214,13 +214,13 @@ steps:
     artifact: "Symbols"
     targetPath: '$(Build.ArtifactStagingDirectory)\symbols'
 
-- powershell: 'Write-Output ("##vso[task.setvariable variable=SignType;]")' 
+- powershell: 'Write-Output ("##vso[task.setvariable variable=SignType;]")'
   displayName: Clear SignType
 
-- script: dotnet pack CredentialProvider.Microsoft/CredentialProvider.Microsoft.csproj -c $(BuildConfiguration) -o $(Build.ArtifactStagingDirectory)\$(BuildConfiguration) -p:${{ parameters.nuspecProperties }}
+- script: dotnet pack MicrosoftCredentialProvider.sln -c $(BuildConfiguration) -o $(Build.ArtifactStagingDirectory)\$(BuildConfiguration) -p:${{ parameters.nuspecProperties }}
   displayName: dotnet pack
 
-- script: dotnet nuget push $(Build.ArtifactStagingDirectory)\$(BuildConfiguration)\*.nupkg --source artifacts-credprovider --api-key unimportantValue
+- script: dotnet nuget push $(Build.ArtifactStagingDirectory)\$(BuildConfiguration)\*.nupkg --source artifacts-credprovider --api-key az --skip-duplicate
   displayName: dotnet push
   condition: eq(variables['PushNupkg'], 'true')
 
