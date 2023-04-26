@@ -32,7 +32,7 @@ namespace NuGetCredentialProvider.CredentialProviders.Vsts
 
         public async Task<IAdalToken> AcquireTokenWithDeviceFlowAsync(Func<DeviceCodeResult, Task> deviceCodeHandler, CancellationToken cancellationToken, ILogger logger)
         {
-            var authenticationContext = new AuthenticationContext(authority, tokenCache);
+            var authenticationContext = new AuthenticationContext(authority, validateAuthority: true, tokenCache, HttpClientFactory.Default);
 
             var deviceCode = await authenticationContext.AcquireDeviceCodeAsync(resource, clientId);
             cancellationToken.ThrowIfCancellationRequested();
@@ -61,7 +61,7 @@ namespace NuGetCredentialProvider.CredentialProviders.Vsts
 
         public async Task<IAdalToken> AcquireTokenSilentlyAsync(CancellationToken cancellationToken)
         {
-            var authenticationContext = new AuthenticationContext(authority, tokenCache);
+            var authenticationContext = new AuthenticationContext(authority, validateAuthority: true, tokenCache, HttpClientFactory.Default);
 
             try
             {
@@ -81,7 +81,7 @@ namespace NuGetCredentialProvider.CredentialProviders.Vsts
 #pragma warning restore CS1998 // Async method lacks 'await' operators and will run synchronously
         {
 #if NETFRAMEWORK
-            var authenticationContext = new AuthenticationContext(authority, tokenCache);
+            var authenticationContext = new AuthenticationContext(authority, validateAuthority: true, tokenCache, HttpClientFactory.Default);
 
             var parameters = new PlatformParameters(PromptBehavior.Always);
 
@@ -109,7 +109,7 @@ namespace NuGetCredentialProvider.CredentialProviders.Vsts
 
         public async Task<IAdalToken> AcquireTokenWithWindowsIntegratedAuth(CancellationToken cancellationToken)
         {
-            var authenticationContext = new AuthenticationContext(authority, tokenCache);
+            var authenticationContext = new AuthenticationContext(authority, validateAuthority: true, tokenCache, HttpClientFactory.Default);
 
             try
             {

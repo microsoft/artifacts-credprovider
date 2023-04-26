@@ -144,14 +144,10 @@ namespace NuGetCredentialProvider.CredentialProviders.Vsts
                 return headers;
             }
 
-            using (var httpClient = new HttpClient())
+            var httpClient = HttpClientFactory.Default.GetHttpClient();
+
             using (var request = new HttpRequestMessage(HttpMethod.Get, uri))
             {
-                foreach (var userAgent in Program.UserAgent)
-                {
-                    httpClient.DefaultRequestHeaders.UserAgent.Add(userAgent);
-                }
-
                 logger.Verbose($"GET {uri}");
                 using (var response = await httpClient.SendAsync(request, HttpCompletionOption.ResponseHeadersRead, cancellationToken))
                 {
