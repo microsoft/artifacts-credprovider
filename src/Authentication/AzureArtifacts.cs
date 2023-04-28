@@ -52,6 +52,12 @@ public static class AzureArtifacts
         return builder;
     }
 
+    public static PublicClientApplicationBuilder WithHttpClient(this PublicClientApplicationBuilder builder, HttpClient? httpClient = null)
+    {
+        // Default HttpClient is only meant for .NET Framework clients that can't use the SocketsHttpHandler
+        return builder.WithHttpClientFactory(new MsalHttpClientFactory(httpClient ?? new HttpClient()));
+    }
+
 #region https://github.com/AzureAD/microsoft-authentication-library-for-dotnet/issues/3590
     enum GetAncestorFlags
     {

@@ -34,7 +34,7 @@ public class MsalDeviceCodeTokenProvider : ITokenProvider
 
         try
         {
-            var result = await app.AcquireTokenWithDeviceCode(Constants.AzureDevOpsScopes, tokenRequest.DeviceCodeResultCallback ?? ((DeviceCodeResult deviceCodeResult) =>
+            var result = await app.AcquireTokenWithDeviceCode(MsalConstants.AzureDevOpsScopes, tokenRequest.DeviceCodeResultCallback ?? ((DeviceCodeResult deviceCodeResult) =>
                 {
                     logger.LogInformation(deviceCodeResult.Message);
 

@@ -61,7 +61,7 @@ public class MsalSilentTokenProvider : ITokenProvider
             {
                 this.logger.LogTrace(Resources.MsalAccountAttempt, canonicalName);
 
-                var result = await app.AcquireTokenSilent(Constants.AzureDevOpsScopes, account)
+                var result = await app.AcquireTokenSilent(MsalConstants.AzureDevOpsScopes, account)
                     .WithAccountTenantId(account)
                     .ExecuteAsync(cancellationToken);
 
