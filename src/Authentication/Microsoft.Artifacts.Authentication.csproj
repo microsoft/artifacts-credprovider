@@ -7,7 +7,7 @@
     <LangVersion>latest</LangVersion>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
-    <Version>0.1.0$(VersionSuffix)</Version>
+    <Version>0.1.1$(VersionSuffix)</Version>
     <Authors>Microsoft</Authors>
     <Owners>Microsoft</Owners>
     <Description>Azure Artifacts authentication library for credential providers.</Description>
