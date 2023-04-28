@@ -39,7 +39,7 @@ public class MsalIntegratedWindowsAuthTokenProvider : ITokenProvider
                 return null;
             }
 
-            var result = await app.AcquireTokenByIntegratedWindowsAuth(Constants.AzureDevOpsScopes)
+            var result = await app.AcquireTokenByIntegratedWindowsAuth(MsalConstants.AzureDevOpsScopes)
                 .WithUsername(upn)
                 .ExecuteAsync(cancellationToken);
 

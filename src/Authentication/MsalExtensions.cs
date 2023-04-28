@@ -29,7 +29,7 @@ public static partial class MsalExtensions
                 {
                     applicableAccounts.Add((account, canonicalName));
                 }
-                else if (accountTenantId == Constants.MsaAccountTenant && (authorityTenantId == Constants.FirstPartyTenant || authorityTenantId == Guid.Empty))
+                else if (accountTenantId == MsalConstants.MsaAccountTenant && (authorityTenantId == MsalConstants.FirstPartyTenant || authorityTenantId == Guid.Empty))
                 {
                     applicableAccounts.Add((account, canonicalName));
                 }
@@ -45,9 +45,9 @@ public static partial class MsalExtensions
         // Even if using the organizations tenant the presence of an MSA will attempt to use the consumers tenant
         // which is not supported by the Azure DevOps application. Detect this case and use the first party tenant.
 
-        if (Guid.TryParse(account.HomeAccountId?.TenantId, out Guid accountTenantId) && accountTenantId == Constants.MsaAccountTenant)
+        if (Guid.TryParse(account.HomeAccountId?.TenantId, out Guid accountTenantId) && accountTenantId == MsalConstants.MsaAccountTenant)
         {
-            builder = builder.WithTenantId(Constants.FirstPartyTenant.ToString());
+            builder = builder.WithTenantId(MsalConstants.FirstPartyTenant.ToString());
         }
 
         return builder;

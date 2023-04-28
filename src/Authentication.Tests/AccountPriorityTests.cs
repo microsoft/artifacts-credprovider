@@ -35,7 +35,7 @@ public class AccountPriorityTests
     {
         Username = "bill.gates@live.com",
         Environment = string.Empty,
-        HomeAccountId = new AccountId(string.Empty, string.Empty, Constants.MsaAccountTenant.ToString()),
+        HomeAccountId = new AccountId(string.Empty, string.Empty, MsalConstants.MsaAccountTenant.ToString()),
     };
 
     private static readonly List<List<IAccount>> Permutations = new List<List<IAccount>>()
@@ -53,7 +53,7 @@ public class AccountPriorityTests
     {
         foreach (var accounts in Permutations)
         {
-            var applicable = MsalExtensions.GetApplicableAccounts(accounts, Constants.FirstPartyTenant, loginHint: null);
+            var applicable = MsalExtensions.GetApplicableAccounts(accounts, MsalConstants.FirstPartyTenant, loginHint: null);
             Assert.AreEqual(applicable[0].Item1.Username, MsaUser.Username);
         }
     }
