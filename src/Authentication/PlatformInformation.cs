@@ -19,7 +19,7 @@ public static class PlatformInformation
     {
         return programName ??= Assembly
             .GetEntryAssembly()?
-            .GetCustomAttribute<AssemblyProductAttribute>()?.Product ?? CurrentAssemblyName.Name;
+            .GetCustomAttribute<AssemblyTitleAttribute>()?.Title ?? CurrentAssemblyName.Name;
     }
 
     public static string GetProgramVersion()

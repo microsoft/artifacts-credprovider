@@ -7,7 +7,7 @@ using Microsoft.Identity.Client;
 
 namespace Microsoft.Artifacts.Authentication;
 
-internal class MsalHttpClientFactory : IMsalHttpClientFactory
+public class MsalHttpClientFactory : IMsalHttpClientFactory
 {
     private readonly HttpClient httpClient;
 
@@ -36,7 +36,7 @@ internal class MsalHttpClientFactory : IMsalHttpClientFactory
 
     // Produces a value similar to the following:
     // CredentialProvider.Microsoft/1.0.4+aae4981de95d543b7935811c05474e393dd9e144 (Windows; X64; Microsoft Windows 10.0.19045) CLR/6.0.16 (.NETCoreApp,Version=v6.0; win10-x64; .NET 6.0.16)
-    internal static IEnumerable<ProductInfoHeaderValue> UserAgent =>
+    public static IEnumerable<ProductInfoHeaderValue> UserAgent =>
         Array.AsReadOnly(new[]
         {
             ProgramProduct,
