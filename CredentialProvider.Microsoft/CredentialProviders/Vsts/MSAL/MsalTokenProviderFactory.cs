@@ -15,7 +15,9 @@ namespace NuGetCredentialProvider.CredentialProviders.Vsts
 
         public IMsalTokenProvider Get(Uri authority, bool brokerEnabled, ILogger logger)
         {
-            return new MsalTokenProvider(authority, Resource, brokerEnabled ? ClientId : LegacyClientId, brokerEnabled, logger);
+            // Azure Artifacts is not yet present in PPE, so revert to the old app in that case
+            bool ppe = authority.Host.Equals("login.windows-ppe.net", StringComparison.OrdinalIgnoreCase);
+            return new MsalTokenProvider(authority, Resource, brokerEnabled && !ppe ? ClientId : LegacyClientId, brokerEnabled, logger);
         }
     }
 }
