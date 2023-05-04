@@ -12,10 +12,14 @@ namespace Microsoft.Artifacts.Authentication;
 public static class AzureArtifacts
 {
     public const string ClientId = "d5a56ea4-7369-46b8-a538-c370805301bf";
+    private const string LegacyClientId = "872cd9fa-d31f-45e0-9eab-6e460a02d1f1";
 
     public static PublicClientApplicationBuilder CreateDefaultBuilder(Uri authority)
     {
-        var builder = PublicClientApplicationBuilder.Create(AzureArtifacts.ClientId)
+        // Azure Artifacts is not yet present in PPE, so revert to the old app in that case
+        bool ppe = authority.Host.Equals("login.windows-ppe.net", StringComparison.OrdinalIgnoreCase);
+
+        var builder = PublicClientApplicationBuilder.Create(!ppe ? AzureArtifacts.ClientId : AzureArtifacts.LegacyClientId)
             .WithAuthority(authority)
             .WithRedirectUri("http://localhost");
 
