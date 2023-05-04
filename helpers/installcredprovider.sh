@@ -9,7 +9,8 @@
 # Releases: https://github.com/microsoft/artifacts-credprovider/releases
 
 REPO="Microsoft/artifacts-credprovider"
-NUGET_PLUGIN_DIR="$HOME/.nuget/plugins"
+NUGET_DIR="${HOME}/.nuget/"
+NUGET_PLUGIN_DIR="${NUGET_DIR}plugins"
 
 # determine whether we install default or Net6
 if [[ -z ${USE_NET6_ARTIFACTS_CREDENTIAL_PROVIDER} ]] || [[ ${USE_NET6_ARTIFACTS_CREDENTIAL_PROVIDER} != "false" ]]; then
@@ -50,8 +51,8 @@ if ! curl -H "Accept: application/octet-stream" \
      -s \
      -S \
      -L \
-     "$URI" | tar xz -C "$HOME/.nuget/" "plugins/netcore"; then
+     "$URI" | tar xz -C "${NUGET_DIR}" "plugins/netcore"; then
         exit 1
 fi
 
-echo "INFO: credential provider netcore plugin extracted to $HOME/.nuget/"
+echo "INFO: credential provider netcore plugin extracted to ${NUGET_DIR}"
