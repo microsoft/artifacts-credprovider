@@ -2,13 +2,11 @@
 //
 // Licensed under the MIT license.
 
-using System;
-using System.Collections.Generic;
+using Microsoft.Artifacts.Authentication;
 
 namespace NuGetCredentialProvider.CredentialProviders.Vsts
 {
-    public interface IBearerTokenProvidersFactory
+    public interface IBearerTokenProvidersFactory : ITokenProvidersFactory
     {
-        IEnumerable<IBearerTokenProvider> Get(Uri authority);
     }
 }

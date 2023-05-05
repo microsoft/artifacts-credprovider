@@ -6,6 +6,7 @@ using System;
 using System.Runtime.InteropServices;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.Artifacts.Authentication;
 using Microsoft.IdentityModel.Clients.ActiveDirectory;
 using NuGetCredentialProvider.Logging;
 using NuGetCredentialProvider.Util;
@@ -24,15 +25,15 @@ namespace NuGetCredentialProvider.CredentialProviders.Vsts
             this.adalTokenProvider = adalTokenProvider;
         }
 
-        public bool Interactive { get; } = false;
-        public string Name { get; } = "ADAL Cache";
+        public override bool Interactive { get; } = false;
+        public override string Name { get; } = "ADAL Cache";
 
-        public async Task<string> GetTokenAsync(Uri uri, CancellationToken cancellationToken)
+        public override async Task<string> GetTokenAsync(Uri uri, CancellationToken cancellationToken)
         {
             return (await adalTokenProvider.AcquireTokenSilentlyAsync(cancellationToken))?.AccessToken;
         }
 
-        public bool ShouldRun(bool isRetry, bool isNonInteractive, bool canShowDialog)
+        public override bool ShouldRun(bool isRetry, bool isNonInteractive, bool canShowDialog)
         {
             return !isRetry;
         }
@@ -50,15 +51,15 @@ namespace NuGetCredentialProvider.CredentialProviders.Vsts
             this.adalTokenProvider = adalTokenProvider;
         }
 
-        public bool Interactive { get; } = false;
-        public string Name { get; } = "ADAL Windows Integrated Authentication";
+        public override bool Interactive { get; } = false;
+        public override string Name { get; } = "ADAL Windows Integrated Authentication";
 
-        public async Task<string> GetTokenAsync(Uri uri, CancellationToken cancellationToken)
+        public override async Task<string> GetTokenAsync(Uri uri, CancellationToken cancellationToken)
         {
             return (await adalTokenProvider.AcquireTokenWithWindowsIntegratedAuth(cancellationToken))?.AccessToken;
         }
 
-        public bool ShouldRun(bool isRetry, bool isNonInteractive, bool canShowDialog)
+        public override bool ShouldRun(bool isRetry, bool isNonInteractive, bool canShowDialog)
         {
             return WindowsIntegratedAuthUtils.SupportsWindowsIntegratedAuth() && EnvUtil.WindowsIntegratedAuthenticationEnabled();
         }
@@ -78,16 +79,16 @@ namespace NuGetCredentialProvider.CredentialProviders.Vsts
             this.logger = logger;
         }
 
-        public bool Interactive { get; } = true;
-        public string Name { get; } = "ADAL UI";
+        public override bool Interactive { get; } = true;
+        public override string Name { get; } = "ADAL UI";
 
-        public async Task<string> GetTokenAsync(Uri uri, CancellationToken cancellationToken)
+        public override async Task<string> GetTokenAsync(Uri uri, CancellationToken cancellationToken)
         {
             logger.Minimal(string.Format(Resources.UIFlowStarted, this.Name, uri.AbsoluteUri));
             return (await adalTokenProvider.AcquireTokenWithUI(cancellationToken))?.AccessToken;
         }
 
-        public bool ShouldRun(bool isRetry, bool isNonInteractive, bool canShowDialog)
+        public override bool ShouldRun(bool isRetry, bool isNonInteractive, bool canShowDialog)
         {
 #if NETFRAMEWORK
             return !isNonInteractive && canShowDialog && RuntimeInformation.IsOSPlatform(OSPlatform.Windows);
@@ -114,10 +115,10 @@ namespace NuGetCredentialProvider.CredentialProviders.Vsts
             this.logger = logger;
         }
 
-        public bool Interactive { get; } = true;
-        public string Name { get; } = "ADAL Device Code";
+        public override bool Interactive { get; } = true;
+        public override string Name { get; } = "ADAL Device Code";
 
-        public async Task<string> GetTokenAsync(Uri uri, CancellationToken cancellationToken)
+        public override async Task<string> GetTokenAsync(Uri uri, CancellationToken cancellationToken)
         {
             return (await adalTokenProvider.AcquireTokenWithDeviceFlowAsync(
                     (DeviceCodeResult deviceCodeResult) =>
@@ -131,7 +132,7 @@ namespace NuGetCredentialProvider.CredentialProviders.Vsts
                     logger))?.AccessToken;
         }
 
-        public bool ShouldRun(bool isRetry, bool isNonInteractive, bool canShowDialog)
+        public override bool ShouldRun(bool isRetry, bool isNonInteractive, bool canShowDialog)
         {
             return !isNonInteractive;
         }
@@ -140,14 +141,27 @@ namespace NuGetCredentialProvider.CredentialProviders.Vsts
     /// <summary>
     /// A mechanism to obtain a bearer (e.g. AAD) token which can later be exchanged for an Azure DevOps session or personal access token.
     /// </summary>
-    public interface IBearerTokenProvider
+    public abstract class IBearerTokenProvider : ITokenProvider
     {
-        string Name { get; }
+        public abstract string Name { get; }
 
-        bool Interactive { get; }
+        public abstract bool Interactive { get; }
 
-        bool ShouldRun(bool isRetry, bool isNonInteractive, bool canShowDialog);
+        public bool IsInteractive => Interactive;
 
-        Task<string> GetTokenAsync(Uri uri, CancellationToken cancellationToken);
+        public abstract bool ShouldRun(bool isRetry, bool isNonInteractive, bool canShowDialog);
+
+        public abstract Task<string> GetTokenAsync(Uri uri, CancellationToken cancellationToken);
+
+        public bool CanGetToken(TokenRequest tokenRequest)
+        {
+            return ShouldRun(tokenRequest.IsRetry, tokenRequest.IsNonInteractive, tokenRequest.CanShowDialog);
+        }
+
+        public async Task<Microsoft.Identity.Client.AuthenticationResult> GetTokenAsync(TokenRequest tokenRequest, CancellationToken cancellationToken = default)
+        {
+            var token = await GetTokenAsync(tokenRequest.Uri, cancellationToken);
+            return new Microsoft.Identity.Client.AuthenticationResult(token, false, null, DateTimeOffset.MinValue, DateTimeOffset.MinValue, null, null, null, null, Guid.Empty);
+        }
     }
 }
