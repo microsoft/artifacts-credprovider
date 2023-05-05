@@ -160,7 +160,7 @@ The windows plugin, delivered in the `netfx` folder of `Microsoft.NuGet.Credenti
 
 ```
 C:\> .\CredentialProvider.Microsoft.exe -h
-Command-line v0.1.17: .\CredentialProvider.Microsoft.exe  -h
+Command-line v1.0.6: .\CredentialProvider.Microsoft.exe -h
 
 The Azure Artifacts credential provider can be used to acquire credentials for Azure Artifacts.
 
@@ -174,8 +174,9 @@ GlobalOption          Description
 Plugin (-P)           Used by nuget to run the credential helper in plugin mode
 Uri (-U)              The package source URI for which credentials will be filled
 NonInteractive (-N)   If present and true, providers will not issue interactive prompts
-IsRetry (-I)          If false / unset, INVALID CREDENTIALS MAY BE RETURNED. The caller is required to validate returned credentials themselves, and if invalid, should call the credential provider again with -IsRetry set. If true, the
-                      credential provider will obtain new credentials instead of returning potentially invalid credentials from the cache.
+IsRetry (-I)          If false / unset, INVALID CREDENTIALS MAY BE RETURNED. The caller is required to validate returned credentials themselves, and if
+                      invalid, should call the credential provider again with -IsRetry set. If true, the credential provider will obtain new credentials
+                      instead of returning potentially invalid credentials from the cache.
 Verbosity (-V)        Display this amount of detail in the output [Default='Information']
                       Debug
                       Verbose
@@ -185,8 +186,9 @@ Verbosity (-V)        Display this amount of detail in the output [Default='Info
                       Error
 RedactPassword (-R)   Prevents writing the password to standard output (for troubleshooting purposes)
 Help (-?, -h)         Prints this help message
-CanShowDialog (-C)    If true, user can be prompted with credentials through UI, if false, device flow must be used
-OutputFormat (-F)     In standalone mode, format the results for human readability or as JSON. If JSON is selected, then logging (which may include Device Code instructions) will be logged to standard error instead of standard output.
+CanShowDialog (-C)    If true, user can be prompted with credentials through UI, if false, device flow must be used [Default='True']
+OutputFormat (-F)     In standalone mode, format the results for human readability or as JSON. If JSON is selected, then logging (which may include Device
+                      Code instructions) will be logged to standard error instead of standard output.
                       HumanReadable
                       Json
 
@@ -203,24 +205,9 @@ Session Token Cache Enabled
     NUGET_CREDENTIALPROVIDER_SESSIONTOKENCACHE_ENABLED
         Boolean to enable/disable the Session Token cache.
 
-ADAL Authority
-    NUGET_CREDENTIALPROVIDER_ADAL_AUTHORITY
-        Set to override the authority used when fetching an ADAL token.
-        e.g. https://login.microsoftonline.com
-
-ADAL Token File Cache Enabled
-    NUGET_CREDENTIALPROVIDER_ADAL_FILECACHE_ENABLED
-        Boolean to enable/disable the ADAL token cache. Disabled by default.
-
-PPE ADAL Hosts
-    NUGET_CREDENTIALPROVIDER_ADAL_PPEHOSTS
-        Semi-colon separated list of hosts that should use the PPE environment
-        when fetching ADAL tokens. Should only be used for testing/development
-        environments such as DevFabric.
-
 Supported Hosts
     NUGET_CREDENTIALPROVIDER_VSTS_HOSTS
-        Semi-colon separated list of hosts that the ADAL provider supports.
+        Semi-colon separated list of hosts that the credential provider supports.
 
 Session Token Time Validity
     NUGET_CREDENTIALPROVIDER_VSTS_SESSIONTIMEMINUTES
@@ -261,14 +248,11 @@ Cache Location
     deleted, the credential provider will re-create them but any credentials
     will need to be provided again.
 
-    ADAL Token Cache
-    C:\Users\someuser\AppData\Local\MicrosoftCredentialProvider\ADALTokenCache.dat
+    MSAL Token Cache
+    C:\Users\Schmeichel\AppData\Local\.IdentityService
 
     Session Token Cache
-    C:\Users\someuser\AppData\Local\MicrosoftCredentialProvider\SessionTokenCache.dat
-
-    MSAL Token Cache
-    C:\Users\someuser\AppData\Local\.IdentityService\msal.cache
+    C:\Users\Schmeichel\AppData\Local\MicrosoftCredentialProvider\SessionTokenCache.dat
 
 Windows Integrated Authentication
     NUGET_CREDENTIALPROVIDER_WINDOWSINTEGRATEDAUTHENTICATION_ENABLED
@@ -282,7 +266,21 @@ Device Flow Authentication Timeout
 NuGet workarounds
     NUGET_CREDENTIALPROVIDER_FORCE_CANSHOWDIALOG_TO
         Set to "true" or "false" to override any other sources of the
-        CanShowDialog parameter
+        CanShowDialog parameter.
+
+MSAL Authority
+    NUGET_CREDENTIALPROVIDER_MSAL_AUTHORITY
+        Set to override the authority used when fetching an MSAL token.
+        e.g. https://login.microsoftonline.com/organizations
+
+MSAL Token File Cache Enabled
+    NUGET_CREDENTIALPROVIDER_MSAL_FILECACHE_ENABLED
+        Boolean to enable/disable the MSAL token cache. Enabled by default.
+
+Provide MSAL Cache Location
+    NUGET_CREDENTIALPROVIDER_MSAL_FILECACHE_LOCATION
+    Provide the location where the MSAL cache should be read and written to.
+
 ```
 
 ### Troubleshooting

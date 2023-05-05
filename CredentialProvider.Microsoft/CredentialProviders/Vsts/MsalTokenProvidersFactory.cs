@@ -12,7 +12,7 @@ using NuGetCredentialProvider.Util;
 
 namespace NuGetCredentialProvider.CredentialProviders.Vsts
 {
-    internal class MsalTokenProvidersFactory : IBearerTokenProvidersFactory
+    internal class MsalTokenProvidersFactory : ITokenProvidersFactory
     {
         private readonly ILogger logger;
         private MsalCacheHelper cache;

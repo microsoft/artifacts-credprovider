@@ -27,15 +27,6 @@ IF %ERRORLEVEL% NEQ 0 (
     exit /b %ERRORLEVEL%
 )
 
-echo "Testing ADAL"
-set NUGET_CREDENTIALPROVIDER_MSAL_ENABLED=false
-set NUGET_CREDENTIALPROVIDER_MSAL_ALLOW_BROKER=
-CALL :TEST_FRAMEWORKS
-IF %ERRORLEVEL% NEQ 0 (
-    echo "Failed: %ERRORLEVEL%"
-    exit /b %ERRORLEVEL%
-)
-
 echo "All tests passed!"
 exit /b 0
 

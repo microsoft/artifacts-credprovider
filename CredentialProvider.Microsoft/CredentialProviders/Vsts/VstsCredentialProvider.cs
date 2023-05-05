@@ -20,18 +20,18 @@ namespace NuGetCredentialProvider.CredentialProviders.Vsts
         private const string Username = "VssSessionToken";
 
         private readonly IAuthUtil authUtil;
-        private readonly IBearerTokenProvidersFactory bearerTokenProvidersFactory;
+        private readonly ITokenProvidersFactory tokenProvidersFactory;
         private readonly IAzureDevOpsSessionTokenFromBearerTokenProvider vstsSessionTokenProvider;
 
         public VstsCredentialProvider(
             ILogger logger,
             IAuthUtil authUtil,
-            IBearerTokenProvidersFactory bearerTokenProvidersFactory,
+            ITokenProvidersFactory tokenProvidersFactory,
             IAzureDevOpsSessionTokenFromBearerTokenProvider vstsSessionTokenProvider)
             : base(logger)
         {
             this.authUtil = authUtil;
-            this.bearerTokenProvidersFactory = bearerTokenProvidersFactory;
+            this.tokenProvidersFactory = tokenProvidersFactory;
             this.vstsSessionTokenProvider = vstsSessionTokenProvider;
         }
 
@@ -97,9 +97,9 @@ namespace NuGetCredentialProvider.CredentialProviders.Vsts
             }
 
             Uri authority = await authUtil.GetAadAuthorityUriAsync(request.Uri, cancellationToken);
-            Verbose(string.Format(Resources.AdalUsingAuthority, authority));
+            Verbose(string.Format(Resources.UsingAuthority, authority));
 
-            IEnumerable<ITokenProvider> tokenProviders = await bearerTokenProvidersFactory.GetAsync(authority);
+            IEnumerable<ITokenProvider> tokenProviders = await tokenProvidersFactory.GetAsync(authority);
             cancellationToken.ThrowIfCancellationRequested();
 
             var tokenRequest = new TokenRequest(request.Uri)
@@ -112,14 +112,14 @@ namespace NuGetCredentialProvider.CredentialProviders.Vsts
                 InteractiveTimeout = TimeSpan.FromSeconds(EnvUtil.GetDeviceFlowTimeoutFromEnvironmentInSeconds(Logger)),
                 DeviceCodeResultCallback = (DeviceCodeResult deviceCodeResult) =>
                 {
-                    Logger.Minimal(string.Format(Resources.AdalDeviceFlowRequestedResource, request.Uri.ToString()));
-                    Logger.Minimal(string.Format(Resources.AdalDeviceFlowMessage, deviceCodeResult.VerificationUrl, deviceCodeResult.UserCode));
+                    Logger.Minimal(string.Format(Resources.DeviceFlowRequestedResource, request.Uri.ToString()));
+                    Logger.Minimal(string.Format(Resources.DeviceFlowMessage, deviceCodeResult.VerificationUrl, deviceCodeResult.UserCode));
 
                     return Task.CompletedTask;
                 }
             };
 
-            // Try each bearer token provider (e.g. ADAL cache, ADAL WIA, ADAL UI, ADAL DeviceCode) in order.
+            // Try each bearer token provider (e.g. cache, WIA, UI, DeviceCode) in order.
             // Only consider it successful if the bearer token can be exchanged for an Azure DevOps token.
             foreach (ITokenProvider tokenProvider in tokenProviders)
             {

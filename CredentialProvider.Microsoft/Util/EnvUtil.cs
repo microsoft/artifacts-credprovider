@@ -21,12 +21,9 @@ namespace NuGetCredentialProvider.Util
         public const string WindowsIntegratedAuthenticationEnvVar = "NUGET_CREDENTIALPROVIDER_WINDOWSINTEGRATEDAUTHENTICATION_ENABLED";
         public const string ForceCanShowDialogEnvVar = "NUGET_CREDENTIALPROVIDER_FORCE_CANSHOWDIALOG_TO";
 
-        public const string AuthorityEnvVar = "NUGET_CREDENTIALPROVIDER_ADAL_AUTHORITY";
-        public const string AdalFileCacheEnvVar = "NUGET_CREDENTIALPROVIDER_ADAL_FILECACHE_ENABLED";
-        public const string PpeHostsEnvVar = "NUGET_CREDENTIALPROVIDER_ADAL_PPEHOSTS";
-
         public const string DeviceFlowTimeoutEnvVar = "NUGET_CREDENTIALPROVIDER_VSTS_DEVICEFLOWTIMEOUTSECONDS";
         public const string SupportedHostsEnvVar = "NUGET_CREDENTIALPROVIDER_VSTS_HOSTS";
+        public const string PpeHostsEnvVar = "NUGET_CREDENTIALPROVIDER_VSTS_PPEHOSTS";
         public const string SessionTimeEnvVar = "NUGET_CREDENTIALPROVIDER_VSTS_SESSIONTIMEMINUTES";
         public const string TokenTypeEnvVar = "NUGET_CREDENTIALPROVIDER_VSTS_TOKENTYPE";
 
@@ -34,7 +31,6 @@ namespace NuGetCredentialProvider.Util
         public const string BuildTaskAccessToken = "VSS_NUGET_ACCESSTOKEN";
         public const string BuildTaskExternalEndpoints = "VSS_NUGET_EXTERNAL_FEED_ENDPOINTS";
 
-        public const string MsalEnabledEnvVar = "NUGET_CREDENTIALPROVIDER_MSAL_ENABLED";
         public const string MsalLoginHintEnvVar = "NUGET_CREDENTIALPROVIDER_MSAL_LOGIN_HINT";
         public const string MsalAuthorityEnvVar = "NUGET_CREDENTIALPROVIDER_MSAL_AUTHORITY";
         public const string MsalFileCacheEnvVar = "NUGET_CREDENTIALPROVIDER_MSAL_FILECACHE_ENABLED";
@@ -49,7 +45,6 @@ namespace NuGetCredentialProvider.Util
         private static readonly string LocalAppDataLocation = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData, Environment.SpecialFolderOption.Create);
 
         private const string CredentialProviderFolderName = "MicrosoftCredentialProvider";
-        public static string AdalTokenCacheLocation { get; } = Path.Combine(LocalAppDataLocation, CredentialProviderFolderName, "ADALTokenCache.dat");
 
         // from https://github.com/GitCredentialManager/git-credential-manager/blob/df90676d1249759eef8cec57155c27e869503225/src/shared/Microsoft.Git.CredentialManager/Authentication/MicrosoftAuthentication.cs#L277
         //      The Visual Studio MSAL cache is located at "%LocalAppData%\.IdentityService\msal.cache" on Windows.
@@ -63,8 +58,7 @@ namespace NuGetCredentialProvider.Util
 
         public static Uri GetAuthorityFromEnvironment(ILogger logger)
         {
-            var authorityVariableToUse = MsalEnabled() ? MsalAuthorityEnvVar : AuthorityEnvVar;
-            var environmentAuthority = Environment.GetEnvironmentVariable(authorityVariableToUse);
+            var environmentAuthority = Environment.GetEnvironmentVariable(MsalAuthorityEnvVar);
             if (environmentAuthority == null)
             {
                 return null;
@@ -92,11 +86,6 @@ namespace NuGetCredentialProvider.Util
         {
             string msalCacheFromEnvironment = Environment.GetEnvironmentVariable(MsalFileCacheLocationEnvVar);
             return string.IsNullOrWhiteSpace(msalCacheFromEnvironment) ? DefaultMsalCacheLocation : msalCacheFromEnvironment;
-        }
-
-        internal static bool MsalEnabled()
-        {
-            return GetEnabledFromEnvironment(MsalEnabledEnvVar, defaultValue: true);
         }
 
         public static bool MsalFileCacheEnabled()
@@ -134,11 +123,6 @@ namespace NuGetCredentialProvider.Util
             }
 
             return parsed;
-        }
-
-        public static bool AdalFileCacheEnabled()
-        {
-            return GetEnabledFromEnvironment(AdalFileCacheEnvVar, defaultValue: false);
         }
 
         public static bool SessionTokenCacheEnabled()

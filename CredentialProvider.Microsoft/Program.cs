@@ -51,28 +51,15 @@ namespace NuGetCredentialProvider
             };
 
             var authUtil = new AuthUtil(multiLogger);
-
-            IBearerTokenProvidersFactory bearerTokenProvidersFactory;
-
-            if (EnvUtil.MsalEnabled())
-            {
-                var logger = new NuGetLoggerAdapter(multiLogger, parsedArgs.Verbosity);
-                bearerTokenProvidersFactory = new MsalTokenProvidersFactory(logger);
-            }
-            else
-            {
-                var adalTokenCache = AdalTokenCacheUtils.GetAdalTokenCache(multiLogger);
-                var adalTokenProviderFactory = new VstsAdalTokenProviderFactory(adalTokenCache);
-                bearerTokenProvidersFactory = new BearerTokenProvidersFactory(multiLogger, adalTokenProviderFactory);
-            }
-
+            var logger = new NuGetLoggerAdapter(multiLogger, parsedArgs.Verbosity);
+            var tokenProvidersFactory = new MsalTokenProvidersFactory(logger);
             var vstsSessionTokenProvider = new VstsSessionTokenFromBearerTokenProvider(authUtil, multiLogger);
 
             List<ICredentialProvider> credentialProviders = new List<ICredentialProvider>
             {
                 new VstsBuildTaskServiceEndpointCredentialProvider(multiLogger),
                 new VstsBuildTaskCredentialProvider(multiLogger),
-                new VstsCredentialProvider(multiLogger, authUtil, bearerTokenProvidersFactory, vstsSessionTokenProvider),
+                new VstsCredentialProvider(multiLogger, authUtil, tokenProvidersFactory, vstsSessionTokenProvider),
             };
 
             try
@@ -96,24 +83,19 @@ namespace NuGetCredentialProvider
                             Resources.EnvironmentVariableHelp,
                             EnvUtil.LogPathEnvVar,
                             EnvUtil.SessionTokenCacheEnvVar,
-                            EnvUtil.AuthorityEnvVar,
-                            EnvUtil.AdalFileCacheEnvVar,
-                            EnvUtil.PpeHostsEnvVar,
                             EnvUtil.SupportedHostsEnvVar,
                             EnvUtil.SessionTimeEnvVar,
                             EnvUtil.TokenTypeEnvVar,
                             EnvUtil.BuildTaskUriPrefixes,
                             EnvUtil.BuildTaskAccessToken,
                             EnvUtil.BuildTaskExternalEndpoints,
-                            EnvUtil.AdalTokenCacheLocation,
+                            EnvUtil.DefaultMsalCacheLocation,
                             EnvUtil.SessionTokenCacheLocation,
                             EnvUtil.WindowsIntegratedAuthenticationEnvVar,
                             EnvUtil.DeviceFlowTimeoutEnvVar,
                             EnvUtil.ForceCanShowDialogEnvVar,
-                            EnvUtil.MsalEnabledEnvVar,
                             EnvUtil.MsalAuthorityEnvVar,
                             EnvUtil.MsalFileCacheEnvVar,
-                            EnvUtil.DefaultMsalCacheLocation,
                             EnvUtil.MsalFileCacheLocationEnvVar
                         ));
                     return 0;

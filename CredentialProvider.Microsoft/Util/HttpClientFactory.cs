@@ -5,11 +5,10 @@
 using System;
 using System.Net.Http;
 using Microsoft.Artifacts.Authentication;
-using IAdalHttpClientFactory = Microsoft.IdentityModel.Clients.ActiveDirectory.IHttpClientFactory;
 
 namespace NuGetCredentialProvider.Util
 {
-    internal class HttpClientFactory : MsalHttpClientFactory, IAdalHttpClientFactory
+    internal class HttpClientFactory : MsalHttpClientFactory
     {
         private static readonly HttpClientFactory httpClientFactory;
 
