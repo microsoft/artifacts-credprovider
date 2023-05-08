@@ -151,6 +151,6 @@
     <value>MSAL using WAM Broker</value>
   </data>
   <data name="MsalNotUserInteractive" xml:space="preserve">
-    <value>MSAL not user interactive</value>
+    <value>Cannot use interactive authentication in a non-interactive app</value>
   </data>
 </root>
