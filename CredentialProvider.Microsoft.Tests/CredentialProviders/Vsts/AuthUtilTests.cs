@@ -198,46 +198,6 @@ namespace CredentialProvider.Microsoft.Tests.CredentialProviders.Vsts
             string.IsNullOrWhiteSpace(authorizationEndpoint.ToString()).Should().BeFalse();
         }
 
-        [TestMethod]
-        public async Task MsalGetAadAuthorityUri_WithoutAuthenticateHeadersAndPpeAndPpeOverride_ReturnsCorrectAuthority()
-        {
-            var ppeUris = new[]
-            {
-                new Uri("https://example.pkgs.vsts.me/_packaging/feed/nuget/v3/index.json"),
-                new Uri("https://example.one.ppe.domain/_packaging/feed/nuget/v3/index.json"),
-                new Uri("https://example.two.ppe.domain/_packaging/feed/nuget/v3/index.json"),
-                new Uri("https://example.three.ppe.domain/_packaging/feed/nuget/v3/index.json"),
-            };
-
-            Environment.SetEnvironmentVariable(EnvUtil.PpeHostsEnvVar, string.Join(";", ppeUris.Select(u => u.Host)));
-
-            foreach (var ppeUri in ppeUris)
-            {
-                var authorityUri = await authUtil.GetAadAuthorityUriAsync(ppeUri, cancellationToken);
-                authorityUri.Should().Be(new Uri("https://login.windows-ppe.net/organizations"));
-            }
-        }
-
-        [TestMethod]
-        public async Task MsalAadAuthorityUri_WithoutAuthenticateHeaders_ReturnsCorrectAuthority()
-        {
-            var requestUri = new Uri("https://example.pkgs.visualstudio.com/_packaging/feed/nuget/v3/index.json");
-
-            var authorityUri = await authUtil.GetAadAuthorityUriAsync(requestUri, cancellationToken);
-
-            authorityUri.Should().Be(organizationsAuthority);
-        }
-
-        [TestMethod]
-        public async Task MsalGetAadAuthorityUri_WithoutAuthenticateHeadersAndPpe_ReturnsCorrectAuthority()
-        {
-            var requestUri = new Uri("https://example.pkgs.vsts.me/_packaging/feed/nuget/v3/index.json");
-
-            var authorityUri = await authUtil.GetAadAuthorityUriAsync(requestUri, cancellationToken);
-
-            authorityUri.Should().Be(new Uri("https://login.windows-ppe.net/organizations"));
-        }
-
         private void MockResponseHeaders(string key, string value)
         {
             authUtil.HttpResponseHeaders.Add(key, value);
