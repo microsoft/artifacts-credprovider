@@ -249,10 +249,10 @@ Cache Location
     will need to be provided again.
 
     MSAL Token Cache
-    C:\Users\Schmeichel\AppData\Local\.IdentityService
+    C:\Users\someuser\AppData\Local\.IdentityService
 
     Session Token Cache
-    C:\Users\Schmeichel\AppData\Local\MicrosoftCredentialProvider\SessionTokenCache.dat
+    C:\Users\someuser\AppData\Local\MicrosoftCredentialProvider\SessionTokenCache.dat
 
 Windows Integrated Authentication
     NUGET_CREDENTIALPROVIDER_WINDOWSINTEGRATEDAUTHENTICATION_ENABLED
