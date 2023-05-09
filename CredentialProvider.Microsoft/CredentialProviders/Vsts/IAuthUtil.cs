@@ -81,8 +81,9 @@ namespace NuGetCredentialProvider.CredentialProviders.Vsts
             var aadBase = UsePpeAadUrl(uri) ? "https://login.windows-ppe.net" : "https://login.microsoftonline.com";
             logger.Verbose(string.Format(Resources.AADAuthorityNotFound, aadBase));
 
-            // WAM gets confused about the Common tenant, so we'll just assume that if there isn't
-            // a tenant GUID provided, that it's a consumer tenant.
+            // The Azure Artifacts application has MSA-Passthrough enabled which requires the use of the organizations
+            // tenant when requesting tokens for MSA users. This covers both organizations and consumers in cases where
+            // a tenant ID cannot be obtained from authenticate headers.
             return new Uri($"{aadBase}/organizations");
         }
 
