@@ -4,6 +4,8 @@
 
 using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
+using Microsoft.Artifacts.Authentication;
 using NuGetCredentialProvider.Logging;
 
 namespace NuGetCredentialProvider.CredentialProviders.Vsts
@@ -19,17 +21,17 @@ namespace NuGetCredentialProvider.CredentialProviders.Vsts
             this.logger = logger;
         }
 
-        public IEnumerable<IBearerTokenProvider> Get(Uri authority)
+        public Task<IEnumerable<ITokenProvider>> GetAsync(Uri authority)
         {
             IAdalTokenProvider adalTokenProvider = adalTokenProviderFactory.Get(authority);
-            return new IBearerTokenProvider[]
+            return Task.FromResult<IEnumerable<ITokenProvider>>(new IBearerTokenProvider[]
             {
                 // Order here is important - providers (potentially) run in this order.
                 new AdalCacheBearerTokenProvider(adalTokenProvider),
                 new WindowsIntegratedAuthBearerTokenProvider(adalTokenProvider),
                 new UserInterfaceBearerTokenProvider(adalTokenProvider, logger),
                 new DeviceCodeFlowBearerTokenProvider(adalTokenProvider, logger)
-            };
+            });
         }
     }
 }

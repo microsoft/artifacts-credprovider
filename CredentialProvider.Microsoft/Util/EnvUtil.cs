@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
+using Microsoft.Artifacts.Authentication;
 using NuGetCredentialProvider.CredentialProviders.Vsts;
 using NuGetCredentialProvider.Logging;
 
@@ -54,22 +55,7 @@ namespace NuGetCredentialProvider.Util
         //      The Visual Studio MSAL cache is located at "%LocalAppData%\.IdentityService\msal.cache" on Windows.
         //      We use the MSAL extension library to provide us consistent cache file access semantics (synchronization, etc)
         //      as Visual Studio itself follows, as well as other Microsoft developer tools such as the Azure PowerShell CLI.
-        public static string DefaultMsalCacheLocation
-        {
-            get
-            {
-                if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
-                {
-                    // The shared MSAL cache is located at "%LocalAppData%\.IdentityService\msal.cache" on Windows.
-                    return Path.Combine(LocalAppDataLocation, ".IdentityService");
-                }
-                else
-                {
-                    // The shared MSAL cache metadata is located at "~/.local/.IdentityService/msal.cache" on UNIX.
-                    return Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), ".local", ".IdentityService");
-                }
-            }
-        }
+        public static string DefaultMsalCacheLocation => MsalCache.DefaultMsalCacheLocation;
 
         public static string FileLogLocation { get; } = Environment.GetEnvironmentVariable(LogPathEnvVar);
 

@@ -30,6 +30,12 @@ public class MsalInteractiveTokenProvider : ITokenProvider
 
     public async Task<AuthenticationResult?> GetTokenAsync(TokenRequest tokenRequest, CancellationToken cancellationToken = default)
     {
+        if (!app.IsUserInteractive())
+        {
+            logger.LogTrace(Resources.MsalNotUserInteractive);
+            return null;
+        }
+
         using CancellationTokenSource cts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
         cts.CancelAfter(tokenRequest.InteractiveTimeout);
 

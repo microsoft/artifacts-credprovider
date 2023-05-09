@@ -37,8 +37,6 @@ namespace NuGetCredentialProvider.CredentialProviders.Vsts
         public const string VssE2EID = "X-VSS-E2EID";
         private const string OrganizationsTenant = "organizations";
         private const string CommonTenant = "common";
-        public static readonly Guid FirstPartyTenant = Guid.Parse("f8cdef31-a31e-4b4a-93e4-5f571e91255a");
-        public static readonly Guid MsaAccountTenant = Guid.Parse("9188040d-6c67-4c5b-b112-36a304b66dad");
 
         private readonly Dictionary<Uri, HttpResponseHeaders> cache = new();
         private readonly ILogger logger;

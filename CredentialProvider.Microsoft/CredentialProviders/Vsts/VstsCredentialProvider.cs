@@ -7,6 +7,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.Artifacts.Authentication;
+using Microsoft.Identity.Client;
 using NuGet.Protocol.Plugins;
 using NuGetCredentialProvider.Logging;
 using NuGetCredentialProvider.Util;
@@ -97,44 +99,62 @@ namespace NuGetCredentialProvider.CredentialProviders.Vsts
             Uri authority = await authUtil.GetAadAuthorityUriAsync(request.Uri, cancellationToken);
             Verbose(string.Format(Resources.AdalUsingAuthority, authority));
 
-            IEnumerable<IBearerTokenProvider> bearerTokenProviders = bearerTokenProvidersFactory.Get(authority);
+            IEnumerable<ITokenProvider> tokenProviders = await bearerTokenProvidersFactory.GetAsync(authority);
             cancellationToken.ThrowIfCancellationRequested();
+
+            var tokenRequest = new TokenRequest(request.Uri)
+            {
+                IsRetry = request.IsRetry,
+                IsNonInteractive = request.IsNonInteractive,
+                CanShowDialog = canShowDialog,
+                IsWindowsIntegratedAuthEnabled = EnvUtil.WindowsIntegratedAuthenticationEnabled(),
+                LoginHint = EnvUtil.GetMsalLoginHint(),
+                InteractiveTimeout = TimeSpan.FromSeconds(EnvUtil.GetDeviceFlowTimeoutFromEnvironmentInSeconds(Logger)),
+                DeviceCodeResultCallback = (DeviceCodeResult deviceCodeResult) =>
+                {
+                    Logger.Minimal(string.Format(Resources.AdalDeviceFlowRequestedResource, request.Uri.ToString()));
+                    Logger.Minimal(string.Format(Resources.AdalDeviceFlowMessage, deviceCodeResult.VerificationUrl, deviceCodeResult.UserCode));
+
+                    return Task.CompletedTask;
+                }
+            };
 
             // Try each bearer token provider (e.g. ADAL cache, ADAL WIA, ADAL UI, ADAL DeviceCode) in order.
             // Only consider it successful if the bearer token can be exchanged for an Azure DevOps token.
-            foreach (IBearerTokenProvider bearerTokenProvider in bearerTokenProviders)
+            foreach (ITokenProvider tokenProvider in tokenProviders)
             {
-                bool shouldRun = bearerTokenProvider.ShouldRun(request.IsRetry, request.IsNonInteractive, canShowDialog);
+                bool shouldRun = tokenProvider.CanGetToken(tokenRequest);
                 if (!shouldRun)
                 {
-                    Verbose(string.Format(Resources.NotRunningBearerTokenProvider, bearerTokenProvider.Name));
+                    Verbose(string.Format(Resources.NotRunningBearerTokenProvider, tokenProvider.Name));
                     continue;
                 }
 
-                Verbose(string.Format(Resources.AttemptingToAcquireBearerTokenUsingProvider, bearerTokenProvider.Name));
+                Verbose(string.Format(Resources.AttemptingToAcquireBearerTokenUsingProvider, tokenProvider.Name));
 
                 string bearerToken = null;
                 try
                 {
-                    bearerToken = await bearerTokenProvider.GetTokenAsync(request.Uri, cancellationToken);
+                    var result = await tokenProvider.GetTokenAsync(tokenRequest, cancellationToken);
+                    bearerToken = result.AccessToken;
                 }
                 catch (Exception ex)
                 {
-                    Verbose(string.Format(Resources.BearerTokenProviderException, bearerTokenProvider.Name, ex));
+                    Verbose(string.Format(Resources.BearerTokenProviderException, tokenProvider.Name, ex));
                     continue;
                 }
 
                 if (string.IsNullOrWhiteSpace(bearerToken))
                 {
-                    Verbose(string.Format(Resources.BearerTokenProviderReturnedNull, bearerTokenProvider.Name));
+                    Verbose(string.Format(Resources.BearerTokenProviderReturnedNull, tokenProvider.Name));
                     continue;
                 }
 
-                Info(string.Format(Resources.AcquireBearerTokenSuccess, bearerTokenProvider.Name));
+                Info(string.Format(Resources.AcquireBearerTokenSuccess, tokenProvider.Name));
                 Info(Resources.ExchangingBearerTokenForSessionToken);
                 try
                 {
-                    string sessionToken = await vstsSessionTokenProvider.GetAzureDevOpsSessionTokenFromBearerToken(request, bearerToken, bearerTokenProvider.Interactive, cancellationToken);
+                    string sessionToken = await vstsSessionTokenProvider.GetAzureDevOpsSessionTokenFromBearerToken(request, bearerToken, tokenProvider.IsInteractive, cancellationToken);
 
                     if (!string.IsNullOrWhiteSpace(sessionToken))
                     {
