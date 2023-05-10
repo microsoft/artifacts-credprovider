@@ -1,4 +1,8 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
+// Copyright (c) Microsoft. All rights reserved.
+//
+// Licensed under the MIT license.
+
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using NuGet.Common;
 using NuGetCredentialProvider.Logging;

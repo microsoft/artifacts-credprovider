@@ -9,7 +9,7 @@ using IAdalHttpClientFactory = Microsoft.IdentityModel.Clients.ActiveDirectory.I
 
 namespace NuGetCredentialProvider.Util
 {
-    internal class HttpClientFactory : MsalHttpClientFactory, IAdalHttpClientFactory
+    public class HttpClientFactory : MsalHttpClientFactory, IAdalHttpClientFactory
     {
         private static readonly HttpClientFactory httpClientFactory;
 
@@ -30,11 +30,6 @@ namespace NuGetCredentialProvider.Util
                 PooledConnectionLifetime = TimeSpan.FromMinutes(15)
             });
 #endif
-
-            foreach (var item in MsalHttpClientFactory.UserAgent)
-            {
-                httpClient.DefaultRequestHeaders.UserAgent.Add(item);
-            }
 
             httpClientFactory = new(httpClient);
         }
