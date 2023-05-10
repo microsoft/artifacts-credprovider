@@ -31,11 +31,6 @@ namespace NuGetCredentialProvider.Util
             });
 #endif
 
-            foreach (var item in MsalHttpClientFactory.UserAgent)
-            {
-                httpClient.DefaultRequestHeaders.UserAgent.Add(item);
-            }
-
             httpClientFactory = new(httpClient);
         }
     }
