@@ -29,11 +29,12 @@ namespace NuGetCredentialProvider.Util
                 UseDefaultCredentials = true
             });
 #else
-            var httpClient  = new HttpClient(new SocketsHttpHandler
-            {
-                PooledConnectionLifetime = TimeSpan.FromMinutes(15),
-                DefaultProxyCredentials = CredentialCache.DefaultCredentials
-            });
+            var httpClient = new HttpClient(
+                new SocketsHttpHandler
+                {
+                    PooledConnectionLifetime = TimeSpan.FromMinutes(15),
+                    Credentials = CredentialCache.DefaultCredentials,
+                });
 #endif
 
             httpClientFactory = new(httpClient);
