@@ -2,8 +2,6 @@
 //
 // Licensed under the MIT license.
 
-using System;
-using System.Net;
 using System.Net.Http;
 using Microsoft.Artifacts.Authentication;
 using IAdalHttpClientFactory = Microsoft.IdentityModel.Clients.ActiveDirectory.IHttpClientFactory;
