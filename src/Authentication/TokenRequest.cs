@@ -22,7 +22,7 @@ public class TokenRequest
     // Provided for back-compat to make migration easier
     public bool IsNonInteractive { get => !IsInteractive; set => IsInteractive = !value; }
 
-    public bool CanShowDialog { get; set; }
+    public bool CanShowDialog { get; set; } = true;
 
     public bool IsWindowsIntegratedAuthEnabled { get; set; } = true;
 

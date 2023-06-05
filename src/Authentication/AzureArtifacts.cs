@@ -66,7 +66,11 @@ public static class AzureArtifacts
     public static PublicClientApplicationBuilder WithHttpClient(this PublicClientApplicationBuilder builder, HttpClient? httpClient = null)
     {
         // Default HttpClient is only meant for .NET Framework clients that can't use the SocketsHttpHandler
-        return builder.WithHttpClientFactory(new MsalHttpClientFactory(httpClient ?? new HttpClient()));
+        return builder.WithHttpClientFactory(new MsalHttpClientFactory(httpClient ?? new HttpClient(new HttpClientHandler
+        {
+            // Important for IWA
+            UseDefaultCredentials = true
+        })));
     }
 
 #region https://github.com/AzureAD/microsoft-authentication-library-for-dotnet/issues/3590
