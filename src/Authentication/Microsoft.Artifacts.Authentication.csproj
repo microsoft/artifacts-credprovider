@@ -37,6 +37,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <FilesToSign Include="$(OutDir)$(TargetFileName)" Authenticode="Microsoft400" StrongName="StrongName" />
     <FilesToSign Include="$(IntermediateOutputPath)$(TargetFileName)" Authenticode="Microsoft400" StrongName="StrongName" />
   </ItemGroup>
 
