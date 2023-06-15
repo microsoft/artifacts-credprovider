@@ -67,6 +67,7 @@ steps:
     inputs:
       DropFolder: '$(Build.ArtifactStagingDirectory)\$(BuildConfiguration)\vsix\'
       DropRetentionDays: 365
+      AccessToken: $(DevDivDropManageAccessToken)
 
 - ${{ if ne(parameters.sign, 'true') }}:
   - script: dotnet test MicrosoftCredentialProvider.sln --logger trx --results-directory $(Agent.TempDirectory)
