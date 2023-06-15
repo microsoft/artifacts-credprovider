@@ -66,9 +66,7 @@ steps:
     displayName: Upload VSTS Drop
     inputs:
       DropFolder: '$(Build.ArtifactStagingDirectory)\$(BuildConfiguration)\vsix\'
-      DropServiceUri: https://mseng.artifacts.visualstudio.com
       DropRetentionDays: 365
-      AccessToken: $(System.AccessToken)
 
 - ${{ if ne(parameters.sign, 'true') }}:
   - script: dotnet test MicrosoftCredentialProvider.sln --logger trx --results-directory $(Agent.TempDirectory)
