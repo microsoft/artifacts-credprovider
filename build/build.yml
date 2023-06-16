@@ -191,6 +191,8 @@ steps:
       **\CredentialProvider.Microsoft.dll
       **\CredentialProvider.Microsoft.exe
       **\CredentialProvider.Microsoft.pdb
+      **\Microsoft.Artifacts.Authentication.dll
+      **\Microsoft.Artifacts.Authentication.pdb
     TargetFolder: '$(Build.ArtifactStagingDirectory)\symbols'
 
 - ${{ if eq(parameters.sign, 'true') }}:
@@ -204,8 +206,8 @@ steps:
       SymbolServerType: TeamServices
       SymbolsProduct: 'artifacts-credprovider'
     env:
-      ArtifactServices.Symbol.AccountName: 'microsoft'
-      ArtifactServices.Symbol.UseAAD: 'true'
+      ARTIFACTSERVICES_SYMBOL_ACCOUNTNAME: 'microsoft'
+      ARTIFACTSERVICES_SYMBOL_USEAAD: 'false'
 
 - task: PublishPipelineArtifact@1
   displayName: 'Upload symbols'
