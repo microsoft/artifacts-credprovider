@@ -205,6 +205,9 @@ steps:
       PublishSymbols: true
       SymbolServerType: TeamServices
       SymbolsProduct: 'artifacts-credprovider'
+    env:
+      ARTIFACTSERVICES_SYMBOL_ACCOUNTNAME: 'microsoft'
+      ARTIFACTSERVICES_SYMBOL_USEAAD: 'false'
 
 - task: PublishPipelineArtifact@1
   displayName: 'Upload symbols'
