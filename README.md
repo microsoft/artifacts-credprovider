@@ -300,6 +300,8 @@ In an Azure DevOps Pipeline, verify you have set the right permissions for the p
 #### Cred provider used to work but now it asks me to update to .NET 6.0 or .NET Core 3.1.
 Because .NET Core 2 is [out of support](https://dotnet.microsoft.com/platform/support/policy/dotnet-core#lifecycle), you should update to .NET Core 3.1 or greater to keep using the latest versions of the credential provider.
 
+> .NET Core 3.1 will also be removed from future versions. See the announcement [here](https://github.com/microsoft/artifacts-credprovider/discussions/386).
+
 If you keep using the unsupported .NET Core 2.1 you must use Artifacts Credential Provider version 0.1.28 or lower.
 
 ## Contribute
