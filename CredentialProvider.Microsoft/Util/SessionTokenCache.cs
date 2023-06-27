@@ -5,8 +5,8 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Text.Json;
 using System.Threading;
-using Newtonsoft.Json;
 using NuGetCredentialProvider.Logging;
 
 namespace NuGetCredentialProvider.Util
@@ -27,7 +27,7 @@ namespace NuGetCredentialProvider.Util
             this.mutexName = @"Global\" + cacheFilePath.Replace(Path.DirectorySeparatorChar, '_');
         }
 
-        private Dictionary<Uri, string> Cache
+        private Dictionary<string, string> Cache
         {
             get
             {
@@ -49,12 +49,12 @@ namespace NuGetCredentialProvider.Util
                                 if (index == 1)
                                 {
                                     logger.Verbose(Resources.CancelMessage);
-                                    return new Dictionary<Uri, string>();
+                                    return new Dictionary<string, string>();
                                 }
                                 else if (index == WaitHandle.WaitTimeout)
                                 {
                                     logger.Verbose(Resources.SessionTokenCacheMutexFail);
-                                    return new Dictionary<Uri, string>();
+                                    return new Dictionary<string, string>();
                                 }
                             }
                         }
@@ -80,7 +80,7 @@ namespace NuGetCredentialProvider.Util
 
         public string this[Uri key]
         {
-            get => Cache[key];
+            get => Cache[key.ToString()];
             set
             {
                 bool mutexHeld = false, dummy;
@@ -116,7 +116,7 @@ namespace NuGetCredentialProvider.Util
                         mutexHeld = true;
 
                         var cache = Cache;
-                        cache[key] = value;
+                        cache[key.ToString()] = value;
                         WriteFileBytes(Serialize(cache));
                     }
                     finally
@@ -132,14 +132,14 @@ namespace NuGetCredentialProvider.Util
 
         public bool ContainsKey(Uri key)
         {
-            return Cache.ContainsKey(key);
+            return Cache.ContainsKey(key.ToString());
         }
 
         public bool TryGetValue(Uri key, out string value)
         {
             try
             {
-                return Cache.TryGetValue(key, out value);
+                return Cache.TryGetValue(key.ToString(), out value);
             }
             catch (Exception e)
             {
@@ -191,7 +191,7 @@ namespace NuGetCredentialProvider.Util
                     mutexHeld = true;
 
                     var cache = Cache;
-                    cache.Remove(key);
+                    cache.Remove(key.ToString());
                     WriteFileBytes(Serialize(cache));
                 }
                 finally
@@ -204,21 +204,19 @@ namespace NuGetCredentialProvider.Util
             }
         }
 
-        private Dictionary<Uri, string> Deserialize(byte[] data)
+        private Dictionary<string, string> Deserialize(byte[] data)
         {
             if (data == null)
             {
-                return new Dictionary<Uri, string>();
+                return new Dictionary<string, string>();
             }
 
-            var serialized = System.Text.Encoding.UTF8.GetString(data);
-            return JsonConvert.DeserializeObject<Dictionary<Uri, string>>(serialized);
+            return JsonSerializer.Deserialize<Dictionary<string, string>>(data);
         }
 
-        private byte[] Serialize(Dictionary<Uri, string> data)
+        private byte[] Serialize(Dictionary<string, string> data)
         {
-            var serialized = JsonConvert.SerializeObject(data);
-            return System.Text.Encoding.UTF8.GetBytes(serialized);
+            return JsonSerializer.SerializeToUtf8Bytes(data);
         }
 
         private byte[] ReadFileBytes()
