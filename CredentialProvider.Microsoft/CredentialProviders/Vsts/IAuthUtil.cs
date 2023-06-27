@@ -35,8 +35,6 @@ namespace NuGetCredentialProvider.CredentialProviders.Vsts
         public const string VssResourceTenant = "X-VSS-ResourceTenant";
         public const string VssAuthorizationEndpoint = "X-VSS-AuthorizationEndpoint";
         public const string VssE2EID = "X-VSS-E2EID";
-        private const string OrganizationsTenant = "organizations";
-        private const string CommonTenant = "common";
 
         private readonly Dictionary<Uri, HttpResponseHeaders> cache = new();
         private readonly ILogger logger;
@@ -83,11 +81,10 @@ namespace NuGetCredentialProvider.CredentialProviders.Vsts
             var aadBase = UsePpeAadUrl(uri) ? "https://login.windows-ppe.net" : "https://login.microsoftonline.com";
             logger.Verbose(string.Format(Resources.AADAuthorityNotFound, aadBase));
 
-            // WAM gets confused about the Common tenant, so we'll just assume that if there isn't
-            // a tenant GUID provided, that it's a consumer tenant.
-            var tenant = EnvUtil.MsalEnabled() ? OrganizationsTenant : CommonTenant;
-
-            return new Uri($"{aadBase}/{tenant}");
+            // The Azure Artifacts application has MSA-Passthrough enabled which requires the use of the organizations
+            // tenant when requesting tokens for MSA users. This covers both organizations and consumers in cases where
+            // a tenant ID cannot be obtained from authenticate headers.
+            return new Uri($"{aadBase}/organizations");
         }
 
         public async Task<AzDevDeploymentType> GetAzDevDeploymentType(Uri uri)

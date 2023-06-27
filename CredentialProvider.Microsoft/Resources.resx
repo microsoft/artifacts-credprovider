@@ -126,8 +126,8 @@
   <data name="AcquireSessionTokenFailed" xml:space="preserve">
     <value>Failed to acquire session token: {0}</value>
   </data>
-  <data name="AdalDeviceFlowMessage" xml:space="preserve">
-    <value>ATTENTION: User interaction required. 
+  <data name="DeviceFlowMessage" xml:space="preserve">
+    <value>ATTENTION: User interaction required.
 
     **********************************************************************
 
@@ -136,16 +136,10 @@
     **********************************************************************
 </value>
   </data>
-  <data name="AdalDeviceFlowRequestedResource" xml:space="preserve">
+  <data name="DeviceFlowRequestedResource" xml:space="preserve">
     <value>DeviceFlow: {0}</value>
   </data>
-  <data name="AdalFileCacheDisabled" xml:space="preserve">
-    <value>ADAL FileCache disabled by environment variable, using the DefaultShared TokenCache</value>
-  </data>
-  <data name="AdalFileCacheLocation" xml:space="preserve">
-    <value>ADAL FileCache location: {0}</value>
-  </data>
-  <data name="AdalUsingAuthority" xml:space="preserve">
+  <data name="UsingAuthority" xml:space="preserve">
     <value>Using AAD authority: {0}</value>
   </data>
   <data name="BuildTaskEnvVarError" xml:space="preserve">
@@ -279,34 +273,19 @@ Session Token Cache Enabled
     {1}
         Boolean to enable/disable the Session Token cache.
 
-ADAL Authority
-    {2}
-        Set to override the authority used when fetching an ADAL token.
-        e.g. https://login.microsoftonline.com
-
-ADAL Token File Cache Enabled
-    {3}
-        Boolean to enable/disable the ADAL token cache. Disabled by default.
-
-PPE ADAL Hosts
-    {4}
-        Semi-colon separated list of hosts that should use the PPE environment
-        when fetching ADAL tokens. Should only be used for testing/development
-        environments such as DevFabric.
-
 Supported Hosts
-    {5}
-        Semi-colon separated list of hosts that the ADAL provider supports.
+    {2}
+        Semi-colon separated list of hosts that the credential provider supports.
 
 Session Token Time Validity
-    {6}
+    {3}
         Time in minutes the generated Session Tokens will be valid for.
         The default for Personal Access Tokens is 90 days.
         The default for JWT (self-describing) tokens is 4 hours.
         The maximum allowed validity period for JWT tokens is 24 hours.
 
 Token Type
-    {7}
+    {4}
         Specify 'Compact' to generate a Personal Access Token, which may
         have a long validity period as it can easily be revoked from the UI,
         and sends a notification mail on creation.
@@ -317,17 +296,17 @@ Token Type
         unless authentication can be performed non-interactively.
 
 Build Provider URI Prefixes
-    {8}
+    {5}
         Semi-colon separated list of hosts the build provider supports.
 
 Build Provider Access Token
-    {9}
+    {6}
         The Personal Access Token that will be returned as credentials by
         the build provider.
 
 Build Provider Service Endpoint Json
-    {10}
-        Json that contains an array of service endpoints, usernames and 
+    {7}
+        Json that contains an array of service endpoints, usernames and
         access tokens to authenticate endpoints in nuget.config.
         Example: {{"endpointCredentials": [{{"endpoint":"http://example.index.json",
         "username":"optional", "password":"accesstoken"}}]}}
@@ -337,46 +316,38 @@ Cache Location
     deleted, the credential provider will re-create them but any credentials
     will need to be provided again.
 
-    ADAL Token Cache
-    {11}
+    MSAL Token Cache
+    {8}
 
     Session Token Cache
-    {12}
+    {9}
 
 Windows Integrated Authentication
-    {13}
+    {10}
         Boolean to enable/disable using silent Windows Integrated Authentication
         to authenticate as the logged-in user. Enabled by default.
 
 Device Flow Authentication Timeout
-    {14}
+    {11}
         Device Flow authentication timeout in seconds. Default is 90 seconds.
 
 NuGet workarounds
-    {15}
-        Set to "true" or "false" to override any other sources of the 
+    {12}
+        Set to "true" or "false" to override any other sources of the
         CanShowDialog parameter.
 
-Enable MSAL
-    {16}
-        Use the MSAL library to get a bearer token to then get a session token.
-        Defaults to `true`.
-
 MSAL Authority
-    {17}
+    {13}
         Set to override the authority used when fetching an MSAL token.
         e.g. https://login.microsoftonline.com/organizations
 
 MSAL Token File Cache Enabled
-    {18}
-        Boolean to enable/disable the MSAL token cache. Disabled by default.
-
-Default MSAL Cache Location
-    {19}
+    {14}
+        Boolean to enable/disable the MSAL token cache. Enabled by default.
 
 Provide MSAL Cache Location
-    {20}
-    Provide the location where the MSAL cache should be read and written to</value>
+    {15}
+    Provide the location where the MSAL cache should be read and written to.</value>
   </data>
   <data name="CredentialParseFailure" xml:space="preserve">
     <value>Failed to parse credentials</value>
