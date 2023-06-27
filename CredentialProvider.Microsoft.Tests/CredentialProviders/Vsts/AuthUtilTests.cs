@@ -21,7 +21,6 @@ namespace CredentialProvider.Microsoft.Tests.CredentialProviders.Vsts
     public class AuthUtilTests
     {
         private readonly CancellationToken cancellationToken = default(CancellationToken);
-        private readonly Uri commonAuthority = new Uri("https://login.microsoftonline.com/common");
         private readonly Uri organizationsAuthority = new Uri("https://login.microsoftonline.com/organizations");
         private readonly Uri testAuthority = new Uri("https://example.aad.authority.com");
 
@@ -48,29 +47,26 @@ namespace CredentialProvider.Microsoft.Tests.CredentialProviders.Vsts
         [TestMethod]
         public async Task GetAadAuthorityUri_WithoutAuthenticateHeaders_ReturnsCorrectAuthority()
         {
-            Environment.SetEnvironmentVariable(EnvUtil.MsalEnabledEnvVar, "false");
             var requestUri = new Uri("https://example.pkgs.visualstudio.com/_packaging/feed/nuget/v3/index.json");
 
             var authorityUri = await authUtil.GetAadAuthorityUriAsync(requestUri, cancellationToken);
 
-            authorityUri.Should().Be(commonAuthority);
+            authorityUri.Should().Be(organizationsAuthority);
         }
 
         [TestMethod]
         public async Task GetAadAuthorityUri_WithoutAuthenticateHeadersAndPpe_ReturnsCorrectAuthority()
         {
-            Environment.SetEnvironmentVariable(EnvUtil.MsalEnabledEnvVar, "false");
             var requestUri = new Uri("https://example.pkgs.vsts.me/_packaging/feed/nuget/v3/index.json");
 
             var authorityUri = await authUtil.GetAadAuthorityUriAsync(requestUri, cancellationToken);
 
-            authorityUri.Should().Be(new Uri("https://login.windows-ppe.net/common"));
+            authorityUri.Should().Be(new Uri("https://login.windows-ppe.net/organizations"));
         }
 
         [TestMethod]
         public async Task GetAadAuthorityUri_WithoutAuthenticateHeadersAndPpeAndPpeOverride_ReturnsCorrectAuthority()
         {
-            Environment.SetEnvironmentVariable(EnvUtil.MsalEnabledEnvVar, "false");
             var ppeUris = new[]
             {
                 new Uri("https://example.pkgs.vsts.me/_packaging/feed/nuget/v3/index.json"),
@@ -80,11 +76,12 @@ namespace CredentialProvider.Microsoft.Tests.CredentialProviders.Vsts
             };
 
             Environment.SetEnvironmentVariable(EnvUtil.PpeHostsEnvVar, string.Join(";", ppeUris.Select(u => u.Host)));
+
             foreach (var ppeUri in ppeUris)
             {
                 var authorityUri = await authUtil.GetAadAuthorityUriAsync(ppeUri, cancellationToken);
 
-                authorityUri.Should().Be(new Uri("https://login.windows-ppe.net/common"));
+                authorityUri.Should().Be(new Uri("https://login.windows-ppe.net/organizations"));
             }
         }
 
@@ -199,58 +196,6 @@ namespace CredentialProvider.Microsoft.Tests.CredentialProviders.Vsts
             var authorizationEndpoint = await authUtil.GetAuthorizationEndpoint(requestUri, cancellationToken);
             authorizationEndpoint.Should().NotBeNull();
             string.IsNullOrWhiteSpace(authorizationEndpoint.ToString()).Should().BeFalse();
-        }
-
-        [TestMethod]
-        public async Task MsalGetAadAuthorityUri_WithoutAuthenticateHeadersAndPpeAndPpeOverride_ReturnsCorrectAuthority()
-        {
-            var ppeUris = new[]
-            {
-                new Uri("https://example.pkgs.vsts.me/_packaging/feed/nuget/v3/index.json"),
-                new Uri("https://example.one.ppe.domain/_packaging/feed/nuget/v3/index.json"),
-                new Uri("https://example.two.ppe.domain/_packaging/feed/nuget/v3/index.json"),
-                new Uri("https://example.three.ppe.domain/_packaging/feed/nuget/v3/index.json"),
-            };
-
-            Environment.SetEnvironmentVariable(EnvUtil.PpeHostsEnvVar, string.Join(";", ppeUris.Select(u => u.Host)));
-
-            foreach (var ppeUri in ppeUris)
-            {
-                var authorityUri = await authUtil.GetAadAuthorityUriAsync(ppeUri, cancellationToken);
-                authorityUri.Should().Be(new Uri("https://login.windows-ppe.net/organizations"));
-            }
-        }
-
-        [TestMethod]
-        public async Task MsalAadAuthorityUri_WithoutAuthenticateHeaders_ReturnsCorrectAuthority()
-        {
-            var requestUri = new Uri("https://example.pkgs.visualstudio.com/_packaging/feed/nuget/v3/index.json");
-
-            var authorityUri = await authUtil.GetAadAuthorityUriAsync(requestUri, cancellationToken);
-
-            authorityUri.Should().Be(organizationsAuthority);
-        }
-
-
-        [TestMethod]
-        public async Task MsalAadAuthorityUri_WithoutAuthenticateHeaders_ReturnsCorrectAuthorityFalseEnvVar()
-        {
-            Environment.SetEnvironmentVariable(EnvUtil.MsalEnabledEnvVar, "false");
-            var requestUri = new Uri("https://example.pkgs.visualstudio.com/_packaging/feed/nuget/v3/index.json");
-
-            var authorityUri = await authUtil.GetAadAuthorityUriAsync(requestUri, cancellationToken);
-
-            authorityUri.Should().Be(commonAuthority);
-        }
-
-        [TestMethod]
-        public async Task MsalGetAadAuthorityUri_WithoutAuthenticateHeadersAndPpe_ReturnsCorrectAuthority()
-        {
-            var requestUri = new Uri("https://example.pkgs.vsts.me/_packaging/feed/nuget/v3/index.json");
-
-            var authorityUri = await authUtil.GetAadAuthorityUriAsync(requestUri, cancellationToken);
-
-            authorityUri.Should().Be(new Uri("https://login.windows-ppe.net/organizations"));
         }
 
         private void MockResponseHeaders(string key, string value)

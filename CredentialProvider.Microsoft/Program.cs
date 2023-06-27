@@ -5,11 +5,10 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Net.Http.Headers;
-using System.Reflection;
 using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.Artifacts.Authentication;
 using NuGet.Common;
 using NuGet.Protocol.Plugins;
 using NuGetCredentialProvider.CredentialProviders;
@@ -26,35 +25,6 @@ namespace NuGetCredentialProvider
 {
     public static class Program
     {
-        internal static string Name => name.Value;
-        internal static string Version => version.Value;
-
-        internal static IList<ProductInfoHeaderValue> UserAgent
-        {
-            get
-            {
-                return new List<ProductInfoHeaderValue>()
-                {
-                    new ProductInfoHeaderValue(Name, Version),
-#if NETFRAMEWORK
-                    new ProductInfoHeaderValue("(netfx)"),
-#else
-                    new ProductInfoHeaderValue("(netcore)"),
-#endif
-                };
-            }
-        }
-
-        private static Lazy<string> name = new Lazy<string>(() =>
-        {
-            return typeof(Program).GetTypeInfo().Assembly.GetCustomAttribute<AssemblyProductAttribute>()?.Product ?? "CredentialProvider.Microsoft";
-        });
-
-        private static Lazy<string> version = new Lazy<string>(() =>
-        {
-            return typeof(Program).GetTypeInfo().Assembly.GetCustomAttribute<AssemblyInformationalVersionAttribute>()?.InformationalVersion ?? "";
-        });
-
         private static bool shuttingDown = false;
         public static bool IsShuttingDown => Volatile.Read(ref shuttingDown);
 
@@ -67,6 +37,8 @@ namespace NuGetCredentialProvider
             var fileLogger = GetFileLogger();
             if (fileLogger != null)
             {
+                fileLogger.Log(LogLevel.Verbose, allowOnConsole: false, string.Join(" ", MsalHttpClientFactory.UserAgent));
+
                 multiLogger.Add(fileLogger);
             }
 
@@ -79,28 +51,15 @@ namespace NuGetCredentialProvider
             };
 
             var authUtil = new AuthUtil(multiLogger);
-
-            IBearerTokenProvidersFactory bearerTokenProvidersFactory;
-
-            if (EnvUtil.MsalEnabled())
-            {
-                var msalTokenProviderFactory = new MsalTokenProviderFactory();
-                bearerTokenProvidersFactory = new MsalBearerTokenProvidersFactory(multiLogger, msalTokenProviderFactory);
-            }
-            else
-            {
-                var adalTokenCache = AdalTokenCacheUtils.GetAdalTokenCache(multiLogger);
-                var adalTokenProviderFactory = new VstsAdalTokenProviderFactory(adalTokenCache);
-                bearerTokenProvidersFactory = new BearerTokenProvidersFactory(multiLogger, adalTokenProviderFactory);
-            }
-
+            var logger = new NuGetLoggerAdapter(multiLogger, parsedArgs.Verbosity);
+            var tokenProvidersFactory = new MsalTokenProvidersFactory(logger);
             var vstsSessionTokenProvider = new VstsSessionTokenFromBearerTokenProvider(authUtil, multiLogger);
 
             List<ICredentialProvider> credentialProviders = new List<ICredentialProvider>
             {
                 new VstsBuildTaskServiceEndpointCredentialProvider(multiLogger),
                 new VstsBuildTaskCredentialProvider(multiLogger),
-                new VstsCredentialProvider(multiLogger, authUtil, bearerTokenProvidersFactory, vstsSessionTokenProvider),
+                new VstsCredentialProvider(multiLogger, authUtil, tokenProvidersFactory, vstsSessionTokenProvider),
             };
 
             try
@@ -117,31 +76,26 @@ namespace NuGetCredentialProvider
                 // Help
                 if (parsedArgs.Help)
                 {
-                    Console.WriteLine(string.Format(Resources.CommandLineArgs, Program.Version, Environment.CommandLine));
+                    Console.WriteLine(string.Format(Resources.CommandLineArgs, PlatformInformation.GetProgramVersion(), Environment.CommandLine));
                     Console.WriteLine(ArgUsage.GenerateUsageFromTemplate<CredentialProviderArgs>());
                     Console.WriteLine(
                         string.Format(
                             Resources.EnvironmentVariableHelp,
                             EnvUtil.LogPathEnvVar,
                             EnvUtil.SessionTokenCacheEnvVar,
-                            EnvUtil.AuthorityEnvVar,
-                            EnvUtil.AdalFileCacheEnvVar,
-                            EnvUtil.PpeHostsEnvVar,
                             EnvUtil.SupportedHostsEnvVar,
                             EnvUtil.SessionTimeEnvVar,
                             EnvUtil.TokenTypeEnvVar,
                             EnvUtil.BuildTaskUriPrefixes,
                             EnvUtil.BuildTaskAccessToken,
                             EnvUtil.BuildTaskExternalEndpoints,
-                            EnvUtil.AdalTokenCacheLocation,
+                            EnvUtil.DefaultMsalCacheLocation,
                             EnvUtil.SessionTokenCacheLocation,
                             EnvUtil.WindowsIntegratedAuthenticationEnvVar,
                             EnvUtil.DeviceFlowTimeoutEnvVar,
                             EnvUtil.ForceCanShowDialogEnvVar,
-                            EnvUtil.MsalEnabledEnvVar,
                             EnvUtil.MsalAuthorityEnvVar,
                             EnvUtil.MsalFileCacheEnvVar,
-                            EnvUtil.DefaultMsalCacheLocation,
                             EnvUtil.MsalFileCacheLocationEnvVar
                         ));
                     return 0;
@@ -156,7 +110,7 @@ namespace NuGetCredentialProvider
                         {
                             multiLogger.Add(new PluginConnectionLogger(plugin.Connection));
                             multiLogger.Verbose(Resources.RunningInPlugin);
-                            multiLogger.Verbose(string.Format(Resources.CommandLineArgs, Program.Version, Environment.CommandLine));
+                            multiLogger.Verbose(string.Format(Resources.CommandLineArgs, PlatformInformation.GetProgramVersion(), Environment.CommandLine));
 
                             await WaitForPluginExitAsync(plugin, multiLogger, TimeSpan.FromMinutes(2)).ConfigureAwait(continueOnCapturedContext: false);
                         }
@@ -189,7 +143,7 @@ namespace NuGetCredentialProvider
 
                     multiLogger.SetLogLevel(parsedArgs.Verbosity);
                     multiLogger.Verbose(Resources.RunningInStandAlone);
-                    multiLogger.Verbose(string.Format(Resources.CommandLineArgs, Program.Version, Environment.CommandLine));
+                    multiLogger.Verbose(string.Format(Resources.CommandLineArgs, PlatformInformation.GetProgramVersion(), Environment.CommandLine));
 
                     if (parsedArgs.Uri == null)
                     {

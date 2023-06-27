@@ -7,6 +7,8 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using FluentAssertions;
+using Microsoft.Artifacts.Authentication;
+using Microsoft.Identity.Client;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using NuGet.Protocol.Plugins;
@@ -23,9 +25,9 @@ namespace CredentialProvider.Microsoft.Tests.CredentialProviders.Vsts
         private readonly Uri testAuthority = new Uri("https://example.aad.authority.com");
 
         private Mock<ILogger> mockLogger;
-        private Mock<IBearerTokenProvider> mockBearerTokenProvider1 = new Mock<IBearerTokenProvider>();
-        private Mock<IBearerTokenProvider> mockBearerTokenProvider2 = new Mock<IBearerTokenProvider>();
-        private Mock<IBearerTokenProvidersFactory> mockBearerTokenProvidersFactory;
+        private Mock<ITokenProvider> mockBearerTokenProvider1 = new Mock<ITokenProvider>();
+        private Mock<ITokenProvider> mockBearerTokenProvider2 = new Mock<ITokenProvider>();
+        private Mock<ITokenProvidersFactory> mockBearerTokenProvidersFactory;
         private Mock<IAzureDevOpsSessionTokenFromBearerTokenProvider> mockVstsSessionTokenFromBearerTokenProvider;
         private Mock<IAuthUtil> mockAuthUtil;
 
@@ -37,14 +39,14 @@ namespace CredentialProvider.Microsoft.Tests.CredentialProviders.Vsts
         {
             mockLogger = new Mock<ILogger>();
 
-            mockBearerTokenProvider1 = new Mock<IBearerTokenProvider>();
-            mockBearerTokenProvider1.Setup(x => x.ShouldRun(It.IsAny<bool>(), It.IsAny<bool>(), It.IsAny<bool>())).Returns(true);
-            mockBearerTokenProvider1.Setup(x => x.GetTokenAsync(It.IsAny<Uri>(), It.IsAny<CancellationToken>())).ReturnsAsync((string)null);
-            mockBearerTokenProvider2 = new Mock<IBearerTokenProvider>();
-            mockBearerTokenProvider2.Setup(x => x.ShouldRun(It.IsAny<bool>(), It.IsAny<bool>(), It.IsAny<bool>())).Returns(true);
-            mockBearerTokenProvider2.Setup(x => x.GetTokenAsync(It.IsAny<Uri>(), It.IsAny<CancellationToken>())).ReturnsAsync((string)null);
-            mockBearerTokenProvidersFactory = new Mock<IBearerTokenProvidersFactory>();
-            mockBearerTokenProvidersFactory.Setup(x => x.Get(It.IsAny<Uri>())).Returns(new[] { mockBearerTokenProvider1.Object, mockBearerTokenProvider2.Object });
+            mockBearerTokenProvider1 = new Mock<ITokenProvider>();
+            mockBearerTokenProvider1.Setup(x => x.CanGetToken(It.IsAny<TokenRequest>())).Returns(true);
+            mockBearerTokenProvider1.Setup(x => x.GetTokenAsync(It.IsAny<TokenRequest>(), It.IsAny<CancellationToken>())).ReturnsAsync((AuthenticationResult)null);
+            mockBearerTokenProvider2 = new Mock<ITokenProvider>();
+            mockBearerTokenProvider2.Setup(x => x.CanGetToken(It.IsAny<TokenRequest>())).Returns(true);
+            mockBearerTokenProvider2.Setup(x => x.GetTokenAsync(It.IsAny<TokenRequest>(), It.IsAny<CancellationToken>())).ReturnsAsync((AuthenticationResult)null);
+            mockBearerTokenProvidersFactory = new Mock<ITokenProvidersFactory>();
+            mockBearerTokenProvidersFactory.Setup(x => x.GetAsync(It.IsAny<Uri>())).ReturnsAsync(new[] { mockBearerTokenProvider1.Object, mockBearerTokenProvider2.Object });
 
             mockVstsSessionTokenFromBearerTokenProvider = new Mock<IAzureDevOpsSessionTokenFromBearerTokenProvider>();
             mockVstsSessionTokenFromBearerTokenProvider.Setup(x => x.GetAzureDevOpsSessionTokenFromBearerToken(It.IsAny<GetAuthenticationCredentialsRequest>(), It.IsAny<string>(), It.IsAny<bool>(), It.IsAny<CancellationToken>()));
@@ -82,10 +84,10 @@ namespace CredentialProvider.Microsoft.Tests.CredentialProviders.Vsts
             {
                 @"http://example.pkgs.vsts.me/_packaging/TestFeed/nuget/v3/index.json",
                 @"https://example.pkgs.vsts.me/_packaging/TestFeed/nuget/v3/index.json",
-                @"https://example.pkgs.codedev.ms/_packaging/TestFeed/nuget/v3/index.json",
-                @"https://example.pkgs.codeapp.ms/_packaging/TestFeed/nuget/v3/index.json",
+                @"https://pkgs.codedev.ms/example/_packaging/TestFeed/nuget/v3/index.json",
+                @"https://pkgs.codeapp.ms/example/_packaging/TestFeed/nuget/v3/index.json",
                 @"https://example.pkgs.visualstudio.com/_packaging/TestFeed/nuget/v3/index.json",
-                @"https://example.pkgs.dev.azure.com/_packaging/TestFeed/nuget/v3/index.json",
+                @"https://pkgs.dev.azure.com/example/_packaging/TestFeed/nuget/v3/index.json",
             };
 
             foreach (var source in sources)
@@ -100,7 +102,7 @@ namespace CredentialProvider.Microsoft.Tests.CredentialProviders.Vsts
         }
 
         [TestMethod]
-        public async Task CanProvideCredentials_ReturnsTrueForOverridenSources()
+        public async Task CanProvideCredentials_ReturnsTrueForOverriddenSources()
         {
             var sources = new[]
             {
@@ -113,7 +115,7 @@ namespace CredentialProvider.Microsoft.Tests.CredentialProviders.Vsts
             foreach (var source in sources)
             {
                 var canProvideCredentials = await vstsCredentialProvider.CanProvideCredentialsAsync(source);
-                canProvideCredentials.Should().BeTrue($"because {source} is an overriden host");
+                canProvideCredentials.Should().BeTrue($"because {source} is an overridden host");
             }
 
             mockAuthUtil
@@ -145,81 +147,91 @@ namespace CredentialProvider.Microsoft.Tests.CredentialProviders.Vsts
         [TestMethod]
         public async Task HandleRequestAsync_DoesNotRunBearerTokenProviderWhenShouldRunFalse()
         {
-            mockBearerTokenProvider1.Setup(x => x.ShouldRun(It.IsAny<bool>(), It.IsAny<bool>(), It.IsAny<bool>())).Returns(false);
+            mockBearerTokenProvider1.Setup(x => x.CanGetToken(It.IsAny<TokenRequest>())).Returns(false);
             await vstsCredentialProvider.HandleRequestAsync(new GetAuthenticationCredentialsRequest(testUri, false, false, false), CancellationToken.None);
-            mockBearerTokenProvider1.Verify(x => x.GetTokenAsync(It.IsAny<Uri>(), It.IsAny<CancellationToken>()), Times.Never);
+            mockBearerTokenProvider1.Verify(x => x.GetTokenAsync(It.IsAny<TokenRequest>(), It.IsAny<CancellationToken>()), Times.Never);
         }
 
         [TestMethod]
         public async Task HandleRequestAsync_RunsBearerTokenProviderWhenShouldRunTrue()
         {
-            mockBearerTokenProvider1.Setup(x => x.ShouldRun(It.IsAny<bool>(), It.IsAny<bool>(), It.IsAny<bool>())).Returns(true);
+            mockBearerTokenProvider1.Setup(x => x.CanGetToken(It.IsAny<TokenRequest>())).Returns(true);
             await vstsCredentialProvider.HandleRequestAsync(new GetAuthenticationCredentialsRequest(testUri, false, false, false), CancellationToken.None);
-            mockBearerTokenProvider1.Verify(x => x.GetTokenAsync(It.IsAny<Uri>(), It.IsAny<CancellationToken>()), Times.Once);
+            mockBearerTokenProvider1.Verify(x => x.GetTokenAsync(It.IsAny<TokenRequest>(), It.IsAny<CancellationToken>()), Times.Once);
         }
 
         [TestMethod]
         public async Task HandleRequestAsync_RunsNextBearerTokenProviderOnException()
         {
-            mockBearerTokenProvider1.Setup(x => x.GetTokenAsync(It.IsAny<Uri>(), It.IsAny<CancellationToken>())).ThrowsAsync(new Exception("bad"));
+            mockBearerTokenProvider1.Setup(x => x.GetTokenAsync(It.IsAny<TokenRequest>(), It.IsAny<CancellationToken>())).ThrowsAsync(new Exception("bad"));
             await vstsCredentialProvider.HandleRequestAsync(new GetAuthenticationCredentialsRequest(testUri, false, false, false), CancellationToken.None);
-            mockBearerTokenProvider2.Verify(x => x.GetTokenAsync(It.IsAny<Uri>(), It.IsAny<CancellationToken>()), Times.Once);
+            mockBearerTokenProvider2.Verify(x => x.GetTokenAsync(It.IsAny<TokenRequest>(), It.IsAny<CancellationToken>()), Times.Once);
         }
 
         [TestMethod]
         public async Task HandleRequestAsync_RunsNextBearerTokenProviderOnReturnNull()
         {
-            mockBearerTokenProvider1.Setup(x => x.GetTokenAsync(It.IsAny<Uri>(), It.IsAny<CancellationToken>())).ReturnsAsync((string)null);
+            mockBearerTokenProvider1.Setup(x => x.GetTokenAsync(It.IsAny<TokenRequest>(), It.IsAny<CancellationToken>())).ReturnsAsync((AuthenticationResult)null);
             await vstsCredentialProvider.HandleRequestAsync(new GetAuthenticationCredentialsRequest(testUri, false, false, false), CancellationToken.None);
-            mockBearerTokenProvider2.Verify(x => x.GetTokenAsync(It.IsAny<Uri>(), It.IsAny<CancellationToken>()), Times.Once);
+            mockBearerTokenProvider2.Verify(x => x.GetTokenAsync(It.IsAny<TokenRequest>(), It.IsAny<CancellationToken>()), Times.Once);
         }
 
         [TestMethod]
         public async Task HandleRequestAsync_ExchangesBearerTokenForSessionTokenAndReturnsToken()
         {
-            mockBearerTokenProvider1.Setup(x => x.GetTokenAsync(It.IsAny<Uri>(), It.IsAny<CancellationToken>())).ReturnsAsync("aadtoken");
-            mockVstsSessionTokenFromBearerTokenProvider.Setup(x => x.GetAzureDevOpsSessionTokenFromBearerToken(It.IsAny<GetAuthenticationCredentialsRequest>(), "aadtoken", It.IsAny<bool>(), It.IsAny<CancellationToken>())).ReturnsAsync("sessiontoken");
+            var token = GetToken("aadtoken");
+            mockBearerTokenProvider1.Setup(x => x.GetTokenAsync(It.IsAny<TokenRequest>(), It.IsAny<CancellationToken>())).ReturnsAsync(token);
+            mockVstsSessionTokenFromBearerTokenProvider.Setup(x => x.GetAzureDevOpsSessionTokenFromBearerToken(It.IsAny<GetAuthenticationCredentialsRequest>(), token.AccessToken, It.IsAny<bool>(), It.IsAny<CancellationToken>())).ReturnsAsync("sessiontoken");
 
             var response = await vstsCredentialProvider.HandleRequestAsync(new GetAuthenticationCredentialsRequest(testUri, false, false, false), CancellationToken.None);
 
-            mockBearerTokenProvider1.Verify(x => x.GetTokenAsync(It.IsAny<Uri>(), It.IsAny<CancellationToken>()), Times.Once);
-            mockBearerTokenProvider2.Verify(x => x.GetTokenAsync(It.IsAny<Uri>(), It.IsAny<CancellationToken>()), Times.Never);
-            mockVstsSessionTokenFromBearerTokenProvider.Verify(x => x.GetAzureDevOpsSessionTokenFromBearerToken(It.IsAny<GetAuthenticationCredentialsRequest>(), "aadtoken", It.IsAny<bool>(), It.IsAny<CancellationToken>()), Times.Once);
+            mockBearerTokenProvider1.Verify(x => x.GetTokenAsync(It.IsAny<TokenRequest>(), It.IsAny<CancellationToken>()), Times.Once);
+            mockBearerTokenProvider2.Verify(x => x.GetTokenAsync(It.IsAny<TokenRequest>(), It.IsAny<CancellationToken>()), Times.Never);
+            mockVstsSessionTokenFromBearerTokenProvider.Verify(x => x.GetAzureDevOpsSessionTokenFromBearerToken(It.IsAny<GetAuthenticationCredentialsRequest>(), token.AccessToken, It.IsAny<bool>(), It.IsAny<CancellationToken>()), Times.Once);
             response.Password.Should().Be("sessiontoken");
         }
 
         [TestMethod]
         public async Task HandleRequestAsync_TriesNextBearerTokenProviderWhenExchangeBearerTokenForSessionTokenFails()
         {
-            mockBearerTokenProvider1.Setup(x => x.GetTokenAsync(It.IsAny<Uri>(), It.IsAny<CancellationToken>())).ReturnsAsync("aadtoken1");
-            mockBearerTokenProvider2.Setup(x => x.GetTokenAsync(It.IsAny<Uri>(), It.IsAny<CancellationToken>())).ReturnsAsync("aadtoken2");
-            mockVstsSessionTokenFromBearerTokenProvider.Setup(x => x.GetAzureDevOpsSessionTokenFromBearerToken(It.IsAny<GetAuthenticationCredentialsRequest>(), "aadtoken1", It.IsAny<bool>(), It.IsAny<CancellationToken>())).ReturnsAsync((string)null);
-            mockVstsSessionTokenFromBearerTokenProvider.Setup(x => x.GetAzureDevOpsSessionTokenFromBearerToken(It.IsAny<GetAuthenticationCredentialsRequest>(), "aadtoken2", It.IsAny<bool>(), It.IsAny<CancellationToken>())).ReturnsAsync("sessiontoken");
+            var token1 = GetToken("aadtoken1");
+            var token2 = GetToken("aadtoken2");
+            mockBearerTokenProvider1.Setup(x => x.GetTokenAsync(It.IsAny<TokenRequest>(), It.IsAny<CancellationToken>())).ReturnsAsync(token1);
+            mockBearerTokenProvider2.Setup(x => x.GetTokenAsync(It.IsAny<TokenRequest>(), It.IsAny<CancellationToken>())).ReturnsAsync(token2);
+            mockVstsSessionTokenFromBearerTokenProvider.Setup(x => x.GetAzureDevOpsSessionTokenFromBearerToken(It.IsAny<GetAuthenticationCredentialsRequest>(), token1.AccessToken, It.IsAny<bool>(), It.IsAny<CancellationToken>())).ReturnsAsync((string)null);
+            mockVstsSessionTokenFromBearerTokenProvider.Setup(x => x.GetAzureDevOpsSessionTokenFromBearerToken(It.IsAny<GetAuthenticationCredentialsRequest>(), token2.AccessToken, It.IsAny<bool>(), It.IsAny<CancellationToken>())).ReturnsAsync("sessiontoken");
 
             var response = await vstsCredentialProvider.HandleRequestAsync(new GetAuthenticationCredentialsRequest(testUri, false, false, false), CancellationToken.None);
 
-            mockBearerTokenProvider1.Verify(x => x.GetTokenAsync(It.IsAny<Uri>(), It.IsAny<CancellationToken>()), Times.Once);
-            mockBearerTokenProvider2.Verify(x => x.GetTokenAsync(It.IsAny<Uri>(), It.IsAny<CancellationToken>()), Times.Once);
-            mockVstsSessionTokenFromBearerTokenProvider.Verify(x => x.GetAzureDevOpsSessionTokenFromBearerToken(It.IsAny<GetAuthenticationCredentialsRequest>(), "aadtoken1", It.IsAny<bool>(), It.IsAny<CancellationToken>()), Times.Once);
-            mockVstsSessionTokenFromBearerTokenProvider.Verify(x => x.GetAzureDevOpsSessionTokenFromBearerToken(It.IsAny<GetAuthenticationCredentialsRequest>(), "aadtoken2", It.IsAny<bool>(), It.IsAny<CancellationToken>()), Times.Once);
+            mockBearerTokenProvider1.Verify(x => x.GetTokenAsync(It.IsAny<TokenRequest>(), It.IsAny<CancellationToken>()), Times.Once);
+            mockBearerTokenProvider2.Verify(x => x.GetTokenAsync(It.IsAny<TokenRequest>(), It.IsAny<CancellationToken>()), Times.Once);
+            mockVstsSessionTokenFromBearerTokenProvider.Verify(x => x.GetAzureDevOpsSessionTokenFromBearerToken(It.IsAny<GetAuthenticationCredentialsRequest>(), token1.AccessToken, It.IsAny<bool>(), It.IsAny<CancellationToken>()), Times.Once);
+            mockVstsSessionTokenFromBearerTokenProvider.Verify(x => x.GetAzureDevOpsSessionTokenFromBearerToken(It.IsAny<GetAuthenticationCredentialsRequest>(), token2.AccessToken, It.IsAny<bool>(), It.IsAny<CancellationToken>()), Times.Once);
             response.Password.Should().Be("sessiontoken");
         }
 
         [TestMethod]
         public async Task HandleRequestAsync_ReturnsNullWhenAllBearerTokensBad()
         {
-            mockBearerTokenProvider1.Setup(x => x.GetTokenAsync(It.IsAny<Uri>(), It.IsAny<CancellationToken>())).ReturnsAsync("aadtoken1");
-            mockBearerTokenProvider2.Setup(x => x.GetTokenAsync(It.IsAny<Uri>(), It.IsAny<CancellationToken>())).ReturnsAsync("aadtoken2");
-            mockVstsSessionTokenFromBearerTokenProvider.Setup(x => x.GetAzureDevOpsSessionTokenFromBearerToken(It.IsAny<GetAuthenticationCredentialsRequest>(), "aadtoken1", It.IsAny<bool>(), It.IsAny<CancellationToken>())).ReturnsAsync((string)null);
-            mockVstsSessionTokenFromBearerTokenProvider.Setup(x => x.GetAzureDevOpsSessionTokenFromBearerToken(It.IsAny<GetAuthenticationCredentialsRequest>(), "aadtoken2", It.IsAny<bool>(), It.IsAny<CancellationToken>())).ReturnsAsync((string)null);
+            var token1 = GetToken("aadtoken1");
+            var token2 = GetToken("aadtoken2");
+            mockBearerTokenProvider1.Setup(x => x.GetTokenAsync(It.IsAny<TokenRequest>(), It.IsAny<CancellationToken>())).ReturnsAsync(token1);
+            mockBearerTokenProvider2.Setup(x => x.GetTokenAsync(It.IsAny<TokenRequest>(), It.IsAny<CancellationToken>())).ReturnsAsync(token2);
+            mockVstsSessionTokenFromBearerTokenProvider.Setup(x => x.GetAzureDevOpsSessionTokenFromBearerToken(It.IsAny<GetAuthenticationCredentialsRequest>(), token1.AccessToken, It.IsAny<bool>(), It.IsAny<CancellationToken>())).ReturnsAsync((string)null);
+            mockVstsSessionTokenFromBearerTokenProvider.Setup(x => x.GetAzureDevOpsSessionTokenFromBearerToken(It.IsAny<GetAuthenticationCredentialsRequest>(), token2.AccessToken, It.IsAny<bool>(), It.IsAny<CancellationToken>())).ReturnsAsync((string)null);
 
             var response = await vstsCredentialProvider.HandleRequestAsync(new GetAuthenticationCredentialsRequest(testUri, false, false, false), CancellationToken.None);
 
-            mockBearerTokenProvider1.Verify(x => x.GetTokenAsync(It.IsAny<Uri>(), It.IsAny<CancellationToken>()), Times.Once);
-            mockBearerTokenProvider2.Verify(x => x.GetTokenAsync(It.IsAny<Uri>(), It.IsAny<CancellationToken>()), Times.Once);
-            mockVstsSessionTokenFromBearerTokenProvider.Verify(x => x.GetAzureDevOpsSessionTokenFromBearerToken(It.IsAny<GetAuthenticationCredentialsRequest>(), "aadtoken1", It.IsAny<bool>(), It.IsAny<CancellationToken>()), Times.Once);
-            mockVstsSessionTokenFromBearerTokenProvider.Verify(x => x.GetAzureDevOpsSessionTokenFromBearerToken(It.IsAny<GetAuthenticationCredentialsRequest>(), "aadtoken2", It.IsAny<bool>(), It.IsAny<CancellationToken>()), Times.Once);
+            mockBearerTokenProvider1.Verify(x => x.GetTokenAsync(It.IsAny<TokenRequest>(), It.IsAny<CancellationToken>()), Times.Once);
+            mockBearerTokenProvider2.Verify(x => x.GetTokenAsync(It.IsAny<TokenRequest>(), It.IsAny<CancellationToken>()), Times.Once);
+            mockVstsSessionTokenFromBearerTokenProvider.Verify(x => x.GetAzureDevOpsSessionTokenFromBearerToken(It.IsAny<GetAuthenticationCredentialsRequest>(), token1.AccessToken, It.IsAny<bool>(), It.IsAny<CancellationToken>()), Times.Once);
+            mockVstsSessionTokenFromBearerTokenProvider.Verify(x => x.GetAzureDevOpsSessionTokenFromBearerToken(It.IsAny<GetAuthenticationCredentialsRequest>(), token2.AccessToken, It.IsAny<bool>(), It.IsAny<CancellationToken>()), Times.Once);
             response.Should().BeNull();
+        }
+
+        private AuthenticationResult GetToken(string token)
+        {
+            return new AuthenticationResult(token, false, null, DateTimeOffset.MinValue, DateTimeOffset.MinValue, null, null, null, null, Guid.Empty);
         }
     }
 }

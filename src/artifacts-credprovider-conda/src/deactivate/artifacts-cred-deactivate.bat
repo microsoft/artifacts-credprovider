@@ -1,0 +1,2 @@
+@echo off
+set ARTIFACTS_CONDA_TOKEN=

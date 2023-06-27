@@ -7,6 +7,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.Artifacts.Authentication;
+using Microsoft.Identity.Client;
 using NuGet.Protocol.Plugins;
 using NuGetCredentialProvider.Logging;
 using NuGetCredentialProvider.Util;
@@ -18,18 +20,18 @@ namespace NuGetCredentialProvider.CredentialProviders.Vsts
         private const string Username = "VssSessionToken";
 
         private readonly IAuthUtil authUtil;
-        private readonly IBearerTokenProvidersFactory bearerTokenProvidersFactory;
+        private readonly ITokenProvidersFactory tokenProvidersFactory;
         private readonly IAzureDevOpsSessionTokenFromBearerTokenProvider vstsSessionTokenProvider;
 
         public VstsCredentialProvider(
             ILogger logger,
             IAuthUtil authUtil,
-            IBearerTokenProvidersFactory bearerTokenProvidersFactory,
+            ITokenProvidersFactory tokenProvidersFactory,
             IAzureDevOpsSessionTokenFromBearerTokenProvider vstsSessionTokenProvider)
             : base(logger)
         {
             this.authUtil = authUtil;
-            this.bearerTokenProvidersFactory = bearerTokenProvidersFactory;
+            this.tokenProvidersFactory = tokenProvidersFactory;
             this.vstsSessionTokenProvider = vstsSessionTokenProvider;
         }
 
@@ -49,16 +51,18 @@ namespace NuGetCredentialProvider.CredentialProviders.Vsts
                 return false;
             }
 
-             var validHosts = EnvUtil.GetHostsFromEnvironment(Logger, EnvUtil.SupportedHostsEnvVar, new[]
-             {
-                 ".pkgs.vsts.me", // DevFabric
-                 ".pkgs.codedev.ms", // DevFabric
-                 ".pkgs.codeapp.ms", // AppFabric
-                 ".pkgs.visualstudio.com", // Prod
-                 ".pkgs.dev.azure.com" // Prod
-             });
+            var validHosts = EnvUtil.GetHostsFromEnvironment(Logger, EnvUtil.SupportedHostsEnvVar, new[]
+            {
+                ".pkgs.vsts.me", // DevFabric
+                "pkgs.codedev.ms", // DevFabric
+                "pkgs.codeapp.ms", // AppFabric
+                ".pkgs.visualstudio.com", // Prod
+                "pkgs.dev.azure.com" // Prod
+            });
 
-            bool isValidHost = validHosts.Any(host => uri.Host.EndsWith(host, StringComparison.OrdinalIgnoreCase));
+            bool isValidHost = validHosts.Any(host => host.StartsWith(".") ?
+                uri.Host.EndsWith(host, StringComparison.OrdinalIgnoreCase) :
+                uri.Host.Equals(host, StringComparison.OrdinalIgnoreCase));
             if (isValidHost)
             {
                 Verbose(string.Format(Resources.HostAccepted, uri.Host));
@@ -93,46 +97,64 @@ namespace NuGetCredentialProvider.CredentialProviders.Vsts
             }
 
             Uri authority = await authUtil.GetAadAuthorityUriAsync(request.Uri, cancellationToken);
-            Verbose(string.Format(Resources.AdalUsingAuthority, authority));
+            Verbose(string.Format(Resources.UsingAuthority, authority));
 
-            IEnumerable<IBearerTokenProvider> bearerTokenProviders = bearerTokenProvidersFactory.Get(authority);
+            IEnumerable<ITokenProvider> tokenProviders = await tokenProvidersFactory.GetAsync(authority);
             cancellationToken.ThrowIfCancellationRequested();
 
-            // Try each bearer token provider (e.g. ADAL cache, ADAL WIA, ADAL UI, ADAL DeviceCode) in order.
-            // Only consider it successful if the bearer token can be exchanged for an Azure DevOps token.
-            foreach (IBearerTokenProvider bearerTokenProvider in bearerTokenProviders)
+            var tokenRequest = new TokenRequest(request.Uri)
             {
-                bool shouldRun = bearerTokenProvider.ShouldRun(request.IsRetry, request.IsNonInteractive, canShowDialog);
+                IsRetry = request.IsRetry,
+                IsNonInteractive = request.IsNonInteractive,
+                CanShowDialog = canShowDialog,
+                IsWindowsIntegratedAuthEnabled = EnvUtil.WindowsIntegratedAuthenticationEnabled(),
+                LoginHint = EnvUtil.GetMsalLoginHint(),
+                InteractiveTimeout = TimeSpan.FromSeconds(EnvUtil.GetDeviceFlowTimeoutFromEnvironmentInSeconds(Logger)),
+                DeviceCodeResultCallback = (DeviceCodeResult deviceCodeResult) =>
+                {
+                    Logger.Minimal(string.Format(Resources.DeviceFlowRequestedResource, request.Uri.ToString()));
+                    Logger.Minimal(string.Format(Resources.DeviceFlowMessage, deviceCodeResult.VerificationUrl, deviceCodeResult.UserCode));
+
+                    return Task.CompletedTask;
+                }
+            };
+
+            // Try each bearer token provider (e.g. cache, WIA, UI, DeviceCode) in order.
+            // Only consider it successful if the bearer token can be exchanged for an Azure DevOps token.
+            foreach (ITokenProvider tokenProvider in tokenProviders)
+            {
+                bool shouldRun = tokenProvider.CanGetToken(tokenRequest);
                 if (!shouldRun)
                 {
-                    Verbose(string.Format(Resources.NotRunningBearerTokenProvider, bearerTokenProvider.Name));
+                    Verbose(string.Format(Resources.NotRunningBearerTokenProvider, tokenProvider.Name));
                     continue;
                 }
 
-                Verbose(string.Format(Resources.AttemptingToAcquireBearerTokenUsingProvider, bearerTokenProvider.Name));
+                Verbose(string.Format(Resources.AttemptingToAcquireBearerTokenUsingProvider, tokenProvider.Name));
 
                 string bearerToken = null;
                 try
                 {
-                    bearerToken = await bearerTokenProvider.GetTokenAsync(request.Uri, cancellationToken);
+                    var result = await tokenProvider.GetTokenAsync(tokenRequest, cancellationToken);
+                    bearerToken = result.AccessToken;
                 }
                 catch (Exception ex)
                 {
-                    Verbose(string.Format(Resources.BearerTokenProviderException, bearerTokenProvider.Name, ex));
+                    Verbose(string.Format(Resources.BearerTokenProviderException, tokenProvider.Name, ex));
                     continue;
                 }
 
                 if (string.IsNullOrWhiteSpace(bearerToken))
                 {
-                    Verbose(string.Format(Resources.BearerTokenProviderReturnedNull, bearerTokenProvider.Name));
+                    Verbose(string.Format(Resources.BearerTokenProviderReturnedNull, tokenProvider.Name));
                     continue;
                 }
 
-                Info(string.Format(Resources.AcquireBearerTokenSuccess, bearerTokenProvider.Name));
+                Info(string.Format(Resources.AcquireBearerTokenSuccess, tokenProvider.Name));
                 Info(Resources.ExchangingBearerTokenForSessionToken);
                 try
                 {
-                    string sessionToken = await vstsSessionTokenProvider.GetAzureDevOpsSessionTokenFromBearerToken(request, bearerToken, bearerTokenProvider.Interactive, cancellationToken);
+                    string sessionToken = await vstsSessionTokenProvider.GetAzureDevOpsSessionTokenFromBearerToken(request, bearerToken, tokenProvider.IsInteractive, cancellationToken);
 
                     if (!string.IsNullOrWhiteSpace(sessionToken))
                     {

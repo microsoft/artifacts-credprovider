@@ -8,9 +8,9 @@ using PowerArgs;
 
 namespace NuGetCredentialProvider
 {
-    [ArgDescription("The Azure Artifacts credential provider can be used to aquire credentials for Azure Artifacts.\n" +
+    [ArgDescription("The Azure Artifacts credential provider can be used to acquire credentials for Azure Artifacts.\n" +
                     "\n" +
-                    "Note: The Azure Artifacts Credential Provider is mainly intended for use via integrations with development tools such as .NET Core and nuget.exe.\n" + 
+                    "Note: The Azure Artifacts Credential Provider is mainly intended for use via integrations with development tools such as .NET Core and nuget.exe.\n" +
                     "While it can be used via this CLI in \"stand-alone mode\", please pay special attention to certain options such as -IsRetry below.\n" +
                     "Failing to do so may result in obtaining invalid credentials.")]
     internal class CredentialProviderArgs
@@ -39,6 +39,7 @@ namespace NuGetCredentialProvider
         [ArgDescription("Prints this help message")]
         public bool Help { get; set; }
 
+        [ArgDefaultValue(true)]
         [ArgDescription("If true, user can be prompted with credentials through UI, if false, device flow must be used")]
         public bool CanShowDialog { get; set; }
 
