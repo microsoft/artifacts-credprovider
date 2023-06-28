@@ -1,0 +1,9 @@
+<Project>
+  <PropertyGroup>
+    <ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
+
+    <!-- Required for reference trimmer -->
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <NoWarn>$(NoWarn);CS1574;CS1591</NoWarn>
+  </PropertyGroup>
+</Project>
