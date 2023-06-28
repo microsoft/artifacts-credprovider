@@ -22,6 +22,7 @@
     <PackageReference Include="Microsoft.Identity.Client" />
     <PackageReference Include="Microsoft.Identity.Client.Broker" />
     <PackageReference Include="Microsoft.Identity.Client.Extensions.Msal" />
+    <PackageReference Include="Microsoft.VisualStudioEng.MicroBuild.Core" PrivateAssets="All" />
   </ItemGroup>
 
   <ItemGroup>

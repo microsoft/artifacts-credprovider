@@ -45,7 +45,7 @@ steps:
   inputs:
     solution: 'MicrosoftCredentialProvider.sln'
     configuration: '$(BuildConfiguration)'
-    msbuildArguments: '/t:rebuild /p:TreatWarningsAsErrors=true /p:SignType=$(SignType)'
+    msbuildArguments: '/t:rebuild /p:TreatWarningsAsErrors=true'
 
 - ${{ if eq(parameters.sign, 'true') }}:
   - task: MSBuild@1
