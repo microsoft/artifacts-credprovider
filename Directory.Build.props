@@ -1,0 +1,17 @@
+<Project>
+
+  <PropertyGroup>
+    <ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
+
+    <!-- Required for reference trimmer -->
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <NoWarn>$(NoWarn);CS1574;CS1591</NoWarn>
+  </PropertyGroup>
+
+  <PropertyGroup Condition=" '$(SignType)' != '' ">
+    <SignAssembly>true</SignAssembly>
+    <DelaySign>true</DelaySign>
+    <AssemblyOriginatorKeyFile>$(MSBuildThisFileDirectory)keys\FinalPublicKey.snk</AssemblyOriginatorKeyFile>
+  </PropertyGroup>
+
+</Project>
