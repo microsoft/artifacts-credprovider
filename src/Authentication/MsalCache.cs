@@ -23,12 +23,12 @@ public static class MsalCache
             if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
             {
                 // The shared MSAL cache is located at "%LocalAppData%\.IdentityService\msal.cache" on Windows.
-                return Path.Combine(LocalAppDataLocation, ".IdentityService");
+                return Path.Combine(LocalAppDataLocation, ".IdentityService", "msal.cache");
             }
             else
             {
                 // The shared MSAL cache metadata is located at "~/.local/.IdentityService/msal.cache" on UNIX.
-                return Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), ".local", ".IdentityService");
+                return Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), ".local", ".IdentityService", "msal.cache");
             }
         }
     }
@@ -39,7 +39,8 @@ public static class MsalCache
 
         logger.LogTrace(Resources.MsalCacheLocation, cacheLocation);
 
-        const string cacheFileName = "msal.cache";
+        var fileName = Path.GetFileName(cacheLocation);
+        var directory = Path.GetDirectoryName(cacheLocation);
 
         // Copied from GCM https://github.com/GitCredentialManager/git-credential-manager/blob/bdc20d91d325d66647f2837ffb4e2b2fe98d7e70/src/shared/Core/Authentication/MicrosoftAuthentication.cs#L371-L407
         try
@@ -74,7 +75,7 @@ public static class MsalCache
 
         StorageCreationProperties CreateTokenCacheProperties(bool useLinuxFallback)
         {
-            var builder = new StorageCreationPropertiesBuilder(cacheFileName, cacheLocation)
+            var builder = new StorageCreationPropertiesBuilder(fileName, cacheLocation)
                 .WithMacKeyChain("Microsoft.Developer.IdentityService", "MSALCache");
 
             if (useLinuxFallback)
@@ -84,7 +85,7 @@ public static class MsalCache
             else
             {
                 // The SecretService/keyring is used on Linux with the following collection name and attributes
-                builder.WithLinuxKeyring(cacheFileName,
+                builder.WithLinuxKeyring(fileName,
                     "default", "MSALCache",
                     new KeyValuePair<string, string>("MsalClientID", "Microsoft.Developer.IdentityService"),
                     new KeyValuePair<string, string>("Microsoft.Developer.IdentityService", "1.0.0.0"));
