@@ -75,7 +75,7 @@ public static class MsalCache
 
         StorageCreationProperties CreateTokenCacheProperties(bool useLinuxFallback)
         {
-            var builder = new StorageCreationPropertiesBuilder(fileName, cacheLocation)
+            var builder = new StorageCreationPropertiesBuilder(fileName, directory)
                 .WithMacKeyChain("Microsoft.Developer.IdentityService", "MSALCache");
 
             if (useLinuxFallback)
