@@ -228,13 +228,12 @@ steps:
     displayName: dotnet push
     condition: eq(variables['PushNupkg'], 'true')
 
-- task: ManifestGeneratorTask@0
-  displayName: 'SBOM Generator'
-  inputs:
-    BuildDropPath: '$(Build.ArtifactStagingDirectory)\$(BuildConfiguration)\'
-    Verbosity: Verbose
+  - task: ManifestGeneratorTask@0
+    displayName: 'SBOM Generator'
+    inputs:
+      BuildDropPath: '$(Build.ArtifactStagingDirectory)\$(BuildConfiguration)\'
+      Verbosity: Verbose
 
-- ${{ if eq(parameters.publish, 'true') }}:
   - task: PublishBuildArtifacts@1
     displayName: Publish Artifact $(Build.BuildNumber)
     inputs:
