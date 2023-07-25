@@ -23,4 +23,12 @@
     </EmbeddedResource>
   </ItemGroup>
 
+  <!--
+      Support for command line evaluation of properties
+      https://github.com/dotnet/msbuild/issues/3911#issuecomment-1478468822
+  -->
+  <Target Name="PrintVersion">
+    <Message Text="$(MSBuildProjectName):$(Version)$(VersionSuffix)" Importance="High" />
+  </Target>
+
 </Project>
