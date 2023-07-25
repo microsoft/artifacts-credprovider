@@ -23,7 +23,7 @@ dotnet pack CredentialProvider.Microsoft --configuration Release
 For CI builds, you can append a pre-release version:
 
 ```shell
-dotnet pack CredentialProvider.Microsoft --configuration Release /p:NuspecProperties=VersionSuffix=-MyCustomVersion-2
+dotnet pack CredentialProvider.Microsoft --configuration Release /p:NuspecProperties=VersionSuffix=MyCustomVersion-2
 ```
 
 ### Versioning

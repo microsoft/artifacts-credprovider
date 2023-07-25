@@ -15,4 +15,4 @@ variables:
 steps:
 - template: build/build.yml
   parameters:
-    nuspecProperties: 'VersionSuffix=-CI-$(Build.BuildNumber)'
+    nuspecProperties: 'VersionSuffix=CI-$(Build.BuildNumber)'
