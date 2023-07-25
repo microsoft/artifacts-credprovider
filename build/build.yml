@@ -1,5 +1,6 @@
 parameters:
   sign: false
+  publish: true
   nuspecProperties: ''
 
 steps:
@@ -209,11 +210,12 @@ steps:
       ARTIFACTSERVICES_SYMBOL_ACCOUNTNAME: 'microsoft'
       ARTIFACTSERVICES_SYMBOL_USEAAD: 'false'
 
-- task: PublishPipelineArtifact@1
-  displayName: 'Upload symbols'
-  inputs:
-    artifact: "Symbols"
-    targetPath: '$(Build.ArtifactStagingDirectory)\symbols'
+- ${{ if eq(parameters.publish, 'true') }}:
+  - task: PublishPipelineArtifact@1
+    displayName: 'Upload symbols'
+    inputs:
+      artifact: "Symbols"
+      targetPath: '$(Build.ArtifactStagingDirectory)\symbols'
 
 - powershell: 'Write-Output ("##vso[task.setvariable variable=SignType;]")'
   displayName: Clear SignType
@@ -221,18 +223,19 @@ steps:
 - script: dotnet pack MicrosoftCredentialProvider.sln -c $(BuildConfiguration) -o $(Build.ArtifactStagingDirectory)\$(BuildConfiguration) -p:${{ parameters.nuspecProperties }}
   displayName: dotnet pack
 
-- script: dotnet nuget push $(Build.ArtifactStagingDirectory)\$(BuildConfiguration)\*.nupkg --source artifacts-credprovider --api-key az --skip-duplicate
-  displayName: dotnet push
-  condition: eq(variables['PushNupkg'], 'true')
+- ${{ if eq(parameters.publish, 'true') }}:
+  - script: dotnet nuget push $(Build.ArtifactStagingDirectory)\$(BuildConfiguration)\*.nupkg --source artifacts-credprovider --api-key az --skip-duplicate
+    displayName: dotnet push
+    condition: eq(variables['PushNupkg'], 'true')
 
-- task: ManifestGeneratorTask@0
-  displayName: 'SBOM Generator'
-  inputs:
-    BuildDropPath: '$(Build.ArtifactStagingDirectory)\$(BuildConfiguration)\'
-    Verbosity: Verbose
+  - task: ManifestGeneratorTask@0
+    displayName: 'SBOM Generator'
+    inputs:
+      BuildDropPath: '$(Build.ArtifactStagingDirectory)\$(BuildConfiguration)\'
+      Verbosity: Verbose
 
-- task: PublishBuildArtifacts@1
-  displayName: Publish Artifact $(Build.BuildNumber)
-  inputs:
-    PathtoPublish: '$(Build.ArtifactStagingDirectory)\$(BuildConfiguration)\'
-    ArtifactName: '$(Build.BuildNumber)'
+  - task: PublishBuildArtifacts@1
+    displayName: Publish Artifact $(Build.BuildNumber)
+    inputs:
+      PathtoPublish: '$(Build.ArtifactStagingDirectory)\$(BuildConfiguration)\'
+      ArtifactName: '$(Build.BuildNumber)'
