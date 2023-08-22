@@ -137,6 +137,9 @@ The Credential Provider will save session tokens in the following locations:
 -   Windows: `$env:UserProfile\AppData\Local\MicrosoftCredentialProvider`
 -   Linux/MAC: `$HOME/.local/share/MicrosoftCredentialProvider/`
 
+On Linux or Mac, the tokens are additionally saved to the Keyring/Keychain under the collection name `Microsoft.Developer.IdentityService`.
+
+
 ## Environment Variables
 
 The Credential Provider accepts a set of environment variables. Not all of them we recommend using in production, but these two are considered safe.
