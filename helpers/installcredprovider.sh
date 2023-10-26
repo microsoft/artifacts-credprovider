@@ -16,14 +16,12 @@ if [ -z ${USE_NET6_ARTIFACTS_CREDENTIAL_PROVIDER} ] || [ ${USE_NET6_ARTIFACTS_CR
   FILE="Microsoft.Net6.NuGet.CredentialProvider.tar.gz"
 
   # throw if version starts with 0. (net6 not supported)
-  if [ ! -z ${AZURE_ARTIFACTS_CREDENTIAL_PROVIDER_VERSION} ]; then 
-    case ${AZURE_ARTIFACTS_CREDENTIAL_PROVIDER_VERSION} in 
-      0.*|v0.*)
-        echo "ERROR: To install NET6 cred provider using the USE_NET6_ARTIFACTS_CREDENTIAL_PROVIDER variable, version to be installed must be 1.0.0. or greater. Check your AZURE_ARTIFACTS_CREDENTIAL_PROVIDER_VERSION variable."
-        exit 1
-        ;;
-    esac
-  fi
+  case ${AZURE_ARTIFACTS_CREDENTIAL_PROVIDER_VERSION} in 
+    0.*|v0.*)
+      echo "ERROR: To install NET6 cred provider using the USE_NET6_ARTIFACTS_CREDENTIAL_PROVIDER variable, version to be installed must be 1.0.0. or greater. Check your AZURE_ARTIFACTS_CREDENTIAL_PROVIDER_VERSION variable."
+      exit 1
+      ;;
+  esac
 else
   FILE="Microsoft.NuGet.CredentialProvider.tar.gz"
 fi
