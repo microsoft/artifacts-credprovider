@@ -12,20 +12,22 @@ REPO="Microsoft/artifacts-credprovider"
 NUGET_PLUGIN_DIR="$HOME/.nuget/plugins"
 
 # determine whether we install default or Net6
-if [[ -z ${USE_NET6_ARTIFACTS_CREDENTIAL_PROVIDER} ]] || [[ ${USE_NET6_ARTIFACTS_CREDENTIAL_PROVIDER} != "false" ]]; then
+if [ -z ${USE_NET6_ARTIFACTS_CREDENTIAL_PROVIDER} ] || [ ${USE_NET6_ARTIFACTS_CREDENTIAL_PROVIDER} != "false" ]; then
   FILE="Microsoft.Net6.NuGet.CredentialProvider.tar.gz"
 
   # throw if version starts with 0. (net6 not supported)
-  if [[ ! -z ${AZURE_ARTIFACTS_CREDENTIAL_PROVIDER_VERSION} ]] && [[ ${AZURE_ARTIFACTS_CREDENTIAL_PROVIDER_VERSION} == 0.* ]] || [[ ${AZURE_ARTIFACTS_CREDENTIAL_PROVIDER_VERSION} == v0.* ]]; then
-    echo "ERROR: To install NET6 cred provider using the USE_NET6_ARTIFACTS_CREDENTIAL_PROVIDER variable, version to be installed must be 1.0.0. or greater. Check your AZURE_ARTIFACTS_CREDENTIAL_PROVIDER_VERSION variable."
-    exit 1
-  fi
+  case ${AZURE_ARTIFACTS_CREDENTIAL_PROVIDER_VERSION} in 
+    0.*|v0.*)
+      echo "ERROR: To install NET6 cred provider using the USE_NET6_ARTIFACTS_CREDENTIAL_PROVIDER variable, version to be installed must be 1.0.0. or greater. Check your AZURE_ARTIFACTS_CREDENTIAL_PROVIDER_VERSION variable."
+      exit 1
+      ;;
+  esac
 else
   FILE="Microsoft.NuGet.CredentialProvider.tar.gz"
 fi
 
 # If AZURE_ARTIFACTS_CREDENTIAL_PROVIDER_VERSION is set, install the version specified, otherwise install latest
-if [[ ! -z ${AZURE_ARTIFACTS_CREDENTIAL_PROVIDER_VERSION} ]] && [[ ${AZURE_ARTIFACTS_CREDENTIAL_PROVIDER_VERSION} != "latest" ]]; then
+if [ ! -z ${AZURE_ARTIFACTS_CREDENTIAL_PROVIDER_VERSION} ] && [ ${AZURE_ARTIFACTS_CREDENTIAL_PROVIDER_VERSION} != "latest" ]; then
   # browser_download_url from https://api.github.com/repos/Microsoft/artifacts-credprovider/releases/latest
   URI="https://github.com/$REPO/releases/download/${AZURE_ARTIFACTS_CREDENTIAL_PROVIDER_VERSION}/$FILE"
 else
