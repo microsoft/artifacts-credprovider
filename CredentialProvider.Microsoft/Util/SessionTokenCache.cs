@@ -221,12 +221,12 @@ namespace NuGetCredentialProvider.Util
 
         private byte[] ReadFileBytes()
         {
-            return EncryptedFile.ReadFileBytes(cacheFilePath, readUnencrypted: true);
+            return EncryptedFileWithPermissions.ReadFileBytes(cacheFilePath, readUnencrypted: true);
         }
 
         private void WriteFileBytes(byte[] bytes)
         {
-            EncryptedFile.WriteFileBytes(cacheFilePath, bytes, writeUnencrypted: true);
+            EncryptedFileWithPermissions.WriteFileBytes(cacheFilePath, bytes, writeUnencrypted: true);
         }
     }
 }
