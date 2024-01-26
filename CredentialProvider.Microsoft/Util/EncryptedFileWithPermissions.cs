@@ -78,7 +78,8 @@ namespace NuGetCredentialProvider.Util
 
         // <summary>
         /// Based on https://stackoverflow.com/questions/45132081/file-permissions-on-linux-unix-with-net-core and on 
-        /// https://github.com/NuGet/NuGet.Client/commit/d62db666c710bf95121fe8f5c6a6cbe01985456f
+        /// https://github.com/NuGet/NuGet.Client/commit/d62db666c710bf95121fe8f5c6a6cbe01985456f and 
+        /// https://github.com/AzureAD/microsoft-authentication-library-for-dotnet/blob/b299b2581da87af50fde751e689f1bd4114516ce/src/client/Microsoft.Identity.Client.Extensions.Msal/Accessors/FileWithPermissions.cs
         /// </summary>
         private static void WriteToNewFileWithOwnerRWPermissions(string path, byte[] bytes)
         {
@@ -116,10 +117,8 @@ namespace NuGetCredentialProvider.Util
             }
 
             var safeFileHandle = new SafeFileHandle((IntPtr)fileDescriptor, ownsHandle: true);
-            using (var fileStream = new FileStream(safeFileHandle, FileAccess.ReadWrite))
-            {
-                fileStream.Write(bytes, 0, bytes.Length);
-            }
+            using var fileStream = new FileStream(safeFileHandle, FileAccess.ReadWrite);
+            fileStream.Write(bytes, 0, bytes.Length);
         }
 
 #pragma warning disable CA1416 // Validate platform compatibility
