@@ -226,7 +226,14 @@ namespace NuGetCredentialProvider.Util
 
         private void WriteFileBytes(byte[] bytes)
         {
-            EncryptedFileWithPermissions.WriteFileBytes(cacheFilePath, bytes, writeUnencrypted: true);
+            try
+            {
+                EncryptedFileWithPermissions.WriteFileBytes(cacheFilePath, bytes, writeUnencrypted: true);
+            } 
+            catch(Exception e)
+            {
+                logger.Verbose(string.Format(Resources.SessionTokenCacheWriteFail, e.GetType(), e.Message));
+            }
         }
     }
 }

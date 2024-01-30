@@ -467,4 +467,7 @@ Provide MSAL Cache Location
   <data name="ExternalUri" xml:space="preserve">
     <value>{0} is not an Azure Artifacts feed.</value>
   </data>
+  <data name="SessionTokenCacheWriteFail" xml:space="preserve">
+    <value>Unable to write token to credential cache. Exception: {0}, Message: {1}</value>
+  </data>
 </root>
