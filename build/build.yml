@@ -63,12 +63,10 @@ steps:
       configuration: '$(BuildConfiguration)'
       msbuildArguments: '/p:OutputPath=$(Build.ArtifactStagingDirectory)\$(BuildConfiguration)\vsix\ /p:TreatWarningsAsErrors=true'
 
-  - task: ms-vseng.MicroBuildTasks.4305a8de-ba66-4d8b-b2d1-0dc4ecbbf5e8.MicroBuildUploadVstsDropFolder@2
-    displayName: Upload VSTS Drop
-    inputs:
-      DropFolder: '$(Build.ArtifactStagingDirectory)\$(BuildConfiguration)\vsix\'
-      DropRetentionDays: 365
-      AccessToken: $(DevDivDropManageAccessToken)
+  - output: microBuildVstsDrop
+    dropFolder: '$(Build.ArtifactStagingDirectory)\$(BuildConfiguration)\vsix\'
+    dropRetentionDays: 365
+    accessToken: $(DevDivDropManageAccessToken)
 
 - ${{ if ne(parameters.sign, 'true') }}:
   - script: dotnet test MicrosoftCredentialProvider.sln --logger trx --results-directory $(Agent.TempDirectory)
