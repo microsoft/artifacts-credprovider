@@ -136,7 +136,7 @@ namespace NuGetCredentialProvider.CredentialProviders.Vsts
                 try
                 {
                     var result = await tokenProvider.GetTokenAsync(tokenRequest, cancellationToken);
-                    bearerToken = result.AccessToken;
+                    bearerToken = result?.AccessToken;
                 }
                 catch (Exception ex)
                 {
