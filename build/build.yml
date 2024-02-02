@@ -203,13 +203,6 @@ steps:
       ARTIFACTSERVICES_SYMBOL_ACCOUNTNAME: 'microsoft'
       ARTIFACTSERVICES_SYMBOL_USEAAD: 'false'
 
-- ${{ if eq(parameters.publish, 'true') }}:
-  - task: PublishPipelineArtifact@1
-    displayName: 'Upload symbols'
-    inputs:
-      artifact: "Symbols"
-      targetPath: '$(Build.ArtifactStagingDirectory)\symbols'
-
 - powershell: 'Write-Output ("##vso[task.setvariable variable=SignType;]")'
   displayName: Clear SignType
 
