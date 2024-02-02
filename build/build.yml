@@ -63,11 +63,6 @@ steps:
       configuration: '$(BuildConfiguration)'
       msbuildArguments: '/p:OutputPath=$(Build.ArtifactStagingDirectory)\$(BuildConfiguration)\vsix\ /p:TreatWarningsAsErrors=true'
 
-  - output: microBuildVstsDrop
-    dropFolder: '$(Build.ArtifactStagingDirectory)\$(BuildConfiguration)\vsix\'
-    dropRetentionDays: 365
-    accessToken: $(DevDivDropManageAccessToken)
-
 - ${{ if ne(parameters.sign, 'true') }}:
   - script: dotnet test MicrosoftCredentialProvider.sln --logger trx --results-directory $(Agent.TempDirectory)
     displayName: dotnet test
