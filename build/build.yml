@@ -219,9 +219,3 @@ steps:
     inputs:
       BuildDropPath: '$(Build.ArtifactStagingDirectory)\$(BuildConfiguration)\'
       Verbosity: Verbose
-
-  - task: PublishBuildArtifacts@1
-    displayName: Publish Artifact $(Build.BuildNumber)
-    inputs:
-      PathtoPublish: '$(Build.ArtifactStagingDirectory)\$(BuildConfiguration)\'
-      ArtifactName: '$(Build.BuildNumber)'
