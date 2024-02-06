@@ -43,18 +43,13 @@ namespace NuGetCredentialProvider.Util
                                 // We couldn't get the mutex on our first acquisition attempt. Log this so the user knows what we're
                                 // waiting on.
                                 logger.Verbose(Resources.SessionTokenCacheMutexMiss);
-
-                                int index = WaitHandle.WaitAny(new WaitHandle[] { mutex, this.cancellationToken.WaitHandle }, -1);
-
-                                if (index == 1)
+                                while (!mutex.WaitOne(100))
                                 {
-                                    logger.Verbose(Resources.CancelMessage);
-                                    return new Dictionary<string, string>();
-                                }
-                                else if (index == WaitHandle.WaitTimeout)
-                                {
-                                    logger.Verbose(Resources.SessionTokenCacheMutexFail);
-                                    return new Dictionary<string, string>();
+                                    if (this.cancellationToken.IsCancellationRequested)
+                                    {
+                                        logger.Verbose(Resources.SessionTokenCacheCancelMessage);
+                                        return new Dictionary<string, string>();
+                                    }
                                 }
                             }
                         }
@@ -95,16 +90,13 @@ namespace NuGetCredentialProvider.Util
                                 // We couldn't get the mutex on our first acquisition attempt. Log this so the user knows what we're
                                 // waiting on.
                                 logger.Verbose(Resources.SessionTokenCacheMutexMiss);
-
-                                int index = WaitHandle.WaitAny(new WaitHandle[] { mutex, this.cancellationToken.WaitHandle }, -1);
-
-                                if (index == 1)
+                                while (!mutex.WaitOne(100))
                                 {
-                                    logger.Verbose(Resources.CancelMessage);
-                                }
-                                else if (index == WaitHandle.WaitTimeout)
-                                {
-                                    logger.Verbose(Resources.SessionTokenCacheMutexFail);
+                                    if (this.cancellationToken.IsCancellationRequested)
+                                    {
+                                        logger.Verbose(Resources.SessionTokenCacheCancelMessage);
+                                        return;
+                                    }
                                 }
                             }
                         }
@@ -170,16 +162,13 @@ namespace NuGetCredentialProvider.Util
                             // We couldn't get the mutex on our first acquisition attempt. Log this so the user knows what we're
                             // waiting on.
                             logger.Verbose(Resources.SessionTokenCacheMutexMiss);
-
-                            int index = WaitHandle.WaitAny(new WaitHandle[] { mutex, this.cancellationToken.WaitHandle }, -1);
-
-                            if (index == 1)
+                            while (!mutex.WaitOne(100))
                             {
-                                logger.Verbose(Resources.CancelMessage);
-                            }
-                            else if (index == WaitHandle.WaitTimeout)
-                            {
-                                logger.Verbose(Resources.SessionTokenCacheMutexFail);
+                                if (this.cancellationToken.IsCancellationRequested)
+                                {
+                                    logger.Verbose(Resources.SessionTokenCacheCancelMessage);
+                                    return;
+                                }
                             }
                         }
                     }
