@@ -470,4 +470,7 @@ Provide MSAL Cache Location
   <data name="SessionTokenCacheWriteFail" xml:space="preserve">
     <value>Unable to write token to credential cache. Exception: {0}, Message: {1}</value>
   </data>
+  <data name="SessionTokenCacheCancelMessage" xml:space="preserve">
+    <value>Canceling SessionToken cache operation.</value>
+  </data>
 </root>

@@ -66,7 +66,7 @@ namespace NuGetCredentialProvider
             {
                 IRequestHandlers requestHandlers = new RequestHandlerCollection
                 {
-                    { MessageMethod.GetAuthenticationCredentials, new GetAuthenticationCredentialsRequestHandler(multiLogger, credentialProviders) },
+                    { MessageMethod.GetAuthenticationCredentials, new GetAuthenticationCredentialsRequestHandler(multiLogger, credentialProviders, tokenSource.Token) },
                     { MessageMethod.GetOperationClaims, new GetOperationClaimsRequestHandler(multiLogger, credentialProviders) },
                     { MessageMethod.Initialize, new InitializeRequestHandler(multiLogger) },
                     { MessageMethod.SetLogLevel, new SetLogLevelRequestHandler(multiLogger) },
