@@ -27,6 +27,8 @@ Install [Visual Studio version 15.9-preview1 or later](https://visualstudio.micr
 
 The default installation requires [dotnet SDK](https://www.microsoft.com/net/download) version `6.0.x`.
 
+While the NuGet credential provider requires the dotnet runtime, the pip [artifacts-keyring](https://github.com/microsoft/artifacts-keyring) requires the dotnet SDK.
+
 ## Setup
 
 If you are using `dotnet` or `nuget`, you can use the Azure Artifact Credential Provider by adding it to [NuGet's plugin search path](https://github.com/NuGet/Home/wiki/NuGet-cross-plat-authentication-plugin#plugin-installation-and-discovery). This section contains both manual and scripted instructions for doing so.
