@@ -35,10 +35,10 @@ namespace NuGetCredentialProvider.RequestHandlers
             this.cache = cache;
         }
 
-        public GetAuthenticationCredentialsRequestHandler(ILogger logger, IReadOnlyCollection<ICredentialProvider> credentialProviders)
+        public GetAuthenticationCredentialsRequestHandler(ILogger logger, IReadOnlyCollection<ICredentialProvider> credentialProviders, CancellationToken cancellationToken)
             : this(logger, credentialProviders, null)
         {
-            this.cache = GetSessionTokenCache(logger, CancellationToken);
+            this.cache = GetSessionTokenCache(logger, cancellationToken);
         }
 
         public override async Task<GetAuthenticationCredentialsResponse> HandleRequestAsync(GetAuthenticationCredentialsRequest request)
