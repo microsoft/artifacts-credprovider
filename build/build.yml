@@ -23,17 +23,6 @@ steps:
   displayName: NuGet Authenticate
 
 - ${{ if eq(parameters.sign, 'true') }}:
-  - task: ms-vseng.MicroBuildTasks.30666190-6959-11e5-9f96-f56098202fef.MicroBuildSigningPlugin@4
-    displayName: Install Signing Plugin
-    inputs:
-      signType: '$(SignType)'
-      feedSource: 'https://pkgs.dev.azure.com/mseng/_packaging/MicroBuildToolset/nuget/v3/index.json'
-
-  - task: ms-vseng.MicroBuildTasks.32f78468-e895-4f47-962c-58a699361df8.MicroBuildSwixPlugin@4
-    displayName: Install Swix Plugin
-    inputs:
-      feedSource: 'https://pkgs.dev.azure.com/mseng/_packaging/MicroBuildToolset/nuget/v3/index.json'
-
   - script: nuget restore packages.config -PackagesDirectory packages
     displayName: NuGet restore
     workingDirectory: CredentialProvider.Microsoft.VSIX
@@ -206,16 +195,10 @@ steps:
 - powershell: 'Write-Output ("##vso[task.setvariable variable=SignType;]")'
   displayName: Clear SignType
 
-- script: dotnet pack MicrosoftCredentialProvider.sln -c $(BuildConfiguration) -o $(Build.ArtifactStagingDirectory)\$(BuildConfiguration) -p:${{ parameters.nuspecProperties }}
+- script: dotnet pack MicrosoftCredentialProvider.sln -c $(BuildConfiguration) -o $(Build.ArtifactStagingDirectory)\$(BuildConfiguration) -p:${{ parameters.nuspecProperties }} --version-suffix beta
   displayName: dotnet pack
 
 - ${{ if eq(parameters.publish, 'true') }}:
   - script: dotnet nuget push $(Build.ArtifactStagingDirectory)\$(BuildConfiguration)\*.nupkg --source artifacts-credprovider --api-key az --skip-duplicate
     displayName: dotnet push
     condition: eq(variables['PushNupkg'], 'true')
-
-  - task: ManifestGeneratorTask@0
-    displayName: 'SBOM Generator'
-    inputs:
-      BuildDropPath: '$(Build.ArtifactStagingDirectory)\$(BuildConfiguration)\'
-      Verbosity: Verbose
