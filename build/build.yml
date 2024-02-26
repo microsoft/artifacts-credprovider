@@ -213,5 +213,6 @@ steps:
   - task: PublishPipelineArtifact@1
     displayName: Publish Artifact $(Build.BuildNumber)
     inputs:
-      PathtoPublish: '$(Build.ArtifactStagingDirectory)\$(BuildConfiguration)\'
-      ArtifactName: '$(Build.BuildNumber)'
+      artifact: '$(Build.BuildNumber)'
+      targetPath: '$(Build.ArtifactStagingDirectory)\$(BuildConfiguration)\'
+
