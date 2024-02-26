@@ -209,3 +209,9 @@ steps:
   - script: dotnet nuget push $(Build.ArtifactStagingDirectory)\$(BuildConfiguration)\*.nupkg --source artifacts-credprovider --api-key az --skip-duplicate
     displayName: dotnet push
     condition: eq(variables['PushNupkg'], 'true')
+
+  - task: PublishPipelineArtifact@1
+    displayName: Publish Artifact $(Build.BuildNumber)
+    inputs:
+      PathtoPublish: '$(Build.ArtifactStagingDirectory)\$(BuildConfiguration)\'
+      ArtifactName: '$(Build.BuildNumber)'
