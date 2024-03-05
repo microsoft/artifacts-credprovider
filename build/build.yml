@@ -179,6 +179,15 @@ steps:
     TargetFolder: '$(Build.ArtifactStagingDirectory)\symbols'
 
 - ${{ if eq(parameters.sign, 'true') }}:
+  - task: AzureCLI@2
+    displayName: Retrieve token to upload symbols
+    inputs:
+      azureSubscription: 'AzureArtifacts'
+      scriptType: 'pscore'
+      scriptLocation: 'inlineScript'
+      inlineScript: |
+        $token = az account get-access-token --query accessToken --resource 499b84ac-1321-427f-aa17-267ca6975798 -o tsv
+        Write-Host "##vso[task.setvariable variable=ARTIFACTSERVICES_SYMBOL_PAT;issecret=true]$token"
   - task: PublishSymbols@2
     displayName: Publish symbols
     inputs:
@@ -189,8 +198,15 @@ steps:
       SymbolServerType: TeamServices
       SymbolsProduct: 'artifacts-credprovider'
     env:
-      ARTIFACTSERVICES_SYMBOL_ACCOUNTNAME: 'microsoft'
+      # temporarily set this to mseng for testing
+      ARTIFACTSERVICES_SYMBOL_ACCOUNTNAME: 'mseng'
       ARTIFACTSERVICES_SYMBOL_USEAAD: 'false'
+      # make this secret visible to this task only
+      ARTIFACTSERVICES_SYMBOL_PAT: $(ARTIFACTSERVICES_SYMBOL_PAT)
+  - powershell: |
+      Write-Host "##vso[task.setvariable variable=ARTIFACTSERVICES_SYMBOL_PAT;issecret=true]REMOVED"
+    condition: always()
+    displayName: Clear ARTIFACTSERVICES_SYMBOL_PAT
 
 - ${{ if eq(parameters.publish, 'true') }}:
   - task: PublishPipelineArtifact@1
