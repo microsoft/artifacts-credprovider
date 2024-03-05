@@ -182,7 +182,7 @@ steps:
   - task: AzureCLI@2
     displayName: Retrieve token to upload symbols
     inputs:
-      azureSubscription: 'AzureArtifacts'
+      azureSubscription: 'Azure-Artifacts-Build'
       scriptType: 'pscore'
       scriptLocation: 'inlineScript'
       inlineScript: |
