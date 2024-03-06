@@ -108,6 +108,10 @@ namespace NuGetCredentialProvider.CredentialProviders.VstsBuildTaskServiceEndpoi
             {
                 // Parse JSON from VSS_NUGET_EXTERNAL_FEED_ENDPOINTS
                 Verbose(Resources.ParsingJson);
+                if (!string.IsNullOrWhiteSpace(feedEndPointsJson) && feedEndPointsJson.Contains("':"))
+                {
+                    Warning(Resources.InvalidJsonWarning);
+                }
                 Dictionary<string, EndpointCredentials> credsResult = new Dictionary<string, EndpointCredentials>(StringComparer.OrdinalIgnoreCase);
                 EndpointCredentialsContainer endpointCredentials = JsonConvert.DeserializeObject<EndpointCredentialsContainer>(feedEndPointsJson);
                 if (endpointCredentials == null)
