@@ -474,6 +474,7 @@ Provide MSAL Cache Location
     <value>Canceling SessionToken cache operation.</value>
   </data>
   <data name="InvalidJsonWarning" xml:space="preserve">
-    <value>Detected invalid single quote charater in JSON input. Migrate to double quotes to avoid breaking in future versions.  See https://www.rfc-editor.org/rfc/rfc8259.html#section-7 for more information</value>
+    <value>Detected invalid single quote charater in JSON input. Migrate to double quotes to avoid breaking in future versions.  See https://www.rfc-editor.org/rfc/rfc8259.html#section-7 for more information.</value>
+
   </data>
 </root>
