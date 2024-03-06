@@ -4,10 +4,9 @@
 
 using System;
 using System.Collections.Generic;
-using System.Text.Json;
-using System.Text.Json.Serialization;
 using System.Threading;
 using System.Threading.Tasks;
+using Newtonsoft.Json;
 using NuGet.Protocol.Plugins;
 using NuGetCredentialProvider.Util;
 using ILogger = NuGetCredentialProvider.Logging.ILogger;
@@ -16,17 +15,17 @@ namespace NuGetCredentialProvider.CredentialProviders.VstsBuildTaskServiceEndpoi
 {
     public class EndpointCredentials
     {
-        [JsonPropertyName("endpoint")]
+        [JsonProperty("endpoint")]
         public string Endpoint { get; set; }
-        [JsonPropertyName("username")]
+        [JsonProperty("username")]
         public string Username { get; set; }
-        [JsonPropertyName("password")]
+        [JsonProperty("password")]
         public string Password { get; set; }
     }
 
     public class EndpointCredentialsContainer
     {
-        [JsonPropertyName("endpointCredentials")]
+        [JsonProperty("endpointCredentials")]
         public EndpointCredentials[] EndpointCredentials { get; set; }
     }
 
@@ -36,7 +35,7 @@ namespace NuGetCredentialProvider.CredentialProviders.VstsBuildTaskServiceEndpoi
 
         // Dictionary that maps an endpoint string to EndpointCredentials
         private Dictionary<string, EndpointCredentials> Credentials => LazyCredentials.Value;
-
+            
         public VstsBuildTaskServiceEndpointCredentialProvider(ILogger logger)
             : base(logger)
         {
@@ -110,7 +109,7 @@ namespace NuGetCredentialProvider.CredentialProviders.VstsBuildTaskServiceEndpoi
                 // Parse JSON from VSS_NUGET_EXTERNAL_FEED_ENDPOINTS
                 Verbose(Resources.ParsingJson);
                 Dictionary<string, EndpointCredentials> credsResult = new Dictionary<string, EndpointCredentials>(StringComparer.OrdinalIgnoreCase);
-                EndpointCredentialsContainer endpointCredentials = JsonSerializer.Deserialize<EndpointCredentialsContainer>(feedEndPointsJson);
+                EndpointCredentialsContainer endpointCredentials = JsonConvert.DeserializeObject<EndpointCredentialsContainer>(feedEndPointsJson);
                 if (endpointCredentials == null)
                 {
                     Verbose(Resources.NoEndpointsFound);
