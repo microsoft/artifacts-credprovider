@@ -177,6 +177,13 @@ steps:
       **\Microsoft.Artifacts.Authentication.dll
       **\Microsoft.Artifacts.Authentication.pdb
     TargetFolder: '$(Build.ArtifactStagingDirectory)\symbols'
+    
+- ${{ if eq(parameters.publish, 'true') }}:
+  - task: PublishPipelineArtifact@1
+    displayName: 'Upload symbols'
+    inputs:
+      artifact: "Symbols"
+      targetPath: '$(Build.ArtifactStagingDirectory)\symbols'
 
 - powershell: 'Write-Output ("##vso[task.setvariable variable=SignType;]")'
   displayName: Clear SignType
