@@ -1,6 +1,5 @@
 parameters:
   sign: false
-  publish: true
   nuspecProperties: ''
 
 steps:
@@ -178,41 +177,14 @@ steps:
       **\Microsoft.Artifacts.Authentication.pdb
     TargetFolder: '$(Build.ArtifactStagingDirectory)\symbols'
 
-- ${{ if eq(parameters.sign, 'true') }}:
-  - task: PublishSymbols@2
-    displayName: Publish symbols
-    inputs:
-      SymbolsFolder: '$(Build.ArtifactStagingDirectory)\symbols'
-      SearchPattern:  '**\*.pdb'
-      IndexSources: false
-      PublishSymbols: true
-      SymbolServerType: TeamServices
-      SymbolsProduct: 'artifacts-credprovider'
-    env:
-      ARTIFACTSERVICES_SYMBOL_ACCOUNTNAME: 'microsoft'
-      ARTIFACTSERVICES_SYMBOL_USEAAD: 'false'
-
-- ${{ if eq(parameters.publish, 'true') }}:
-  - task: PublishPipelineArtifact@1
-    displayName: 'Upload symbols'
-    inputs:
-      artifact: "Symbols"
-      targetPath: '$(Build.ArtifactStagingDirectory)\symbols'
-
 - powershell: 'Write-Output ("##vso[task.setvariable variable=SignType;]")'
   displayName: Clear SignType
 
 - script: dotnet pack MicrosoftCredentialProvider.sln -c $(BuildConfiguration) -o $(Build.ArtifactStagingDirectory)\$(BuildConfiguration) -p:${{ parameters.nuspecProperties }}
   displayName: dotnet pack
 
-- ${{ if eq(parameters.publish, 'true') }}:
-  - script: dotnet nuget push $(Build.ArtifactStagingDirectory)\$(BuildConfiguration)\*.nupkg --source artifacts-credprovider --api-key az --skip-duplicate
-    displayName: dotnet push
-    condition: eq(variables['PushNupkg'], 'true')
-
-  - task: PublishPipelineArtifact@1
-    displayName: Publish Artifact $(Build.BuildNumber)
-    inputs:
-      artifact: '$(Build.BuildNumber)'
-      targetPath: '$(Build.ArtifactStagingDirectory)\$(BuildConfiguration)\'
-
+- task: PublishPipelineArtifact@1
+  displayName: Publish Artifact $(Build.BuildNumber)
+  inputs:
+    artifact: '$(Build.BuildNumber)'
+    targetPath: '$(Build.ArtifactStagingDirectory)\$(BuildConfiguration)\'
