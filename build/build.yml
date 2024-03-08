@@ -177,7 +177,7 @@ steps:
       **\Microsoft.Artifacts.Authentication.dll
       **\Microsoft.Artifacts.Authentication.pdb
     TargetFolder: '$(Build.ArtifactStagingDirectory)\symbols'
-    
+
 - ${{ if eq(parameters.publish, 'true') }}:
   - task: PublishPipelineArtifact@1
     displayName: 'Upload symbols'
@@ -192,7 +192,7 @@ steps:
   displayName: dotnet pack
 
  - task: PublishPipelineArtifact@1
-    displayName: Publish Artifact $(Build.BuildNumber)
-    inputs:
-      artifact: '$(Build.BuildNumber)'
-      targetPath: '$(Build.ArtifactStagingDirectory)\$(BuildConfiguration)\'
+  displayName: Publish Artifact $(Build.BuildNumber)
+  inputs:
+    artifact: '$(Build.BuildNumber)'
+    targetPath: '$(Build.ArtifactStagingDirectory)\$(BuildConfiguration)\'
