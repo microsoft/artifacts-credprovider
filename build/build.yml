@@ -183,8 +183,9 @@ steps:
 - script: dotnet pack MicrosoftCredentialProvider.sln -c $(BuildConfiguration) -o $(Build.ArtifactStagingDirectory)\$(BuildConfiguration) -p:${{ parameters.nuspecProperties }}
   displayName: dotnet pack
 
-- task: PublishPipelineArtifact@1
-  displayName: Publish Artifact $(Build.BuildNumber)
-  inputs:
-    artifact: '$(Build.BuildNumber)'
-    targetPath: '$(Build.ArtifactStagingDirectory)\$(BuildConfiguration)\'
+- ${{ if eq(parameters.publish, 'true') }}:
+  - task: PublishPipelineArtifact@1
+    displayName: Publish Artifact $(Build.BuildNumber)
+    inputs:
+      artifact: '$(Build.BuildNumber)'
+      targetPath: '$(Build.ArtifactStagingDirectory)\$(BuildConfiguration)\'
