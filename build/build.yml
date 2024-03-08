@@ -1,6 +1,5 @@
 parameters:
   sign: false
-  publish: true
   nuspecProperties: ''
 
 steps:
