@@ -1,6 +1,5 @@
 parameters:
   sign: false
-  publish: true
   nuspecProperties: ''
 
 steps:
@@ -23,17 +22,6 @@ steps:
   displayName: NuGet Authenticate
 
 - ${{ if eq(parameters.sign, 'true') }}:
-  - task: ms-vseng.MicroBuildTasks.30666190-6959-11e5-9f96-f56098202fef.MicroBuildSigningPlugin@4
-    displayName: Install Signing Plugin
-    inputs:
-      signType: '$(SignType)'
-      feedSource: 'https://pkgs.dev.azure.com/mseng/_packaging/MicroBuildToolset/nuget/v3/index.json'
-
-  - task: ms-vseng.MicroBuildTasks.32f78468-e895-4f47-962c-58a699361df8.MicroBuildSwixPlugin@4
-    displayName: Install Swix Plugin
-    inputs:
-      feedSource: 'https://pkgs.dev.azure.com/mseng/_packaging/MicroBuildToolset/nuget/v3/index.json'
-
   - script: nuget restore packages.config -PackagesDirectory packages
     displayName: NuGet restore
     workingDirectory: CredentialProvider.Microsoft.VSIX
@@ -62,13 +50,6 @@ steps:
       solution: 'CredentialProvider.Microsoft.VSIX/Microsoft.CredentialProvider.vsmanproj'
       configuration: '$(BuildConfiguration)'
       msbuildArguments: '/p:OutputPath=$(Build.ArtifactStagingDirectory)\$(BuildConfiguration)\vsix\ /p:TreatWarningsAsErrors=true'
-
-  - task: ms-vseng.MicroBuildTasks.4305a8de-ba66-4d8b-b2d1-0dc4ecbbf5e8.MicroBuildUploadVstsDropFolder@2
-    displayName: Upload VSTS Drop
-    inputs:
-      DropFolder: '$(Build.ArtifactStagingDirectory)\$(BuildConfiguration)\vsix\'
-      DropRetentionDays: 365
-      AccessToken: $(DevDivDropManageAccessToken)
 
 - ${{ if ne(parameters.sign, 'true') }}:
   - script: dotnet test MicrosoftCredentialProvider.sln --logger trx --results-directory $(Agent.TempDirectory)
@@ -196,27 +177,6 @@ steps:
       **\Microsoft.Artifacts.Authentication.pdb
     TargetFolder: '$(Build.ArtifactStagingDirectory)\symbols'
 
-- ${{ if eq(parameters.sign, 'true') }}:
-  - task: PublishSymbols@2
-    displayName: Publish symbols
-    inputs:
-      SymbolsFolder: '$(Build.ArtifactStagingDirectory)\symbols'
-      SearchPattern:  '**\*.pdb'
-      IndexSources: false
-      PublishSymbols: true
-      SymbolServerType: TeamServices
-      SymbolsProduct: 'artifacts-credprovider'
-    env:
-      ARTIFACTSERVICES_SYMBOL_ACCOUNTNAME: 'microsoft'
-      ARTIFACTSERVICES_SYMBOL_USEAAD: 'false'
-
-- ${{ if eq(parameters.publish, 'true') }}:
-  - task: PublishPipelineArtifact@1
-    displayName: 'Upload symbols'
-    inputs:
-      artifact: "Symbols"
-      targetPath: '$(Build.ArtifactStagingDirectory)\symbols'
-
 - powershell: 'Write-Output ("##vso[task.setvariable variable=SignType;]")'
   displayName: Clear SignType
 
@@ -224,18 +184,8 @@ steps:
   displayName: dotnet pack
 
 - ${{ if eq(parameters.publish, 'true') }}:
-  - script: dotnet nuget push $(Build.ArtifactStagingDirectory)\$(BuildConfiguration)\*.nupkg --source artifacts-credprovider --api-key az --skip-duplicate
-    displayName: dotnet push
-    condition: eq(variables['PushNupkg'], 'true')
-
-  - task: ManifestGeneratorTask@0
-    displayName: 'SBOM Generator'
-    inputs:
-      BuildDropPath: '$(Build.ArtifactStagingDirectory)\$(BuildConfiguration)\'
-      Verbosity: Verbose
-
-  - task: PublishBuildArtifacts@1
+  - task: PublishPipelineArtifact@1
     displayName: Publish Artifact $(Build.BuildNumber)
     inputs:
-      PathtoPublish: '$(Build.ArtifactStagingDirectory)\$(BuildConfiguration)\'
-      ArtifactName: '$(Build.BuildNumber)'
+      artifact: '$(Build.BuildNumber)'
+      targetPath: '$(Build.ArtifactStagingDirectory)\$(BuildConfiguration)\'

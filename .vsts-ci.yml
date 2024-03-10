@@ -9,7 +9,6 @@ trigger:
 
 variables:
   BuildConfiguration: 'Release'
-  PushNupkg: 'True'
   TeamName: 'Package Experience'
 
 steps:
