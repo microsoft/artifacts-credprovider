@@ -41,7 +41,7 @@ namespace NuGetCredentialProvider.CredentialProviders.Vsts
         {
             // If for any reason we reach this point and any of the three build task env vars are set,
             // we should not try get credentials with this cred provider.
-            string feedEndPointsJsonEnvVar = Environment.GetEnvironmentVariable(EnvUtil.BuildTaskExternalEndpoints);
+            string feedEndPointsJsonEnvVar = EnvUtil.GetFeedEndpointCredentials();
             string uriPrefixesStringEnvVar = Environment.GetEnvironmentVariable(EnvUtil.BuildTaskUriPrefixes);
             string accessTokenEnvVar = Environment.GetEnvironmentVariable(EnvUtil.BuildTaskAccessToken);
 
@@ -116,7 +116,8 @@ namespace NuGetCredentialProvider.CredentialProviders.Vsts
                     Logger.Minimal(string.Format(Resources.DeviceFlowMessage, deviceCodeResult.VerificationUrl, deviceCodeResult.UserCode));
 
                     return Task.CompletedTask;
-                }
+                },
+                ClientId = FeedEndpointCredentialsUtil.ParseJsonToDictionary(Logger)?[request.Uri.ToString()]?.ClientId,
             };
 
             // Try each bearer token provider (e.g. cache, WIA, UI, DeviceCode) in order.

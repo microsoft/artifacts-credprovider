@@ -21,6 +21,8 @@ namespace NuGetCredentialProvider.CredentialProviders.VstsBuildTaskServiceEndpoi
         public string Username { get; set; }
         [JsonProperty("password")]
         public string Password { get; set; }
+        [JsonProperty("azureClientId")]
+        public string ClientId { get; set; }
     }
 
     public class EndpointCredentialsContainer
@@ -41,7 +43,7 @@ namespace NuGetCredentialProvider.CredentialProviders.VstsBuildTaskServiceEndpoi
         {
             LazyCredentials = new Lazy<Dictionary<string, EndpointCredentials>>(() =>
             {
-                return ParseJsonToDictionary();
+                return FeedEndpointCredentialsUtil.ParseJsonToDictionary(logger);
             });
         }
 
@@ -51,7 +53,7 @@ namespace NuGetCredentialProvider.CredentialProviders.VstsBuildTaskServiceEndpoi
 
         public override Task<bool> CanProvideCredentialsAsync(Uri uri)
         {
-            string feedEndPointsJson = Environment.GetEnvironmentVariable(EnvUtil.BuildTaskExternalEndpoints);
+            string feedEndPointsJson = EnvUtil.GetFeedEndpointCredentials();
             if (string.IsNullOrWhiteSpace(feedEndPointsJson))
             {
                 Verbose(Resources.BuildTaskEndpointEnvVarError);
@@ -98,61 +100,6 @@ namespace NuGetCredentialProvider.CredentialProviders.VstsBuildTaskServiceEndpoi
                         "Basic"
                     },
                     responseCode: responseCode));
-        }
-
-        private Dictionary<string, EndpointCredentials> ParseJsonToDictionary()
-        {
-            string feedEndPointsJson = Environment.GetEnvironmentVariable(EnvUtil.BuildTaskExternalEndpoints);
-
-            try
-            {
-                // Parse JSON from VSS_NUGET_EXTERNAL_FEED_ENDPOINTS
-                Verbose(Resources.ParsingJson);
-                if (!string.IsNullOrWhiteSpace(feedEndPointsJson) && feedEndPointsJson.Contains("':"))
-                {
-                    Warning(Resources.InvalidJsonWarning);
-                }
-                Dictionary<string, EndpointCredentials> credsResult = new Dictionary<string, EndpointCredentials>(StringComparer.OrdinalIgnoreCase);
-                EndpointCredentialsContainer endpointCredentials = JsonConvert.DeserializeObject<EndpointCredentialsContainer>(feedEndPointsJson);
-                if (endpointCredentials == null)
-                {
-                    Verbose(Resources.NoEndpointsFound);
-                    return credsResult;
-                }
-
-                foreach (EndpointCredentials credentials in endpointCredentials.EndpointCredentials)
-                {
-                    if (credentials == null)
-                    {
-                        Verbose(Resources.EndpointParseFailure);
-                        break;
-                    }
-
-                    if (credentials.Username == null)
-                    {
-                        credentials.Username = "VssSessionToken";
-                    }
-
-                    if (!Uri.TryCreate(credentials.Endpoint, UriKind.Absolute, out var endpointUri))
-                    {
-                        Verbose(Resources.EndpointParseFailure);
-                        break;
-                    }
-
-                    var urlEncodedEndpoint = endpointUri.AbsoluteUri;
-                    if (!credsResult.ContainsKey(urlEncodedEndpoint))
-                    {
-                        credsResult.Add(urlEncodedEndpoint, credentials);
-                    }
-                }
-
-                return credsResult;
-            }
-            catch (Exception e)
-            {
-                Verbose(string.Format(Resources.VstsBuildTaskExternalCredentialCredentialProviderError, e));
-                throw;
-            }
         }
     }
 }

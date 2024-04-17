@@ -31,4 +31,6 @@ public class TokenRequest
     public TimeSpan InteractiveTimeout { get; set; } = TimeSpan.FromMinutes(2);
 
     public Func<DeviceCodeResult, Task>? DeviceCodeResultCallback { get; set; } = null;
+
+    public string? ClientId { get; set; } = null;
 }

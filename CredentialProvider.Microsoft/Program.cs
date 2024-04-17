@@ -88,7 +88,6 @@ namespace NuGetCredentialProvider
                             EnvUtil.TokenTypeEnvVar,
                             EnvUtil.BuildTaskUriPrefixes,
                             EnvUtil.BuildTaskAccessToken,
-                            EnvUtil.BuildTaskExternalEndpoints,
                             EnvUtil.DefaultMsalCacheLocation,
                             EnvUtil.SessionTokenCacheLocation,
                             EnvUtil.WindowsIntegratedAuthenticationEnvVar,

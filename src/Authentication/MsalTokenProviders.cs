@@ -19,6 +19,8 @@ public class MsalTokenProviders
             yield return new MsalIntegratedWindowsAuthTokenProvider(app, logger);
         }
 
+        yield return new MsalManagedIdentityTokenProvider(logger);
+
         yield return new MsalInteractiveTokenProvider(app, logger);
         yield return new MsalDeviceCodeTokenProvider(app, logger);
     }

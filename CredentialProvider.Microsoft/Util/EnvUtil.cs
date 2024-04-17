@@ -29,13 +29,15 @@ namespace NuGetCredentialProvider.Util
 
         public const string BuildTaskUriPrefixes = "VSS_NUGET_URI_PREFIXES";
         public const string BuildTaskAccessToken = "VSS_NUGET_ACCESSTOKEN";
-        public const string BuildTaskExternalEndpoints = "VSS_NUGET_EXTERNAL_FEED_ENDPOINTS";
 
         public const string MsalLoginHintEnvVar = "NUGET_CREDENTIALPROVIDER_MSAL_LOGIN_HINT";
         public const string MsalAuthorityEnvVar = "NUGET_CREDENTIALPROVIDER_MSAL_AUTHORITY";
         public const string MsalFileCacheEnvVar = "NUGET_CREDENTIALPROVIDER_MSAL_FILECACHE_ENABLED";
         public const string MsalFileCacheLocationEnvVar = "NUGET_CREDENTIALPROVIDER_MSAL_FILECACHE_LOCATION";
         public const string MsalAllowBrokerEnvVar = "NUGET_CREDENTIALPROVIDER_MSAL_ALLOW_BROKER";
+
+        public const string EndpointCredentials = "ARTIFACTS_CREDENTAILPROVIDER_FEED_ENDPOINTS";
+        public const string BuildTaskExternalEndpoints = "VSS_NUGET_EXTERNAL_FEED_ENDPOINTS";
 
         public static bool GetLogPIIEnabled()
         {
@@ -188,6 +190,12 @@ namespace NuGetCredentialProvider.Util
             }
 
             return defaultValue;
+        }
+
+        public static string GetFeedEndpointCredentials()
+        {
+            return Environment.GetEnvironmentVariable(EndpointCredentials)
+                ?? Environment.GetEnvironmentVariable(BuildTaskExternalEndpoints);
         }
     }
 }
