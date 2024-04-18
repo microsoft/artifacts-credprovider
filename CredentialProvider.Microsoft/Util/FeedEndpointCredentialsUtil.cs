@@ -11,12 +11,17 @@ public static class FeedEndpointCredentialsUtil
     public static Dictionary<string, EndpointCredentials> ParseJsonToDictionary(ILogger logger)
     {
         string feedEndPointsJson = EnvUtil.GetFeedEndpointCredentials();
+        if (string.IsNullOrWhiteSpace(feedEndPointsJson))
+        {
+            logger.Verbose(Resources.BuildTaskEndpointEnvVarError);
+            return null;
+        }
 
         try
         {
             // Parse JSON from VSS_NUGET_EXTERNAL_FEED_ENDPOINTS
             logger.Verbose(Resources.ParsingJson);
-            if (!string.IsNullOrWhiteSpace(feedEndPointsJson) && feedEndPointsJson.Contains("':"))
+            if (!feedEndPointsJson.Contains("':"))
             {
                 logger.Warning(Resources.InvalidJsonWarning);
             }

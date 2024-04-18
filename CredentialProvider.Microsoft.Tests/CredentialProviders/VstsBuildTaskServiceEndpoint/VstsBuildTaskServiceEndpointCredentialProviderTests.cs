@@ -39,6 +39,8 @@ namespace CredentialProvider.Microsoft.Tests.CredentialProviders.VstsBuildTaskSe
         [TestCleanup]
         public virtual void TestCleanup()
         {
+            Environment.SetEnvironmentVariable(EnvUtil.BuildTaskExternalEndpoints, null);
+            Environment.SetEnvironmentVariable(EnvUtil.EndpointCredentials, null);
             environmentLock?.Dispose();
         }
 
@@ -46,20 +48,23 @@ namespace CredentialProvider.Microsoft.Tests.CredentialProviders.VstsBuildTaskSe
         public async Task CanProvideCredentials_ReturnsFalseForWhenEnvVarIsNotSet()
         {
             Uri sourceUri = new Uri(@"http://example.pkgs.vsts.me/_packaging/TestFeed/nuget/v3/index.json");
-            string feedEndPointJsonEnvVar = EnvUtil.BuildTaskExternalEndpoints;
+            string feedEndPointJsonEnvVarold = EnvUtil.BuildTaskExternalEndpoints;
+            string feedEndPointJsonEnvVarnew = EnvUtil.EndpointCredentials;
 
             // Setting environment variable to null
-            Environment.SetEnvironmentVariable(feedEndPointJsonEnvVar, null);
+            Environment.SetEnvironmentVariable(feedEndPointJsonEnvVarold, null);
+            Environment.SetEnvironmentVariable(feedEndPointJsonEnvVarnew, null);
 
             var result = await vstsCredentialProvider.CanProvideCredentialsAsync(sourceUri);
             Assert.AreEqual(false, result);
         }
 
-        [TestMethod]
-        public async Task CanProvideCredentials_ReturnsTrueForCorrectEnvironmentVariable()
+        [DataTestMethod]
+        [DataRow(EnvUtil.BuildTaskExternalEndpoints)]
+        [DataRow(EnvUtil.EndpointCredentials)]
+        public async Task CanProvideCredentials_ReturnsTrueForCorrectEnvironmentVariable(string feedEndPointJsonEnvVar)
         {
             Uri sourceUri = new Uri(@"http://example.pkgs.vsts.me/_packaging/TestFeed/nuget/v3/index.json");
-            string feedEndPointJsonEnvVar = EnvUtil.BuildTaskExternalEndpoints;
             string feedEndPointJson = "{\"endpointCredentials\":[{\"endpoint\":\"http://example.pkgs.vsts.me/_packaging/TestFeed/nuget/v3/index.json\", \"username\": \"testUser\", \"password\":\"testToken\"}]}";
 
             Environment.SetEnvironmentVariable(feedEndPointJsonEnvVar, feedEndPointJson);
@@ -68,11 +73,12 @@ namespace CredentialProvider.Microsoft.Tests.CredentialProviders.VstsBuildTaskSe
             Assert.AreEqual(true, result);
         }
 
-        [TestMethod]
-        public async Task HandleRequestAsync_ReturnsSuccess()
+        [DataTestMethod]
+        [DataRow(EnvUtil.BuildTaskExternalEndpoints)]
+        [DataRow(EnvUtil.EndpointCredentials)]
+        public async Task HandleRequestAsync_ReturnsSuccess(string feedEndPointJsonEnvVar)
         {
             Uri sourceUri = new Uri(@"http://example.pkgs.vsts.me/_packaging/TestFeed/nuget/v3/index.json");
-            string feedEndPointJsonEnvVar = EnvUtil.BuildTaskExternalEndpoints;
             string feedEndPointJson = "{\"endpointCredentials\":[{\"endpoint\":\"http://example.pkgs.vsts.me/_packaging/TestFeed/nuget/v3/index.json\", \"username\": \"testUser\", \"password\":\"testToken\"}]}";
 
             Environment.SetEnvironmentVariable(feedEndPointJsonEnvVar, feedEndPointJson);
@@ -83,11 +89,12 @@ namespace CredentialProvider.Microsoft.Tests.CredentialProviders.VstsBuildTaskSe
             Assert.AreEqual(result.Password, "testToken");
         }
 
-        [TestMethod]
-        public async Task HandleRequestAsync_ReturnsSuccessWhenSingleQuotesInJson()
+        [DataTestMethod]
+        [DataRow(EnvUtil.BuildTaskExternalEndpoints)]
+        [DataRow(EnvUtil.EndpointCredentials)]
+        public async Task HandleRequestAsync_ReturnsSuccessWhenSingleQuotesInJson(string feedEndPointJsonEnvVar)
         {
             Uri sourceUri = new Uri(@"http://example.pkgs.vsts.me/_packaging/TestFeed/nuget/v3/index.json");
-            string feedEndPointJsonEnvVar = EnvUtil.BuildTaskExternalEndpoints;
             string feedEndPointJson = "{\'endpointCredentials\':[{\'endpoint\':\'http://example.pkgs.vsts.me/_packaging/TestFeed/nuget/v3/index.json\', \'username\': \'testUser\', \'password\':\'testToken\'}]}";
 
             Environment.SetEnvironmentVariable(feedEndPointJsonEnvVar, feedEndPointJson);
@@ -98,11 +105,12 @@ namespace CredentialProvider.Microsoft.Tests.CredentialProviders.VstsBuildTaskSe
             Assert.AreEqual(result.Password, "testToken");
         }
 
-        [TestMethod]
-        public async Task HandleRequestAsync_ReturnsSuccessWhenMultipleSourcesInJson()
+        [DataTestMethod]
+        [DataRow(EnvUtil.BuildTaskExternalEndpoints)]
+        [DataRow(EnvUtil.EndpointCredentials)]
+        public async Task HandleRequestAsync_ReturnsSuccessWhenMultipleSourcesInJson(string feedEndPointJsonEnvVar)
         {
             Uri sourceUri = new Uri(@"http://example3.pkgs.vsts.me/_packaging/TestFeed/nuget/v3/index.json");
-            string feedEndPointJsonEnvVar = EnvUtil.BuildTaskExternalEndpoints;
 
             string feedEndPointJson = "{\"endpointCredentials\":[" +
                 "{\"endpoint\":\"http://example1.pkgs.vsts.me/_packaging/TestFeed/nuget/v3/index.json\", \"username\": \"testUser1\", \"password\":\"testToken1\"}, " +
@@ -119,11 +127,12 @@ namespace CredentialProvider.Microsoft.Tests.CredentialProviders.VstsBuildTaskSe
             Assert.AreEqual(result.Password, "testToken3");
         }
 
-        [TestMethod]
-        public async Task HandleRequestAsync_ReturnsErrorWhenMatchingEndpointIsNotFound()
+        [DataTestMethod]
+        [DataRow(EnvUtil.BuildTaskExternalEndpoints)]
+        [DataRow(EnvUtil.EndpointCredentials)]
+        public async Task HandleRequestAsync_ReturnsErrorWhenMatchingEndpointIsNotFound(string feedEndPointJsonEnvVar)
         {
             Uri sourceUri = new Uri(@"http://exampleThatDoesNotMatch.pkgs.vsts.me/_packaging/TestFeed/nuget/v3/index.json");
-            string feedEndPointJsonEnvVar = EnvUtil.BuildTaskExternalEndpoints;
             string feedEndPointJson = "{\"endpointCredentials\":[{\"endpoint\":\"http://example.pkgs.vsts.me/_packaging/TestFeed/nuget/v3/index.json\", \"username\": \"testUser\", \"password\":\"testToken\"}]}";
 
             Environment.SetEnvironmentVariable(feedEndPointJsonEnvVar, feedEndPointJson);
@@ -132,11 +141,12 @@ namespace CredentialProvider.Microsoft.Tests.CredentialProviders.VstsBuildTaskSe
             Assert.AreEqual(result.ResponseCode, MessageResponseCode.Error);
         }
 
-        [TestMethod]
-        public void HandleRequestAsync_ThrowsWithInvalidJson()
+        [DataTestMethod]
+        [DataRow(EnvUtil.BuildTaskExternalEndpoints)]
+        [DataRow(EnvUtil.EndpointCredentials)]
+        public void HandleRequestAsync_ThrowsWithInvalidJson(string feedEndPointJsonEnvVar)
         {
             Uri sourceUri = new Uri(@"http://example.pkgs.vsts.me.pkgs.vsts.me/_packaging/TestFeed/nuget/v3/index.json");
-            string feedEndPointJsonEnvVar = EnvUtil.BuildTaskExternalEndpoints;
             string invalidFeedEndPointJson = "this is not json";
 
             Environment.SetEnvironmentVariable(feedEndPointJsonEnvVar, invalidFeedEndPointJson);
@@ -145,13 +155,14 @@ namespace CredentialProvider.Microsoft.Tests.CredentialProviders.VstsBuildTaskSe
             act.Should().Throw<Exception>();
         }
 
-        [TestMethod]
-        public async Task HandleRequestAsync_MatchesEndpointURLCaseInsensitive()
+        [DataTestMethod]
+        [DataRow(EnvUtil.BuildTaskExternalEndpoints)]
+        [DataRow(EnvUtil.EndpointCredentials)]
+        public async Task HandleRequestAsync_MatchesEndpointURLCaseInsensitive(string feedEndPointJsonEnvVar)
         {
             Uri sourceUri = new Uri(@"http://example.pkgs.vsts.me/_Packaging/TestFEED/nuget/v3/index.json");
 
             string feedEndPointJson = "{\"endpointCredentials\":[{\"endpoint\":\"http://example.pkgs.vsts.me/_packaging/TestFeed/nuget/v3/index.json\", \"username\": \"testUser\", \"password\":\"testToken\"}]}";
-            string feedEndPointJsonEnvVar = EnvUtil.BuildTaskExternalEndpoints;
 
             Environment.SetEnvironmentVariable(feedEndPointJsonEnvVar, feedEndPointJson);
 
@@ -162,13 +173,14 @@ namespace CredentialProvider.Microsoft.Tests.CredentialProviders.VstsBuildTaskSe
         }
 
 
-        [TestMethod]
-        public async Task HandleRequestAsync_MatchesEndpointURLWithSpaces()
+        [DataTestMethod]
+        [DataRow(EnvUtil.BuildTaskExternalEndpoints)]
+        [DataRow(EnvUtil.EndpointCredentials)]
+        public async Task HandleRequestAsync_MatchesEndpointURLWithSpaces(string feedEndPointJsonEnvVar)
         {
             Uri sourceUri = new Uri(@"http://example.pkgs.vsts.me/My Collection/_packaging/TestFeed/nuget/v3/index.json");
 
             string feedEndPointJson = "{\"endpointCredentials\":[{\"endpoint\":\"http://example.pkgs.vsts.me/My Collection/_packaging/TestFeed/nuget/v3/index.json\", \"username\": \"testUser\", \"password\":\"testToken\"}]}";
-            string feedEndPointJsonEnvVar = EnvUtil.BuildTaskExternalEndpoints;
 
             Environment.SetEnvironmentVariable(feedEndPointJsonEnvVar, feedEndPointJson);
 
