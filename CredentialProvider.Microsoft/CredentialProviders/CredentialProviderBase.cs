@@ -118,7 +118,7 @@ namespace NuGetCredentialProvider.CredentialProviders
                             Username,
                             sessionToken,
                             message: null,
-                            authenticationTypes: ["Basic"],
+                            authenticationTypes: new List<string> { "Basic" },
                             responseCode: MessageResponseCode.Success);
                     }
                 }

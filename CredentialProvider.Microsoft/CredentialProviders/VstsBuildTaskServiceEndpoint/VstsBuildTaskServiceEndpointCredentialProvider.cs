@@ -137,10 +137,10 @@ namespace NuGetCredentialProvider.CredentialProviders.VstsBuildTaskServiceEndpoi
                     username: username,
                     password: password,
                     message: message,
-                    authenticationTypes:
-                    [
+                    authenticationTypes: new List<string>
+                    {
                         "Basic"
-                    ],
+                    },
                     responseCode: responseCode));
         }
     }
