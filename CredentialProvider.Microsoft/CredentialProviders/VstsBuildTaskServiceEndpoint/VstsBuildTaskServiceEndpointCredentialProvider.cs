@@ -6,8 +6,10 @@ using System;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.Artifacts.Authentication;
 using Newtonsoft.Json;
 using NuGet.Protocol.Plugins;
+using NuGetCredentialProvider.CredentialProviders.Vsts;
 using NuGetCredentialProvider.Util;
 using ILogger = NuGetCredentialProvider.Logging.ILogger;
 
@@ -33,14 +35,22 @@ namespace NuGetCredentialProvider.CredentialProviders.VstsBuildTaskServiceEndpoi
 
     public sealed class VstsBuildTaskServiceEndpointCredentialProvider : CredentialProviderBase
     {
+        private IAuthUtil AuthUtil;
+        private ITokenProvidersFactory TokenProvidersFactory;
         private Lazy<Dictionary<string, EndpointCredentials>> LazyCredentials;
 
         // Dictionary that maps an endpoint string to EndpointCredentials
         private Dictionary<string, EndpointCredentials> Credentials => LazyCredentials.Value;
             
-        public VstsBuildTaskServiceEndpointCredentialProvider(ILogger logger)
-            : base(logger)
+        public VstsBuildTaskServiceEndpointCredentialProvider(
+            IAuthUtil authutil,
+            ITokenProvidersFactory tokenProvidersFactory,
+            IAzureDevOpsSessionTokenFromBearerTokenProvider VstsSessionTokenProvider,
+            ILogger logger)
+            : base(logger, VstsSessionTokenProvider)
         {
+            AuthUtil = authutil;
+            TokenProvidersFactory = tokenProvidersFactory;
             LazyCredentials = new Lazy<Dictionary<string, EndpointCredentials>>(() =>
             {
                 return FeedEndpointCredentialsUtil.ParseJsonToDictionary(logger);
@@ -63,7 +73,7 @@ namespace NuGetCredentialProvider.CredentialProviders.VstsBuildTaskServiceEndpoi
             return Task.FromResult(true);
         }
 
-        public override Task<GetAuthenticationCredentialsResponse> HandleRequestAsync(GetAuthenticationCredentialsRequest request, CancellationToken cancellationToken)
+        public override async Task<GetAuthenticationCredentialsResponse> HandleRequestAsync(GetAuthenticationCredentialsRequest request, CancellationToken cancellationToken)
         {
             cancellationToken.ThrowIfCancellationRequested();
 
@@ -71,18 +81,50 @@ namespace NuGetCredentialProvider.CredentialProviders.VstsBuildTaskServiceEndpoi
 
             string uriString = request.Uri.AbsoluteUri;
             bool endpointFound = Credentials.TryGetValue(uriString, out EndpointCredentials matchingEndpoint);
-            if (endpointFound)
+            if (!endpointFound)
+            {
+                Verbose(string.Format(Resources.BuildTaskEndpointNoMatchingUrl, uriString));
+                return await GetResponse(
+                    null,
+                    null,
+                    string.Format(Resources.BuildTaskFailedToAuthenticate, uriString),
+                    MessageResponseCode.Error);
+            }
+
+            if (!string.IsNullOrWhiteSpace(matchingEndpoint.Password))
             {
                 Verbose(string.Format(Resources.BuildTaskEndpointMatchingUrlFound, uriString));
-                return GetResponse(
+                return await GetResponse(
                     matchingEndpoint.Username,
                     matchingEndpoint.Password,
                     null,
                     MessageResponseCode.Success);
             }
 
+            if (!string.IsNullOrWhiteSpace(matchingEndpoint.ClientId))
+            {
+                Uri authority = await AuthUtil.GetAadAuthorityUriAsync(request.Uri, cancellationToken);
+                Verbose(string.Format(Resources.UsingAuthority, authority));
+
+                IEnumerable<ITokenProvider> tokenProviders = await TokenProvidersFactory.GetAsync(authority);
+                cancellationToken.ThrowIfCancellationRequested();
+
+                var tokenRequest = new TokenRequest(request.Uri)
+                {
+                    IsRetry = request.IsRetry,
+                    IsNonInteractive = true,
+                    CanShowDialog = false,
+                    IsWindowsIntegratedAuthEnabled = false,
+                    LoginHint = EnvUtil.GetMsalLoginHint(),
+                    InteractiveTimeout = TimeSpan.FromSeconds(EnvUtil.GetDeviceFlowTimeoutFromEnvironmentInSeconds(Logger)),
+                    ClientId = matchingEndpoint.ClientId,
+                };
+
+                return await GetVstsTokenAsync(request, tokenProviders, tokenRequest, cancellationToken);
+            }
+
             Verbose(string.Format(Resources.BuildTaskEndpointNoMatchingUrl, uriString));
-            return GetResponse(
+            return await GetResponse(
                 null,
                 null,
                 string.Format(Resources.BuildTaskFailedToAuthenticate, uriString),
@@ -95,10 +137,10 @@ namespace NuGetCredentialProvider.CredentialProviders.VstsBuildTaskServiceEndpoi
                     username: username,
                     password: password,
                     message: message,
-                    authenticationTypes: new List<string>
-                    {
+                    authenticationTypes:
+                    [
                         "Basic"
-                    },
+                    ],
                     responseCode: responseCode));
         }
     }

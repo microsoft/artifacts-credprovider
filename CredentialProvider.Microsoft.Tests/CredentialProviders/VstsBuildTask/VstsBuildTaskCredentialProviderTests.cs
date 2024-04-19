@@ -9,6 +9,7 @@ using CredentialProvider.Microsoft.Tests.CredentialProviders.Vsts;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using NuGet.Protocol.Plugins;
+using NuGetCredentialProvider.CredentialProviders.Vsts;
 using NuGetCredentialProvider.CredentialProviders.VstsBuildTask;
 using NuGetCredentialProvider.Logging;
 using NuGetCredentialProvider.Util;
@@ -29,8 +30,9 @@ namespace CredentialProvider.Microsoft.Tests.CredentialProviders.VstsBuildTask
         public void TestInitialize()
         {
             mockLogger = new Mock<ILogger>();
+            var sessionTokenProviderMock = new Mock<IAzureDevOpsSessionTokenFromBearerTokenProvider>();
 
-            vstsCredentialProvider = new VstsBuildTaskCredentialProvider(mockLogger.Object);
+            vstsCredentialProvider = new VstsBuildTaskCredentialProvider(mockLogger.Object, sessionTokenProviderMock.Object);
             environmentLock = EnvironmentLock.WaitAsync().Result;
             ResetEnvVars();
         }
