@@ -74,6 +74,11 @@ namespace NuGetCredentialProvider.CredentialProviders.VstsBuildTaskServiceEndpoi
             if (endpointFound)
             {
                 Verbose(string.Format(Resources.BuildTaskEndpointMatchingUrlFound, uriString));
+                if (string.IsNullOrWhiteSpace(matchingEndpoint.ClientId))
+                {
+                    Verbose("Client Id present. Skipping username and password endpoint authentication.");
+                }
+
                 return GetResponse(
                     matchingEndpoint.Username,
                     matchingEndpoint.Password,
