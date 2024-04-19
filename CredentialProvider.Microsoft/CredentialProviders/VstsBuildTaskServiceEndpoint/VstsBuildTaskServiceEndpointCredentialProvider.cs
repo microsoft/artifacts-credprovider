@@ -4,6 +4,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Artifacts.Authentication;
@@ -107,6 +108,7 @@ namespace NuGetCredentialProvider.CredentialProviders.VstsBuildTaskServiceEndpoi
                 Verbose(string.Format(Resources.UsingAuthority, authority));
 
                 IEnumerable<ITokenProvider> tokenProviders = await TokenProvidersFactory.GetAsync(authority);
+                tokenProviders.Where(x => x.Name == "MSAL Managed Identity");
                 cancellationToken.ThrowIfCancellationRequested();
 
                 var tokenRequest = new TokenRequest(request.Uri)
@@ -120,7 +122,43 @@ namespace NuGetCredentialProvider.CredentialProviders.VstsBuildTaskServiceEndpoi
                     ClientId = matchingEndpoint.ClientId,
                 };
 
-                return await GetVstsTokenAsync(request, tokenProviders, tokenRequest, cancellationToken);
+                foreach(var tokenProvider in tokenProviders)
+                {
+                    bool shouldRun = tokenProvider.CanGetToken(tokenRequest);
+                    if (!shouldRun)
+                    {
+                        Verbose(string.Format(Resources.NotRunningBearerTokenProvider, tokenProvider.Name));
+                        continue;
+                    }
+
+                    Verbose(string.Format(Resources.AttemptingToAcquireBearerTokenUsingProvider, tokenProvider.Name));
+
+                    string bearerToken;
+                    try
+                    {
+                        var result = await tokenProvider.GetTokenAsync(tokenRequest, cancellationToken);
+                        bearerToken = result?.AccessToken;
+                    }
+                    catch (Exception ex)
+                    {
+                        Verbose(string.Format(Resources.BearerTokenProviderException, tokenProvider.Name, ex));
+                        continue;
+                    }
+
+                    if (string.IsNullOrWhiteSpace(bearerToken))
+                    {
+                        Verbose(string.Format(Resources.BearerTokenProviderReturnedNull, tokenProvider.Name));
+                        continue;
+                    }
+
+                    Info(string.Format(Resources.AcquireBearerTokenSuccess, tokenProvider.Name));
+                    Info(Resources.ExchangingBearerTokenForSessionToken);
+                    return await GetResponse(
+                        matchingEndpoint.Username,
+                        bearerToken,
+                        null,
+                        MessageResponseCode.Success);
+                } 
             }
 
             Verbose(string.Format(Resources.BuildTaskEndpointNoMatchingUrl, uriString));
