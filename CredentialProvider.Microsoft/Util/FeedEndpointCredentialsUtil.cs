@@ -13,7 +13,7 @@ public static class FeedEndpointCredentialsUtil
         string feedEndPointsJson = EnvUtil.GetFeedEndpointCredentials();
         if (string.IsNullOrWhiteSpace(feedEndPointsJson))
         {
-            logger.Verbose(Resources.BuildTaskEndpointEnvVarError);
+            logger.Warning(Resources.InvalidJsonWarning);
             return null;
         }
 
