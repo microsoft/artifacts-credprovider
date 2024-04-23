@@ -28,8 +28,7 @@ public class MsalManagedIdentityTokenProvider : ITokenProvider
         {
             if (string.IsNullOrWhiteSpace(tokenRequest.ClientId))
             {
-                //TODO move to resource
-                logger.LogTrace("invalid client id");
+                logger.LogTrace(string.Format(Resources.MsalClientIdError, tokenRequest.ClientId));
                 return null;
             }
 
@@ -58,8 +57,6 @@ public class MsalManagedIdentityTokenProvider : ITokenProvider
 
     private ManagedIdentityId CreateManagedIdentityId(string clientId)
     {
-        // if valid guid assume user assigned client ide
-        // otherwise try system
         return Guid.TryParse(clientId, out var id)
             ? ManagedIdentityId.WithUserAssignedClientId(id.ToString())
             : ManagedIdentityId.SystemAssigned;

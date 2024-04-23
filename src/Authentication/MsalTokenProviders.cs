@@ -11,6 +11,8 @@ public class MsalTokenProviders
 {
     public static IEnumerable<ITokenProvider> Get(IPublicClientApplication app, ILogger logger)
     {
+        yield return new MsalManagedIdentityTokenProvider(app.AppConfig, logger);
+
         // TODO: Would be more useful if MsalSilentTokenProvider enumerated over each account from the outside
         yield return new MsalSilentTokenProvider(app, logger);
 
@@ -18,8 +20,6 @@ public class MsalTokenProviders
         {
             yield return new MsalIntegratedWindowsAuthTokenProvider(app, logger);
         }
-
-        yield return new MsalManagedIdentityTokenProvider(app.AppConfig, logger);
 
         yield return new MsalInteractiveTokenProvider(app, logger);
         yield return new MsalDeviceCodeTokenProvider(app, logger);

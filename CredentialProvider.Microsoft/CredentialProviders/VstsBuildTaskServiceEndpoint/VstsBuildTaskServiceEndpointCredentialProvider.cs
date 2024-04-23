@@ -94,7 +94,6 @@ namespace NuGetCredentialProvider.CredentialProviders.VstsBuildTaskServiceEndpoi
                 Verbose(string.Format(Resources.UsingAuthority, authority));
 
                 IEnumerable<ITokenProvider> tokenProviders = await TokenProvidersFactory.GetAsync(authority);
-                tokenProviders.Where(x => x.Name == "MSAL Managed Identity");
                 cancellationToken.ThrowIfCancellationRequested();
 
                 var tokenRequest = new TokenRequest(request.Uri)
@@ -108,7 +107,7 @@ namespace NuGetCredentialProvider.CredentialProviders.VstsBuildTaskServiceEndpoi
                     ClientId = matchingEndpoint.ClientId,
                 };
 
-                foreach(var tokenProvider in tokenProviders)
+                foreach(var tokenProvider in tokenProviders.Where(x => x.Name == "MSAL Managed Identity").ToList())
                 {
                     bool shouldRun = tokenProvider.CanGetToken(tokenRequest);
                     if (!shouldRun)
