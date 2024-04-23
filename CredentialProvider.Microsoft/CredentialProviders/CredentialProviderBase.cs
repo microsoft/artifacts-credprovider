@@ -3,12 +3,9 @@
 // Licensed under the MIT license.
 
 using System;
-using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
-using Microsoft.Artifacts.Authentication;
 using NuGet.Protocol.Plugins;
-using NuGetCredentialProvider.CredentialProviders.Vsts;
 using NuGetCredentialProvider.Logging;
 using NuGetCredentialProvider.Util;
 
@@ -33,11 +30,9 @@ namespace NuGetCredentialProvider.CredentialProviders
         /// Initializes a new instance of the <see cref="CredentialProviderBase"/> class.
         /// </summary>
         /// <param name="logger">A <see cref="ILogger"/> to use for logging.</param>
-        /// <param name="vstsSessionTokenProvider"> A <see cref="IAzureDevOpsSessionTokenFromBearerTokenProvider"/> to use to get the ado session token</param>
-        protected CredentialProviderBase(ILogger logger, IAzureDevOpsSessionTokenFromBearerTokenProvider vstsSessionTokenProvider)
+        protected CredentialProviderBase(ILogger logger)
         {
             Logger = logger;
-            VstsSessionTokenProvider = vstsSessionTokenProvider;
         }
 
         public virtual bool IsCachable { get { return true; } }
@@ -49,10 +44,6 @@ namespace NuGetCredentialProvider.CredentialProviders
         /// </summary>
         protected ILogger Logger { get; }
 
-        protected readonly IAzureDevOpsSessionTokenFromBearerTokenProvider VstsSessionTokenProvider;
-
-        private const string Username = "VssSessionToken";
-
         /// <inheritdoc cref="ICredentialProvider.CanProvideCredentialsAsync"/>
         public abstract Task<bool> CanProvideCredentialsAsync(Uri uri);
 
@@ -63,74 +54,6 @@ namespace NuGetCredentialProvider.CredentialProviders
 
         /// <inheritdoc cref="ICredentialProvider.HandleRequestAsync"/>
         public abstract Task<GetAuthenticationCredentialsResponse> HandleRequestAsync(GetAuthenticationCredentialsRequest request, CancellationToken cancellationToken);
-
-        protected async Task<GetAuthenticationCredentialsResponse> GetVstsTokenAsync(
-            GetAuthenticationCredentialsRequest request,
-            IEnumerable<ITokenProvider> tokenProviders,
-            TokenRequest tokenRequest,
-            CancellationToken cancellationToken)
-        {
-            // Try each bearer token provider (e.g. cache, WIA, UI, DeviceCode) in order.
-            // Only consider it successful if the bearer token can be exchanged for an Azure DevOps token.
-            foreach (ITokenProvider tokenProvider in tokenProviders)
-            {
-                bool shouldRun = tokenProvider.CanGetToken(tokenRequest);
-                if (!shouldRun)
-                {
-                    Verbose(string.Format(Resources.NotRunningBearerTokenProvider, tokenProvider.Name));
-                    continue;
-                }
-
-                Verbose(string.Format(Resources.AttemptingToAcquireBearerTokenUsingProvider, tokenProvider.Name));
-
-                string bearerToken;
-                try
-                {
-                    var result = await tokenProvider.GetTokenAsync(tokenRequest, cancellationToken);
-                    bearerToken = result?.AccessToken;
-                }
-                catch (Exception ex)
-                {
-                    Verbose(string.Format(Resources.BearerTokenProviderException, tokenProvider.Name, ex));
-                    continue;
-                }
-
-                if (string.IsNullOrWhiteSpace(bearerToken))
-                {
-                    Verbose(string.Format(Resources.BearerTokenProviderReturnedNull, tokenProvider.Name));
-                    continue;
-                }
-
-                Info(string.Format(Resources.AcquireBearerTokenSuccess, tokenProvider.Name));
-                Info(Resources.ExchangingBearerTokenForSessionToken);
-                try
-                {
-                    string sessionToken = await VstsSessionTokenProvider.GetAzureDevOpsSessionTokenFromBearerToken(
-                        request,
-                        bearerToken,
-                        tokenProvider.IsInteractive,
-                        cancellationToken);
-
-                    if (!string.IsNullOrWhiteSpace(sessionToken))
-                    {
-                        Verbose(string.Format(Resources.VSTSSessionTokenCreated, tokenRequest.Uri.AbsoluteUri));
-                        return new GetAuthenticationCredentialsResponse(
-                            Username,
-                            sessionToken,
-                            message: null,
-                            authenticationTypes: new List<string> { "Basic" },
-                            responseCode: MessageResponseCode.Success);
-                    }
-                }
-                catch (Exception e)
-                {
-                    Verbose(string.Format(Resources.VSTSCreateSessionException, tokenRequest.Uri.AbsoluteUri, e.Message, e.StackTrace));
-                }
-            }
-
-            Verbose(string.Format(Resources.VSTSCredentialsNotFound, tokenRequest.Uri.AbsoluteUri));
-            return null;
-        }
 
         protected void Error(string message)
         {

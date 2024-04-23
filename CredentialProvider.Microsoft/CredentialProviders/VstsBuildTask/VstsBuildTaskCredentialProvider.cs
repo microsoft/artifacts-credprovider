@@ -8,7 +8,6 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using NuGet.Protocol.Plugins;
-using NuGetCredentialProvider.CredentialProviders.Vsts;
 using NuGetCredentialProvider.Logging;
 using NuGetCredentialProvider.Util;
 using ILogger = NuGetCredentialProvider.Logging.ILogger;
@@ -19,8 +18,8 @@ namespace NuGetCredentialProvider.CredentialProviders.VstsBuildTask
     {
         private const string Username = "VssSessionToken";
 
-        public VstsBuildTaskCredentialProvider(ILogger logger, IAzureDevOpsSessionTokenFromBearerTokenProvider sessionTokenProvider)
-            : base(logger, sessionTokenProvider)
+        public VstsBuildTaskCredentialProvider(ILogger logger)
+            : base(logger)
         {
         }
 

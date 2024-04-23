@@ -36,26 +36,22 @@ namespace NuGetCredentialProvider.CredentialProviders.VstsBuildTaskServiceEndpoi
 
     public sealed class VstsBuildTaskServiceEndpointCredentialProvider : CredentialProviderBase
     {
-        private IAuthUtil AuthUtil;
-        private ITokenProvidersFactory TokenProvidersFactory;
         private Lazy<Dictionary<string, EndpointCredentials>> LazyCredentials;
+        private ITokenProvidersFactory TokenProvidersFactory;
+        private IAuthUtil AuthUtil;
 
         // Dictionary that maps an endpoint string to EndpointCredentials
         private Dictionary<string, EndpointCredentials> Credentials => LazyCredentials.Value;
             
-        public VstsBuildTaskServiceEndpointCredentialProvider(
-            IAuthUtil authutil,
-            ITokenProvidersFactory tokenProvidersFactory,
-            IAzureDevOpsSessionTokenFromBearerTokenProvider VstsSessionTokenProvider,
-            ILogger logger)
-            : base(logger, VstsSessionTokenProvider)
+        public VstsBuildTaskServiceEndpointCredentialProvider(ILogger logger, ITokenProvidersFactory tokenProvidersFactory, IAuthUtil authUtil)
+            : base(logger)
         {
-            AuthUtil = authutil;
             TokenProvidersFactory = tokenProvidersFactory;
             LazyCredentials = new Lazy<Dictionary<string, EndpointCredentials>>(() =>
             {
                 return FeedEndpointCredentialsUtil.ParseJsonToDictionary(logger);
             });
+            AuthUtil = authUtil;
         }
 
         public override bool IsCachable { get { return false; } }
@@ -82,27 +78,17 @@ namespace NuGetCredentialProvider.CredentialProviders.VstsBuildTaskServiceEndpoi
 
             string uriString = request.Uri.AbsoluteUri;
             bool endpointFound = Credentials.TryGetValue(uriString, out EndpointCredentials matchingEndpoint);
-            if (!endpointFound)
-            {
-                Verbose(string.Format(Resources.BuildTaskEndpointNoMatchingUrl, uriString));
-                return await GetResponse(
-                    null,
-                    null,
-                    string.Format(Resources.BuildTaskFailedToAuthenticate, uriString),
-                    MessageResponseCode.Error);
-            }
-
-            if (!string.IsNullOrWhiteSpace(matchingEndpoint.Password))
+            if (endpointFound && !string.IsNullOrWhiteSpace(matchingEndpoint.Password))
             {
                 Verbose(string.Format(Resources.BuildTaskEndpointMatchingUrlFound, uriString));
-                return await GetResponse(
+                return GetResponse(
                     matchingEndpoint.Username,
                     matchingEndpoint.Password,
                     null,
                     MessageResponseCode.Success);
             }
 
-            if (!string.IsNullOrWhiteSpace(matchingEndpoint.ClientId))
+            if (endpointFound && !string.IsNullOrWhiteSpace(matchingEndpoint.ClientId))
             {
                 Uri authority = await AuthUtil.GetAadAuthorityUriAsync(request.Uri, cancellationToken);
                 Verbose(string.Format(Resources.UsingAuthority, authority));
@@ -153,7 +139,7 @@ namespace NuGetCredentialProvider.CredentialProviders.VstsBuildTaskServiceEndpoi
 
                     Info(string.Format(Resources.AcquireBearerTokenSuccess, tokenProvider.Name));
                     Info(Resources.ExchangingBearerTokenForSessionToken);
-                    return await GetResponse(
+                    return GetResponse(
                         matchingEndpoint.Username,
                         bearerToken,
                         null,
@@ -162,16 +148,16 @@ namespace NuGetCredentialProvider.CredentialProviders.VstsBuildTaskServiceEndpoi
             }
 
             Verbose(string.Format(Resources.BuildTaskEndpointNoMatchingUrl, uriString));
-            return await GetResponse(
+            return GetResponse(
                 null,
                 null,
                 string.Format(Resources.BuildTaskFailedToAuthenticate, uriString),
                 MessageResponseCode.Error);
         }
 
-        private Task<GetAuthenticationCredentialsResponse> GetResponse(string username, string password, string message, MessageResponseCode responseCode)
+        private GetAuthenticationCredentialsResponse GetResponse(string username, string password, string message, MessageResponseCode responseCode)
         {
-            return Task.FromResult(new GetAuthenticationCredentialsResponse(
+            return new GetAuthenticationCredentialsResponse(
                     username: username,
                     password: password,
                     message: message,
@@ -179,7 +165,7 @@ namespace NuGetCredentialProvider.CredentialProviders.VstsBuildTaskServiceEndpoi
                     {
                         "Basic"
                     },
-                    responseCode: responseCode));
+                    responseCode: responseCode);
         }
     }
 }

@@ -17,18 +17,22 @@ namespace NuGetCredentialProvider.CredentialProviders.Vsts
 {
     public sealed class VstsCredentialProvider : CredentialProviderBase
     {
+        private const string Username = "VssSessionToken";
+
         private readonly IAuthUtil authUtil;
         private readonly ITokenProvidersFactory tokenProvidersFactory;
+        private readonly IAzureDevOpsSessionTokenFromBearerTokenProvider vstsSessionTokenProvider;
 
         public VstsCredentialProvider(
             ILogger logger,
             IAuthUtil authUtil,
             ITokenProvidersFactory tokenProvidersFactory,
             IAzureDevOpsSessionTokenFromBearerTokenProvider vstsSessionTokenProvider)
-            : base(logger, vstsSessionTokenProvider)
+            : base(logger)
         {
             this.authUtil = authUtil;
             this.tokenProvidersFactory = tokenProvidersFactory;
+            this.vstsSessionTokenProvider = vstsSessionTokenProvider;
         }
 
         protected override string LoggingName => nameof(VstsCredentialProvider);
@@ -115,7 +119,62 @@ namespace NuGetCredentialProvider.CredentialProviders.Vsts
                 },
             };
 
-            return await GetVstsTokenAsync(request, tokenProviders, tokenRequest, cancellationToken);
+            // Try each bearer token provider (e.g. cache, WIA, UI, DeviceCode) in order.
+            // Only consider it successful if the bearer token can be exchanged for an Azure DevOps token.
+            foreach (ITokenProvider tokenProvider in tokenProviders)
+            {
+                bool shouldRun = tokenProvider.CanGetToken(tokenRequest);
+                if (!shouldRun)
+                {
+                    Verbose(string.Format(Resources.NotRunningBearerTokenProvider, tokenProvider.Name));
+                    continue;
+                }
+
+                Verbose(string.Format(Resources.AttemptingToAcquireBearerTokenUsingProvider, tokenProvider.Name));
+
+                string bearerToken = null;
+                try
+                {
+                    var result = await tokenProvider.GetTokenAsync(tokenRequest, cancellationToken);
+                    bearerToken = result?.AccessToken;
+                }
+                catch (Exception ex)
+                {
+                    Verbose(string.Format(Resources.BearerTokenProviderException, tokenProvider.Name, ex));
+                    continue;
+                }
+
+                if (string.IsNullOrWhiteSpace(bearerToken))
+                {
+                    Verbose(string.Format(Resources.BearerTokenProviderReturnedNull, tokenProvider.Name));
+                    continue;
+                }
+
+                Info(string.Format(Resources.AcquireBearerTokenSuccess, tokenProvider.Name));
+                Info(Resources.ExchangingBearerTokenForSessionToken);
+                try
+                {
+                    string sessionToken = await vstsSessionTokenProvider.GetAzureDevOpsSessionTokenFromBearerToken(request, bearerToken, tokenProvider.IsInteractive, cancellationToken);
+
+                    if (!string.IsNullOrWhiteSpace(sessionToken))
+                    {
+                        Verbose(string.Format(Resources.VSTSSessionTokenCreated, request.Uri.AbsoluteUri));
+                        return new GetAuthenticationCredentialsResponse(
+                            Username,
+                            sessionToken,
+                            message: null,
+                            authenticationTypes: new List<string>() { "Basic" },
+                            responseCode: MessageResponseCode.Success);
+                    }
+                }
+                catch (Exception e)
+                {
+                    Verbose(string.Format(Resources.VSTSCreateSessionException, request.Uri.AbsoluteUri, e.Message, e.StackTrace));
+                }
+            }
+
+            Verbose(string.Format(Resources.VSTSCredentialsNotFound, request.Uri.AbsoluteUri));
+            return null;
         }
     }
 }

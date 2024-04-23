@@ -34,13 +34,11 @@ public class VstsBuildTaskServiceEndpointCredentialProviderTests
         mockLogger = new Mock<ILogger>();
         var mockAuthUtil = new Mock<IAuthUtil>();
         var mockTokenProviderFactory = new Mock<ITokenProvidersFactory>();
-        var mockVstsSessionTokenProvider = new Mock<IAzureDevOpsSessionTokenFromBearerTokenProvider>();
 
         vstsCredentialProvider = new VstsBuildTaskServiceEndpointCredentialProvider(
-            mockAuthUtil.Object,
+            mockLogger.Object,
             mockTokenProviderFactory.Object,
-            mockVstsSessionTokenProvider.Object,
-            mockLogger.Object);
+            mockAuthUtil.Object);
         environmentLock = EnvironmentLock.WaitAsync().Result;
     }
 
