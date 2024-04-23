@@ -138,7 +138,6 @@ namespace NuGetCredentialProvider.CredentialProviders.VstsBuildTaskServiceEndpoi
                     }
 
                     Info(string.Format(Resources.AcquireBearerTokenSuccess, tokenProvider.Name));
-                    Info(Resources.ExchangingBearerTokenForSessionToken);
                     return GetResponse(
                         matchingEndpoint.Username,
                         bearerToken,
