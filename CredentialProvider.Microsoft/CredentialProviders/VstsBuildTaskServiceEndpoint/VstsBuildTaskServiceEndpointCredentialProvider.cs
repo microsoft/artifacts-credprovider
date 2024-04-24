@@ -5,6 +5,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Cryptography.X509Certificates;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Artifacts.Authentication;
@@ -26,6 +27,8 @@ namespace NuGetCredentialProvider.CredentialProviders.VstsBuildTaskServiceEndpoi
         public string Password { get; set; }
         [JsonProperty("azureClientId")]
         public string ClientId { get; set; }
+        [JsonProperty("azureClientCertificateThumbprint")]
+        public string ClientCertificateThumbprint { get; set; }
     }
 
     public class EndpointCredentialsContainer
@@ -94,6 +97,7 @@ namespace NuGetCredentialProvider.CredentialProviders.VstsBuildTaskServiceEndpoi
                 Verbose(string.Format(Resources.UsingAuthority, authority));
 
                 IEnumerable<ITokenProvider> tokenProviders = await TokenProvidersFactory.GetAsync(authority);
+                tokenProviders = tokenProviders.Where(x => x.Name == "MSAL Managed Identity" || x.Name == "MSAL Service Principal").ToList();
                 cancellationToken.ThrowIfCancellationRequested();
 
                 var tokenRequest = new TokenRequest(request.Uri)
@@ -105,9 +109,10 @@ namespace NuGetCredentialProvider.CredentialProviders.VstsBuildTaskServiceEndpoi
                     LoginHint = EnvUtil.GetMsalLoginHint(),
                     InteractiveTimeout = TimeSpan.FromSeconds(EnvUtil.GetDeviceFlowTimeoutFromEnvironmentInSeconds(Logger)),
                     ClientId = matchingEndpoint.ClientId,
+                    ClientCertificate = GetCertificate(matchingEndpoint.ClientCertificateThumbprint),
                 };
 
-                foreach(var tokenProvider in tokenProviders.Where(x => x.Name == "MSAL Managed Identity").ToList())
+                foreach(var tokenProvider in tokenProviders)
                 {
                     bool shouldRun = tokenProvider.CanGetToken(tokenRequest);
                     if (!shouldRun)
@@ -164,6 +169,28 @@ namespace NuGetCredentialProvider.CredentialProviders.VstsBuildTaskServiceEndpoi
                         "Basic"
                     },
                     responseCode: responseCode);
+        }
+
+        private X509Certificate2 GetCertificate(string thumbprint)
+        {
+            var store = new X509Store(StoreName.My, StoreLocation.LocalMachine);
+            try
+            {
+                store.Open(OpenFlags.ReadOnly);
+                var cert = store.Certificates.Find(X509FindType.FindByThumbprint, thumbprint, true);
+
+                if (cert.Count > 0)
+                {
+                    return cert[0];
+                }
+
+                Logger.Info($"Certificate with thumbprint {thumbprint} not found");
+                return null;
+            }
+            finally
+            {
+                store.Close();
+            }
         }
     }
 }
