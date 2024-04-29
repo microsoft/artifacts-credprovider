@@ -41,11 +41,15 @@ namespace NuGetCredentialProvider.CredentialProviders.Vsts
         {
             // If for any reason we reach this point and any of the three build task env vars are set,
             // we should not try get credentials with this cred provider.
-            string feedEndPointsJsonEnvVar = EnvUtil.GetFeedEndpointCredentials();
+            string feedEndPointsJsonEnvVar = Environment.GetEnvironmentVariable(EnvUtil.EndpointCredentials);
+            string externalFeedEndPointsJsonEnvVar = Environment.GetEnvironmentVariable(EnvUtil.BuildTaskExternalEndpoints);
             string uriPrefixesStringEnvVar = Environment.GetEnvironmentVariable(EnvUtil.BuildTaskUriPrefixes);
             string accessTokenEnvVar = Environment.GetEnvironmentVariable(EnvUtil.BuildTaskAccessToken);
 
-            if (string.IsNullOrWhiteSpace(feedEndPointsJsonEnvVar) == false || string.IsNullOrWhiteSpace(uriPrefixesStringEnvVar) == false || string.IsNullOrWhiteSpace(accessTokenEnvVar) == false)
+            if (string.IsNullOrWhiteSpace(feedEndPointsJsonEnvVar) == false 
+                || string.IsNullOrWhiteSpace(externalFeedEndPointsJsonEnvVar) == false 
+                || string.IsNullOrWhiteSpace(uriPrefixesStringEnvVar) == false
+                || string.IsNullOrWhiteSpace(accessTokenEnvVar) == false)
             {
                 Verbose(Resources.BuildTaskCredProviderIsUsedError);
                 return false;

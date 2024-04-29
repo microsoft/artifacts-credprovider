@@ -191,11 +191,5 @@ namespace NuGetCredentialProvider.Util
 
             return defaultValue;
         }
-
-        public static string GetFeedEndpointCredentials()
-        {
-            return Environment.GetEnvironmentVariable(EndpointCredentials)
-                ?? Environment.GetEnvironmentVariable(BuildTaskExternalEndpoints);
-        }
     }
 }

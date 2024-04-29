@@ -7,7 +7,6 @@ using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using CredentialProvider.Microsoft.Tests.CredentialProviders.Vsts;
-using FluentAssertions;
 using Microsoft.Artifacts.Authentication;
 using Microsoft.Identity.Client;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -29,7 +28,7 @@ public class VstsBuildTaskServiceEndpointCredentialProviderTests
     private Mock<ITokenProvidersFactory> mockTokenProviderFactory;
 
     private VstsBuildTaskServiceEndpointCredentialProvider vstsCredentialProvider;
-    
+
     private IDisposable environmentLock;
 
     [TestInitialize]
@@ -83,12 +82,11 @@ public class VstsBuildTaskServiceEndpointCredentialProviderTests
         Assert.AreEqual(true, result);
     }
 
-    [DataTestMethod]
-    [DataRow(EnvUtil.BuildTaskExternalEndpoints)]
-    [DataRow(EnvUtil.EndpointCredentials)]
-    public async Task HandleRequestAsync_ReturnsSuccess(string feedEndPointJsonEnvVar)
+    [TestMethod]
+    public async Task HandleRequestAsync_ExternalEndpoint_ReturnsSuccess()
     {
         Uri sourceUri = new Uri(@"http://example.pkgs.vsts.me/_packaging/TestFeed/nuget/v3/index.json");
+        string feedEndPointJsonEnvVar = EnvUtil.BuildTaskExternalEndpoints;
         string feedEndPointJson = "{\"endpointCredentials\":[{\"endpoint\":\"http://example.pkgs.vsts.me/_packaging/TestFeed/nuget/v3/index.json\", \"username\": \"testUser\", \"password\":\"testToken\"}]}";
 
         Environment.SetEnvironmentVariable(feedEndPointJsonEnvVar, feedEndPointJson);
@@ -99,132 +97,15 @@ public class VstsBuildTaskServiceEndpointCredentialProviderTests
         Assert.AreEqual(result.Password, "testToken");
     }
 
-    [DataTestMethod]
-    [DataRow(EnvUtil.BuildTaskExternalEndpoints)]
-    [DataRow(EnvUtil.EndpointCredentials)]
-    public async Task HandleRequestAsync_ReturnsSuccessWhenSingleQuotesInJson(string feedEndPointJsonEnvVar)
+    [TestMethod]
+    public async Task HandleRequestAsync_Endpoint_ReturnsSuccess()
     {
         Uri sourceUri = new Uri(@"http://example.pkgs.vsts.me/_packaging/TestFeed/nuget/v3/index.json");
-        string feedEndPointJson = "{\'endpointCredentials\':[{\'endpoint\':\'http://example.pkgs.vsts.me/_packaging/TestFeed/nuget/v3/index.json\', \'username\': \'testUser\', \'password\':\'testToken\'}]}";
+        string feedEndPointJsonEnvVar = EnvUtil.EndpointCredentials;
+        string feedEndPointJson = "{\"endpointCredentials\":[{\"endpoint\":\"http://example.pkgs.vsts.me/_packaging/TestFeed/nuget/v3/index.json\", \"clientId\": \"testClientId\"}]}";
 
         Environment.SetEnvironmentVariable(feedEndPointJsonEnvVar, feedEndPointJson);
-
-        var result = await vstsCredentialProvider.HandleRequestAsync(new GetAuthenticationCredentialsRequest(sourceUri, false, false, false), CancellationToken.None);
-        Assert.AreEqual(result.ResponseCode, MessageResponseCode.Success);
-        Assert.AreEqual(result.Username, "testUser");
-        Assert.AreEqual(result.Password, "testToken");
-    }
-
-    [DataTestMethod]
-    [DataRow(EnvUtil.BuildTaskExternalEndpoints)]
-    [DataRow(EnvUtil.EndpointCredentials)]
-    public async Task HandleRequestAsync_ReturnsSuccessWhenMultipleSourcesInJson(string feedEndPointJsonEnvVar)
-    {
-        Uri sourceUri = new Uri(@"http://example3.pkgs.vsts.me/_packaging/TestFeed/nuget/v3/index.json");
-
-        string feedEndPointJson = "{\"endpointCredentials\":[" +
-            "{\"endpoint\":\"http://example1.pkgs.vsts.me/_packaging/TestFeed/nuget/v3/index.json\", \"username\": \"testUser1\", \"password\":\"testToken1\"}, " +
-            "{\"endpoint\":\"http://example2.pkgs.vsts.me/_packaging/TestFeed/nuget/v3/index.json\", \"username\": \"testUser2\", \"password\":\"testToken2\"}, " +
-            "{\"endpoint\":\"http://example3.pkgs.vsts.me/_packaging/TestFeed/nuget/v3/index.json\", \"username\": \"testUser3\", \"password\":\"testToken3\"}, " +
-            "{\"endpoint\":\"http://example4.pkgs.vsts.me/_packaging/TestFeed/nuget/v3/index.json\", \"username\": \"testUser4\", \"password\":\"testToken4\"}" +
-            "]}";
-
-        Environment.SetEnvironmentVariable(feedEndPointJsonEnvVar, feedEndPointJson);
-
-        var result = await vstsCredentialProvider.HandleRequestAsync(new GetAuthenticationCredentialsRequest(sourceUri, false, false, false), CancellationToken.None);
-        Assert.AreEqual(result.ResponseCode, MessageResponseCode.Success);
-        Assert.AreEqual(result.Username, "testUser3");
-        Assert.AreEqual(result.Password, "testToken3");
-    }
-
-    [DataTestMethod]
-    [DataRow(EnvUtil.BuildTaskExternalEndpoints)]
-    [DataRow(EnvUtil.EndpointCredentials)]
-    public async Task HandleRequestAsync_ReturnsErrorWhenMatchingEndpointIsNotFound(string feedEndPointJsonEnvVar)
-    {
-        Uri sourceUri = new Uri(@"http://exampleThatDoesNotMatch.pkgs.vsts.me/_packaging/TestFeed/nuget/v3/index.json");
-        string feedEndPointJson = "{\"endpointCredentials\":[{\"endpoint\":\"http://example.pkgs.vsts.me/_packaging/TestFeed/nuget/v3/index.json\", \"username\": \"testUser\", \"password\":\"testToken\"}]}";
-
-        Environment.SetEnvironmentVariable(feedEndPointJsonEnvVar, feedEndPointJson);
-        
-        var result = await vstsCredentialProvider.HandleRequestAsync(new GetAuthenticationCredentialsRequest(sourceUri, false, false, false), CancellationToken.None);
-        Assert.AreEqual(result.ResponseCode, MessageResponseCode.Error);
-    }
-
-    [DataTestMethod]
-    [DataRow(EnvUtil.BuildTaskExternalEndpoints)]
-    [DataRow(EnvUtil.EndpointCredentials)]
-    public void HandleRequestAsync_ThrowsWithInvalidJson(string feedEndPointJsonEnvVar)
-    {
-        Uri sourceUri = new Uri(@"http://example.pkgs.vsts.me.pkgs.vsts.me/_packaging/TestFeed/nuget/v3/index.json");
-        string invalidFeedEndPointJson = "this is not json";
-
-        Environment.SetEnvironmentVariable(feedEndPointJsonEnvVar, invalidFeedEndPointJson);
-
-        Func<Task> act = async () => await vstsCredentialProvider.HandleRequestAsync(new GetAuthenticationCredentialsRequest(sourceUri, false, false, false), CancellationToken.None);
-        act.Should().Throw<Exception>();
-    }
-
-    [DataTestMethod]
-    [DataRow(EnvUtil.BuildTaskExternalEndpoints)]
-    [DataRow(EnvUtil.EndpointCredentials)]
-    public async Task HandleRequestAsync_MatchesEndpointURLCaseInsensitive(string feedEndPointJsonEnvVar)
-    {
-        Uri sourceUri = new Uri(@"http://example.pkgs.vsts.me/_Packaging/TestFEED/nuget/v3/index.json");
-
-        string feedEndPointJson = "{\"endpointCredentials\":[{\"endpoint\":\"http://example.pkgs.vsts.me/_packaging/TestFeed/nuget/v3/index.json\", \"username\": \"testUser\", \"password\":\"testToken\"}]}";
-
-        Environment.SetEnvironmentVariable(feedEndPointJsonEnvVar, feedEndPointJson);
-
-        var result = await vstsCredentialProvider.HandleRequestAsync(new GetAuthenticationCredentialsRequest(sourceUri, false, false, false), CancellationToken.None);
-        Assert.AreEqual(MessageResponseCode.Success, result.ResponseCode);
-        Assert.AreEqual("testUser", result.Username);
-        Assert.AreEqual("testToken", result.Password);
-    }
-
-
-    [DataTestMethod]
-    [DataRow(EnvUtil.BuildTaskExternalEndpoints)]
-    [DataRow(EnvUtil.EndpointCredentials)]
-    public async Task HandleRequestAsync_MatchesEndpointURLWithSpaces(string feedEndPointJsonEnvVar)
-    {
-        Uri sourceUri = new Uri(@"http://example.pkgs.vsts.me/My Collection/_packaging/TestFeed/nuget/v3/index.json");
-
-        string feedEndPointJson = "{\"endpointCredentials\":[{\"endpoint\":\"http://example.pkgs.vsts.me/My Collection/_packaging/TestFeed/nuget/v3/index.json\", \"username\": \"testUser\", \"password\":\"testToken\"}]}";
-
-        Environment.SetEnvironmentVariable(feedEndPointJsonEnvVar, feedEndPointJson);
-
-        var result = await vstsCredentialProvider.HandleRequestAsync(new GetAuthenticationCredentialsRequest(sourceUri, false, false, false), CancellationToken.None);
-        Assert.AreEqual(MessageResponseCode.Success, result.ResponseCode);
-        Assert.AreEqual("testUser", result.Username);
-        Assert.AreEqual("testToken", result.Password);
-    }
-
-    [DataTestMethod]
-    [DataRow(EnvUtil.BuildTaskExternalEndpoints)]
-    [DataRow(EnvUtil.EndpointCredentials)]
-    public async Task HandleRequestAsync_PrefersPassword(string feedEndPointJsonEnvVar)
-    {
-        Uri sourceUri = new Uri(@"http://example.pkgs.vsts.me/_packaging/TestFeed/nuget/v3/index.json");
-        string feedEndPointJson = "{\"endpointCredentials\":[{\"endpoint\":\"http://example.pkgs.vsts.me/_packaging/TestFeed/nuget/v3/index.json\", \"username\": \"testUser\", \"password\":\"testToken\", \"azureClientId\":\"someClientId\"}]}";
-
-        Environment.SetEnvironmentVariable(feedEndPointJsonEnvVar, feedEndPointJson);
-
-        var result = await vstsCredentialProvider.HandleRequestAsync(new GetAuthenticationCredentialsRequest(sourceUri, false, false, false), CancellationToken.None);
-        Assert.AreEqual(result.ResponseCode, MessageResponseCode.Success);
-        Assert.AreEqual(result.Username, "testUser");
-        Assert.AreEqual(result.Password, "testToken");
-    }
-
-    [DataTestMethod]
-    [DataRow(EnvUtil.BuildTaskExternalEndpoints)]
-    [DataRow(EnvUtil.EndpointCredentials)]
-    public async Task HandleRequestAsync_WithClientId_ReturnsSuccess(string feedEndPointJsonEnvVar)
-    {
-        Uri sourceUri = new Uri(@"http://example.pkgs.vsts.me/_packaging/TestFeed/nuget/v3/index.json");
-        string feedEndPointJson = $"{{\"endpointCredentials\":[{{\"endpoint\":\"http://example.pkgs.vsts.me/_packaging/TestFeed/nuget/v3/index.json\", \"username\": \"testUser\", \"azureClientId\":\"{Guid.NewGuid()}\"}}]}}";
-
-        Environment.SetEnvironmentVariable(feedEndPointJsonEnvVar, feedEndPointJson);
+        Environment.SetEnvironmentVariable(EnvUtil.BuildTaskExternalEndpoints, null);
 
         mockTokenProviderFactory.Setup(x =>
             x.GetAsync(It.IsAny<Uri>()))
@@ -235,19 +116,119 @@ public class VstsBuildTaskServiceEndpointCredentialProviderTests
 
         var result = await vstsCredentialProvider.HandleRequestAsync(new GetAuthenticationCredentialsRequest(sourceUri, false, false, false), CancellationToken.None);
         Assert.AreEqual(result.ResponseCode, MessageResponseCode.Success);
-        Assert.AreEqual(result.Username, "testUser");
+        Assert.AreEqual(result.Username, "testClientId");
         Assert.AreEqual(result.Password, "someTokenValue");
+    }
+
+    [TestMethod]
+    public async Task HandleRequestAsync_ExternalEndpoint_ReturnsSuccessWhenSingleQuotesInJson()
+    {
+        Uri sourceUri = new Uri(@"http://example.pkgs.vsts.me/_packaging/TestFeed/nuget/v3/index.json");
+        string feedEndPointJson = "{\'endpointCredentials\':[{\'endpoint\':\'http://example.pkgs.vsts.me/_packaging/TestFeed/nuget/v3/index.json\', \'username\': \'testUser\', \'password\':\'testToken\'}]}";
+
+        Environment.SetEnvironmentVariable(EnvUtil.BuildTaskExternalEndpoints, feedEndPointJson);
+
+        var result = await vstsCredentialProvider.HandleRequestAsync(new GetAuthenticationCredentialsRequest(sourceUri, false, false, false), CancellationToken.None);
+        Assert.AreEqual(result.ResponseCode, MessageResponseCode.Success);
+        Assert.AreEqual(result.Username, "testUser");
+        Assert.AreEqual(result.Password, "testToken");
+    }
+
+    [TestMethod]
+    public async Task HandleRequestAsync_ReturnsFailedWhenSingleQuotesInJson()
+    {
+        Uri sourceUri = new Uri(@"http://example.pkgs.vsts.me/_packaging/TestFeed/nuget/v3/index.json");
+        string feedEndPointJson = "{\'endpointCredentials\':[{\'endpoint\':\'http://example.pkgs.vsts.me/_packaging/TestFeed/nuget/v3/index.json\', \'clientId\':\'testClientId\'}]}";
+
+        Environment.SetEnvironmentVariable(EnvUtil.EndpointCredentials, feedEndPointJson);
+
+        var result = await vstsCredentialProvider.HandleRequestAsync(new GetAuthenticationCredentialsRequest(sourceUri, false, false, false), CancellationToken.None);
+        Assert.AreEqual(result.ResponseCode, MessageResponseCode.Error);
+    }
+
+    [TestMethod]
+    public async Task HandleRequestAsync_ExternalEndpoints_ReturnsSuccessWhenMultipleSourcesInJson()
+    {
+        Uri sourceUri = new Uri(@"http://example3.pkgs.vsts.me/_packaging/TestFeed/nuget/v3/index.json");
+
+        string feedEndPointJson = "{\"endpointCredentials\":[" +
+            "{\"endpoint\":\"http://example1.pkgs.vsts.me/_packaging/TestFeed/nuget/v3/index.json\", \"username\": \"testUser1\", \"password\":\"testToken1\"}, " +
+            "{\"endpoint\":\"http://example2.pkgs.vsts.me/_packaging/TestFeed/nuget/v3/index.json\", \"username\": \"testUser2\", \"password\":\"testToken2\"}, " +
+            "{\"endpoint\":\"http://example3.pkgs.vsts.me/_packaging/TestFeed/nuget/v3/index.json\", \"username\": \"testUser3\", \"password\":\"testToken3\"}, " +
+            "{\"endpoint\":\"http://example4.pkgs.vsts.me/_packaging/TestFeed/nuget/v3/index.json\", \"username\": \"testUser4\", \"password\":\"testToken4\"}" +
+            "]}";
+
+        Environment.SetEnvironmentVariable(EnvUtil.BuildTaskExternalEndpoints, feedEndPointJson);
+
+        var result = await vstsCredentialProvider.HandleRequestAsync(new GetAuthenticationCredentialsRequest(sourceUri, false, false, false), CancellationToken.None);
+        Assert.AreEqual(result.ResponseCode, MessageResponseCode.Success);
+        Assert.AreEqual(result.Username, "testUser3");
+        Assert.AreEqual(result.Password, "testToken3");
+    }
+
+    [TestMethod]
+    public async Task HandleRequestAsync_ReturnsErrorWhenMatchingEndpointIsNotFound()
+    {
+        Uri sourceUri = new Uri(@"http://exampleThatDoesNotMatch.pkgs.vsts.me/_packaging/TestFeed/nuget/v3/index.json");
+        string feedEndPointJson = "{\"endpointCredentials\":[{\"endpoint\":\"http://example.pkgs.vsts.me/_packaging/TestFeed/nuget/v3/index.json\", \"username\": \"testUser\", \"password\":\"testToken\"}]}";
+
+        Environment.SetEnvironmentVariable(EnvUtil.BuildTaskExternalEndpoints, feedEndPointJson);
+
+        var result = await vstsCredentialProvider.HandleRequestAsync(new GetAuthenticationCredentialsRequest(sourceUri, false, false, false), CancellationToken.None);
+        Assert.AreEqual(result.ResponseCode, MessageResponseCode.Error);
     }
 
     [DataTestMethod]
     [DataRow(EnvUtil.BuildTaskExternalEndpoints)]
     [DataRow(EnvUtil.EndpointCredentials)]
-    public async Task HandleRequestAsync_WithInvalidClientId_ReturnsError(string feedEndPointJsonEnvVar)
+    public async Task HandleRequestAsync_ReturnsErrorWithInvalidJsonAsync(string feedEndPointJsonEnvVar)
+    {
+        Uri sourceUri = new Uri(@"http://example.pkgs.vsts.me.pkgs.vsts.me/_packaging/TestFeed/nuget/v3/index.json");
+        string invalidFeedEndPointJson = "this is not json";
+
+        Environment.SetEnvironmentVariable(feedEndPointJsonEnvVar, invalidFeedEndPointJson);
+
+        var result = await vstsCredentialProvider.HandleRequestAsync(new GetAuthenticationCredentialsRequest(sourceUri, false, false, false), CancellationToken.None);
+        Assert.AreEqual(result.ResponseCode, MessageResponseCode.Error);
+    }
+
+    [TestMethod]
+    public async Task HandleRequestAsync_MatchesEndpointURLCaseInsensitive()
+    {
+        Uri sourceUri = new Uri(@"http://example.pkgs.vsts.me/_Packaging/TestFEED/nuget/v3/index.json");
+
+        string feedEndPointJson = "{\"endpointCredentials\":[{\"endpoint\":\"http://example.pkgs.vsts.me/_packaging/TestFeed/nuget/v3/index.json\", \"username\": \"testUser\", \"password\":\"testToken\"}]}";
+
+        Environment.SetEnvironmentVariable(EnvUtil.BuildTaskExternalEndpoints, feedEndPointJson);
+
+        var result = await vstsCredentialProvider.HandleRequestAsync(new GetAuthenticationCredentialsRequest(sourceUri, false, false, false), CancellationToken.None);
+        Assert.AreEqual(MessageResponseCode.Success, result.ResponseCode);
+        Assert.AreEqual("testUser", result.Username);
+        Assert.AreEqual("testToken", result.Password);
+    }
+
+    [TestMethod]
+    public async Task HandleRequestAsync_MatchesEndpointURLWithSpaces()
+    {
+        Uri sourceUri = new Uri(@"http://example.pkgs.vsts.me/My Collection/_packaging/TestFeed/nuget/v3/index.json");
+
+        string feedEndPointJson = "{\"endpointCredentials\":[{\"endpoint\":\"http://example.pkgs.vsts.me/My Collection/_packaging/TestFeed/nuget/v3/index.json\", \"username\": \"testUser\", \"password\":\"testToken\"}]}";
+
+        Environment.SetEnvironmentVariable(EnvUtil.BuildTaskExternalEndpoints, feedEndPointJson);
+
+        var result = await vstsCredentialProvider.HandleRequestAsync(new GetAuthenticationCredentialsRequest(sourceUri, false, false, false), CancellationToken.None);
+        Assert.AreEqual(MessageResponseCode.Success, result.ResponseCode);
+        Assert.AreEqual("testUser", result.Username);
+        Assert.AreEqual("testToken", result.Password);
+    }
+
+    [TestMethod]
+    public async Task HandleRequestAsync_WithInvalidClientId_ReturnsError()
     {
         Uri sourceUri = new Uri(@"http://example.pkgs.vsts.me/_packaging/TestFeed/nuget/v3/index.json");
-        string feedEndPointJson = $"{{\"endpointCredentials\":[{{\"endpoint\":\"http://example.pkgs.vsts.me/_packaging/TestFeed/nuget/v3/index.json\", \"username\": \"testUser\", \"azureClientId\":\"\"}}]}}";
+        string feedEndPointJson = $"{{\"endpointCredentials\":[{{\"endpoint\":\"http://example.pkgs.vsts.me/_packaging/TestFeed/nuget/v3/index.json\", \"clientId\":\"\"}}]}}";
 
-        Environment.SetEnvironmentVariable(feedEndPointJsonEnvVar, feedEndPointJson);
+        Environment.SetEnvironmentVariable(EnvUtil.EndpointCredentials, feedEndPointJson);
 
         mockTokenProviderFactory.Setup(x =>
             x.GetAsync(It.IsAny<Uri>()))
@@ -260,15 +241,13 @@ public class VstsBuildTaskServiceEndpointCredentialProviderTests
         Assert.AreEqual(result.ResponseCode, MessageResponseCode.Error);
     }
 
-    [DataTestMethod]
-    [DataRow(EnvUtil.BuildTaskExternalEndpoints)]
-    [DataRow(EnvUtil.EndpointCredentials)]
-    public async Task HandleRequestAsync_WithInvalidBearer_ReturnsError(string feedEndPointJsonEnvVar)
+    [TestMethod]
+    public async Task HandleRequestAsync_WithInvalidBearer_ReturnsError()
     {
         Uri sourceUri = new Uri(@"http://example.pkgs.vsts.me/_packaging/TestFeed/nuget/v3/index.json");
         string feedEndPointJson = $"{{\"endpointCredentials\":[{{\"endpoint\":\"http://example.pkgs.vsts.me/_packaging/TestFeed/nuget/v3/index.json\", \"username\": \"testUser\", \"azureClientId\":\"\"}}]}}";
 
-        Environment.SetEnvironmentVariable(feedEndPointJsonEnvVar, feedEndPointJson);
+        Environment.SetEnvironmentVariable(EnvUtil.EndpointCredentials, feedEndPointJson);
 
         mockTokenProviderFactory.Setup(x =>
             x.GetAsync(It.IsAny<Uri>()))
@@ -279,15 +258,13 @@ public class VstsBuildTaskServiceEndpointCredentialProviderTests
         Assert.AreEqual(result.ResponseCode, MessageResponseCode.Error);
     }
 
-    [DataTestMethod]
-    [DataRow(EnvUtil.BuildTaskExternalEndpoints)]
-    [DataRow(EnvUtil.EndpointCredentials)]
-    public async Task HandleRequestAsync_WithNoTokenProvider_ReturnsError(string feedEndPointJsonEnvVar)
+    [TestMethod]
+    public async Task HandleRequestAsync_WithNoTokenProvider_ReturnsError()
     {
         Uri sourceUri = new Uri(@"http://example.pkgs.vsts.me/_packaging/TestFeed/nuget/v3/index.json");
-        string feedEndPointJson = $"{{\"endpointCredentials\":[{{\"endpoint\":\"http://example.pkgs.vsts.me/_packaging/TestFeed/nuget/v3/index.json\", \"username\": \"testUser\", \"azureClientId\":\"\"}}]}}";
+        string feedEndPointJson = $"{{\"endpointCredentials\":[{{\"endpoint\":\"http://example.pkgs.vsts.me/_packaging/TestFeed/nuget/v3/index.json\",\"azureClientId\":\"\"}}]}}";
 
-        Environment.SetEnvironmentVariable(feedEndPointJsonEnvVar, feedEndPointJson);
+        Environment.SetEnvironmentVariable(EnvUtil.EndpointCredentials, feedEndPointJson);
 
         var mockTokenProvider = new Mock<ITokenProvider>();
         mockTokenProvider.Setup(x => x.Name).Returns("wrong name");
@@ -300,15 +277,13 @@ public class VstsBuildTaskServiceEndpointCredentialProviderTests
         Assert.AreEqual(result.ResponseCode, MessageResponseCode.Error);
     }
 
-    [DataTestMethod]
-    [DataRow(EnvUtil.BuildTaskExternalEndpoints)]
-    [DataRow(EnvUtil.EndpointCredentials)]
-    public async Task HandleRequestAsync_OnTokenProviderError_ReturnsError(string feedEndPointJsonEnvVar)
+    [TestMethod]
+    public async Task HandleRequestAsync_OnTokenProviderError_ReturnsError()
     {
         Uri sourceUri = new Uri(@"http://example.pkgs.vsts.me/_packaging/TestFeed/nuget/v3/index.json");
-        string feedEndPointJson = $"{{\"endpointCredentials\":[{{\"endpoint\":\"http://example.pkgs.vsts.me/_packaging/TestFeed/nuget/v3/index.json\", \"username\": \"testUser\", \"azureClientId\":\"\"}}]}}";
+        string feedEndPointJson = $"{{\"endpointCredentials\":[{{\"endpoint\":\"http://example.pkgs.vsts.me/_packaging/TestFeed/nuget/v3/index.json\", \"clientId\":\"\"}}]}}";
 
-        Environment.SetEnvironmentVariable(feedEndPointJsonEnvVar, feedEndPointJson);
+        Environment.SetEnvironmentVariable(EnvUtil.EndpointCredentials, feedEndPointJson);
 
         var mockTokenProvider = new Mock<ITokenProvider>();
         mockTokenProvider.Setup(x => x.Name).Returns("MSAL Managed Identity");
