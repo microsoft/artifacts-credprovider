@@ -97,7 +97,7 @@ namespace NuGetCredentialProvider.CredentialProviders.VstsBuildTaskServiceEndpoi
                     LoginHint = EnvUtil.GetMsalLoginHint(),
                     InteractiveTimeout = TimeSpan.FromSeconds(EnvUtil.GetDeviceFlowTimeoutFromEnvironmentInSeconds(Logger)),
                     ClientId = matchingEndpoint.ClientId,
-                    ClientCertificate = GetCertificate(matchingEndpoint.ClientCertificateThumbprint),
+                    ClientCertificate = GetCertificate(matchingEndpoint),
                 };
 
                 foreach(var tokenProvider in tokenProviders)
@@ -159,26 +159,52 @@ namespace NuGetCredentialProvider.CredentialProviders.VstsBuildTaskServiceEndpoi
                     responseCode: responseCode);
         }
 
-        private X509Certificate2 GetCertificate(string thumbprint)
+        private X509Certificate2 GetCertificate(EndpointCredentials credentials)
         {
-            var store = new X509Store(StoreName.My, StoreLocation.LocalMachine);
-            try
+            if (credentials.CertificateFilePath == null && credentials.CertificateSubjectName == null)
             {
-                store.Open(OpenFlags.ReadOnly);
-                var cert = store.Certificates.Find(X509FindType.FindByThumbprint, thumbprint, true);
+                return null; 
+            }
 
-                if (cert.Count > 0)
+            if(credentials.CertificateSubjectName != null)
+            {
+                var store = new X509Store(StoreName.My, StoreLocation.LocalMachine);
+                try
                 {
-                    return cert[0];
-                }
+                    store.Open(OpenFlags.ReadOnly);
+                    var cert = store.Certificates.Find(X509FindType.FindBySubjectName, credentials.CertificateSubjectName, true);
 
-                Logger.Info($"Certificate with thumbprint {thumbprint} not found");
-                return null;
+                    if (cert.Count > 0)
+                    {
+                        return cert[0];
+                    }
+
+                    Logger.Info($"Certificate with subject name {credentials.CertificateSubjectName} not found.");
+                    return null;
+                }
+                finally
+                {
+                    store.Close();
+                }
             }
-            finally
+
+            if (credentials.CertificateFilePath != null)
             {
-                store.Close();
+                try
+                {
+                    var certificate = new X509Certificate2(credentials.CertificateFilePath);
+
+                    Logger.Info($"Certificate with file path {credentials.CertificateFilePath} not found.");
+                    return null;
+                } 
+                catch (Exception ex)
+                {
+                    return null;
+                }
             }
+
+            Logger.Info($"Certificate not found.");
+            return null;
         }
     }
 }

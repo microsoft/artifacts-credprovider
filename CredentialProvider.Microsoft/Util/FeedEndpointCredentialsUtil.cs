@@ -49,6 +49,12 @@ public static class FeedEndpointCredentialsUtil
                     break;
                 }
 
+                if(credentials.CertificateSubjectName != null && credentials.CertificateFilePath != null)
+                {
+                    logger.Verbose(Resources.EndpointParseFailure);
+                    break;
+                }
+
                 if (!Uri.TryCreate(credentials.Endpoint, UriKind.Absolute, out var endpointUri))
                 {
                     logger.Verbose(Resources.EndpointParseFailure);
@@ -132,7 +138,6 @@ public static class FeedEndpointCredentialsUtil
     }
 }
 
-
 public class ExternalEndpointCredentials
 {
     [JsonProperty("endpoint")]
@@ -149,13 +154,16 @@ public class ExternalEndpointCredentialsContainer
     public ExternalEndpointCredentials[] EndpointCredentials { get; set; }
 }
 
-
 public class EndpointCredentials
 {
     [JsonPropertyName("endpoint")]
     public string Endpoint { get; set; }
     [JsonPropertyName("clientId")]
     public string ClientId { get; set; }
+    [JsonPropertyName("clientCertificateFilePath")]
+    public string CertificateFilePath { get; set; }
+    [JsonPropertyName("clientCertificateSubjectName")]
+    public string CertificateSubjectName { get; set; }
 }
 
 public class EndpointCredentialsContainer
@@ -163,4 +171,3 @@ public class EndpointCredentialsContainer
     [JsonPropertyName("endpointCredentials")]
     public EndpointCredentials[] EndpointCredentials { get; set; }
 }
-
