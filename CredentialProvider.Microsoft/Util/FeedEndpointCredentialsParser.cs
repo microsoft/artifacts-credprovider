@@ -88,7 +88,7 @@ public static class FeedEndpointCredentialsParser
         try
         {
             logger.Verbose(Resources.ParsingJson);
-            if (!feedEndPointsJson.Contains("':"))
+            if (feedEndPointsJson.Contains("':"))
             {
                 logger.Warning(Resources.InvalidJsonWarning);
             }
