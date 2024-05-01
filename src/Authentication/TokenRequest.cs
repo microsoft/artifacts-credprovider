@@ -35,7 +35,5 @@ public class TokenRequest
 
     public string? ClientId { get; set; } = null;
 
-    public Guid? TenantId { get; set; } = null;
-
     public X509Certificate2? ClientCertificate { get; set; } = null;
 }

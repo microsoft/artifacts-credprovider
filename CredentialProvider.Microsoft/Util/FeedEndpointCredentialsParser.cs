@@ -7,12 +7,12 @@ using ILogger = NuGetCredentialProvider.Logging.ILogger;
 
 namespace NuGetCredentialProvider.Util;
 
-public static class FeedEndpointCredentialsUtil
+public static class FeedEndpointCredentialsParser
 {
     private static readonly JsonSerializerOptions options = new JsonSerializerOptions
     {
         PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
-        PropertyNameCaseInsensitive = true
+        PropertyNameCaseInsensitive = true,
     };
 
     public static Dictionary<string, EndpointCredentials> ParseFeedEndpointsJsonToDictionary(ILogger logger)
@@ -21,7 +21,7 @@ public static class FeedEndpointCredentialsUtil
         if (string.IsNullOrWhiteSpace(feedEndPointsJson))
         {
             logger.Warning(Resources.InvalidJsonWarning);
-            return null;
+            return [];
         }
 
         try
@@ -84,7 +84,7 @@ public static class FeedEndpointCredentialsUtil
         if (string.IsNullOrWhiteSpace(feedEndPointsJson))
         {
             logger.Warning(Resources.InvalidJsonWarning);
-            return null;
+            return [];
         }
 
         try

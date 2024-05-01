@@ -475,6 +475,23 @@ Provide MSAL Cache Location
   </data>
   <data name="InvalidJsonWarning" xml:space="preserve">
     <value>Detected invalid single quote charater in JSON input. Migrate to double quotes to avoid breaking in future versions.  See https://www.rfc-editor.org/rfc/rfc8259.html#section-7 for more information.</value>
-
+  </data>
+  <data name="ClientCertificateError" xml:space="preserve">
+    <value>Error accessing client certificate. Exception {0}, Message: {1}</value>
+  </data>
+  <data name="ClientCertificateFilePathNotFound" xml:space="preserve">
+    <value>Certificate with file path {0} not found.</value>
+  </data>
+  <data name="ClientCertificateFound" xml:space="preserve">
+    <value>Found client certificate for {0}.</value>
+  </data>
+  <data name="ClientCertificateNotFound" xml:space="preserve">
+    <value>Unable to find client certificate.</value>
+  </data>
+  <data name="ClientCertificateSubjectNameNotFound" xml:space="preserve">
+    <value>Certificate with subject name {0} not found. </value>
+  </data>
+  <data name="InvalidCertificateInput" xml:space="preserve">
+    <value>Certificate information invalid.</value>
   </data>
 </root>

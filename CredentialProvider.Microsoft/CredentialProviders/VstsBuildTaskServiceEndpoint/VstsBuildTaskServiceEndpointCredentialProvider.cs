@@ -33,11 +33,11 @@ namespace NuGetCredentialProvider.CredentialProviders.VstsBuildTaskServiceEndpoi
             TokenProvidersFactory = tokenProvidersFactory;
             LazyCredentials = new Lazy<Dictionary<string, EndpointCredentials>>(() =>
             {
-                return FeedEndpointCredentialsUtil.ParseFeedEndpointsJsonToDictionary(logger) ?? [];
+                return FeedEndpointCredentialsParser.ParseFeedEndpointsJsonToDictionary(logger);
             });
             LazyExternalCredentials = new Lazy<Dictionary<string, ExternalEndpointCredentials>>(() =>
             {
-                return FeedEndpointCredentialsUtil.ParseExternalFeedEndpointsJsonToDictionary(logger) ?? [];
+                return FeedEndpointCredentialsParser.ParseExternalFeedEndpointsJsonToDictionary(logger);
             });
             AuthUtil = authUtil;
         }
@@ -94,7 +94,6 @@ namespace NuGetCredentialProvider.CredentialProviders.VstsBuildTaskServiceEndpoi
                     IsNonInteractive = true,
                     CanShowDialog = false,
                     IsWindowsIntegratedAuthEnabled = false,
-                    LoginHint = EnvUtil.GetMsalLoginHint(),
                     InteractiveTimeout = TimeSpan.FromSeconds(EnvUtil.GetDeviceFlowTimeoutFromEnvironmentInSeconds(Logger)),
                     ClientId = matchingEndpoint.ClientId,
                     ClientCertificate = GetCertificate(matchingEndpoint),
@@ -161,49 +160,17 @@ namespace NuGetCredentialProvider.CredentialProviders.VstsBuildTaskServiceEndpoi
 
         private X509Certificate2 GetCertificate(EndpointCredentials credentials)
         {
-            if (credentials.CertificateFilePath == null && credentials.CertificateSubjectName == null)
+            if(!string.IsNullOrWhiteSpace(credentials.CertificateSubjectName))
             {
-                return null; 
+                return CertificateUtil.GetCertificateBySubjectName(Logger, credentials.CertificateSubjectName);
             }
 
-            if(credentials.CertificateSubjectName != null)
+            if (!string.IsNullOrWhiteSpace(credentials.CertificateFilePath))
             {
-                var store = new X509Store(StoreName.My, StoreLocation.LocalMachine);
-                try
-                {
-                    store.Open(OpenFlags.ReadOnly);
-                    var cert = store.Certificates.Find(X509FindType.FindBySubjectName, credentials.CertificateSubjectName, true);
-
-                    if (cert.Count > 0)
-                    {
-                        return cert[0];
-                    }
-
-                    Logger.Info($"Certificate with subject name {credentials.CertificateSubjectName} not found.");
-                    return null;
-                }
-                finally
-                {
-                    store.Close();
-                }
+                return CertificateUtil.GetCertificateByFilePath(Logger, credentials.CertificateFilePath);
             }
 
-            if (credentials.CertificateFilePath != null)
-            {
-                try
-                {
-                    var certificate = new X509Certificate2(credentials.CertificateFilePath);
-
-                    Logger.Info($"Certificate with file path {credentials.CertificateFilePath} not found.");
-                    return null;
-                } 
-                catch (Exception ex)
-                {
-                    return null;
-                }
-            }
-
-            Logger.Info($"Certificate not found.");
+            Logger.Info(Resources.ClientCertificateNotFound);
             return null;
         }
     }
