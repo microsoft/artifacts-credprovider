@@ -20,7 +20,6 @@ public static class FeedEndpointCredentialsParser
         string feedEndPointsJson = Environment.GetEnvironmentVariable(EnvUtil.EndpointCredentials);
         if (string.IsNullOrWhiteSpace(feedEndPointsJson))
         {
-            logger.Warning(Resources.InvalidJsonWarning);
             return new Dictionary<string, EndpointCredentials>(StringComparer.OrdinalIgnoreCase);
         }
 
@@ -83,7 +82,6 @@ public static class FeedEndpointCredentialsParser
         string feedEndPointsJson = Environment.GetEnvironmentVariable(EnvUtil.BuildTaskExternalEndpoints);
         if (string.IsNullOrWhiteSpace(feedEndPointsJson))
         {
-            logger.Warning(Resources.InvalidJsonWarning);
             return new Dictionary<string, ExternalEndpointCredentials>(StringComparer.OrdinalIgnoreCase);
         }
 
