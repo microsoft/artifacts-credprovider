@@ -73,7 +73,7 @@ public static class FeedEndpointCredentialsParser
         catch (Exception e)
         {
             logger.Verbose(string.Format(Resources.VstsBuildTaskExternalCredentialCredentialProviderError, e));
-            return [];
+            return new Dictionary<string, EndpointCredentials>(StringComparer.OrdinalIgnoreCase); ;
         }
     }
 
@@ -84,7 +84,7 @@ public static class FeedEndpointCredentialsParser
         if (string.IsNullOrWhiteSpace(feedEndPointsJson))
         {
             logger.Warning(Resources.InvalidJsonWarning);
-            return [];
+            return new Dictionary<string, ExternalEndpointCredentials>(StringComparer.OrdinalIgnoreCase);
         }
 
         try
@@ -133,7 +133,7 @@ public static class FeedEndpointCredentialsParser
         catch (Exception e)
         {
             logger.Verbose(string.Format(Resources.VstsBuildTaskExternalCredentialCredentialProviderError, e));
-            return [];
+            return new Dictionary<string, ExternalEndpointCredentials>(StringComparer.OrdinalIgnoreCase);
         }
     }
 }
