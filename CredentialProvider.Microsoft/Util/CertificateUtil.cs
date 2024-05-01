@@ -22,11 +22,11 @@ namespace NuGetCredentialProvider.Util
                 try
                 {
                     store.Open(OpenFlags.ReadOnly);
-                    var cert = store.Certificates.Find(X509FindType.FindBySubjectName, subjectName, true);
+                    var cert = store.Certificates.Find(X509FindType.FindBySubjectDistinguishedName , subjectName, false);
 
                     if (cert.Count > 0)
                     {
-                        logger.Info(string.Format(Resources.ClientCertificateFound, subjectName));
+                        logger.Verbose(string.Format(Resources.ClientCertificateFound, subjectName));
                         return cert[0];
                     }
                 }
@@ -59,11 +59,11 @@ namespace NuGetCredentialProvider.Util
 
                 if (certificate == null)
                 {
-                    logger.Info(string.Format(Resources.ClientCertificateFilePathNotFound, filePath));
+                    logger.Verbose(string.Format(Resources.ClientCertificateFilePathNotFound, filePath));
                     return null;
                 }
 
-                logger.Info(string.Format(Resources.ClientCertificateFound, filePath));
+                logger.Verbose(string.Format(Resources.ClientCertificateFound, filePath));
                 return certificate;
             }
             catch (Exception ex)

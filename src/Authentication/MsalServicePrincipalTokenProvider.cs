@@ -38,6 +38,7 @@ namespace Microsoft.Artifacts.Authentication
                     .Create(tokenRequest.ClientId)
                     .WithHttpClientFactory(appConfig.HttpClientFactory)
                     .WithCertificate(tokenRequest.ClientCertificate)
+                    .WithTenantId(tokenRequest.TenantId)
                     .Build();
 
                 var result = await app.AcquireTokenForClient(MsalConstants.AzureDevOpsScopes)

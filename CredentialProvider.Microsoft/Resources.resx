@@ -118,7 +118,7 @@
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
   <data name="AADAuthorityNotFound" xml:space="preserve">
-    <value>Could not find AAD authority from headers, using default: {0}</value>
+    <value>Could not find Entra authority from headers, using default: {0}</value>
   </data>
   <data name="AADAuthorityOverrideFound" xml:space="preserve">
     <value>Found AAD authority override: {0}</value>
@@ -140,7 +140,7 @@
     <value>DeviceFlow: {0}</value>
   </data>
   <data name="UsingAuthority" xml:space="preserve">
-    <value>Using AAD authority: {0}</value>
+    <value>Using Entra authority: {0}</value>
   </data>
   <data name="BuildTaskEnvVarError" xml:space="preserve">
     <value>This credential provider must be run under the Team Build tasks for NuGet. Appropriate environment variables must be set.</value>
@@ -167,7 +167,7 @@
     <value>Command-line v{0}: {1}</value>
   </data>
   <data name="CouldNotParseAADAuthorityOverride" xml:space="preserve">
-    <value>Could not parse AAD authority override: {0}</value>
+    <value>Could not parse Entra authority override: {0}</value>
   </data>
   <data name="CouldNotParseSessionTimeOverride" xml:space="preserve">
     <value>Could not parse Session Time override: {0}</value>
@@ -493,5 +493,11 @@ Provide MSAL Cache Location
   </data>
   <data name="InvalidCertificateInput" xml:space="preserve">
     <value>Certificate information invalid.</value>
+  </data>
+  <data name="UsingCertificate" xml:space="preserve">
+    <value>Using certificate: {0}.</value>
+  </data>
+  <data name="UsingTenant" xml:space="preserve">
+    <value>Using Entra tenant: {0}.</value>
   </data>
 </root>

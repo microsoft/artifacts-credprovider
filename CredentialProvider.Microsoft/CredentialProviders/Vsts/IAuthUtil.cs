@@ -21,6 +21,8 @@ namespace NuGetCredentialProvider.CredentialProviders.Vsts
         Task<AzDevDeploymentType> GetAzDevDeploymentType(Uri uri);
 
         Task<Uri> GetAuthorizationEndpoint(Uri uri, CancellationToken cancellationToken);
+
+        Task<string> GetTenantIdAsync(Uri uri, CancellationToken cancellationToken);
     }
 
     public enum AzDevDeploymentType
@@ -42,6 +44,19 @@ namespace NuGetCredentialProvider.CredentialProviders.Vsts
         public AuthUtil(ILogger logger)
         {
             this.logger = logger;
+        }
+
+        public async Task<string> GetTenantIdAsync(Uri uri, CancellationToken cancellationToken) 
+        {
+            var responseHeaders = await GetResponseHeadersAsync(uri, cancellationToken);
+
+            if (responseHeaders.Contains(VssResourceTenant))
+            {
+                responseHeaders.TryGetValues(VssResourceTenant, out var tenantId);
+                return tenantId.FirstOrDefault();
+            }
+
+            return null;
         }
 
         public async Task<Uri> GetAadAuthorityUriAsync(Uri uri, CancellationToken cancellationToken)

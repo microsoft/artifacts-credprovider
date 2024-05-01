@@ -84,6 +84,14 @@ namespace NuGetCredentialProvider.CredentialProviders.VstsBuildTaskServiceEndpoi
                 Uri authority = await AuthUtil.GetAadAuthorityUriAsync(request.Uri, cancellationToken);
                 Verbose(string.Format(Resources.UsingAuthority, authority));
 
+                var tenantId = await AuthUtil.GetTenantIdAsync(request.Uri, cancellationToken);
+                Verbose(string.Format(Resources.UsingTenant, tenantId));
+
+                var clientCertificate = GetCertificate(matchingEndpoint);
+                Logger.Verbose(clientCertificate == null
+                    ? (Resources.ClientCertificateNotFound)
+                    : string.Format(Resources.UsingCertificate, clientCertificate.Subject));
+
                 IEnumerable<ITokenProvider> tokenProviders = await TokenProvidersFactory.GetAsync(authority);
                 tokenProviders = tokenProviders.Where(x => x.Name == "MSAL Managed Identity" || x.Name == "MSAL Service Principal").ToList();
                 cancellationToken.ThrowIfCancellationRequested();
@@ -96,7 +104,8 @@ namespace NuGetCredentialProvider.CredentialProviders.VstsBuildTaskServiceEndpoi
                     IsWindowsIntegratedAuthEnabled = false,
                     InteractiveTimeout = TimeSpan.FromSeconds(EnvUtil.GetDeviceFlowTimeoutFromEnvironmentInSeconds(Logger)),
                     ClientId = matchingEndpoint.ClientId,
-                    ClientCertificate = GetCertificate(matchingEndpoint),
+                    ClientCertificate = clientCertificate,
+                    TenantId = tenantId
                 };
 
                 foreach(var tokenProvider in tokenProviders)
@@ -169,8 +178,6 @@ namespace NuGetCredentialProvider.CredentialProviders.VstsBuildTaskServiceEndpoi
             {
                 return CertificateUtil.GetCertificateByFilePath(Logger, credentials.CertificateFilePath);
             }
-
-            Logger.Info(Resources.ClientCertificateNotFound);
             return null;
         }
     }
