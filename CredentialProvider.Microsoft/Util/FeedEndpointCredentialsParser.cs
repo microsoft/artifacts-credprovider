@@ -21,7 +21,7 @@ public static class FeedEndpointCredentialsParser
         if (string.IsNullOrWhiteSpace(feedEndPointsJson))
         {
             logger.Warning(Resources.InvalidJsonWarning);
-            return [];
+            return new Dictionary<string, EndpointCredentials>(StringComparer.OrdinalIgnoreCase);
         }
 
         try
