@@ -398,7 +398,7 @@ Provide MSAL Cache Location
     <value>Could not parse Device Flow Timeout override: {0}</value>
   </data>
   <data name="BuildTaskCredProviderIsUsedError" xml:space="preserve">
-    <value>This credential provider must not run if any build task environment variables are set. Variables: VSS_NUGET_URI_PREFIXES, VSS_NUGET_ACCESSTOKEN, VSS_NUGET_EXTERNAL_FEED_ENDPOINTS</value>
+    <value>This credential provider must not run if any build task environment variables are set. Variables: VSS_NUGET_URI_PREFIXES, VSS_NUGET_ACCESSTOKEN, VSS_NUGET_EXTERNAL_FEED_ENDPOINTS, ARTIFACTS_CREDENTIALPROVIDER_FEED_ENDPOINTS</value>
   </data>
   <data name="BuildTaskEndpointNoMatchingUrl" xml:space="preserve">
     <value>Environment variable VSS_NUGET_EXTERNAL_FEED_ENDPOINTS did not have credentials for endpoint {0}</value>
