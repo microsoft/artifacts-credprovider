@@ -25,9 +25,7 @@ Install [Visual Studio version 15.9-preview1 or later](https://visualstudio.micr
 
 ### dotnet
 
-The default installation requires [dotnet SDK](https://www.microsoft.com/net/download) version `6.0.x`.
-
-While the NuGet credential provider requires the dotnet runtime, the pip [artifacts-keyring](https://github.com/microsoft/artifacts-keyring) requires the dotnet SDK.
+The default installation requires the [dotnet Runtime](https://www.microsoft.com/net/download) version `6.0.x` or later.
 
 ## Setup
 
