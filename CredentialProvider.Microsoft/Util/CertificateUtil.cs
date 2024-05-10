@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Security.Cryptography.X509Certificates;
 using ILogger = NuGetCredentialProvider.Logging.ILogger;
 
@@ -15,7 +14,7 @@ namespace NuGetCredentialProvider.Util
                 return null;
             }
 
-            var locations = new List<StoreLocation> { StoreLocation.LocalMachine, StoreLocation.CurrentUser };
+            var locations = new []{ StoreLocation.LocalMachine, StoreLocation.CurrentUser };
             foreach (var location in locations)
             {
                 var store = new X509Store(StoreName.My, location);

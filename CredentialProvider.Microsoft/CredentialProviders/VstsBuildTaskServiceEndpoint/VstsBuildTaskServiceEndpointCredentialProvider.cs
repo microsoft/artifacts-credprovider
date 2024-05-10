@@ -92,8 +92,7 @@ namespace NuGetCredentialProvider.CredentialProviders.VstsBuildTaskServiceEndpoi
                     ? (Resources.ClientCertificateNotFound)
                     : string.Format(Resources.UsingCertificate, clientCertificate.Subject));
 
-                IEnumerable<ITokenProvider> tokenProviders = await TokenProvidersFactory.GetAsync(authority);
-                tokenProviders = tokenProviders.Where(x => x.Name == "MSAL Managed Identity" || x.Name == "MSAL Service Principal").ToList();
+                IEnumerable<ITokenProvider> tokenProviders = await TokenProvidersFactory.Get(authority);
                 cancellationToken.ThrowIfCancellationRequested();
 
                 var tokenRequest = new TokenRequest(request.Uri)

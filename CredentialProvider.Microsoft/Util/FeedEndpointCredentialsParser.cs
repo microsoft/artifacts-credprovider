@@ -6,6 +6,39 @@ using Newtonsoft.Json;
 using ILogger = NuGetCredentialProvider.Logging.ILogger;
 
 namespace NuGetCredentialProvider.Util;
+public class ExternalEndpointCredentials
+{
+    [JsonProperty("endpoint")]
+    public string Endpoint { get; set; }
+    [JsonProperty("username")]
+    public string Username { get; set; }
+    [JsonProperty("password")]
+    public string Password { get; set; }
+}
+
+public class ExternalEndpointCredentialsContainer
+{
+    [JsonProperty("endpointCredentials")]
+    public ExternalEndpointCredentials[] EndpointCredentials { get; set; }
+}
+
+public class EndpointCredentials
+{
+    [JsonPropertyName("endpoint")]
+    public string Endpoint { get; set; }
+    [JsonPropertyName("clientId")]
+    public string ClientId { get; set; }
+    [JsonPropertyName("clientCertificateFilePath")]
+    public string CertificateFilePath { get; set; }
+    [JsonPropertyName("clientCertificateSubjectName")]
+    public string CertificateSubjectName { get; set; }
+}
+
+public class EndpointCredentialsContainer
+{
+    [JsonPropertyName("endpointCredentials")]
+    public EndpointCredentials[] EndpointCredentials { get; set; }
+}
 
 public static class FeedEndpointCredentialsParser
 {
@@ -69,13 +102,12 @@ public static class FeedEndpointCredentialsParser
 
             return credsResult;
         }
-        catch (Exception e)
+        catch (Exception ex)
         {
-            logger.Verbose(string.Format(Resources.VstsBuildTaskExternalCredentialCredentialProviderError, e));
+            logger.Verbose(string.Format(Resources.VstsBuildTaskExternalCredentialCredentialProviderError, ex));
             return new Dictionary<string, EndpointCredentials>(StringComparer.OrdinalIgnoreCase); ;
         }
     }
-
 
     public static Dictionary<string, ExternalEndpointCredentials> ParseExternalFeedEndpointsJsonToDictionary(ILogger logger)
     {
@@ -92,6 +124,7 @@ public static class FeedEndpointCredentialsParser
             {
                 logger.Warning(Resources.InvalidJsonWarning);
             }
+
             Dictionary<string, ExternalEndpointCredentials> credsResult = new Dictionary<string, ExternalEndpointCredentials>(StringComparer.OrdinalIgnoreCase);
             ExternalEndpointCredentialsContainer endpointCredentials = JsonConvert.DeserializeObject<ExternalEndpointCredentialsContainer>(feedEndPointsJson);
             if (endpointCredentials == null)
@@ -128,44 +161,10 @@ public static class FeedEndpointCredentialsParser
 
             return credsResult;
         }
-        catch (Exception e)
+        catch (Exception ex)
         {
-            logger.Verbose(string.Format(Resources.VstsBuildTaskExternalCredentialCredentialProviderError, e));
+            logger.Verbose(string.Format(Resources.VstsBuildTaskExternalCredentialCredentialProviderError, ex));
             return new Dictionary<string, ExternalEndpointCredentials>(StringComparer.OrdinalIgnoreCase);
         }
     }
-}
-
-public class ExternalEndpointCredentials
-{
-    [JsonProperty("endpoint")]
-    public string Endpoint { get; set; }
-    [JsonProperty("username")]
-    public string Username { get; set; }
-    [JsonProperty("password")]
-    public string Password { get; set; }
-}
-
-public class ExternalEndpointCredentialsContainer
-{
-    [JsonProperty("endpointCredentials")]
-    public ExternalEndpointCredentials[] EndpointCredentials { get; set; }
-}
-
-public class EndpointCredentials
-{
-    [JsonPropertyName("endpoint")]
-    public string Endpoint { get; set; }
-    [JsonPropertyName("clientId")]
-    public string ClientId { get; set; }
-    [JsonPropertyName("clientCertificateFilePath")]
-    public string CertificateFilePath { get; set; }
-    [JsonPropertyName("clientCertificateSubjectName")]
-    public string CertificateSubjectName { get; set; }
-}
-
-public class EndpointCredentialsContainer
-{
-    [JsonPropertyName("endpointCredentials")]
-    public EndpointCredentials[] EndpointCredentials { get; set; }
 }

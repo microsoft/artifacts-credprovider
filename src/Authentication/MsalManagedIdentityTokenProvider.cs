@@ -9,9 +9,9 @@ public class MsalManagedIdentityTokenProvider : ITokenProvider
     private readonly ILogger logger;
     private readonly IAppConfig appConfig;
 
-    public MsalManagedIdentityTokenProvider(IAppConfig appConfig, ILogger logger)
+    public MsalManagedIdentityTokenProvider(IPublicClientApplication app, ILogger logger)
     {
-        this.appConfig = appConfig;
+        this.appConfig = app.AppConfig;
         this.logger = logger;
     }
 
@@ -32,12 +32,12 @@ public class MsalManagedIdentityTokenProvider : ITokenProvider
                 return null;
             }
 
-            IManagedIdentityApplication mi = ManagedIdentityApplicationBuilder.Create(CreateManagedIdentityId(tokenRequest.ClientId!))
+            IManagedIdentityApplication app = ManagedIdentityApplicationBuilder.Create(CreateManagedIdentityId(tokenRequest.ClientId))
                 .WithHttpClientFactory(appConfig.HttpClientFactory)
                 .WithLogging(appConfig.LoggingCallback, appConfig.LogLevel, appConfig.EnablePiiLogging, appConfig.IsDefaultPlatformLoggingEnabled)
                 .Build();
 
-            AuthenticationResult result = await mi.AcquireTokenForManagedIdentity(MsalConstants.AzureDevOpsResource)
+            AuthenticationResult result = await app.AcquireTokenForManagedIdentity(MsalConstants.AzureDevOpsResource)
                 .ExecuteAsync()
                 .ConfigureAwait(false);
 

@@ -12,9 +12,9 @@ namespace Microsoft.Artifacts.Authentication
         private readonly ILogger logger;
         private readonly IAppConfig appConfig;
 
-        public MsalServicePrincipalTokenProvider(IAppConfig appConfig, ILogger logger)
+        public MsalServicePrincipalTokenProvider(IPublicClientApplication app, ILogger logger)
         {
-            this.appConfig = appConfig;
+            this.appConfig = app.AppConfig;
             this.logger = logger;
         }
 

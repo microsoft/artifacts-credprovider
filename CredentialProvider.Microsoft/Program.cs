@@ -53,11 +53,12 @@ namespace NuGetCredentialProvider
             var authUtil = new AuthUtil(multiLogger);
             var logger = new NuGetLoggerAdapter(multiLogger, parsedArgs.Verbosity);
             var tokenProvidersFactory = new MsalTokenProvidersFactory(logger);
+            var vstsBuildTaskTokenProvidersFactory = new VstsBuildTaskMsalTokenProvidersFactory(logger);
             var vstsSessionTokenProvider = new VstsSessionTokenFromBearerTokenProvider(authUtil, multiLogger);
 
             List<ICredentialProvider> credentialProviders = new List<ICredentialProvider>
             {
-                new VstsBuildTaskServiceEndpointCredentialProvider(multiLogger, tokenProvidersFactory, authUtil),
+                new VstsBuildTaskServiceEndpointCredentialProvider(multiLogger, vstsBuildTaskTokenProvidersFactory, authUtil),
                 new VstsBuildTaskCredentialProvider(multiLogger),
                 new VstsCredentialProvider(multiLogger, authUtil, tokenProvidersFactory, vstsSessionTokenProvider),
             };

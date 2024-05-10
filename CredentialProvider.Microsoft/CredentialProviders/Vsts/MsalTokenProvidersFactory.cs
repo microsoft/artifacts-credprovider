@@ -22,7 +22,7 @@ namespace NuGetCredentialProvider.CredentialProviders.Vsts
             this.logger = logger;
         }
 
-        public async Task<IEnumerable<ITokenProvider>> GetAsync(Uri authority)
+        public async Task<IEnumerable<ITokenProvider>> Get(Uri authority)
         {
             if (cache == null && EnvUtil.MsalFileCacheEnabled())
             {

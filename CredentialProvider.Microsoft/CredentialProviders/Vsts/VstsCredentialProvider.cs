@@ -46,10 +46,10 @@ namespace NuGetCredentialProvider.CredentialProviders.Vsts
             string uriPrefixesStringEnvVar = Environment.GetEnvironmentVariable(EnvUtil.BuildTaskUriPrefixes);
             string accessTokenEnvVar = Environment.GetEnvironmentVariable(EnvUtil.BuildTaskAccessToken);
 
-            if (string.IsNullOrWhiteSpace(feedEndPointsJsonEnvVar) == false 
-                || string.IsNullOrWhiteSpace(externalFeedEndPointsJsonEnvVar) == false 
-                || string.IsNullOrWhiteSpace(uriPrefixesStringEnvVar) == false
-                || string.IsNullOrWhiteSpace(accessTokenEnvVar) == false)
+            if (string.IsNullOrWhiteSpace(feedEndPointsJsonEnvVar) == false || 
+                string.IsNullOrWhiteSpace(externalFeedEndPointsJsonEnvVar) == false || 
+                string.IsNullOrWhiteSpace(uriPrefixesStringEnvVar) == false || 
+                string.IsNullOrWhiteSpace(accessTokenEnvVar) == false)
             {
                 Verbose(Resources.BuildTaskCredProviderIsUsedError);
                 return false;
@@ -103,7 +103,7 @@ namespace NuGetCredentialProvider.CredentialProviders.Vsts
             Uri authority = await authUtil.GetAadAuthorityUriAsync(request.Uri, cancellationToken);
             Verbose(string.Format(Resources.UsingAuthority, authority));
 
-            IEnumerable<ITokenProvider> tokenProviders = await tokenProvidersFactory.GetAsync(authority);
+            IEnumerable<ITokenProvider> tokenProviders = await tokenProvidersFactory.Get(authority);
             cancellationToken.ThrowIfCancellationRequested();
 
             var tokenRequest = new TokenRequest(request.Uri)
