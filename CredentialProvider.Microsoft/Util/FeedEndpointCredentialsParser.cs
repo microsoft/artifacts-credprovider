@@ -50,8 +50,8 @@ public static class FeedEndpointCredentialsParser
 
     public static Dictionary<string, EndpointCredentials> ParseFeedEndpointsJsonToDictionary(ILogger logger)
     {
-        string feedEndPointsJson = Environment.GetEnvironmentVariable(EnvUtil.EndpointCredentials);
-        if (string.IsNullOrWhiteSpace(feedEndPointsJson))
+        string feedEndpointsJson = Environment.GetEnvironmentVariable(EnvUtil.EndpointCredentials);
+        if (string.IsNullOrWhiteSpace(feedEndpointsJson))
         {
             return new Dictionary<string, EndpointCredentials>(StringComparer.OrdinalIgnoreCase);
         }
@@ -60,7 +60,7 @@ public static class FeedEndpointCredentialsParser
         {
             logger.Verbose(Resources.ParsingJson);
             Dictionary<string, EndpointCredentials> credsResult = new Dictionary<string, EndpointCredentials>(StringComparer.OrdinalIgnoreCase);
-            EndpointCredentialsContainer endpointCredentials = System.Text.Json.JsonSerializer.Deserialize<EndpointCredentialsContainer>(feedEndPointsJson, options);
+            EndpointCredentialsContainer endpointCredentials = System.Text.Json.JsonSerializer.Deserialize<EndpointCredentialsContainer>(feedEndpointsJson, options);
             if (endpointCredentials == null)
             {
                 logger.Verbose(Resources.NoEndpointsFound);
@@ -111,8 +111,8 @@ public static class FeedEndpointCredentialsParser
 
     public static Dictionary<string, ExternalEndpointCredentials> ParseExternalFeedEndpointsJsonToDictionary(ILogger logger)
     {
-        string feedEndPointsJson = Environment.GetEnvironmentVariable(EnvUtil.BuildTaskExternalEndpoints);
-        if (string.IsNullOrWhiteSpace(feedEndPointsJson))
+        string feedEndpointsJson = Environment.GetEnvironmentVariable(EnvUtil.BuildTaskExternalEndpoints);
+        if (string.IsNullOrWhiteSpace(feedEndpointsJson))
         {
             return new Dictionary<string, ExternalEndpointCredentials>(StringComparer.OrdinalIgnoreCase);
         }
@@ -120,13 +120,13 @@ public static class FeedEndpointCredentialsParser
         try
         {
             logger.Verbose(Resources.ParsingJson);
-            if (feedEndPointsJson.Contains("':"))
+            if (feedEndpointsJson.Contains("':"))
             {
                 logger.Warning(Resources.InvalidJsonWarning);
             }
 
             Dictionary<string, ExternalEndpointCredentials> credsResult = new Dictionary<string, ExternalEndpointCredentials>(StringComparer.OrdinalIgnoreCase);
-            ExternalEndpointCredentialsContainer endpointCredentials = JsonConvert.DeserializeObject<ExternalEndpointCredentialsContainer>(feedEndPointsJson);
+            ExternalEndpointCredentialsContainer endpointCredentials = JsonConvert.DeserializeObject<ExternalEndpointCredentialsContainer>(feedEndpointsJson);
             if (endpointCredentials == null)
             {
                 logger.Verbose(Resources.NoEndpointsFound);
