@@ -34,10 +34,10 @@ namespace Microsoft.Artifacts.Authentication
                     return null;
                 }
 
-                var app = ConfidentialClientApplicationBuilder
-                    .Create(tokenRequest.ClientId)
+                var app = ConfidentialClientApplicationBuilder.Create(tokenRequest.ClientId)
                     .WithHttpClientFactory(appConfig.HttpClientFactory)
-                    .WithCertificate(tokenRequest.ClientCertificate)
+                    .WithLogging(appConfig.LoggingCallback, appConfig.LogLevel, appConfig.EnablePiiLogging, appConfig.IsDefaultPlatformLoggingEnabled)
+                    .WithCertificate(tokenRequest.ClientCertificate, sendX5C: true)
                     .WithTenantId(tokenRequest.TenantId)
                     .Build();
 
