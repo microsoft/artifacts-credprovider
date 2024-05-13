@@ -81,18 +81,16 @@ namespace NuGetCredentialProvider.CredentialProviders.VstsBuildTaskServiceEndpoi
             bool endpointFound = Credentials.TryGetValue(uriString, out EndpointCredentials matchingEndpoint);
             if (endpointFound && !string.IsNullOrWhiteSpace(matchingEndpoint.ClientId))
             {
-                Uri authority = await AuthUtil.GetAadAuthorityUriAsync(request.Uri, cancellationToken);
-                Verbose(string.Format(Resources.UsingAuthority, authority));
-
-                var tenantId = await AuthUtil.GetTenantIdAsync(request.Uri, cancellationToken);
-                Verbose(string.Format(Resources.UsingTenant, tenantId));
+                var authInfo = await AuthUtil.GetAuthorizationInfoAsync(request.Uri, cancellationToken);
+                Verbose(string.Format(Resources.UsingAuthority, authInfo.EntraAuthorityUri));
+                Verbose(string.Format(Resources.UsingTenant, authInfo.EntraTenantId));
 
                 var clientCertificate = GetCertificate(matchingEndpoint);
                 Logger.Verbose(clientCertificate == null
                     ? (Resources.ClientCertificateNotFound)
                     : string.Format(Resources.UsingCertificate, clientCertificate.Subject));
 
-                IEnumerable<ITokenProvider> tokenProviders = await TokenProvidersFactory.Get(authority);
+                IEnumerable<ITokenProvider> tokenProviders = await TokenProvidersFactory.Get(authInfo.EntraAuthorityUri);
                 cancellationToken.ThrowIfCancellationRequested();
 
                 var tokenRequest = new TokenRequest(request.Uri)
@@ -104,7 +102,7 @@ namespace NuGetCredentialProvider.CredentialProviders.VstsBuildTaskServiceEndpoi
                     InteractiveTimeout = TimeSpan.FromSeconds(EnvUtil.GetDeviceFlowTimeoutFromEnvironmentInSeconds(Logger)),
                     ClientId = matchingEndpoint.ClientId,
                     ClientCertificate = clientCertificate,
-                    TenantId = tenantId
+                    TenantId = authInfo.EntraTenantId
                 };
 
                 foreach(var tokenProvider in tokenProviders)

@@ -53,8 +53,8 @@ namespace CredentialProvider.Microsoft.Tests.CredentialProviders.Vsts
 
             mockAuthUtil = new Mock<IAuthUtil>();
             mockAuthUtil
-                .Setup(x => x.GetAadAuthorityUriAsync(It.IsAny<Uri>(), It.IsAny<CancellationToken>()))
-                .Returns(Task.FromResult(testAuthority));
+                .Setup(x => x.GetAuthorizationInfoAsync(It.IsAny<Uri>(), It.IsAny<CancellationToken>()))
+                .Returns(Task.FromResult(new AuthorizationInfo() { EntraAuthorityUri = testAuthority }));
 
             vstsCredentialProvider = new VstsCredentialProvider(
                 mockLogger.Object,

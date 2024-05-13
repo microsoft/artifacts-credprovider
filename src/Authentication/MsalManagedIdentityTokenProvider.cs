@@ -32,7 +32,7 @@ public class MsalManagedIdentityTokenProvider : ITokenProvider
                 return null;
             }
 
-            IManagedIdentityApplication app = ManagedIdentityApplicationBuilder.Create(CreateManagedIdentityId(tokenRequest.ClientId))
+            IManagedIdentityApplication app = ManagedIdentityApplicationBuilder.Create(CreateManagedIdentityId(tokenRequest.ClientId!))
                 .WithHttpClientFactory(appConfig.HttpClientFactory)
                 .WithLogging(appConfig.LoggingCallback, appConfig.LogLevel, appConfig.EnablePiiLogging, appConfig.IsDefaultPlatformLoggingEnabled)
                 .Build();

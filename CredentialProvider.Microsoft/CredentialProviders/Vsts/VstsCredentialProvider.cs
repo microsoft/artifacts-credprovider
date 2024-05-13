@@ -100,10 +100,10 @@ namespace NuGetCredentialProvider.CredentialProviders.Vsts
                 canShowDialog = forceCanShowDialogTo.Value;
             }
 
-            Uri authority = await authUtil.GetAadAuthorityUriAsync(request.Uri, cancellationToken);
-            Verbose(string.Format(Resources.UsingAuthority, authority));
+            var authInfo = await authUtil.GetAuthorizationInfoAsync(request.Uri, cancellationToken);
+            Verbose(string.Format(Resources.UsingAuthority, authInfo.EntraAuthorityUri));
 
-            IEnumerable<ITokenProvider> tokenProviders = await tokenProvidersFactory.Get(authority);
+            IEnumerable<ITokenProvider> tokenProviders = await tokenProvidersFactory.Get(authInfo.EntraAuthorityUri);
             cancellationToken.ThrowIfCancellationRequested();
 
             var tokenRequest = new TokenRequest(request.Uri)
