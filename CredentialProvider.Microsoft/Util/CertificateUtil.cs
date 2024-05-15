@@ -68,7 +68,7 @@ internal static class CertificateUtil
         catch (Exception ex)
         {
             logger.Error(string.Format(Resources.ClientCertificateError, ex, ex.Message));
-            throw;
+            return null;
         }
     }
 }

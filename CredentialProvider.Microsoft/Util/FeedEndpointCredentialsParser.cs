@@ -81,7 +81,7 @@ public static class FeedEndpointCredentialsParser
                     break;
                 }
 
-                if(credentials.CertificateSubjectName != null && credentials.CertificateFilePath != null)
+                if (credentials.CertificateSubjectName != null && credentials.CertificateFilePath != null)
                 {
                     logger.Verbose(Resources.EndpointParseFailure);
                     break;

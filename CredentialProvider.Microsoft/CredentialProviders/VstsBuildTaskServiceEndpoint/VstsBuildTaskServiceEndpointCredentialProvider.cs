@@ -86,7 +86,7 @@ namespace NuGetCredentialProvider.CredentialProviders.VstsBuildTaskServiceEndpoi
                 Verbose(string.Format(Resources.UsingTenant, authInfo.EntraTenantId));
 
                 var clientCertificate = GetCertificate(matchingEndpoint);
-                Logger.Verbose(clientCertificate == null
+                Info(clientCertificate == null
                     ? (Resources.ClientCertificateNotFound)
                     : string.Format(Resources.UsingCertificate, clientCertificate.Subject));
 
@@ -166,7 +166,7 @@ namespace NuGetCredentialProvider.CredentialProviders.VstsBuildTaskServiceEndpoi
 
         private X509Certificate2 GetCertificate(EndpointCredentials credentials)
         {
-            if(!string.IsNullOrWhiteSpace(credentials.CertificateSubjectName))
+            if (!string.IsNullOrWhiteSpace(credentials.CertificateSubjectName))
             {
                 return CertificateUtil.GetCertificateBySubjectName(Logger, credentials.CertificateSubjectName);
             }
@@ -175,6 +175,7 @@ namespace NuGetCredentialProvider.CredentialProviders.VstsBuildTaskServiceEndpoi
             {
                 return CertificateUtil.GetCertificateByFilePath(Logger, credentials.CertificateFilePath);
             }
+
             return null;
         }
     }
