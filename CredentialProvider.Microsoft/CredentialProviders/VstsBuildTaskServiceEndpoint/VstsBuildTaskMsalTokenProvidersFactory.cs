@@ -6,7 +6,7 @@ using Microsoft.Artifacts.Authentication;
 using Microsoft.Extensions.Logging;
 using NuGetCredentialProvider.Util;
 
-namespace NuGetCredentialProvider.CredentialProviders.Vsts;
+namespace NuGetCredentialProvider.CredentialProviders.VstsBuildTaskServiceEndpoint;
 
 internal class VstsBuildTaskMsalTokenProvidersFactory : ITokenProvidersFactory
 {
@@ -23,7 +23,7 @@ internal class VstsBuildTaskMsalTokenProvidersFactory : ITokenProvidersFactory
             .WithBroker(EnvUtil.MsalAllowBrokerEnabled(), logger)
             .WithHttpClientFactory(HttpClientFactory.Default)
             .WithLogging(
-                (Microsoft.Identity.Client.LogLevel level, string message, bool containsPii) =>
+                (level, message, containsPii) =>
                 {
                     // We ignore containsPii param because we are passing in enablePiiLogging below.
                     logger.LogTrace("MSAL Log ({level}): {message}", level, message);
