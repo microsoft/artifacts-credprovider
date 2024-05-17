@@ -89,7 +89,7 @@ namespace NuGetCredentialProvider.CredentialProviders.VstsBuildTaskServiceEndpoi
                     ? (Resources.ClientCertificateNotFound)
                     : string.Format(Resources.UsingCertificate, clientCertificate.Subject));
 
-                IEnumerable<ITokenProvider> tokenProviders = await TokenProvidersFactory.Get(authInfo.EntraAuthorityUri);
+                IEnumerable<ITokenProvider> tokenProviders = await TokenProvidersFactory.GetAsync(authInfo.EntraAuthorityUri);
                 cancellationToken.ThrowIfCancellationRequested();
 
                 var tokenRequest = new TokenRequest(request.Uri)

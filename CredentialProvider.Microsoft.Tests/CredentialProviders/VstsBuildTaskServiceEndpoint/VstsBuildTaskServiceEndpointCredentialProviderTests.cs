@@ -108,7 +108,7 @@ public class VstsBuildTaskServiceEndpointCredentialProviderTests
         Environment.SetEnvironmentVariable(EnvUtil.BuildTaskExternalEndpoints, null);
 
         mockTokenProviderFactory.Setup(x =>
-            x.Get(It.IsAny<Uri>()))
+            x.GetAsync(It.IsAny<Uri>()))
                 .ReturnsAsync(new List<ITokenProvider>()
                 {
                     SetUpMockManagedIdentityTokenProvider("someTokenValue").Object
@@ -203,7 +203,7 @@ public class VstsBuildTaskServiceEndpointCredentialProviderTests
         Environment.SetEnvironmentVariable(EnvUtil.EndpointCredentials, feedEndPointJson);
 
         mockTokenProviderFactory.Setup(x =>
-            x.Get(It.IsAny<Uri>()))
+            x.GetAsync(It.IsAny<Uri>()))
                 .ReturnsAsync(new List<ITokenProvider>() { 
                     SetUpMockManagedIdentityTokenProvider(null).Object });
 
@@ -223,7 +223,7 @@ public class VstsBuildTaskServiceEndpointCredentialProviderTests
         mockTokenProvider.Setup(x => x.Name).Returns("wrong name");
 
         mockTokenProviderFactory.Setup(x =>
-            x.Get(It.IsAny<Uri>()))
+            x.GetAsync(It.IsAny<Uri>()))
                 .ReturnsAsync(new List<ITokenProvider>() { mockTokenProvider.Object });
 
         var result = await vstsCredentialProvider.HandleRequestAsync(new GetAuthenticationCredentialsRequest(sourceUri, false, false, false), CancellationToken.None);
@@ -246,7 +246,7 @@ public class VstsBuildTaskServiceEndpointCredentialProviderTests
             .ThrowsAsync(new Exception("some Message"));
 
         mockTokenProviderFactory.Setup(x =>
-            x.Get(It.IsAny<Uri>()))
+            x.GetAsync(It.IsAny<Uri>()))
                 .ReturnsAsync(new List<ITokenProvider>() { mockTokenProvider.Object });
 
         var result = await vstsCredentialProvider.HandleRequestAsync(new GetAuthenticationCredentialsRequest(sourceUri, false, false, false), CancellationToken.None);

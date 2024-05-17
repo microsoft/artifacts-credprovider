@@ -1,9 +1,13 @@
-﻿using System;
+﻿// Copyright (c) Microsoft. All rights reserved.
+//
+// Licensed under the MIT license.
+
+using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.Artifacts.Authentication;
 using Microsoft.Extensions.Logging;
+using Microsoft.Identity.Client;
 using NuGetCredentialProvider.Util;
 
 namespace NuGetCredentialProvider.CredentialProviders.VstsBuildTaskServiceEndpoint;
@@ -17,7 +21,7 @@ internal class VstsBuildTaskMsalTokenProvidersFactory : ITokenProvidersFactory
         this.logger = logger;
     }
 
-    public Task<IEnumerable<ITokenProvider>> Get(Uri authority)
+    public Task<IEnumerable<ITokenProvider>> GetAsync(Uri authority)
     {
         var app = AzureArtifacts.CreateDefaultBuilder(authority)
             .WithBroker(EnvUtil.MsalAllowBrokerEnabled(), logger)
@@ -32,7 +36,12 @@ internal class VstsBuildTaskMsalTokenProvidersFactory : ITokenProvidersFactory
             )
             .Build();
 
-        return Task.FromResult(MsalTokenProviders.Get(app, logger)
-            .Where(x => x.Name == "MSAL Managed Identity" || x.Name == "MSAL Service Principal"));
+        return Task.FromResult(ConstructTokenProvidersList(app));
+    }
+
+    private IEnumerable<ITokenProvider> ConstructTokenProvidersList(IPublicClientApplication app)
+    {
+        yield return new MsalServicePrincipalTokenProvider(app, logger);
+        yield return new MsalManagedIdentityTokenProvider(app, logger);
     }
 }

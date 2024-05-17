@@ -46,7 +46,7 @@ namespace CredentialProvider.Microsoft.Tests.CredentialProviders.Vsts
             mockBearerTokenProvider2.Setup(x => x.CanGetToken(It.IsAny<TokenRequest>())).Returns(true);
             mockBearerTokenProvider2.Setup(x => x.GetTokenAsync(It.IsAny<TokenRequest>(), It.IsAny<CancellationToken>())).ReturnsAsync((AuthenticationResult)null);
             mockBearerTokenProvidersFactory = new Mock<ITokenProvidersFactory>();
-            mockBearerTokenProvidersFactory.Setup(x => x.Get(It.IsAny<Uri>())).ReturnsAsync(new[] { mockBearerTokenProvider1.Object, mockBearerTokenProvider2.Object });
+            mockBearerTokenProvidersFactory.Setup(x => x.GetAsync(It.IsAny<Uri>())).ReturnsAsync(new[] { mockBearerTokenProvider1.Object, mockBearerTokenProvider2.Object });
 
             mockVstsSessionTokenFromBearerTokenProvider = new Mock<IAzureDevOpsSessionTokenFromBearerTokenProvider>();
             mockVstsSessionTokenFromBearerTokenProvider.Setup(x => x.GetAzureDevOpsSessionTokenFromBearerToken(It.IsAny<GetAuthenticationCredentialsRequest>(), It.IsAny<string>(), It.IsAny<bool>(), It.IsAny<CancellationToken>()));

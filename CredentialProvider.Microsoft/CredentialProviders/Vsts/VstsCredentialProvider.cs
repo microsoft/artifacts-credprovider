@@ -103,7 +103,7 @@ namespace NuGetCredentialProvider.CredentialProviders.Vsts
             var authInfo = await authUtil.GetAuthorizationInfoAsync(request.Uri, cancellationToken);
             Verbose(string.Format(Resources.UsingAuthority, authInfo.EntraAuthorityUri));
 
-            IEnumerable<ITokenProvider> tokenProviders = await tokenProvidersFactory.Get(authInfo.EntraAuthorityUri);
+            IEnumerable<ITokenProvider> tokenProviders = await tokenProvidersFactory.GetAsync(authInfo.EntraAuthorityUri);
             cancellationToken.ThrowIfCancellationRequested();
 
             var tokenRequest = new TokenRequest(request.Uri)

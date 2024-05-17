@@ -79,6 +79,33 @@ public class MsalAuthenticationTests
         Assert.AreEqual(TokenSource.IdentityProvider, result.AuthenticationResultMetadata.TokenSource);
     }
 
+    [TestMethod]
+    public async Task MsalAquireTokenWithManagedIdentity()
+    {
+        var tokenProvider = new MsalManagedIdentityTokenProvider(app, logger);
+        var tokenRequest = new TokenRequest(PackageUri);
+        tokenRequest.ClientId = Environment.GetEnvironmentVariable("ARTIFACTS_CREDENTIALPROVIDER_TEST_CLIENTID");
+
+        var result = await tokenProvider.GetTokenAsync(tokenRequest);
+
+        Assert.IsNotNull(result);
+        Assert.AreEqual(TokenSource.IdentityProvider, result.AuthenticationResultMetadata.TokenSource);
+    }
+
+    [TestMethod]
+    public async Task MsalAquireTokenWithServicePrincipal()
+    {
+        var tokenProvider = new MsalServicePrincipalTokenProvider(app, logger);
+        var tokenRequest = new TokenRequest(PackageUri);
+        tokenRequest.ClientId = Environment.GetEnvironmentVariable("ARTIFACTS_CREDENTIALPROVIDER_TEST_CLIENTID");
+        tokenRequest.ClientCertificate = new X509Certificate2(Environment.GetEnvironmentVariable("ARTIFACTS_CREDENTIALPROVIDER_TEST_CERT_PATH") ?? string.Empty);
+
+        var result = await tokenProvider.GetTokenAsync(tokenRequest);
+
+        Assert.IsNotNull(result);
+        Assert.AreEqual(TokenSource.IdentityProvider, result.AuthenticationResultMetadata.TokenSource);
+    }
+
     [System.Runtime.InteropServices.DllImport("user32.dll")]
     private static extern IntPtr GetForegroundWindow();
 }

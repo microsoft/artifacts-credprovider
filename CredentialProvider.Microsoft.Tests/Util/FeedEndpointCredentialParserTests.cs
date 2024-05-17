@@ -1,4 +1,8 @@
-﻿using System;
+﻿// Copyright (c) Microsoft. All rights reserved.
+//
+// Licensed under the MIT license.
+
+using System;
 using CredentialProvider.Microsoft.Tests.CredentialProviders.Vsts;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
