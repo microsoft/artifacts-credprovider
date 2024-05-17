@@ -2,8 +2,6 @@
 //
 // Licensed under the MIT license.
 
-using System.Security.Cryptography.X509Certificates;
-
 namespace Microsoft.Artifacts.Authentication.Tests;
 
 [TestClass]
