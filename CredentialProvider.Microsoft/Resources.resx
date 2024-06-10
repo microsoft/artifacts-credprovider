@@ -118,7 +118,7 @@
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
   <data name="AADAuthorityNotFound" xml:space="preserve">
-    <value>Could not find AAD authority from headers, using default: {0}</value>
+    <value>Could not find Entra authority from headers, using default: {0}</value>
   </data>
   <data name="AADAuthorityOverrideFound" xml:space="preserve">
     <value>Found AAD authority override: {0}</value>
@@ -140,7 +140,7 @@
     <value>DeviceFlow: {0}</value>
   </data>
   <data name="UsingAuthority" xml:space="preserve">
-    <value>Using AAD authority: {0}</value>
+    <value>Using Entra authority: {0}</value>
   </data>
   <data name="BuildTaskEnvVarError" xml:space="preserve">
     <value>This credential provider must be run under the Team Build tasks for NuGet. Appropriate environment variables must be set.</value>
@@ -167,7 +167,7 @@
     <value>Command-line v{0}: {1}</value>
   </data>
   <data name="CouldNotParseAADAuthorityOverride" xml:space="preserve">
-    <value>Could not parse AAD authority override: {0}</value>
+    <value>Could not parse Entra authority override: {0}</value>
   </data>
   <data name="CouldNotParseSessionTimeOverride" xml:space="preserve">
     <value>Could not parse Session Time override: {0}</value>
@@ -311,42 +311,51 @@ Build Provider Service Endpoint Json
         Example: {{"endpointCredentials": [{{"endpoint":"http://example.index.json",
         "username":"optional", "password":"accesstoken"}}]}}
 
+Artifacts Service Endpoint Json
+    {8}
+        Json that contains an array of service endpoints, client ids, and certificate 
+        information to authenticate endpoints for Azure Managed Identities 
+        and Service Principals.
+        Example: {{"endpointCredentials": [{{"endpoint":"http://example.index.json",
+        "clientId":"required", "clientCertificateFilePath":"optional","
+        clientCertificateSubjectName": "optional" }}]}}
+
 Cache Location
     The Credential Provider uses the following paths to cache credentials. If
     deleted, the credential provider will re-create them but any credentials
     will need to be provided again.
 
     MSAL Token Cache
-    {8}
-
-    Session Token Cache
     {9}
 
-Windows Integrated Authentication
+    Session Token Cache
     {10}
+
+Windows Integrated Authentication
+    {11}
         Boolean to enable/disable using silent Windows Integrated Authentication
         to authenticate as the logged-in user. Enabled by default.
 
 Device Flow Authentication Timeout
-    {11}
+    {12}
         Device Flow authentication timeout in seconds. Default is 90 seconds.
 
 NuGet workarounds
-    {12}
+    {13}
         Set to "true" or "false" to override any other sources of the
         CanShowDialog parameter.
 
 MSAL Authority
-    {13}
+    {14}
         Set to override the authority used when fetching an MSAL token.
         e.g. https://login.microsoftonline.com/organizations
 
 MSAL Token File Cache Enabled
-    {14}
+    {15}
         Boolean to enable/disable the MSAL token cache. Enabled by default.
 
 Provide MSAL Cache Location
-    {15}
+    {16}
     Provide the location where the MSAL cache should be read and written to.</value>
   </data>
   <data name="CredentialParseFailure" xml:space="preserve">
@@ -398,7 +407,7 @@ Provide MSAL Cache Location
     <value>Could not parse Device Flow Timeout override: {0}</value>
   </data>
   <data name="BuildTaskCredProviderIsUsedError" xml:space="preserve">
-    <value>This credential provider must not run if any build task environment variables are set. Variables: VSS_NUGET_URI_PREFIXES, VSS_NUGET_ACCESSTOKEN, VSS_NUGET_EXTERNAL_FEED_ENDPOINTS</value>
+    <value>This credential provider must not run if any build task environment variables are set. Variables: VSS_NUGET_URI_PREFIXES, VSS_NUGET_ACCESSTOKEN, VSS_NUGET_EXTERNAL_FEED_ENDPOINTS, ARTIFACTS_CREDENTIALPROVIDER_FEED_ENDPOINTS</value>
   </data>
   <data name="BuildTaskEndpointNoMatchingUrl" xml:space="preserve">
     <value>Environment variable VSS_NUGET_EXTERNAL_FEED_ENDPOINTS did not have credentials for endpoint {0}</value>
@@ -475,6 +484,29 @@ Provide MSAL Cache Location
   </data>
   <data name="InvalidJsonWarning" xml:space="preserve">
     <value>Detected invalid single quote charater in JSON input. Migrate to double quotes to avoid breaking in future versions.  See https://www.rfc-editor.org/rfc/rfc8259.html#section-7 for more information.</value>
-
+  </data>
+  <data name="ClientCertificateError" xml:space="preserve">
+    <value>Error accessing client certificate. Exception {0}, Message: {1}</value>
+  </data>
+  <data name="ClientCertificateFilePathNotFound" xml:space="preserve">
+    <value>Certificate with file path {0} not found.</value>
+  </data>
+  <data name="ClientCertificateFound" xml:space="preserve">
+    <value>Found client certificate for {0}.</value>
+  </data>
+  <data name="ClientCertificateNotFound" xml:space="preserve">
+    <value>Unable to find client certificate.</value>
+  </data>
+  <data name="ClientCertificateSubjectNameNotFound" xml:space="preserve">
+    <value>Certificate with subject name {0} not found. </value>
+  </data>
+  <data name="InvalidCertificateInput" xml:space="preserve">
+    <value>Certificate information invalid.</value>
+  </data>
+  <data name="UsingCertificate" xml:space="preserve">
+    <value>Using certificate: {0}.</value>
+  </data>
+  <data name="UsingTenant" xml:space="preserve">
+    <value>Using Entra tenant: {0}.</value>
   </data>
 </root>
