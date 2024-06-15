@@ -2,6 +2,7 @@
 //
 // Licensed under the MIT license.
 
+using System.Security.Cryptography.X509Certificates;
 using Microsoft.Identity.Client;
 
 namespace Microsoft.Artifacts.Authentication;
@@ -31,4 +32,10 @@ public class TokenRequest
     public TimeSpan InteractiveTimeout { get; set; } = TimeSpan.FromMinutes(2);
 
     public Func<DeviceCodeResult, Task>? DeviceCodeResultCallback { get; set; } = null;
+
+    public string? ClientId { get; set; } = null;
+
+    public string? TenantId { get; set; } = null;
+
+    public X509Certificate2? ClientCertificate { get; set; } = null;
 }

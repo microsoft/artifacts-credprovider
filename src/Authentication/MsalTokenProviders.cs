@@ -11,6 +11,9 @@ public class MsalTokenProviders
 {
     public static IEnumerable<ITokenProvider> Get(IPublicClientApplication app, ILogger logger)
     {
+        yield return new MsalServicePrincipalTokenProvider(app, logger);
+        yield return new MsalManagedIdentityTokenProvider(app, logger);
+
         // TODO: Would be more useful if MsalSilentTokenProvider enumerated over each account from the outside
         yield return new MsalSilentTokenProvider(app, logger);
 

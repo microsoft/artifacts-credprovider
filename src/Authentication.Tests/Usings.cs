@@ -2,6 +2,7 @@
 //
 // Licensed under the MIT license.
 
+global using System.Security.Cryptography.X509Certificates;
 global using Microsoft.Extensions.Logging;
 global using Microsoft.Identity.Client;
 global using Microsoft.Identity.Client.Extensions.Msal;

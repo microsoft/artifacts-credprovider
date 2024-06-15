@@ -93,4 +93,60 @@ public class TokenProviderTests
         tokenRequest.IsInteractive = true;
         Assert.IsTrue(tokenProvider.CanGetToken(tokenRequest));
     }
+
+    [TestMethod]
+    public void MsalServicePrincipalContractTest()
+    {
+        appMock.Setup(x => x.AppConfig)
+            .Returns(new Mock<IAppConfig>().Object);
+
+        var tokenProvider = new MsalServicePrincipalTokenProvider(appMock.Object, loggerMock.Object);
+        var tokenRequest = new TokenRequest(PackageUri);
+
+        Assert.IsNotNull(tokenProvider.Name);
+        Assert.IsFalse(tokenProvider.IsInteractive);
+
+        tokenRequest.IsInteractive = true;
+        Assert.IsFalse(tokenProvider.CanGetToken(tokenRequest));
+
+        tokenRequest.IsInteractive = false;
+        tokenRequest.ClientId = "clientId";
+        tokenRequest.ClientCertificate = Mock.Of<X509Certificate2>();
+        Assert.IsTrue(tokenProvider.CanGetToken(tokenRequest));
+
+        tokenRequest.IsInteractive = false;
+        tokenRequest.ClientId = null;
+        tokenRequest.ClientCertificate = Mock.Of<X509Certificate2>();
+        Assert.IsFalse(tokenProvider.CanGetToken(tokenRequest));
+
+        tokenRequest.IsInteractive = false;
+        tokenRequest.ClientId = "clientId";
+        tokenRequest.ClientCertificate = null;
+        Assert.IsFalse(tokenProvider.CanGetToken(tokenRequest));
+    }
+
+
+    [TestMethod]
+    public void MsalManagedIdentityContractTest()
+    {
+        appMock.Setup(x => x.AppConfig)
+            .Returns(new Mock<IAppConfig>().Object);
+
+        var tokenProvider = new MsalManagedIdentityTokenProvider(appMock.Object, loggerMock.Object);
+        var tokenRequest = new TokenRequest(PackageUri);
+
+        Assert.IsNotNull(tokenProvider.Name);
+        Assert.IsFalse(tokenProvider.IsInteractive);
+
+        tokenRequest.IsInteractive = true;
+        Assert.IsFalse(tokenProvider.CanGetToken(tokenRequest));
+
+        tokenRequest.IsInteractive = false;
+        tokenRequest.ClientId = "clientId";
+        Assert.IsTrue(tokenProvider.CanGetToken(tokenRequest));
+
+        tokenRequest.IsInteractive = false;
+        tokenRequest.ClientId = null;
+        Assert.IsFalse(tokenProvider.CanGetToken(tokenRequest));
+    }
 }

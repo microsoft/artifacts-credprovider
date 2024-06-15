@@ -5,10 +5,10 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Artifacts.Authentication;
-using Newtonsoft.Json;
 using NuGet.Common;
 using NuGet.Protocol.Plugins;
 using NuGetCredentialProvider.CredentialProviders;
@@ -53,11 +53,12 @@ namespace NuGetCredentialProvider
             var authUtil = new AuthUtil(multiLogger);
             var logger = new NuGetLoggerAdapter(multiLogger, parsedArgs.Verbosity);
             var tokenProvidersFactory = new MsalTokenProvidersFactory(logger);
+            var vstsBuildTaskTokenProvidersFactory = new VstsBuildTaskMsalTokenProvidersFactory(logger);
             var vstsSessionTokenProvider = new VstsSessionTokenFromBearerTokenProvider(authUtil, multiLogger);
 
             List<ICredentialProvider> credentialProviders = new List<ICredentialProvider>
             {
-                new VstsBuildTaskServiceEndpointCredentialProvider(multiLogger),
+                new VstsBuildTaskServiceEndpointCredentialProvider(multiLogger, vstsBuildTaskTokenProvidersFactory, authUtil),
                 new VstsBuildTaskCredentialProvider(multiLogger),
                 new VstsCredentialProvider(multiLogger, authUtil, tokenProvidersFactory, vstsSessionTokenProvider),
             };
@@ -89,6 +90,7 @@ namespace NuGetCredentialProvider
                             EnvUtil.BuildTaskUriPrefixes,
                             EnvUtil.BuildTaskAccessToken,
                             EnvUtil.BuildTaskExternalEndpoints,
+                            EnvUtil.EndpointCredentials,
                             EnvUtil.DefaultMsalCacheLocation,
                             EnvUtil.SessionTokenCacheLocation,
                             EnvUtil.WindowsIntegratedAuthenticationEnvVar,
@@ -165,7 +167,7 @@ namespace NuGetCredentialProvider
                     if (parsedArgs.OutputFormat == OutputFormat.Json)
                     {
                         // Manually write the JSON output, since we don't use ConsoleLogger in JSON mode (see above)
-                        Console.WriteLine(JsonConvert.SerializeObject(new CredentialResult(resultUsername, resultPassword)));
+                        Console.WriteLine(JsonSerializer.Serialize(new CredentialResult(resultUsername, resultPassword)));
                     }
                     else
                     {
