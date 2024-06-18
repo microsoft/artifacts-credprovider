@@ -180,7 +180,7 @@ steps:
 - powershell: 'Write-Output ("##vso[task.setvariable variable=SignType;]")'
   displayName: Clear SignType
 
-- script: dotnet pack MicrosoftCredentialProvider.sln -c $(BuildConfiguration) -o $(Build.ArtifactStagingDirectory)\$(BuildConfiguration) -p:${{ parameters.nuspecProperties }}
+- script: dotnet pack MicrosoftCredentialProvider.sln -c $(BuildConfiguration) -o $(Build.ArtifactStagingDirectory)\$(BuildConfiguration) -p:${{ parameters.nuspecProperties }} --no-build
   displayName: dotnet pack
 
 - ${{ if eq(parameters.publish, 'true') }}:
