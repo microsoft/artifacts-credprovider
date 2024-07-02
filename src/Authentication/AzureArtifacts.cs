@@ -33,7 +33,7 @@ public static class AzureArtifacts
         return builder;
     }
 
-    public static PublicClientApplicationBuilder WithBroker(this PublicClientApplicationBuilder builder, bool enableBroker, ILogger logger)
+    public static PublicClientApplicationBuilder WithBroker(this PublicClientApplicationBuilder builder, bool enableBroker, IntPtr? parentWindowHandle, ILogger logger)
     {
         // Eventually will be rolled into CreateDefaultBuilder as using the brokers is desirable
         if (!enableBroker || !RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
@@ -52,6 +52,11 @@ public static class AzureArtifacts
                     MsaPassthrough = true
                 })
             .WithParentActivityOrWindow(() => GetConsoleOrTerminalWindow());
+    }
+    
+    public static PublicClientApplicationBuilder WithBroker(this PublicClientApplicationBuilder builder, bool enableBroker, ILogger logger)
+    {
+        return builder.WithBroker(enableBroker, null, logger);
     }
 
     public static PublicClientApplicationBuilder WithHttpClient(this PublicClientApplicationBuilder builder, HttpClient? httpClient = null)
