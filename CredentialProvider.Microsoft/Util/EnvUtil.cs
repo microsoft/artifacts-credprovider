@@ -35,7 +35,7 @@ namespace NuGetCredentialProvider.Util
         public const string MsalFileCacheEnvVar = "NUGET_CREDENTIALPROVIDER_MSAL_FILECACHE_ENABLED";
         public const string MsalFileCacheLocationEnvVar = "NUGET_CREDENTIALPROVIDER_MSAL_FILECACHE_LOCATION";
         public const string MsalAllowBrokerEnvVar = "NUGET_CREDENTIALPROVIDER_MSAL_ALLOW_BROKER";
-        public const string MsalBrokerWindowEnvVar = "NUGET_CREDENTIALPROVIDER_MSAL_BROKER_WINDOW";
+        public const string MsalBrokerWindowEnvVar = "ARTIFACTS_CREDENTIALPROVIDER_MSAL_BROKER_WINDOW";
 
         public const string EndpointCredentials = "ARTIFACTS_CREDENTIALPROVIDER_FEED_ENDPOINTS";
         public const string BuildTaskExternalEndpoints = "VSS_NUGET_EXTERNAL_FEED_ENDPOINTS";
