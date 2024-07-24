@@ -45,12 +45,7 @@ public class MsalIntegratedWindowsAuthTokenProvider : ITokenProvider
 
             return result;
         }
-        catch (MsalClientException ex) when (ex.ErrorCode == MsalError.WsTrustEndpointNotFoundInMetadataDocument)
-        {
-            logger.LogTrace(ex.Message);
-            return null;
-        }
-        catch (MsalClientException ex) when (ex.ErrorCode == MsalError.IntegratedWindowsAuthNotSupportedForManagedUser)
+        catch (MsalClientException ex) when (ex.ErrorCode is MsalError.WsTrustEndpointNotFoundInMetadataDocument or MsalError.IntegratedWindowsAuthNotSupportedForManagedUser)
         {
             logger.LogTrace(ex.Message);
             return null;
