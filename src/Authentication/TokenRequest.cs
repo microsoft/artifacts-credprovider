@@ -9,7 +9,7 @@ namespace Microsoft.Artifacts.Authentication;
 
 public class TokenRequest
 {
-    [Obsolete($"{nameof(uri)} is unused and unnecessary. Use the parameterless constructor instead.")]
+    [Obsolete($"The uri parameter is unused and unnecessary. Use the parameterless constructor instead.")]
     public TokenRequest(Uri uri)
     {
     }
