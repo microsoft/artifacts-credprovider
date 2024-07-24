@@ -50,6 +50,11 @@ public class MsalIntegratedWindowsAuthTokenProvider : ITokenProvider
             logger.LogTrace(ex.Message);
             return null;
         }
+        catch (MsalClientException ex) when (ex.ErrorCode == MsalError.IntegratedWindowsAuthNotSupportedForManagedUser)
+        {
+            logger.LogTrace(ex.Message);
+            return null;
+        }
         catch (MsalUiRequiredException ex)
         {
             logger.LogTrace(ex.Message);
