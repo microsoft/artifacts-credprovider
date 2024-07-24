@@ -16,7 +16,7 @@ public class TokenProviderTests
     public void MsalSilentContractTest()
     {
         var tokenProvider = new MsalSilentTokenProvider(appMock.Object, loggerMock.Object);
-        var tokenRequest = new TokenRequest(PackageUri);
+        var tokenRequest = new TokenRequest();
 
         Assert.IsNotNull(tokenProvider.Name);
         Assert.IsFalse(tokenProvider.IsInteractive);
@@ -30,7 +30,7 @@ public class TokenProviderTests
     public void MsalIntegratedWindowsAuthContractTest()
     {
         var tokenProvider = new MsalIntegratedWindowsAuthTokenProvider(appMock.Object, loggerMock.Object);
-        var tokenRequest = new TokenRequest(PackageUri);
+        var tokenRequest = new TokenRequest();
         var windowsIntegratedAuthSupported = Environment.OSVersion.Platform == PlatformID.Win32NT;
 
         Assert.IsNotNull(tokenProvider.Name);
@@ -47,7 +47,7 @@ public class TokenProviderTests
     public void MsalInteractiveContractTest()
     {
         var tokenProvider = new MsalInteractiveTokenProvider(appMock.Object, loggerMock.Object);
-        var tokenRequest = new TokenRequest(PackageUri);
+        var tokenRequest = new TokenRequest();
 
         Assert.IsNotNull(tokenProvider.Name);
         Assert.IsTrue(tokenProvider.IsInteractive);
@@ -82,7 +82,7 @@ public class TokenProviderTests
     public void MsalDeviceCodeFlowContractTest()
     {
         var tokenProvider = new MsalDeviceCodeTokenProvider(appMock.Object, loggerMock.Object);
-        var tokenRequest = new TokenRequest(PackageUri);
+        var tokenRequest = new TokenRequest();
 
         Assert.IsNotNull(tokenProvider.Name);
         Assert.IsTrue(tokenProvider.IsInteractive);
@@ -101,7 +101,7 @@ public class TokenProviderTests
             .Returns(new Mock<IAppConfig>().Object);
 
         var tokenProvider = new MsalServicePrincipalTokenProvider(appMock.Object, loggerMock.Object);
-        var tokenRequest = new TokenRequest(PackageUri);
+        var tokenRequest = new TokenRequest();
 
         Assert.IsNotNull(tokenProvider.Name);
         Assert.IsFalse(tokenProvider.IsInteractive);
@@ -133,7 +133,7 @@ public class TokenProviderTests
             .Returns(new Mock<IAppConfig>().Object);
 
         var tokenProvider = new MsalManagedIdentityTokenProvider(appMock.Object, loggerMock.Object);
-        var tokenRequest = new TokenRequest(PackageUri);
+        var tokenRequest = new TokenRequest();
 
         Assert.IsNotNull(tokenProvider.Name);
         Assert.IsFalse(tokenProvider.IsInteractive);

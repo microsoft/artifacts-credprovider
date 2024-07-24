@@ -9,12 +9,14 @@ namespace Microsoft.Artifacts.Authentication;
 
 public class TokenRequest
 {
+    [Obsolete($"{nameof(uri)} is unused and unnecessary. Use the parameterless constructor instead.")]
     public TokenRequest(Uri uri)
     {
-        this.Uri = uri ?? throw new ArgumentNullException(nameof(uri));
     }
 
-    public Uri Uri { get; }
+    public TokenRequest()
+    {
+    }
 
     public bool IsRetry { get; set; }
 

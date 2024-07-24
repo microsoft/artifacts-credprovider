@@ -46,9 +46,9 @@ namespace NuGetCredentialProvider.CredentialProviders.Vsts
             string uriPrefixesStringEnvVar = Environment.GetEnvironmentVariable(EnvUtil.BuildTaskUriPrefixes);
             string accessTokenEnvVar = Environment.GetEnvironmentVariable(EnvUtil.BuildTaskAccessToken);
 
-            if (string.IsNullOrWhiteSpace(feedEndPointsJsonEnvVar) == false || 
-                string.IsNullOrWhiteSpace(externalFeedEndPointsJsonEnvVar) == false || 
-                string.IsNullOrWhiteSpace(uriPrefixesStringEnvVar) == false || 
+            if (string.IsNullOrWhiteSpace(feedEndPointsJsonEnvVar) == false ||
+                string.IsNullOrWhiteSpace(externalFeedEndPointsJsonEnvVar) == false ||
+                string.IsNullOrWhiteSpace(uriPrefixesStringEnvVar) == false ||
                 string.IsNullOrWhiteSpace(accessTokenEnvVar) == false)
             {
                 Verbose(Resources.BuildTaskCredProviderIsUsedError);
@@ -106,7 +106,7 @@ namespace NuGetCredentialProvider.CredentialProviders.Vsts
             IEnumerable<ITokenProvider> tokenProviders = await tokenProvidersFactory.GetAsync(authInfo.EntraAuthorityUri);
             cancellationToken.ThrowIfCancellationRequested();
 
-            var tokenRequest = new TokenRequest(request.Uri)
+            var tokenRequest = new TokenRequest()
             {
                 IsRetry = request.IsRetry,
                 IsNonInteractive = request.IsNonInteractive,
