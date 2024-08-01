@@ -20,7 +20,7 @@ var app = AzureArtifacts.CreateDefaultBuilder(authority)
 // Can use MsalTokenProviders which works for most cases, or compose the token providers manually
 var providers = MsalTokenProviders.Get(app, logger);
 
-var tokenRequest = new TokenRequest("https://pkgs.dev.azure.com/org")
+var tokenRequest = new TokenRequest
 {
     IsInteractive = true
 };
