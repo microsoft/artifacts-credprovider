@@ -144,9 +144,19 @@ The Credential Provider accepts a set of environment variables. Not all of them 
 -   `NUGET_CREDENTIALPROVIDER_SESSIONTOKENCACHE_ENABLED`: Controls whether or not the session token is saved to disk. If false, the Credential Provider will prompt for auth every time.
 -   `VSS_NUGET_EXTERNAL_FEED_ENDPOINTS`: Json that contains an array of service endpoints, usernames and access tokens to authenticate endpoints in nuget.config. Example:
 
-```javascript
- {"endpointCredentials": [{"endpoint":"http://example.index.json", "username":"optional", "password":"accesstoken"}]}
-```
+    ```javascript
+    {"endpointCredentials": [{"endpoint":"http://example.index.json", "username":"optional", "password":"accesstoken"}]}
+    ```
+
+-   `ARTIFACTS_CREDENTIALPROVIDER_FEED_ENDPOINTS`: Json that contains an array of endpoints, usernames and azure service principal information needed to authenticate to Azure Artifacts feed endponts. Example:
+    ```javascript
+    {"endpointCredentials": [{"endpoint":"http://example.index.json", "clientId":"required", "clientCertificateSubjectName":"optional", "clientCertificateFilePath":"optional"}]}
+    ```
+
+    - `endpoint`: Required. Feed url to authenticate.
+    - `clientId`: Required for both Azure Managed Identites and Service Principals. For user assigned managed identities enter the Entra client id. For system assigned managed identities set the value to `system`.
+    - `clientCertificateSubjectName`: Subject Name of the certificate located in the CurrentUser or LocalMachine certificate store. Optional field. Only used for service principal authentication.
+    - `clientCertificateFilePath`: File path location of the certificate on the machine. Optional field. Only used by service principal authentication. 
 
 ## Release version 1.0.0
 
