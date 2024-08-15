@@ -17,6 +17,7 @@ public class MsalHttpClientFactory : IMsalHttpClientFactory
 
         var userAgent = this.httpClient.DefaultRequestHeaders.UserAgent;
         userAgent.Add(ProgramProduct);
+        UserAgent.Add(ProgramContext);
         userAgent.Add(ProgramComment);
         userAgent.Add(ClrProduct);
         userAgent.Add(ClrComment);
@@ -27,6 +28,9 @@ public class MsalHttpClientFactory : IMsalHttpClientFactory
 
     public static ProductInfoHeaderValue ProgramComment =>
         new ProductInfoHeaderValue($"({PlatformInformation.GetOSType()}; {PlatformInformation.GetCpuArchitecture()}; {PlatformInformation.GetOsDescription()})");
+
+    public static ProductInfoHeaderValue ProgramContext =>
+        new ProductInfoHeaderValue(PlatformInformation.GetProgramContext());
 
     public static ProductInfoHeaderValue ClrProduct =>
         new ProductInfoHeaderValue("CLR", PlatformInformation.GetClrVersion());
@@ -40,6 +44,7 @@ public class MsalHttpClientFactory : IMsalHttpClientFactory
         Array.AsReadOnly(new[]
         {
             ProgramProduct,
+            ProgramContext,
             ProgramComment,
             ClrProduct,
             ClrComment

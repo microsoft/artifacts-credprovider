@@ -79,4 +79,9 @@ public static class PlatformInformation
     {
         return RuntimeInformation.FrameworkDescription;
     }
+
+    public static string GetProgramContext()
+    {
+        return AppContext.GetData("PROGRAM_CONTEXT") as string ?? null;
+    }
 }

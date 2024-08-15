@@ -153,6 +153,11 @@ namespace NuGetCredentialProvider
                         return 1;
                     }
 
+                    if(parsedArgs.Context != null)
+                    {
+                        AppContext.SetData("PROGRAM_CONTEXT", parsedArgs.Context.ToString());
+                    }
+
                     GetAuthenticationCredentialsRequest request = new GetAuthenticationCredentialsRequest(parsedArgs.Uri, isRetry: parsedArgs.IsRetry, isNonInteractive: parsedArgs.NonInteractive, parsedArgs.CanShowDialog);
                     GetAuthenticationCredentialsResponse response = await getAuthenticationCredentialsRequestHandler.HandleRequestAsync(request).ConfigureAwait(continueOnCapturedContext: false);
 
