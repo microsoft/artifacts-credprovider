@@ -56,11 +56,11 @@ namespace NuGetCredentialProvider
     {
         HumanReadable = 0,
         Json = 1
-    }s
+    }
 
     public enum Context
     {
-        maven,
+        Maven,
         NuGet,
         Pip,
         Conda, 

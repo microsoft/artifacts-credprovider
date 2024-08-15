@@ -82,6 +82,6 @@ public static class PlatformInformation
 
     public static string GetProgramContext()
     {
-        return AppContext.GetData("PROGRAM_CONTEXT") as string ?? null;
+        return AppDomain.CurrentDomain.GetData("PROGRAM_CONTEXT") as string ?? "Microsoft.Artifacts.Authentication";
     }
 }
