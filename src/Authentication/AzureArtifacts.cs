@@ -36,31 +36,22 @@ public static class AzureArtifacts
     public static PublicClientApplicationBuilder WithBroker(this PublicClientApplicationBuilder builder, bool enableBroker, ILogger logger)
     {
         // Eventually will be rolled into CreateDefaultBuilder as using the brokers is desirable
-        if (!enableBroker)
+        if (!enableBroker || !RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
         {
             return builder;
         }
 
-        if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
-        {
-            logger.LogTrace(Resources.MsalUsingWamBroker);
+        logger.LogTrace(Resources.MsalUsingWamBroker);
 
-            builder
-                .WithBroker(new BrokerOptions(BrokerOptions.OperatingSystems.Windows)
+        return builder
+            .WithBroker(
+                new BrokerOptions(BrokerOptions.OperatingSystems.Windows)
                 {
                     Title = "Azure DevOps Artifacts",
                     ListOperatingSystemAccounts = true,
                     MsaPassthrough = true
                 })
-                .WithParentActivityOrWindow(() => GetConsoleOrTerminalWindow());
-        }
-        else
-        {
-            logger.LogTrace(Resources.MsalUsingBroker);
-            builder.WithBroker();
-        }
-
-        return builder;
+            .WithParentActivityOrWindow(() => GetConsoleOrTerminalWindow());
     }
 
     public static PublicClientApplicationBuilder WithHttpClient(this PublicClientApplicationBuilder builder, HttpClient? httpClient = null)

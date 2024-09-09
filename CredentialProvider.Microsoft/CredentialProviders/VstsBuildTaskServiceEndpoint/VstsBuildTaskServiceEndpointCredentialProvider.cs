@@ -92,7 +92,7 @@ namespace NuGetCredentialProvider.CredentialProviders.VstsBuildTaskServiceEndpoi
                 IEnumerable<ITokenProvider> tokenProviders = await TokenProvidersFactory.GetAsync(authInfo.EntraAuthorityUri);
                 cancellationToken.ThrowIfCancellationRequested();
 
-                var tokenRequest = new TokenRequest(request.Uri)
+                var tokenRequest = new TokenRequest()
                 {
                     IsRetry = request.IsRetry,
                     IsNonInteractive = true,
@@ -139,7 +139,7 @@ namespace NuGetCredentialProvider.CredentialProviders.VstsBuildTaskServiceEndpoi
                         bearerToken,
                         null,
                         MessageResponseCode.Success);
-                } 
+                }
             }
 
             Verbose(string.Format(Resources.BuildTaskEndpointNoMatchingUrl, uriString));
