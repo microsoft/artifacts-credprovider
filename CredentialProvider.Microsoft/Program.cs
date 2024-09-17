@@ -113,7 +113,7 @@ namespace NuGetCredentialProvider
                             multiLogger.Add(new PluginConnectionLogger(plugin.Connection));
                             multiLogger.Verbose(Resources.RunningInPlugin);
                             multiLogger.Verbose(string.Format(Resources.CommandLineArgs, PlatformInformation.GetProgramVersion(), Environment.CommandLine));
-                            AppDomain.CurrentDomain.SetData("PROGRAM_CONTEXT", Context.NuGet);
+                            EnvUtil.SetProgramContextInEnvironment(Context.NuGet);
 
                             await WaitForPluginExitAsync(plugin, multiLogger, TimeSpan.FromMinutes(2)).ConfigureAwait(continueOnCapturedContext: false);
                         }
@@ -152,11 +152,6 @@ namespace NuGetCredentialProvider
                     {
                         Console.WriteLine(ArgUsage.GenerateUsageFromTemplate<CredentialProviderArgs>());
                         return 1;
-                    }
-
-                    if (parsedArgs.Context != null)
-                    {
-                        AppDomain.CurrentDomain.SetData("PROGRAM_CONTEXT", parsedArgs.Context);
                     }
 
                     GetAuthenticationCredentialsRequest request = new GetAuthenticationCredentialsRequest(parsedArgs.Uri, isRetry: parsedArgs.IsRetry, isNonInteractive: parsedArgs.NonInteractive, parsedArgs.CanShowDialog);

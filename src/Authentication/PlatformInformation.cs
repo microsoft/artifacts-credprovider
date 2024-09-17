@@ -79,9 +79,4 @@ public static class PlatformInformation
     {
         return RuntimeInformation.FrameworkDescription;
     }
-
-    public static string GetProgramContext()
-    {
-        return AppDomain.CurrentDomain.GetData("PROGRAM_CONTEXT") as string ?? "Microsoft.Artifacts.Authentication";
-    }
 }

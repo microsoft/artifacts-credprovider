@@ -3,6 +3,7 @@
 // Licensed under the MIT license.
 
 using System.Net.Http;
+using System.Net.Http.Headers;
 using Microsoft.Artifacts.Authentication;
 
 namespace NuGetCredentialProvider.Util
@@ -26,7 +27,19 @@ namespace NuGetCredentialProvider.Util
                 UseDefaultCredentials = true
             });
 
+            httpClient.DefaultRequestHeaders.UserAgent.Add(ProgramContext);
             httpClientFactory = new(httpClient);
         }
+
+        private static ProductInfoHeaderValue ProgramContext => 
+            new ProductInfoHeaderValue($"({EnvUtil.GetProgramContextFromEnvironment()})");
+    }
+
+    public enum Context
+    {
+        Maven,
+        NuGet,
+        Pip,
+        Conda, 
     }
 }

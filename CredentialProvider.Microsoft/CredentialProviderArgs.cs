@@ -46,23 +46,11 @@ namespace NuGetCredentialProvider
         [ArgDescription("In standalone mode, format the results for human readability or as JSON. If JSON is selected, then logging (which may include Device Code instructions) will be logged to standard error instead of standard output.")]
         [ArgShortcut("F")]
         public OutputFormat OutputFormat { get; set; }
-
-        [ArgDefaultValue(null)]
-        [ArgDescription("In standalone mode, sets the context from where the credential provider is being called.")]
-        public Context? Context {get; set;}
     }
 
     public enum OutputFormat
     {
         HumanReadable = 0,
         Json = 1
-    }
-
-    public enum Context
-    {
-        Maven,
-        NuGet,
-        Pip,
-        Conda, 
     }
 }
