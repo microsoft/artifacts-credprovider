@@ -27,12 +27,25 @@ namespace NuGetCredentialProvider.Util
                 UseDefaultCredentials = true
             });
 
-            httpClient.DefaultRequestHeaders.UserAgent.Add(ProgramContext);
+            // Add program context to headers if available
+            if(ProgramContext != null) 
+            {
+                httpClient.DefaultRequestHeaders.UserAgent.Add(ProgramContext);
+            }
+
             httpClientFactory = new(httpClient);
         }
 
-        private static ProductInfoHeaderValue ProgramContext => 
-            new ProductInfoHeaderValue($"({EnvUtil.GetProgramContextFromEnvironment()})");
+        private static ProductInfoHeaderValue? ProgramContext
+        {
+            get
+            {
+                var context = EnvUtil.GetProgramContextFromEnvironment();
+                return context != null 
+                ? new ProductInfoHeaderValue($"({EnvUtil.GetProgramContextFromEnvironment().ToString()})")
+                : null; 
+            }
+        }
     }
 
     public enum Context
