@@ -36,7 +36,7 @@ namespace NuGetCredentialProvider.Util
             httpClientFactory = new(httpClient);
         }
 
-        private static ProductInfoHeaderValue? ProgramContext
+        private static ProductInfoHeaderValue ProgramContext
         {
             get
             {
