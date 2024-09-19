@@ -28,7 +28,7 @@ namespace NuGetCredentialProvider.Util
             });
 
             // Add program context to headers if available
-            if(ProgramContext != null) 
+            if (ProgramContext != null) 
             {
                 httpClient.DefaultRequestHeaders.UserAgent.Add(ProgramContext);
             }
@@ -42,8 +42,8 @@ namespace NuGetCredentialProvider.Util
             {
                 var context = EnvUtil.GetProgramContextFromEnvironment();
                 return context != null 
-                ? new ProductInfoHeaderValue($"({EnvUtil.GetProgramContextFromEnvironment().ToString()})")
-                : null; 
+                    ? new ProductInfoHeaderValue($"({context})")
+                    : null; 
             }
         }
     }

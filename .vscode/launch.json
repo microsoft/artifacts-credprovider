@@ -2,7 +2,7 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": ".NET Core Launch (console)",
+            "name": "net 6 launch",
             "type": "coreclr",
             "request": "launch",
             "preLaunchTask": "build",
@@ -13,7 +13,10 @@
             ],
             "cwd": "${workspaceFolder}/CredentialProvider.Microsoft",
             "console": "integratedTerminal",
-            "stopAtEntry": false
+            "stopAtEntry": false,
+            "env": {
+                "ARTIFACTS_CREDENTIALPROVIDER_PROGRAM_CONTEXT":"nuGET"
+            }
         },
         {
             "name": ".NET Core Attach",
