@@ -39,6 +39,8 @@ namespace NuGetCredentialProvider.Util
         public const string EndpointCredentials = "ARTIFACTS_CREDENTIALPROVIDER_FEED_ENDPOINTS";
         public const string BuildTaskExternalEndpoints = "VSS_NUGET_EXTERNAL_FEED_ENDPOINTS";
 
+        public const string ProgramContext = "ARTIFACTS_CREDENTIALPROVIDER_PROGRAM_CONTEXT";
+
         public static bool GetLogPIIEnabled()
         {
             return GetEnabledFromEnvironment(LogPIIEnvVar, defaultValue: false);
@@ -180,6 +182,24 @@ namespace NuGetCredentialProvider.Util
             }
 
             return null;
+        }
+
+        public static Context? GetProgramContextFromEnvironment()
+        {
+            var context = Environment.GetEnvironmentVariable(ProgramContext);
+
+            if (!string.IsNullOrWhiteSpace(context) && Enum.TryParse<Context>(context, ignoreCase: true, out Context result))
+            {
+                return result;
+            }
+
+            return null;
+        }
+
+        public static void SetProgramContextInEnvironment(Context context)
+        {
+            Environment.SetEnvironmentVariable(ProgramContext, context.ToString());
+            return;
         }
 
         private static bool GetEnabledFromEnvironment(string envVar, bool defaultValue = true)

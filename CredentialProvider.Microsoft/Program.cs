@@ -113,6 +113,7 @@ namespace NuGetCredentialProvider
                             multiLogger.Add(new PluginConnectionLogger(plugin.Connection));
                             multiLogger.Verbose(Resources.RunningInPlugin);
                             multiLogger.Verbose(string.Format(Resources.CommandLineArgs, PlatformInformation.GetProgramVersion(), Environment.CommandLine));
+                            EnvUtil.SetProgramContextInEnvironment(Context.NuGet);
 
                             await WaitForPluginExitAsync(plugin, multiLogger, TimeSpan.FromMinutes(2)).ConfigureAwait(continueOnCapturedContext: false);
                         }
