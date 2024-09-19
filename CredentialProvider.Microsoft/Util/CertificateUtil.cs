@@ -1,4 +1,5 @@
 ﻿using System;
+using System.IO;
 using System.Security.Cryptography.X509Certificates;
 using ILogger = NuGetCredentialProvider.Logging.ILogger;
 
@@ -54,7 +55,22 @@ internal static class CertificateUtil
 
         try
         {
-            var certificate = new X509Certificate2(filePath);
+            var fileType = Path.GetExtension(filePath);
+            X509Certificate2 certificate;
+            switch (fileType)
+            {
+                case ".pfx":
+                    certificate = new X509Certificate2(filePath);
+                    break;
+                case ".pem":
+#if NET6_0_OR_GREATER
+                    certificate= X509Certificate2.CreateFromPemFile(filePath);
+                    break;
+#endif
+                    throw new NotSupportedException(Resources.ClientCertificatePemFilesNotSupported);
+                default:
+                    throw new NotSupportedException(Resources.ClientCertificateFileTypeNotSupported);
+            }
 
             if (certificate == null)
             {

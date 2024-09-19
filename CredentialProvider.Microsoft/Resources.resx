@@ -506,6 +506,12 @@ Provide MSAL Cache Location
   <data name="UsingCertificate" xml:space="preserve">
     <value>Using certificate: {0}.</value>
   </data>
+  <data name="ClientCertificateFileTypeNotSupported" xml:space="preserve">
+    <value>Certificate file type not supported. Only .pfx and .pem certificates are accepted.</value>
+  </data>
+  <data name="ClientCertificatePemFilesNotSupported" xml:space="preserve">
+    <value>Certificate file type .pem are only supported on versions of the credential provider built on .Net 6 or greater.</value>
+  </data>
   <data name="UsingTenant" xml:space="preserve">
     <value>Using Entra tenant: {0}.</value>
   </data>
