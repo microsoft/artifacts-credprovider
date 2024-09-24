@@ -51,7 +51,7 @@ public static class AzureArtifacts
                     ListOperatingSystemAccounts = true,
                     MsaPassthrough = true
                 })
-            .WithParentActivityOrWindow(() => GetConsoleOrTerminalWindow());
+            .WithParentActivityOrWindow(() => parentWindowHandle ?? GetConsoleOrTerminalWindow());
     }
     
     public static PublicClientApplicationBuilder WithBroker(this PublicClientApplicationBuilder builder, bool enableBroker, ILogger logger)
