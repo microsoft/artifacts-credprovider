@@ -41,11 +41,15 @@ namespace NuGetCredentialProvider.CredentialProviders.Vsts
         {
             // If for any reason we reach this point and any of the three build task env vars are set,
             // we should not try get credentials with this cred provider.
-            string feedEndPointsJsonEnvVar = Environment.GetEnvironmentVariable(EnvUtil.BuildTaskExternalEndpoints);
+            string feedEndPointsJsonEnvVar = Environment.GetEnvironmentVariable(EnvUtil.EndpointCredentials);
+            string externalFeedEndPointsJsonEnvVar = Environment.GetEnvironmentVariable(EnvUtil.BuildTaskExternalEndpoints);
             string uriPrefixesStringEnvVar = Environment.GetEnvironmentVariable(EnvUtil.BuildTaskUriPrefixes);
             string accessTokenEnvVar = Environment.GetEnvironmentVariable(EnvUtil.BuildTaskAccessToken);
 
-            if (string.IsNullOrWhiteSpace(feedEndPointsJsonEnvVar) == false || string.IsNullOrWhiteSpace(uriPrefixesStringEnvVar) == false || string.IsNullOrWhiteSpace(accessTokenEnvVar) == false)
+            if (string.IsNullOrWhiteSpace(feedEndPointsJsonEnvVar) == false ||
+                string.IsNullOrWhiteSpace(externalFeedEndPointsJsonEnvVar) == false ||
+                string.IsNullOrWhiteSpace(uriPrefixesStringEnvVar) == false ||
+                string.IsNullOrWhiteSpace(accessTokenEnvVar) == false)
             {
                 Verbose(Resources.BuildTaskCredProviderIsUsedError);
                 return false;
@@ -96,13 +100,13 @@ namespace NuGetCredentialProvider.CredentialProviders.Vsts
                 canShowDialog = forceCanShowDialogTo.Value;
             }
 
-            Uri authority = await authUtil.GetAadAuthorityUriAsync(request.Uri, cancellationToken);
-            Verbose(string.Format(Resources.UsingAuthority, authority));
+            var authInfo = await authUtil.GetAuthorizationInfoAsync(request.Uri, cancellationToken);
+            Verbose(string.Format(Resources.UsingAuthority, authInfo.EntraAuthorityUri));
 
-            IEnumerable<ITokenProvider> tokenProviders = await tokenProvidersFactory.GetAsync(authority);
+            IEnumerable<ITokenProvider> tokenProviders = await tokenProvidersFactory.GetAsync(authInfo.EntraAuthorityUri);
             cancellationToken.ThrowIfCancellationRequested();
 
-            var tokenRequest = new TokenRequest(request.Uri)
+            var tokenRequest = new TokenRequest()
             {
                 IsRetry = request.IsRetry,
                 IsNonInteractive = request.IsNonInteractive,
@@ -116,7 +120,7 @@ namespace NuGetCredentialProvider.CredentialProviders.Vsts
                     Logger.Minimal(string.Format(Resources.DeviceFlowMessage, deviceCodeResult.VerificationUrl, deviceCodeResult.UserCode));
 
                     return Task.CompletedTask;
-                }
+                },
             };
 
             // Try each bearer token provider (e.g. cache, WIA, UI, DeviceCode) in order.

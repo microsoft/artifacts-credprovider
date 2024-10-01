@@ -2,18 +2,21 @@
 //
 // Licensed under the MIT license.
 
+using System.Security.Cryptography.X509Certificates;
 using Microsoft.Identity.Client;
 
 namespace Microsoft.Artifacts.Authentication;
 
 public class TokenRequest
 {
+    [Obsolete($"The uri parameter is unused and unnecessary. Use the parameterless constructor instead.")]
     public TokenRequest(Uri uri)
     {
-        this.Uri = uri ?? throw new ArgumentNullException(nameof(uri));
     }
 
-    public Uri Uri { get; }
+    public TokenRequest()
+    {
+    }
 
     public bool IsRetry { get; set; }
 
@@ -31,4 +34,10 @@ public class TokenRequest
     public TimeSpan InteractiveTimeout { get; set; } = TimeSpan.FromMinutes(2);
 
     public Func<DeviceCodeResult, Task>? DeviceCodeResultCallback { get; set; } = null;
+
+    public string? ClientId { get; set; } = null;
+
+    public string? TenantId { get; set; } = null;
+
+    public X509Certificate2? ClientCertificate { get; set; } = null;
 }

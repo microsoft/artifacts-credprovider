@@ -35,7 +35,7 @@ public class MsalAuthenticationTests
     public async Task MsalAcquireTokenSilentTest()
     {
         var tokenProvider = new MsalSilentTokenProvider(app, logger);
-        var tokenRequest = new TokenRequest(PackageUri);
+        var tokenRequest = new TokenRequest();
 
         var result = await tokenProvider.GetTokenAsync(tokenRequest);
 
@@ -47,7 +47,7 @@ public class MsalAuthenticationTests
     public async Task MsalAcquireTokenByIntegratedWindowsAuthTest()
     {
         var tokenProvider = new MsalIntegratedWindowsAuthTokenProvider(app, logger);
-        var tokenRequest = new TokenRequest(PackageUri);
+        var tokenRequest = new TokenRequest();
 
         var result = await tokenProvider.GetTokenAsync(tokenRequest);
 
@@ -59,7 +59,7 @@ public class MsalAuthenticationTests
     public async Task MsalAcquireTokenInteractiveTest()
     {
         var tokenProvider = new MsalInteractiveTokenProvider(app, logger);
-        var tokenRequest = new TokenRequest(PackageUri);
+        var tokenRequest = new TokenRequest();
 
         var result = await tokenProvider.GetTokenAsync(tokenRequest);
 
@@ -71,7 +71,34 @@ public class MsalAuthenticationTests
     public async Task MsalAcquireTokenWithDeviceCodeTest()
     {
         var tokenProvider = new MsalDeviceCodeTokenProvider(app, logger);
-        var tokenRequest = new TokenRequest(PackageUri);
+        var tokenRequest = new TokenRequest();
+
+        var result = await tokenProvider.GetTokenAsync(tokenRequest);
+
+        Assert.IsNotNull(result);
+        Assert.AreEqual(TokenSource.IdentityProvider, result.AuthenticationResultMetadata.TokenSource);
+    }
+
+    [TestMethod]
+    public async Task MsalAquireTokenWithManagedIdentity()
+    {
+        var tokenProvider = new MsalManagedIdentityTokenProvider(app, logger);
+        var tokenRequest = new TokenRequest();
+        tokenRequest.ClientId = Environment.GetEnvironmentVariable("ARTIFACTS_CREDENTIALPROVIDER_TEST_CLIENTID");
+
+        var result = await tokenProvider.GetTokenAsync(tokenRequest);
+
+        Assert.IsNotNull(result);
+        Assert.AreEqual(TokenSource.IdentityProvider, result.AuthenticationResultMetadata.TokenSource);
+    }
+
+    [TestMethod]
+    public async Task MsalAquireTokenWithServicePrincipal()
+    {
+        var tokenProvider = new MsalServicePrincipalTokenProvider(app, logger);
+        var tokenRequest = new TokenRequest();
+        tokenRequest.ClientId = Environment.GetEnvironmentVariable("ARTIFACTS_CREDENTIALPROVIDER_TEST_CLIENTID");
+        tokenRequest.ClientCertificate = new X509Certificate2(Environment.GetEnvironmentVariable("ARTIFACTS_CREDENTIALPROVIDER_TEST_CERT_PATH") ?? string.Empty);
 
         var result = await tokenProvider.GetTokenAsync(tokenRequest);
 

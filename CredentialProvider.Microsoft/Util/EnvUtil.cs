@@ -29,13 +29,17 @@ namespace NuGetCredentialProvider.Util
 
         public const string BuildTaskUriPrefixes = "VSS_NUGET_URI_PREFIXES";
         public const string BuildTaskAccessToken = "VSS_NUGET_ACCESSTOKEN";
-        public const string BuildTaskExternalEndpoints = "VSS_NUGET_EXTERNAL_FEED_ENDPOINTS";
 
         public const string MsalLoginHintEnvVar = "NUGET_CREDENTIALPROVIDER_MSAL_LOGIN_HINT";
         public const string MsalAuthorityEnvVar = "NUGET_CREDENTIALPROVIDER_MSAL_AUTHORITY";
         public const string MsalFileCacheEnvVar = "NUGET_CREDENTIALPROVIDER_MSAL_FILECACHE_ENABLED";
         public const string MsalFileCacheLocationEnvVar = "NUGET_CREDENTIALPROVIDER_MSAL_FILECACHE_LOCATION";
         public const string MsalAllowBrokerEnvVar = "NUGET_CREDENTIALPROVIDER_MSAL_ALLOW_BROKER";
+
+        public const string EndpointCredentials = "ARTIFACTS_CREDENTIALPROVIDER_FEED_ENDPOINTS";
+        public const string BuildTaskExternalEndpoints = "VSS_NUGET_EXTERNAL_FEED_ENDPOINTS";
+
+        public const string ProgramContext = "ARTIFACTS_CREDENTIALPROVIDER_PROGRAM_CONTEXT";
 
         public static bool GetLogPIIEnabled()
         {
@@ -178,6 +182,24 @@ namespace NuGetCredentialProvider.Util
             }
 
             return null;
+        }
+
+        public static Context? GetProgramContextFromEnvironment()
+        {
+            var context = Environment.GetEnvironmentVariable(ProgramContext);
+
+            if (!string.IsNullOrWhiteSpace(context) && Enum.TryParse<Context>(context, ignoreCase: true, out Context result))
+            {
+                return result;
+            }
+
+            return null;
+        }
+
+        public static void SetProgramContextInEnvironment(Context context)
+        {
+            Environment.SetEnvironmentVariable(ProgramContext, context.ToString());
+            return;
         }
 
         private static bool GetEnabledFromEnvironment(string envVar, bool defaultValue = true)

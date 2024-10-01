@@ -4,45 +4,41 @@
 
 using System;
 using System.Collections.Generic;
+using System.Security.Cryptography.X509Certificates;
 using System.Threading;
 using System.Threading.Tasks;
-using Newtonsoft.Json;
+using Microsoft.Artifacts.Authentication;
 using NuGet.Protocol.Plugins;
+using NuGetCredentialProvider.CredentialProviders.Vsts;
 using NuGetCredentialProvider.Util;
 using ILogger = NuGetCredentialProvider.Logging.ILogger;
 
 namespace NuGetCredentialProvider.CredentialProviders.VstsBuildTaskServiceEndpoint
 {
-    public class EndpointCredentials
-    {
-        [JsonProperty("endpoint")]
-        public string Endpoint { get; set; }
-        [JsonProperty("username")]
-        public string Username { get; set; }
-        [JsonProperty("password")]
-        public string Password { get; set; }
-    }
-
-    public class EndpointCredentialsContainer
-    {
-        [JsonProperty("endpointCredentials")]
-        public EndpointCredentials[] EndpointCredentials { get; set; }
-    }
-
     public sealed class VstsBuildTaskServiceEndpointCredentialProvider : CredentialProviderBase
     {
         private Lazy<Dictionary<string, EndpointCredentials>> LazyCredentials;
+        private Lazy<Dictionary<string, ExternalEndpointCredentials>> LazyExternalCredentials;
+        private ITokenProvidersFactory TokenProvidersFactory;
+        private IAuthUtil AuthUtil;
 
         // Dictionary that maps an endpoint string to EndpointCredentials
         private Dictionary<string, EndpointCredentials> Credentials => LazyCredentials.Value;
-            
-        public VstsBuildTaskServiceEndpointCredentialProvider(ILogger logger)
+        private Dictionary<string, ExternalEndpointCredentials> ExternalCredentials => LazyExternalCredentials.Value;
+
+        public VstsBuildTaskServiceEndpointCredentialProvider(ILogger logger, ITokenProvidersFactory tokenProvidersFactory, IAuthUtil authUtil)
             : base(logger)
         {
+            TokenProvidersFactory = tokenProvidersFactory;
             LazyCredentials = new Lazy<Dictionary<string, EndpointCredentials>>(() =>
             {
-                return ParseJsonToDictionary();
+                return FeedEndpointCredentialsParser.ParseFeedEndpointsJsonToDictionary(logger);
             });
+            LazyExternalCredentials = new Lazy<Dictionary<string, ExternalEndpointCredentials>>(() =>
+            {
+                return FeedEndpointCredentialsParser.ParseExternalFeedEndpointsJsonToDictionary(logger);
+            });
+            AuthUtil = authUtil;
         }
 
         public override bool IsCachable { get { return false; } }
@@ -51,8 +47,10 @@ namespace NuGetCredentialProvider.CredentialProviders.VstsBuildTaskServiceEndpoi
 
         public override Task<bool> CanProvideCredentialsAsync(Uri uri)
         {
-            string feedEndPointsJson = Environment.GetEnvironmentVariable(EnvUtil.BuildTaskExternalEndpoints);
-            if (string.IsNullOrWhiteSpace(feedEndPointsJson))
+            string feedEndPointsJson = Environment.GetEnvironmentVariable(EnvUtil.EndpointCredentials);
+            string externalFeedEndPointsJson = Environment.GetEnvironmentVariable(EnvUtil.BuildTaskExternalEndpoints);
+
+            if (string.IsNullOrWhiteSpace(feedEndPointsJson) && string.IsNullOrWhiteSpace(externalFeedEndPointsJson))
             {
                 Verbose(Resources.BuildTaskEndpointEnvVarError);
                 return Task.FromResult(false);
@@ -61,22 +59,87 @@ namespace NuGetCredentialProvider.CredentialProviders.VstsBuildTaskServiceEndpoi
             return Task.FromResult(true);
         }
 
-        public override Task<GetAuthenticationCredentialsResponse> HandleRequestAsync(GetAuthenticationCredentialsRequest request, CancellationToken cancellationToken)
+        public override async Task<GetAuthenticationCredentialsResponse> HandleRequestAsync(GetAuthenticationCredentialsRequest request, CancellationToken cancellationToken)
         {
             cancellationToken.ThrowIfCancellationRequested();
 
             Verbose(string.Format(Resources.IsRetry, request.IsRetry));
 
             string uriString = request.Uri.AbsoluteUri;
-            bool endpointFound = Credentials.TryGetValue(uriString, out EndpointCredentials matchingEndpoint);
-            if (endpointFound)
+            bool externalEndpointFound = ExternalCredentials.TryGetValue(uriString, out ExternalEndpointCredentials matchingExternalEndpoint);
+            if (externalEndpointFound && !string.IsNullOrWhiteSpace(matchingExternalEndpoint.Password))
             {
                 Verbose(string.Format(Resources.BuildTaskEndpointMatchingUrlFound, uriString));
                 return GetResponse(
-                    matchingEndpoint.Username,
-                    matchingEndpoint.Password,
+                    matchingExternalEndpoint.Username,
+                    matchingExternalEndpoint.Password,
                     null,
                     MessageResponseCode.Success);
+            }
+
+            bool endpointFound = Credentials.TryGetValue(uriString, out EndpointCredentials matchingEndpoint);
+            if (endpointFound && !string.IsNullOrWhiteSpace(matchingEndpoint.ClientId))
+            {
+                var authInfo = await AuthUtil.GetAuthorizationInfoAsync(request.Uri, cancellationToken);
+                Verbose(string.Format(Resources.UsingAuthority, authInfo.EntraAuthorityUri));
+                Verbose(string.Format(Resources.UsingTenant, authInfo.EntraTenantId));
+
+                var clientCertificate = GetCertificate(matchingEndpoint);
+                Info(clientCertificate == null
+                    ? (Resources.ClientCertificateNotFound)
+                    : string.Format(Resources.UsingCertificate, clientCertificate.Subject));
+
+                IEnumerable<ITokenProvider> tokenProviders = await TokenProvidersFactory.GetAsync(authInfo.EntraAuthorityUri);
+                cancellationToken.ThrowIfCancellationRequested();
+
+                var tokenRequest = new TokenRequest()
+                {
+                    IsRetry = request.IsRetry,
+                    IsNonInteractive = true,
+                    CanShowDialog = false,
+                    IsWindowsIntegratedAuthEnabled = false,
+                    InteractiveTimeout = TimeSpan.FromSeconds(EnvUtil.GetDeviceFlowTimeoutFromEnvironmentInSeconds(Logger)),
+                    ClientId = matchingEndpoint.ClientId,
+                    ClientCertificate = clientCertificate,
+                    TenantId = authInfo.EntraTenantId
+                };
+
+                foreach(var tokenProvider in tokenProviders)
+                {
+                    bool shouldRun = tokenProvider.CanGetToken(tokenRequest);
+                    if (!shouldRun)
+                    {
+                        Verbose(string.Format(Resources.NotRunningBearerTokenProvider, tokenProvider.Name));
+                        continue;
+                    }
+
+                    Verbose(string.Format(Resources.AttemptingToAcquireBearerTokenUsingProvider, tokenProvider.Name));
+
+                    string bearerToken;
+                    try
+                    {
+                        var result = await tokenProvider.GetTokenAsync(tokenRequest, cancellationToken);
+                        bearerToken = result?.AccessToken;
+                    }
+                    catch (Exception ex)
+                    {
+                        Verbose(string.Format(Resources.BearerTokenProviderException, tokenProvider.Name, ex));
+                        continue;
+                    }
+
+                    if (string.IsNullOrWhiteSpace(bearerToken))
+                    {
+                        Verbose(string.Format(Resources.BearerTokenProviderReturnedNull, tokenProvider.Name));
+                        continue;
+                    }
+
+                    Info(string.Format(Resources.AcquireBearerTokenSuccess, tokenProvider.Name));
+                    return GetResponse(
+                        matchingEndpoint.ClientId,
+                        bearerToken,
+                        null,
+                        MessageResponseCode.Success);
+                }
             }
 
             Verbose(string.Format(Resources.BuildTaskEndpointNoMatchingUrl, uriString));
@@ -87,9 +150,9 @@ namespace NuGetCredentialProvider.CredentialProviders.VstsBuildTaskServiceEndpoi
                 MessageResponseCode.Error);
         }
 
-        private Task<GetAuthenticationCredentialsResponse> GetResponse(string username, string password, string message, MessageResponseCode responseCode)
+        private GetAuthenticationCredentialsResponse GetResponse(string username, string password, string message, MessageResponseCode responseCode)
         {
-            return Task.FromResult(new GetAuthenticationCredentialsResponse(
+            return new GetAuthenticationCredentialsResponse(
                     username: username,
                     password: password,
                     message: message,
@@ -97,62 +160,22 @@ namespace NuGetCredentialProvider.CredentialProviders.VstsBuildTaskServiceEndpoi
                     {
                         "Basic"
                     },
-                    responseCode: responseCode));
+                    responseCode: responseCode);
         }
 
-        private Dictionary<string, EndpointCredentials> ParseJsonToDictionary()
+        private X509Certificate2 GetCertificate(EndpointCredentials credentials)
         {
-            string feedEndPointsJson = Environment.GetEnvironmentVariable(EnvUtil.BuildTaskExternalEndpoints);
-
-            try
+            if (!string.IsNullOrWhiteSpace(credentials.CertificateSubjectName))
             {
-                // Parse JSON from VSS_NUGET_EXTERNAL_FEED_ENDPOINTS
-                Verbose(Resources.ParsingJson);
-                if (!string.IsNullOrWhiteSpace(feedEndPointsJson) && feedEndPointsJson.Contains("':"))
-                {
-                    Warning(Resources.InvalidJsonWarning);
-                }
-                Dictionary<string, EndpointCredentials> credsResult = new Dictionary<string, EndpointCredentials>(StringComparer.OrdinalIgnoreCase);
-                EndpointCredentialsContainer endpointCredentials = JsonConvert.DeserializeObject<EndpointCredentialsContainer>(feedEndPointsJson);
-                if (endpointCredentials == null)
-                {
-                    Verbose(Resources.NoEndpointsFound);
-                    return credsResult;
-                }
-
-                foreach (EndpointCredentials credentials in endpointCredentials.EndpointCredentials)
-                {
-                    if (credentials == null)
-                    {
-                        Verbose(Resources.EndpointParseFailure);
-                        break;
-                    }
-
-                    if (credentials.Username == null)
-                    {
-                        credentials.Username = "VssSessionToken";
-                    }
-
-                    if (!Uri.TryCreate(credentials.Endpoint, UriKind.Absolute, out var endpointUri))
-                    {
-                        Verbose(Resources.EndpointParseFailure);
-                        break;
-                    }
-
-                    var urlEncodedEndpoint = endpointUri.AbsoluteUri;
-                    if (!credsResult.ContainsKey(urlEncodedEndpoint))
-                    {
-                        credsResult.Add(urlEncodedEndpoint, credentials);
-                    }
-                }
-
-                return credsResult;
+                return CertificateUtil.GetCertificateBySubjectName(Logger, credentials.CertificateSubjectName);
             }
-            catch (Exception e)
+
+            if (!string.IsNullOrWhiteSpace(credentials.CertificateFilePath))
             {
-                Verbose(string.Format(Resources.VstsBuildTaskExternalCredentialCredentialProviderError, e));
-                throw;
+                return CertificateUtil.GetCertificateByFilePath(Logger, credentials.CertificateFilePath);
             }
+
+            return null;
         }
     }
 }
