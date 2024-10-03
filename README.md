@@ -10,6 +10,7 @@ The Azure Artifacts Credential Provider automates the acquisition of credentials
 -   [Session Token Cache Locations](#session-token-cache-locations)
 -   [Environment Variables](#environment-variables)
 -   [Release version 1.0.0](#release-version-1.0.0)
+-   [Upcoming version 2.0.0](#release-version-2.0.0)
 -   [Help](#help)
 -   [Contribute](#contribute)
 
@@ -25,7 +26,7 @@ Install [Visual Studio version 15.9-preview1 or later](https://visualstudio.micr
 
 ### dotnet
 
-The default installation requires the [dotnet Runtime](https://www.microsoft.com/net/download) version `6.0.x` or later.
+The default installation requires the [dotnet runtime](https://www.microsoft.com/net/download) version `8.0.x` or later.
 
 ## Setup
 
@@ -163,6 +164,17 @@ The Credential Provider accepts a set of environment variables. Not all of them 
 Release version [1.0.0](https://github.com/microsoft/artifacts-credprovider/releases/tag/v1.0.0) was released in March 2022. Netcore version 1.0.0 of the Artifacts Credential Provider requires .NET Core 3.1. Older versions than 1.0.0 required .NET Core 2.1. `Microsoft.NetCore2.NuGet.CredentialProvider` asset is no longer available. Use  `Microsoft.NetCore3.NuGet.CredentialProvider.zip` instead.
 
 [1.0.0 release](https://github.com/microsoft/artifacts-credprovider/releases/tag/v1.0.0) also publishes the credential provider for .NET 6 users as `Microsoft.Net6.NuGet.CredentialProvider`.
+
+## Release version 2.0.0
+
+Release version 2.0.0 will be the next major version of artifacts-credprovider and will contain changes which end support for various .NET versions which have reached their end of support.
+
+- .NET Framework 4.6.1 (End of Support April 26, 2022) - Replaced with .NET Framework 4.8.1
+- .NET Core 3.1 (End of Support December 13, 2022) - Replaced with .NET 6/8
+
+After .NET 6 reaches its end of support on November 12, 2024 a minor version of artifacts-credprovider will be published to deprecate .NET 6 compatible binaries.
+
+- .NET 6 (End of Support November 12, 2024) - Replaced with .NET 8
 
 ## Help
 
@@ -305,12 +317,19 @@ Run the credential provider directly with the following command: `C:\Users\<user
 
 In an Azure DevOps Pipeline, verify you have set the right permissions for the pipeline by following the [docs](https://docs.microsoft.com/en-us/azure/devops/artifacts/feeds/feed-permissions?view=azure-devops#package-permissions-in-azure-pipelines).
 
-#### Cred provider used to work but now it asks me to update to .NET 6.0 or .NET Core 3.1.
-Because .NET Core 2 is [out of support](https://dotnet.microsoft.com/platform/support/policy/dotnet-core#lifecycle), you should update to .NET Core 3.1 or greater to keep using the latest versions of the credential provider.
+#### Cred provider used to work but now it asks me to update the .NET version.
+The .NET version installed is [out of support](https://dotnet.microsoft.com/platform/support/policy/dotnet-core#lifecycle), you should update to .NET 8.0 or greater to keep using the latest versions of the credential provider.
 
-> .NET Core 3.1 will also be removed from future versions. See the announcement [here](https://github.com/microsoft/artifacts-credprovider/discussions/386).
+> .NET Core 3.1 and .NET Framework 4.6.1 compatability will also be removed from major version 2.0.0. See the announcement [here](https://github.com/microsoft/artifacts-credprovider/discussions/386).
 
-If you keep using the unsupported .NET Core 2.1 you must use Artifacts Credential Provider version 0.1.28 or lower.
+To keep using .NET versions which are past their end of support date, see the table below for the maximum Artifacts Credential Provider version.
+
+| .NET Version | End of ACP Support |
+| -------- | ------- |
+| .NET Core 2.1 | 0.1.28 |
+| .NET Core 3.1 | 1.x.x (pending final release) |
+| .NET Framework 4.6.1 | 1.x.x (pending final release) |
+| .NET 6.0 | 2.x.x (pending release) |
 
 ## Contribute
 
