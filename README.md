@@ -167,12 +167,12 @@ Release version [1.0.0](https://github.com/microsoft/artifacts-credprovider/rele
 
 ## Release version 2.0.0
 
-Release version 2.0.0 will be the next major version of artifacts-credprovider and will contain changes which end support for various .NET versions which have reached their end of support.
+Release version 2.0.0 will be the next major version of artifacts-credprovider and will contain changes which end support for various .NET versions which have reached their end of support. It is planned for release in Q1 2025 to allow users to migrate their usage of the tool to the new .NET versions.
 
 - .NET Framework 4.6.1 (End of Support April 26, 2022) - Replaced with .NET Framework 4.8.1
 - .NET Core 3.1 (End of Support December 13, 2022) - Replaced with .NET 6/8
 
-After .NET 6 reaches its end of support on November 12, 2024 a minor version of artifacts-credprovider will be published to deprecate .NET 6 compatible binaries.
+.NET 6 will reach its end of support on November 12, 2024. After v2.0.0 is released, a minor version of artifacts-credprovider will be published to deprecate .NET 6 compatible binaries.
 
 - .NET 6 (End of Support November 12, 2024) - Replaced with .NET 8
 
