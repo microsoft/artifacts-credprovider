@@ -218,6 +218,7 @@ steps:
     sourceFolder: '$(Build.SourcesDirectory)\CredentialProvider.Microsoft\bin\$(BuildConfiguration)\net481\'
     contents: '**\*'
     targetFolder: '$(Build.ArtifactStagingDirectory)\tarball\plugins\netfx\CredentialProvider.Microsoft\'
+    cleanTargetFolder: true
 
 - task: ArchiveFiles@2
   displayName: Create netfx 4.8.1 tarball
