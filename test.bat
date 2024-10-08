@@ -4,6 +4,11 @@ SETLOCAL EnableDelayedExpansion
 @REM A Windows domain user should be able to run this against a feed in an AAD-back AzDO org
 @REM and all scenarios should succeed non-interactively.
 
+IF "%~1" == "" (
+    echo "Please specify an AzDO organization package feed URL as the first parameter."
+    exit /b 1
+)
+
 set TEST_FEED=%1
 set NUGET_CREDENTIALPROVIDER_MSAL_FILECACHE_ENABLED=true
 set NUGET_CREDENTIALPROVIDER_MSAL_FILECACHE_LOCATION=%TEMP%\msal.cache
@@ -30,7 +35,7 @@ exit /b 0
 
 
 :TEST_FRAMEWORKS
-for %%I in ("netcoreapp3.1","net461","net6.0") DO (
+for %%I in ("netcoreapp3.1","net461","net481","net6.0","net8.0") DO (
     del /q "!UserProfile!\AppData\Local\MicrosoftCredentialProvider\*.dat" 2>NUL
     del /q "%NUGET_CREDENTIALPROVIDER_MSAL_FILECACHE_LOCATION%" 2>NUL
     echo Testing %%I with NUGET_CREDENTIALPROVIDER_MSAL_ALLOW_BROKER=!NUGET_CREDENTIALPROVIDER_MSAL_ALLOW_BROKER!
