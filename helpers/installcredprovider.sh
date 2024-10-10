@@ -18,7 +18,7 @@ if [ -z ${USE_NET6_ARTIFACTS_CREDENTIAL_PROVIDER} ] || [ ${USE_NET6_ARTIFACTS_CR
   # throw if version starts with 0. (net6 not supported)
   case ${AZURE_ARTIFACTS_CREDENTIAL_PROVIDER_VERSION} in 
     0.*|v0.*)
-      echo "ERROR: To install NET6 cred provider using the USE_NET6_ARTIFACTS_CREDENTIAL_PROVIDER variable, version to be installed must be 1.0.0. or greater. Check your AZURE_ARTIFACTS_CREDENTIAL_PROVIDER_VERSION variable."
+      echo "ERROR: To install NET6 cred provider using the USE_NET6_ARTIFACTS_CREDENTIAL_PROVIDER variable, version to be installed must be 1.0.0 or greater. Check your AZURE_ARTIFACTS_CREDENTIAL_PROVIDER_VERSION variable."
       exit 1
       ;;
   esac
@@ -28,7 +28,7 @@ else if [ -z ${USE_NET8_ARTIFACTS_CREDENTIAL_PROVIDER} ] || [ ${USE_NET8_ARTIFAC
   # throw if version starts < 1.3.0. (net8 not supported)
   case ${AZURE_ARTIFACTS_CREDENTIAL_PROVIDER_VERSION} in 
     0.*|v0.*|1.0.*|v1.0.*|1.1.*|v1.1.*|1.2.*|v1.2.*)
-      echo "ERROR: To install NET8 cred provider using the USE_NET8_ARTIFACTS_CREDENTIAL_PROVIDER variable, version to be installed must be 1.3.0. or greater. Check your AZURE_ARTIFACTS_CREDENTIAL_PROVIDER_VERSION variable."
+      echo "ERROR: To install NET8 cred provider using the USE_NET8_ARTIFACTS_CREDENTIAL_PROVIDER variable, version to be installed must be 1.3.0 or greater. Check your AZURE_ARTIFACTS_CREDENTIAL_PROVIDER_VERSION variable."
       exit 1
       ;;
   esac

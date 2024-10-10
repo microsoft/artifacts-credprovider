@@ -41,8 +41,8 @@ if ($AddNetfx -eq $True -and $AddNetfx48 -eq $True) {
     return
 }
 if ($InstallNet6 -eq $True -and $InstallNet8 -eq $True) {
-    Write-Error "Please select a single .Net core version to install"
-    return
+    # InstallNet6 defaults to true, in the case of .Net 8 install, overwrite
+    $InstallNet6 = $False
 }
 
 $userProfilePath = [System.Environment]::GetFolderPath([System.Environment+SpecialFolder]::UserProfile);
