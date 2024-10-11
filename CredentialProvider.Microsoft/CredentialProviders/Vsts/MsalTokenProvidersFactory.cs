@@ -30,7 +30,7 @@ namespace NuGetCredentialProvider.CredentialProviders.Vsts
             }
 
             var app = AzureArtifacts.CreateDefaultBuilder(authority)
-                .WithBroker(EnvUtil.MsalAllowBrokerEnabled(), logger)
+                .WithBroker(EnvUtil.MsalAllowBrokerEnabled(), EnvUtil.GetMsalBrokerWindowHandle(), logger)
                 .WithHttpClientFactory(HttpClientFactory.Default)
                 .WithLogging(
                     (Microsoft.Identity.Client.LogLevel level, string message, bool containsPii) =>
