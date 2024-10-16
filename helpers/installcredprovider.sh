@@ -11,7 +11,7 @@
 REPO="Microsoft/artifacts-credprovider"
 NUGET_PLUGIN_DIR="$HOME/.nuget/plugins"
 
-# determine whether we install default or Net6
+# .NET 6 is the default installation, attempt to install unless set to false.
 if [ -z ${USE_NET6_ARTIFACTS_CREDENTIAL_PROVIDER} ] || [ ${USE_NET6_ARTIFACTS_CREDENTIAL_PROVIDER} != "false" ]; then
   FILE="Microsoft.Net6.NuGet.CredentialProvider.tar.gz"
 
@@ -22,7 +22,8 @@ if [ -z ${USE_NET6_ARTIFACTS_CREDENTIAL_PROVIDER} ] || [ ${USE_NET6_ARTIFACTS_CR
       exit 1
       ;;
   esac
-elif [ -z ${USE_NET8_ARTIFACTS_CREDENTIAL_PROVIDER} ] || [ ${USE_NET8_ARTIFACTS_CREDENTIAL_PROVIDER} != "false" ]; then
+# Don't attempt to install .NET 8 without a set variable.
+elif [ ! -z ${USE_NET8_ARTIFACTS_CREDENTIAL_PROVIDER} ] && [ ${USE_NET8_ARTIFACTS_CREDENTIAL_PROVIDER} != "false" ]; then
   FILE="Microsoft.Net8.NuGet.CredentialProvider.tar.gz"
 
   # throw if version starts < 1.3.0. (net8 not supported)
@@ -32,6 +33,7 @@ elif [ -z ${USE_NET8_ARTIFACTS_CREDENTIAL_PROVIDER} ] || [ ${USE_NET8_ARTIFACTS_
       exit 1
       ;;
   esac
+# If .NET 6 is disabled and .NET 8 isn't explicitly enabled, fall back to the legacy .NET Framework.
 else
   FILE="Microsoft.NuGet.CredentialProvider.tar.gz"
 fi
