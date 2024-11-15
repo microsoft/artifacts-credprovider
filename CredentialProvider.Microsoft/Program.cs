@@ -23,6 +23,7 @@ using ILogger = NuGetCredentialProvider.Logging.ILogger;
 
 namespace NuGetCredentialProvider
 {
+    // Testing
     public static class Program
     {
         private static bool shuttingDown = false;
