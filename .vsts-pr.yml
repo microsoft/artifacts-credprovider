@@ -4,7 +4,8 @@ resources:
 pool:
   vmImage: windows-latest
 
-trigger: none
+trigger:
+- master
 
 variables:
   BuildConfiguration: 'Debug'
