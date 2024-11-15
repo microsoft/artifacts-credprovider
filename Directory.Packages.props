@@ -22,7 +22,7 @@
     <PackageVersion Include="NuGet.Protocol" Version="6.7.1" />
     <PackageVersion Include="PowerArgs" Version="3.6.0" />
     <PackageVersion Include="System.Formats.Asn1" Version="6.0.1" />
-    <PackageVersion Include="System.Text.Json" Version="6.0.7" />
+    <PackageVersion Include="System.Text.Json" Version="6.0.10" />
     <PackageVersion Include="System.Configuration.ConfigurationManager" Version="6.0.0" />
   </ItemGroup>
 
