@@ -15,7 +15,7 @@
     <PackageVersion Include="Microsoft.Identity.Client.Extensions.Msal" Version="4.64.0" />
     <PackageVersion Include="Microsoft.VisualStudioEng.MicroBuild.Core" Version="1.0.0" />
     <PackageVersion Include="Moq" Version="4.18.4" />
-    <PackageVersion Include="MSTest" Version="3.6.1" />
+    <PackageVersion Include="MSTest" Version="3.6.3" />
     <PackageVersion Include="Newtonsoft.Json" Version="13.0.3" />
     <PackageVersion Include="NuGet.Protocol" Version="6.7.1" />
     <PackageVersion Include="PowerArgs" Version="3.6.0" />
