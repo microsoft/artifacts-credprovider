@@ -41,8 +41,11 @@ Dotnet needs the `netcore` version to be installed. NuGet and MSBuild need the `
 [PowerShell helper script](helpers/installcredprovider.ps1)
 - To install netcore, run `installcredprovider.ps1`
   - e.g. `iex "& { $(irm https://aka.ms/install-artifacts-credprovider.ps1) }"`
+  - .NET 6 bits can be installed using `iex "& { $(irm https://aka.ms/install-artifacts-credprovider.ps1) } -InstallNet6"`
+  - .NET 8 bits can be installed using `iex "& { $(irm https://aka.ms/install-artifacts-credprovider.ps1) } -InstallNet8"`
 - To install both netfx and netcore, run `installcredprovider.ps1 -AddNetfx`. The netfx version is needed for nuget.exe.
   - e.g. `iex "& { $(irm https://aka.ms/install-artifacts-credprovider.ps1) } -AddNetfx"`
+  - .NET Framework 4.8.1 support is available using the `-AddNetFx48` flag
 
 #### Manual installation on Windows
 
@@ -72,7 +75,7 @@ Examples:
 
 Using the above is recommended, but as per [NuGet's plugin discovery rules](https://github.com/NuGet/Home/wiki/NuGet-cross-plat-authentication-plugin#plugin-installation-and-discovery), alternatively you can install the credential provider to a location you prefer, and then set the environment variable NUGET_PLUGIN_PATHS to the .dll of the credential provider found in plugins\netcore\CredentialProvider.Microsoft\CredentialProvider.Microsoft.dll. For example, $env:NUGET_PLUGIN_PATHS="my-alternative-location\CredentialProvider.Microsoft.dll".
 
-Users requiring .NET 6, such as ARM64 users, can manually download the .NET 6 version `Microsoft.Net6.NuGet.CredentialProvider` of the [1.0.0 release](https://github.com/microsoft/artifacts-credprovider/releases/tag/v1.0.0).
+Users requiring .NET 6, such as ARM64 users, can manually download the .NET 6 version `Microsoft.Net6.NuGet.CredentialProvider` of the [1.0.0 release](https://github.com/microsoft/artifacts-credprovider/releases/tag/v1.0.0). Support for .NET 8 was added in [release 1.3.0](https://github.com/microsoft/artifacts-credprovider/releases/tag/v1.3.0) and can be downloaded with the `Microsoft.Net8.NuGet.CredentialProvider` archive.
 
 ### Automatic usage
 - MSBuild in Visual Studio Developer Command Prompt with Visual Studio 15.9+
