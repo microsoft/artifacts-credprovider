@@ -27,10 +27,11 @@ elif [ ! -z ${USE_NET8_ARTIFACTS_CREDENTIAL_PROVIDER} ] && [ ${USE_NET8_ARTIFACT
   # Self-contained versions are available in latest versions of the .NET 8 credprovider.
   # To install a release with a specific runtime version set the `USE_RID_ARTIFACTS_CREDENTIAL_PROVIDER` enviornment variable.
   # Otherwise default to the full zip file.
-  RID = ""
-  if [ -z ${USE_RID_ARTIFACTS_CREDENTIAL_PROVIDER} ]; then
-    RID = ${USE_RID_ARTIFACTS_CREDENTIAL_PROVIDER} + "."
-  FILE="Microsoft.Net8." + $RID + "NuGet.CredentialProvider.tar.gz"
+  RID=""
+  if [ ! -z ${USE_RID_ARTIFACTS_CREDENTIAL_PROVIDER} ]; then
+    RID=".${USE_RID_ARTIFACTS_CREDENTIAL_PROVIDER}"
+  fi
+  FILE="Microsoft.Net8$RID.NuGet.CredentialProvider.tar.gz"
 
   # throw if version starts < 1.3.0. (net8 not supported)
   case ${AZURE_ARTIFACTS_CREDENTIAL_PROVIDER_VERSION} in 
