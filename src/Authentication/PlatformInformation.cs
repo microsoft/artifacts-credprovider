@@ -79,4 +79,12 @@ public static class PlatformInformation
     {
         return RuntimeInformation.FrameworkDescription;
     }
+
+    public static bool IsSelfContained(){
+#if SELF_CONTAINED
+        return true;
+#else
+        return false;
+#endif
+    }
 }

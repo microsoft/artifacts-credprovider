@@ -32,7 +32,7 @@ public class MsalHttpClientFactory : IMsalHttpClientFactory
         new ProductInfoHeaderValue("CLR", PlatformInformation.GetClrVersion());
 
     public static ProductInfoHeaderValue ClrComment =>
-        new ProductInfoHeaderValue($"({PlatformInformation.GetClrFramework()}; {PlatformInformation.GetClrRuntime()}; {PlatformInformation.GetClrDescription()})");
+        new ProductInfoHeaderValue($"({PlatformInformation.GetClrFramework()}; {PlatformInformation.GetClrRuntime()}; {PlatformInformation.GetClrDescription()}; self-contained={PlatformInformation.IsSelfContained()})");
 
     // Produces a value similar to the following:
     // CredentialProvider.Microsoft/1.0.4+aae4981de95d543b7935811c05474e393dd9e144 (Windows; X64; Microsoft Windows 10.0.19045) CLR/6.0.16 (.NETCoreApp,Version=v6.0; win10-x64; .NET 6.0.16)
