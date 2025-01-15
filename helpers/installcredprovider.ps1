@@ -105,7 +105,7 @@ if (!$releaseId) {
 $releaseUrl = [System.IO.Path]::Combine($releaseUrlBase, $releaseId)
 $releaseUrl = $releaseUrl.Replace("\","/")
 
-$releaseRIdPart = ""
+$releaseRidPart = ""
 if (![string]::IsNullOrEmpty($Platform)) {
     $releaseRIdPart = $Platform + "."
 }
