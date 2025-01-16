@@ -25,11 +25,11 @@ if [ -z ${USE_NET6_ARTIFACTS_CREDENTIAL_PROVIDER} ] || [ ${USE_NET6_ARTIFACTS_CR
 # Don't attempt to install .NET 8 without a set variable.
 elif [ ! -z ${USE_NET8_ARTIFACTS_CREDENTIAL_PROVIDER} ] && [ ${USE_NET8_ARTIFACTS_CREDENTIAL_PROVIDER} != "false" ]; then
   # Self-contained versions are available in latest versions of the .NET 8 credprovider.
-  # To install a release with a specific runtime version set the `USE_RID_ARTIFACTS_CREDENTIAL_PROVIDER` enviornment variable.
+  # To install a release with a specific runtime version set the `ARTIFACTS_CREDENTIAL_PROVIDER_RID` enviornment variable.
   # Otherwise default to the full zip file.
   RID=""
-  if [ ! -z ${USE_RID_ARTIFACTS_CREDENTIAL_PROVIDER} ]; then
-    RID=".${USE_RID_ARTIFACTS_CREDENTIAL_PROVIDER}"
+  if [ ! -z ${ARTIFACTS_CREDENTIAL_PROVIDER_RID} ]; then
+    RID=".${ARTIFACTS_CREDENTIAL_PROVIDER_RID}"
   fi
   FILE="Microsoft.Net8$RID.NuGet.CredentialProvider.tar.gz"
 
