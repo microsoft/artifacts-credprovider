@@ -119,7 +119,7 @@ if ($InstallNet6 -eq $True) {
     $zipFile = "Microsoft.Net6.NuGet.CredentialProvider.zip"
 }
 if ($InstallNet8 -eq $True) {
-    $zipFile = "Microsoft.Net8." + $releaseRIdPart + "NuGet.CredentialProvider.zip"
+    $zipFile = "Microsoft.Net8.${releaseRidPart}NuGet.CredentialProvider.zip"
 }
 if ($AddNetfx -eq $True) {
     $zipFile = "Microsoft.NuGet.CredentialProvider.zip"
