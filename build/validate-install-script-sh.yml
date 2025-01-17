@@ -4,15 +4,15 @@ parameters:
 - name: repo
   type: string
 
-jobs:
-pool: ${{ parameters.pool }}
 - job: validateLineEndings
+  pool: ${{ parameters.pool }}
   steps:
   - checkout: ${{ parameters.repo }}
   - bash: |
       if [grep $'\r' ./helpers/installcredprovider.sh]; then echo "CRLF line ending found" ; exit 1; fi
     workingDirectory: $(Build.SourcesDirectory)
 - job: LinuxInstallDefault
+  pool: ${{ parameters.pool }}
   steps:
   - checkout: ${{ parameters.repo }}
   - bash: | 
@@ -22,6 +22,7 @@ pool: ${{ parameters.pool }}
       if [! -d "$HOME/.nuget/plugins/netcore/CredentialProvider.Microsoft"]; then echo "Not found"; exit 1; fi
     workingDirectory: $(Build.SourcesDirectory)
 - job: LinuxInstallNet8
+  pool: ${{ parameters.pool }}
   steps:
   - checkout: ${{ parameters.repo }}
   - bash: | 
