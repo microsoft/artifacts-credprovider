@@ -13,6 +13,7 @@ variables:
 
 stages:
 - stage: Build
+  dependsOn: [] 
   jobs:
   - job: build
     steps:
@@ -21,6 +22,7 @@ stages:
         nuspecProperties: 'VersionSuffix=CI-$(Build.BuildNumber)'
 
 - stage: ValidateInstallScriptWindows
+  dependsOn: [] 
   pool:
     vmImage: windows-latest
   jobs:
@@ -29,6 +31,7 @@ stages:
       repo: 'self'
 
 - stage: ValidateInstallScriptLinux
+  dependsOn: [] 
   pool:
     vmImage: ubuntu-latest
   jobs:
