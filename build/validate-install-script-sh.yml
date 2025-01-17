@@ -4,6 +4,7 @@ parameters:
 - name: repo
   type: string
 
+jobs:
 - job: validateLineEndings
   pool: ${{ parameters.pool }}
   steps:

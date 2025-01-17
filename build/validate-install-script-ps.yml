@@ -4,6 +4,7 @@ parameters:
 - name: repo
   type: string
 
+jobs:
 - job: WindowsInstallDefault
   pool: ${{ parameters.pool }}
   steps:
