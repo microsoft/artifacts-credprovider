@@ -1,12 +1,17 @@
 parameters:
 - name: pool
   type: string
+  default: ''
+- name: image
+  type: string
 - name: repo
   type: string
+
 
 jobs:
 - job: WindowsInstallDefault
   pool: ${{ parameters.pool }}
+    vmImage: ${{ parameters.image }}
   steps:
   - checkout: ${{ parameters.repo }}
   - task: PowerShell@2
@@ -19,6 +24,7 @@ jobs:
       workingDirectory: $(Build.SourcesDirectory)
 - job: WindowsInstallNet8
   pool: ${{ parameters.pool }}
+    vmImage: ${{ parameters.image }}
   steps:
   - checkout: ${{ parameters.repo }}
   - task: PowerShell@2
@@ -31,6 +37,7 @@ jobs:
       workingDirectory: $(Build.SourcesDirectory)
 - job: WindowsInstallNetfxDefault
   pool: ${{ parameters.pool }}
+    vmImage: ${{ parameters.image }}
   steps:
   - checkout: ${{ parameters.repo }}
   - task: PowerShell@2
@@ -43,6 +50,7 @@ jobs:
       workingDirectory: $(Build.SourcesDirectory)
 - job: WindowsInstallNetfx48
   pool: ${{ parameters.pool }}
+    vmImage: ${{ parameters.image }}
   steps:
   - checkout: ${{ parameters.repo }}
   - task: PowerShell@2

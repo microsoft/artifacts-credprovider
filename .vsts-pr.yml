@@ -24,9 +24,9 @@ stages:
   jobs:
   - template: build/validate-install-script-ps.yml
     parameters:
-      pool: 'windows-latest'
+      image: 'windows-latest'
       repo: 'self'
   - template: build/validate-install-script-sh.yml
     parameters:
-      pool: 'ubuntu-latest'
+      image: 'ubuntu-latest'
       repo: 'self'  
