@@ -7,43 +7,47 @@ jobs:
   steps:
   - checkout: ${{ parameters.repo }}
   - task: PowerShell@2
+    displayName: Validate Install Script
     inputs:
       targetType: 'inline'
       script: |
         ./helpers/installcredprovider.ps1 -Force 6>> ./output.log
         cat ./output.log
-        if( (Select-String -Path .\output.log -Pattern "Microsoft.Net6.NuGet.CredentialProvider") -eq $null) {echo "Expected credential provider ile not found."; exit 1}
+        if( (Select-String -Path .\output.log -Pattern "Microsoft.Net6.NuGet.CredentialProvider") -eq $null) {echo "Expected credential provider file not found."; exit 1}
       workingDirectory: $(Build.SourcesDirectory)
 - job: WindowsInstallNet8
   steps:
   - checkout: ${{ parameters.repo }}
   - task: PowerShell@2
+    displayName: Validate Install Script
     inputs:
       targetType: 'inline'
       script: |
         ./helpers/installcredprovider.ps1 -InstallNet8 -Force 6>> ./output.log
         cat ./output.log
-        if( (Select-String -Path .\output.log -Pattern "Microsoft.Net8.NuGet.CredentialProvider") -eq $null) {echo "Expected credential provider ile not found."; exit 1}
+        if( (Select-String -Path .\output.log -Pattern "Microsoft.Net8.NuGet.CredentialProvider") -eq $null) {echo "Expected credential provider file not found."; exit 1}
       workingDirectory: $(Build.SourcesDirectory)
 - job: WindowsInstallNetfxDefault
   steps:
   - checkout: ${{ parameters.repo }}
   - task: PowerShell@2
+    displayName: Validate Install Script
     inputs:
       targetType: 'inline'
       script: |
         ./helpers/installcredprovider.ps1 -AddNetfx -Force 6>> ./output.log
         cat ./output.log
-        if( (Select-String -Path .\output.log -Pattern "Microsoft.NuGet.CredentialProvider") -eq $null) {echo "Expected credential provider ile not found."; exit 1}
+        if( (Select-String -Path .\output.log -Pattern "Microsoft.NuGet.CredentialProvider") -eq $null) {echo "Expected credential provider file not found."; exit 1}
       workingDirectory: $(Build.SourcesDirectory)
 - job: WindowsInstallNetfx48
   steps:
   - checkout: ${{ parameters.repo }}
   - task: PowerShell@2
+    displayName: Validate Install Script
     inputs:
       targetType: 'inline'
       script: |
         ./helpers/installcredprovider.ps1 -AddNetFx48 -Force 6>> ./output.log
         cat ./output.log
-        if((Select-String -Path .\output.log -Pattern "Microsoft.NetFx48.NuGet.CredentialProvider") -eq $null) {echo "Expected credential provider ile not found."; exit 1}
+        if((Select-String -Path .\output.log -Pattern "Microsoft.NetFx48.NuGet.CredentialProvider") -eq $null) {echo "Expected credential provider file not found."; exit 1}
       workingDirectory: $(Build.SourcesDirectory)
