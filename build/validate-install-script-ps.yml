@@ -1,17 +1,9 @@
 parameters:
-- name: pool
-  type: string
-  default: ''
-- name: image
-  type: string
 - name: repo
   type: string
 
-
 jobs:
 - job: WindowsInstallDefault
-  pool: ${{ parameters.pool }}
-    vmImage: ${{ parameters.image }}
   steps:
   - checkout: ${{ parameters.repo }}
   - task: PowerShell@2
@@ -23,8 +15,6 @@ jobs:
         if( (Select-String -Path .\output.log -Pattern "Microsoft.Net6.NuGet.CredentialProvider") -eq $null) {echo "Expected credential provider ile not found."; exit 1}
       workingDirectory: $(Build.SourcesDirectory)
 - job: WindowsInstallNet8
-  pool: ${{ parameters.pool }}
-    vmImage: ${{ parameters.image }}
   steps:
   - checkout: ${{ parameters.repo }}
   - task: PowerShell@2
@@ -36,8 +26,6 @@ jobs:
         if( (Select-String -Path .\output.log -Pattern "Microsoft.Net8.NuGet.CredentialProvider") -eq $null) {echo "Expected credential provider ile not found."; exit 1}
       workingDirectory: $(Build.SourcesDirectory)
 - job: WindowsInstallNetfxDefault
-  pool: ${{ parameters.pool }}
-    vmImage: ${{ parameters.image }}
   steps:
   - checkout: ${{ parameters.repo }}
   - task: PowerShell@2
@@ -49,8 +37,6 @@ jobs:
         if( (Select-String -Path .\output.log -Pattern "Microsoft.NuGet.CredentialProvider") -eq $null) {echo "Expected credential provider ile not found."; exit 1}
       workingDirectory: $(Build.SourcesDirectory)
 - job: WindowsInstallNetfx48
-  pool: ${{ parameters.pool }}
-    vmImage: ${{ parameters.image }}
   steps:
   - checkout: ${{ parameters.repo }}
   - task: PowerShell@2

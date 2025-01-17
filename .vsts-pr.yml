@@ -20,13 +20,18 @@ stages:
       parameters:
         nuspecProperties: 'VersionSuffix=CI-$(Build.BuildNumber)'
 
-- stage: ValidateInstallScript
+- stage: ValidateInstallScriptWindows
+  pool:
+    vmImage: windows-latest
   jobs:
   - template: build/validate-install-script-ps.yml
     parameters:
-      image: 'windows-latest'
       repo: 'self'
+
+- stage: ValidateInstallScriptLinux
+  pool:
+    vmImage: ubuntu-latest
+  jobs:
   - template: build/validate-install-script-sh.yml
     parameters:
-      image: 'ubuntu-latest'
       repo: 'self'  

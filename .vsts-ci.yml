@@ -11,17 +11,27 @@ variables:
   BuildConfiguration: 'Release'
   TeamName: 'Package Experience'
 
-jobs:
-- job: build
-  steps:
-  - template: build/build.yml
+stages:
+- stage: Build
+  jobs:
+  - job: build
+    steps:
+    - template: build/build.yml
+      parameters:
+        nuspecProperties: 'VersionSuffix=CI-$(Build.BuildNumber)'
+
+- stage: ValidateInstallScriptWindows
+  pool:
+    vmImage: windows-latest
+  jobs:
+  - template: build/validate-install-script-ps.yml
     parameters:
-      nuspecProperties: 'VersionSuffix=CI-$(Build.BuildNumber)'
-- template: build/validate-install-script-ps.yml
-  parameters:
-    pool: 'windows-latest'
-    repo: 'self'
-- template: build/validate-install-script-sh.yml
-  parameters:
-    pool: 'ubuntu-latest'
-    repo: 'self'
+      repo: 'self'
+
+- stage: ValidateInstallScriptLinux
+  pool:
+    vmImage: ubuntu-latest
+  jobs:
+  - template: build/validate-install-script-sh.yml
+    parameters:
+      repo: 'self'  
