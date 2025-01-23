@@ -16,8 +16,17 @@ jobs:
   - bash: | 
       ./helpers/installcredprovider.sh -Force >> ./output.log
       cat ./output.log
-      if [! grep "Microsoft.Net6.NuGet.CredentialProvider" ./output.log]; then echo "Expected credential provider not found"; exit 1; fi
-      if [! -d "$HOME/.nuget/plugins/netcore/CredentialProvider.Microsoft"]; then echo "Credential provider plugin directory not found"; exit 1; fi
+
+      if ! grep "Microsoft.Net6.NuGet.CredentialProvider" ./output.log; then
+        echo "Expected credential provider not found"
+        exit 1
+      fi
+      if [ ! -d "$HOME/.nuget/plugins/netcore/CredentialProvider.Microsoft" ]; then
+        echo "Credential provider plugin directory not found"
+        exit 1
+      fi
+      
+      echo "Credential provider installed successfully"
     workingDirectory: $(Build.SourcesDirectory)
     displayName: Validate Install Script
 - job: LinuxInstallNet8
@@ -26,11 +35,19 @@ jobs:
   - bash: | 
       export USE_NET6_ARTIFACTS_CREDENTIAL_PROVIDER=false
       export USE_NET8_ARTIFACTS_CREDENTIAL_PROVIDER=true
-
       ./helpers/installcredprovider.sh -Force >> ./output.log
       cat ./output.log
-      if [! grep "Microsoft.Net8.NuGet.CredentialProvider" ./output.log]; then echo "Expected credential provider not found"; exit 1; fi
-      if [! -d "$HOME/.nuget/plugins/netcore/CredentialProvider.Microsoft"]; then echo "Credential provider plugin directory not found"; exit 1; fi
+      
+      if ! grep "Microsoft.Net8.NuGet.CredentialProvider" ./output.log; then
+        echo "Expected credential provider not found"
+        exit 1
+      fi
+      if [ ! -d "$HOME/.nuget/plugins/netcore/CredentialProvider.Microsoft" ]; then
+        echo "Credential provider plugin directory not found"
+        exit 1
+      fi
+
+      echo "Credential provider installed successfully"
     workingDirectory: $(Build.SourcesDirectory)
     displayName: Validate Install Script
   
