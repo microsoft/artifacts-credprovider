@@ -11,7 +11,30 @@ variables:
   BuildConfiguration: 'Debug'
   TeamName: 'Package Experience'
 
-steps:
-- template: build/build.yml
-  parameters:
-    nuspecProperties: 'VersionSuffix=PR-$(Build.BuildNumber)'
+stages:
+- stage: Build
+  dependsOn: [] 
+  jobs:
+  - job: build
+    steps:
+    - template: build/build.yml
+      parameters:
+        nuspecProperties: 'VersionSuffix=CI-$(Build.BuildNumber)'
+
+- stage: ValidateInstallScriptWindows
+  dependsOn: [] 
+  pool:
+    vmImage: windows-latest
+  jobs:
+  - template: build/validate-install-script-ps.yml
+    parameters:
+      repo: 'self'
+
+- stage: ValidateInstallScriptLinux
+  dependsOn: [] 
+  pool:
+    vmImage: ubuntu-latest
+  jobs:
+  - template: build/validate-install-script-sh.yml
+    parameters:
+      repo: 'self'  
