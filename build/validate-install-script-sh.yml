@@ -7,7 +7,10 @@ jobs:
   steps:
   - checkout: ${{ parameters.repo }}
   - bash: |
-      if [grep $'\r' ./helpers/installcredprovider.sh]; then echo "CRLF line ending found" ; exit 1; fi
+      if grep $'\r' ./helpers/installcredprovider.sh; then e
+        echo "CRLF line ending found"
+        exit 1
+      fi
     workingDirectory: $(Build.SourcesDirectory)
     displayName: Validate Install Script
 - job: LinuxInstallDefault
@@ -37,7 +40,7 @@ jobs:
       export USE_NET8_ARTIFACTS_CREDENTIAL_PROVIDER=true
       ./helpers/installcredprovider.sh -Force >> ./output.log
       cat ./output.log
-      
+
       if ! grep "Microsoft.Net8.NuGet.CredentialProvider" ./output.log; then
         echo "Expected credential provider not found"
         exit 1
