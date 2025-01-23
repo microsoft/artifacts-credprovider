@@ -18,8 +18,8 @@ param(
     [switch]$InstallNet6 = $true,
     # install the .NET 8 cred provider instead of NetCore3.1
     [switch]$InstallNet8,
-    # install the self-contained cred provider for the specified platform.
-    [string]$Platform
+    # install the self-contained cred provider for the specified RuntimeIdentifier .
+    [string]$RuntimeIdentifier 
 )
 
 $script:ErrorActionPreference='Stop'
@@ -105,9 +105,9 @@ if (!$releaseId) {
 $releaseUrl = [System.IO.Path]::Combine($releaseUrlBase, $releaseId)
 $releaseUrl = $releaseUrl.Replace("\","/")
 
-$releaseRIdPart = ""
-if (![string]::IsNullOrEmpty($Platform)) {
-    $releaseRIdPart = $Platform + "."
+$releaseRidPart = ""
+if (![string]::IsNullOrEmpty($RuntimeIdentifier )) {
+    $releaseRIdPart = $RuntimeIdentifier  + "."
 }
 
 $zipFile = "Microsoft.NetCore3.NuGet.CredentialProvider.zip"
@@ -119,7 +119,7 @@ if ($InstallNet6 -eq $True) {
     $zipFile = "Microsoft.Net6.NuGet.CredentialProvider.zip"
 }
 if ($InstallNet8 -eq $True) {
-    $zipFile = "Microsoft.Net8." + $releaseRIdPart + "NuGet.CredentialProvider.zip"
+    $zipFile = "Microsoft.Net8.${releaseRidPart}NuGet.CredentialProvider.zip"
 }
 if ($AddNetfx -eq $True) {
     $zipFile = "Microsoft.NuGet.CredentialProvider.zip"
