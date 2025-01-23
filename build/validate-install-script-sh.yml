@@ -7,7 +7,7 @@ jobs:
   steps:
   - checkout: ${{ parameters.repo }}
   - bash: |
-      if grep $'\r' ./helpers/installcredprovider.sh; then e
+      if grep $'\r' ./helpers/installcredprovider.sh; then 
         echo "CRLF line ending found"
         exit 1
       fi
