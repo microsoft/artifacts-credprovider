@@ -1,0 +1,19 @@
+parameters:
+- name: repo
+  type: string
+- name: scriptInputs
+  type: string
+- name: expectedCredentialProviderVersion
+  type: string
+
+steps:
+- checkout: ${{ parameters.repo }}
+- task: PowerShell@2
+  displayName: Validate Install Script
+  inputs:
+    targetType: 'inline'
+    script: |
+      ./helpers/installcredprovider.ps1 ${{ parameters.scriptInputs }} -Force 6>> ./output.log
+      cat ./output.log
+      if( (Select-String -Path .\output.log -Pattern ${{ parameters.expectedCredentialProviderVersion }}) -eq $null) {echo "Expected credential provider file not found."; exit 1}
+    workingDirectory: $(Build.SourcesDirectory)
