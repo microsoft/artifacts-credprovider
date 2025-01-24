@@ -25,5 +25,3 @@ stages:
   dependsOn: [] 
   jobs:
   - template: build/validate-install-script.yml
-    parameters:
-      repo: 'self'

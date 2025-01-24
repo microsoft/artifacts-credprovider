@@ -1,64 +1,47 @@
-parameters:
-- name: repo
-  type: string
-
 jobs:
 - job: WindowsInstallDefault
   pool:
     vmImage: windows-latest
   steps:
-  - template: validate-install-script@script
+  - template: validate-install-script-@self
     parameters:
-      repo: ${{ parameters.repo }}
+      repo: self
       scriptInputs: ''
       expectedCredentialProviderVersion: 'Microsoft.Net6.NuGet.CredentialProvider'
 - job: WindowsInstallNet8
   pool:
     vmImage: windows-latest
   steps:
-  - template: validate-install-script@script
+  - template: validate-install-script@self
     parameters:
-      repo: ${{ parameters.repo }}
+      repo: self
       scriptInputs: '-InstallNet8'
       expectedCredentialProviderVersion: 'Microsoft.Net8.NuGet.CredentialProvider'
-  
 - job: WindowsInstallNetfxDefault
   pool:
     vmImage: windows-latest
   steps:
-  - template: validate-install-script@script
+  - template: validate-install-script@self
     parameters:
-      repo: ${{ parameters.repo }}
+      repo: self
       scriptInputs: '-AddNetfx'
       expectedCredentialProviderVersion: 'Microsoft.NuGet.CredentialProvider'
 - job: WindowsInstallNetfx48
   pool:
     vmImage: windows-latest
   steps:
-  - template: validate-install-script@script
+  - template: validate-install-script@self
     parameters:
-      repo: ${{ parameters.repo }}
+      repo: self
       scriptInputs: '-AddNetFx48'
       expectedCredentialProviderVersion: 'Microsoft.NetFx48.NuGet.CredentialProvider'
-- job: validateLineEndings
-  pool:
-    vmImage: ubuntu-latest
-  steps:
-  - checkout: ${{ parameters.repo }}
-  - bash: |
-      if grep $'\r' ./helpers/installcredprovider.sh; then 
-        echo "CRLF line ending found"
-        exit 1
-      fi
-    workingDirectory: $(Build.SourcesDirectory)
-    displayName: Validate Install Script
 - job: LinuxInstallDefault
   pool:
     vmImage: ubuntu-latest
   steps:
   - template: validate-install-script-bash.yml@self
     parameters:
-      repo: ${{ parameters.repo }}
+      repo: self
       scriptInputs: ''
       expectedCredentialProviderVersion: 'Microsoft.Net6.NuGet.CredentialProvider'
 - job: LinuxInstallNet8
@@ -67,7 +50,7 @@ jobs:
   steps:
   - template: validate-install-script-bash.yml@self
     parameters:
-      repo: ${{ parameters.repo }}
+      repo: self
       scriptInputs: |
         export USE_NET6_ARTIFACTS_CREDENTIAL_PROVIDER=false
         export USE_NET8_ARTIFACTS_CREDENTIAL_PROVIDER=true
