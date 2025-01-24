@@ -24,10 +24,11 @@ steps:
     
     echo "Credential provider installed successfully"
   workingDirectory: $(Build.SourcesDirectory)
+  displayName: Validate Install Script
 - bash: |
     if grep $'\r' ./helpers/installcredprovider.sh; then 
       echo "CRLF line ending found"
       exit 1
     fi
   workingDirectory: $(Build.SourcesDirectory)
-  displayName: Validate Install Script
+  displayName: Check Line Endings
