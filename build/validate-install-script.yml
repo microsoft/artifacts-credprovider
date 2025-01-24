@@ -3,7 +3,7 @@ jobs:
   pool:
     vmImage: windows-latest
   steps:
-  - template: validate-install-script-@self
+  - template: validate-install-script@self
     parameters:
       repo: self
       scriptInputs: ''
