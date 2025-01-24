@@ -3,7 +3,7 @@ jobs:
   pool:
     vmImage: windows-latest
   steps:
-  - template: validate-install-script-powershell@self
+  - template: validate-install-script-powershell.yml@self
     parameters:
       repo: self
       scriptInputs: ''
@@ -12,7 +12,7 @@ jobs:
   pool:
     vmImage: windows-latest
   steps:
-  - template: validate-install-script-powershell@self
+  - template: validate-install-script-powershell.yml@self
     parameters:
       repo: self
       scriptInputs: '-InstallNet8'
@@ -21,7 +21,7 @@ jobs:
   pool:
     vmImage: windows-latest
   steps:
-  - template: validate-install-script-powershell@self
+  - template: validate-install-script-powershell.yml@self
     parameters:
       repo: self
       scriptInputs: '-AddNetfx'
@@ -30,7 +30,7 @@ jobs:
   pool:
     vmImage: windows-latest
   steps:
-  - template: validate-install-script-powershell@self
+  - template: validate-install-script-powershell.yml@self
     parameters:
       repo: self
       scriptInputs: '-AddNetFx48'
