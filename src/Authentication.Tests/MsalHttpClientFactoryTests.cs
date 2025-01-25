@@ -43,6 +43,6 @@ public class MsalHttpClientFactoryTests
 
         var clrComment = userAgent.ElementAt(3);
         Assert.AreEqual(MsalHttpClientFactory.ClrComment, clrComment);
-        Assert.AreEqual($"({PlatformInformation.GetClrFramework()}; {PlatformInformation.GetClrRuntime()}; {PlatformInformation.GetClrDescription()})", clrComment.Comment);
+        Assert.AreEqual($"({PlatformInformation.GetClrFramework()}; {PlatformInformation.GetClrRuntime()}; {PlatformInformation.GetClrDescription()}; self-contained={PlatformInformation.IsSelfContained()})", clrComment.Comment);
     }
 }
