@@ -41,6 +41,7 @@ public class MsalInteractiveTokenProvider : ITokenProvider
 
         try
         {
+            logger.LogInformation(Resources.MsalInteractivePrompt);
             var result = await app.AcquireTokenInteractive(MsalConstants.AzureDevOpsScopes)
                 .WithPrompt(Prompt.SelectAccount)
                 .WithUseEmbeddedWebView(false)
