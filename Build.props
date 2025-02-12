@@ -5,4 +5,8 @@
     <VersionSuffix></VersionSuffix>
     <TargetFrameworks>netcoreapp3.1;net461;net481;net6.0;net8.0</TargetFrameworks>
   </PropertyGroup>
+  <!-- Remove with netcoreapp3.1; required for self-contained build -->
+  <PropertyGroup Condition="'$(RuntimeIdentifier)' == 'osx-arm64'">
+    <TargetFrameworks>net8.0</TargetFrameworks>
+  </PropertyGroup>
 </Project>
