@@ -16,7 +16,7 @@ namespace NuGetCredentialProvider.CredentialProviders.Vsts
 {
     public class VstsSessionTokenClient : IVstsSessionTokenClient
     {
-        private const string TokenScope = "vso.packaging_write vso.drop_write";
+        private const string TokenScope = "vso.packaging_write";
 
         private static readonly JsonSerializerOptions options = new JsonSerializerOptions
         {
