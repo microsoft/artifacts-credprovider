@@ -156,4 +156,7 @@
   <data name="MsalClientIdError" xml:space="preserve">
     <value>Invalid Client Id {clientId}</value>
   </data>
+  <data name="MsalInteractivePrompt" xml:space="preserve">
+    <value>Use the opened dialog or browser window to log in. It may be behind other windows.</value>
+  </data>
 </root>
