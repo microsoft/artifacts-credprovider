@@ -17,6 +17,9 @@ jobs:
       repo: self
       scriptInputs: '-InstallNet8'
       expectedCredentialProviderVersion: 'Microsoft.Net8.NuGet.CredentialProvider'
+- job: WindowsInstallNet8winx64
+  pool:
+    vmImage: windows-latest
   steps:
   - template: validate-install-script-powershell.yml@self
     parameters:
