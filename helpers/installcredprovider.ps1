@@ -8,12 +8,16 @@
 param(
     # whether or not to install netfx folder for nuget
     [switch]$AddNetfx,
+    # whether or not to install netfx 4.8.1 folder for nuget
+    [switch]$AddNetfx48,
     # override existing cred provider with the latest version
     [switch]$Force,
     # install the version specified
     [string]$Version,
-    # install Net6 version of the netcore cred provider instead of NetCore3.1
-    [switch]$InstallNet6 = $true
+    # install the .NET 6 cred provider instead of NetCore3.1
+    [switch]$InstallNet6 = $true,
+    # install the .NET 8 cred provider instead of NetCore3.1
+    [switch]$InstallNet8
 )
 
 $script:ErrorActionPreference='Stop'
@@ -26,6 +30,19 @@ if ([Net.ServicePointManager]::SecurityProtocol.ToString().Split(',').Trim() -no
 if ($Version.StartsWith("0.") -and $InstallNet6 -eq $True) {
     Write-Error "You cannot install the .Net 6 version with versions lower than 1.0.0"
     return
+}
+if (($Version.StartsWith("0.") -or $Version.StartsWith("1.0") -or $Version.StartsWith("1.1") -or $Version.StartsWith("1.2")) -and 
+    ($InstallNet8 -eq $True -or $AddNetfx48 -eq $True)) {
+    Write-Error "You cannot install the .Net 8 or NetFX 4.8.1 version or with versions lower than 1.3.0"
+    return
+}
+if ($AddNetfx -eq $True -and $AddNetfx48 -eq $True) {
+    Write-Error "Please select a single .Net framework version to install"
+    return
+}
+if ($InstallNet6 -eq $True -and $InstallNet8 -eq $True) {
+    # InstallNet6 defaults to true, in the case of .Net 8 install, overwrite
+    $InstallNet6 = $False
 }
 
 $userProfilePath = [System.Environment]::GetFolderPath([System.Environment+SpecialFolder]::UserProfile);
@@ -94,8 +111,14 @@ if ($Version.StartsWith("0.")) {
 if ($InstallNet6 -eq $True) {
     $zipFile = "Microsoft.Net6.NuGet.CredentialProvider.zip"
 }
+if ($InstallNet8 -eq $True) {
+    $zipFile = "Microsoft.Net8.NuGet.CredentialProvider.zip"
+}
 if ($AddNetfx -eq $True) {
     $zipFile = "Microsoft.NuGet.CredentialProvider.zip"
+}
+if ($AddNetfx48 -eq $True) {
+    $zipFile = "Microsoft.NetFx48.NuGet.CredentialProvider.zip"
 }
 
 function InstallZip {
@@ -152,7 +175,7 @@ function InstallZip {
 InstallZip
 
 # Remove existing content and copy netfx directories to plugins directory
-if ($AddNetfx -eq $True) {
+if ($AddNetfx -eq $True -or $AddNetfx48 -eq $True) {
     if ($netfxExists) {
         Write-Verbose "Removing existing content from $fullNetfxCredProviderPath"
         Remove-Item $fullNetfxCredProviderPath -Force -Recurse
@@ -169,6 +192,12 @@ if ($AddNetfx -eq $True -and $InstallNet6 -eq $True) {
     Write-Verbose "Installing Net6"
     InstallZip
 }
+if ($AddNetfx -eq $True -and $InstallNet8 -eq $True) {
+    $zipFile = "Microsoft.Net8.NuGet.CredentialProvider.zip"
+    Write-Verbose "Installing Net8"
+    InstallZip
+}
+
 # Remove existing content and copy netcore directories to plugins directory
 if ($netcoreExists) {
     Write-Verbose "Removing existing content from $fullNetcoreCredProviderPath"
