@@ -106,7 +106,7 @@ $releaseUrl = [System.IO.Path]::Combine($releaseUrlBase, $releaseId)
 $releaseUrl = $releaseUrl.Replace("\","/")
 
 $releaseRidPart = ""
-if (![string]::IsNullOrEmpty($RuntimeIdentifier )) {
+if (![string]::IsNullOrEmpty($RuntimeIdentifier)) {
     $releaseRIdPart = $RuntimeIdentifier  + "."
 }
 
