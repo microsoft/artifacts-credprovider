@@ -53,6 +53,7 @@ namespace NuGetCredentialProvider.Util
         Maven,
         NuGet,
         Pip,
-        Conda, 
+        Conda,
+        Npm
     }
 }
