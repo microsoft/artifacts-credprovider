@@ -42,10 +42,6 @@ if ($AddNetfx -eq $True -and $AddNetfx48 -eq $True) {
     Write-Error "Please select a single .Net framework version to install"
     return
 }
-if (($AddNetfx -eq $True -or $AddNetfx48 -eq $True) -and ($InstallNet6 -eq $True -or $InstallNet8 -eq $True)) {
-    Write-Error "Please select a single .Net SDK type to install"
-    return
-}
 if (![string]::IsNullOrEmpty($RuntimeIdentifier)) {
     if (($Version.StartsWith("0.") -or $Version.StartsWith("1.0") -or $Version.StartsWith("1.1") -or $Version.StartsWith("1.2") -or $Version.StartsWith("1.3"))) {
         Write-Error "You cannot install the .Net 8 self-contained version or with versions lower than 1.4.0"
