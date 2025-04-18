@@ -11,8 +11,42 @@
 REPO="Microsoft/artifacts-credprovider"
 NUGET_PLUGIN_DIR="$HOME/.nuget/plugins"
 
+# If a RuntimeID (RID) is set, install the self-contained version of the .NET 8 credential provider.
+# To install a release with a specific runtime version set the `ARTIFACTS_CREDENTIAL_PROVIDER_RID` enviornment variable.
+if [ ! -z ${ARTIFACTS_CREDENTIAL_PROVIDER_RID} ]; then
+  echo "INFO: ARTIFACTS_CREDENTIAL_PROVIDER_RID variable set, defaulting to NET8 installation."
+
+  FILE="Microsoft.Net8.${ARTIFACTS_CREDENTIAL_PROVIDER_RID}.NuGet.CredentialProvider.tar.gz"
+
+  if [ -z ${USE_NET6_ARTIFACTS_CREDENTIAL_PROVIDER} ]; then
+    echo "WARNING: The USE_NET6_ARTIFACTS_CREDENTIAL_PROVIDER variable is set, but ARTIFACTS_CREDENTIAL_PROVIDER_RID variable is defined. The NET8 version of the credential provider will be installed."
+  fi
+  
+  # throw if version starts < 1.4.0. (self-contained not supported)
+  case ${AZURE_ARTIFACTS_CREDENTIAL_PROVIDER_VERSION} in 
+    0.*|v0.*|1.0.*|v1.0.*|1.1.*|v1.1.*|1.2.*|v1.2.*|1.3.*|v1.3.*)
+      echo "ERROR: To install NET8 cred provider using the ARTIFACTS_CREDENTIAL_PROVIDER_RID variable, version to be installed must be 1.4.0 or greater. Check your AZURE_ARTIFACTS_CREDENTIAL_PROVIDER_VERSION variable."
+      exit 1
+      ;;
+  esac
+# If .NET 8 variable is set, install the .NET 8 version of the credential provider even if USE_NET6_ARTIFACTS_CREDENTIAL_PROVIDER is true.
+elif [ ! -z ${USE_NET8_ARTIFACTS_CREDENTIAL_PROVIDER} ] && [ ${USE_NET8_ARTIFACTS_CREDENTIAL_PROVIDER} != "false" ]; then
+  # Default to the full zip file since ARTIFACTS_CREDENTIAL_PROVIDER_RID is not specified.
+  FILE="Microsoft.Net8.NuGet.CredentialProvider.tar.gz"
+
+  if [ -z ${USE_NET6_ARTIFACTS_CREDENTIAL_PROVIDER} ]; then
+    echo "WARNING: The USE_NET6_ARTIFACTS_CREDENTIAL_PROVIDER variable is set, but USE_NET8_ARTIFACTS_CREDENTIAL_PROVIDER variable is true. The NET8 version of the credential provider will be installed."
+  fi
+
+  # throw if version starts < 1.3.0. (net8 not supported)
+  case ${AZURE_ARTIFACTS_CREDENTIAL_PROVIDER_VERSION} in 
+    0.*|v0.*|1.0.*|v1.0.*|1.1.*|v1.1.*|1.2.*|v1.2.*)
+      echo "ERROR: To install NET8 cred provider using the USE_NET8_ARTIFACTS_CREDENTIAL_PROVIDER variable, version to be installed must be 1.3.0 or greater. Check your AZURE_ARTIFACTS_CREDENTIAL_PROVIDER_VERSION variable."
+      exit 1
+      ;;
+  esac
 # .NET 6 is the default installation, attempt to install unless set to false.
-if [ -z ${USE_NET6_ARTIFACTS_CREDENTIAL_PROVIDER} ] || [ ${USE_NET6_ARTIFACTS_CREDENTIAL_PROVIDER} != "false" ]; then
+elif [ -z ${USE_NET6_ARTIFACTS_CREDENTIAL_PROVIDER} ] || [ ${USE_NET6_ARTIFACTS_CREDENTIAL_PROVIDER} != "false" ]; then
   FILE="Microsoft.Net6.NuGet.CredentialProvider.tar.gz"
 
   # throw if version starts with 0. (net6 not supported)
@@ -22,26 +56,9 @@ if [ -z ${USE_NET6_ARTIFACTS_CREDENTIAL_PROVIDER} ] || [ ${USE_NET6_ARTIFACTS_CR
       exit 1
       ;;
   esac
-# Don't attempt to install .NET 8 without a set variable.
-elif [ ! -z ${USE_NET8_ARTIFACTS_CREDENTIAL_PROVIDER} ] && [ ${USE_NET8_ARTIFACTS_CREDENTIAL_PROVIDER} != "false" ]; then
-  # Self-contained versions are available in latest versions of the .NET 8 credprovider.
-  # To install a release with a specific runtime version set the `ARTIFACTS_CREDENTIAL_PROVIDER_RID` enviornment variable.
-  # Otherwise default to the full zip file.
-  RID=""
-  if [ ! -z ${ARTIFACTS_CREDENTIAL_PROVIDER_RID} ]; then
-    RID=".${ARTIFACTS_CREDENTIAL_PROVIDER_RID}"
-  fi
-  FILE="Microsoft.Net8$RID.NuGet.CredentialProvider.tar.gz"
-
-  # throw if version starts < 1.3.0. (net8 not supported)
-  case ${AZURE_ARTIFACTS_CREDENTIAL_PROVIDER_VERSION} in 
-    0.*|v0.*|1.0.*|v1.0.*|1.1.*|v1.1.*|1.2.*|v1.2.*)
-      echo "ERROR: To install NET8 cred provider using the USE_NET8_ARTIFACTS_CREDENTIAL_PROVIDER variable, version to be installed must be 1.3.0 or greater. Check your AZURE_ARTIFACTS_CREDENTIAL_PROVIDER_VERSION variable."
-      exit 1
-      ;;
-  esac
 # If .NET 6 is disabled and .NET 8 isn't explicitly enabled, fall back to the legacy .NET Framework.
 else
+  echo "WARNING: The .Net Framework 3.1 version of the Credential Provider is deprecated and will be removed in the next major release. Please migrate to the .Net Framework 4.8 or .Net Core versions."
   FILE="Microsoft.NuGet.CredentialProvider.tar.gz"
 fi
 

@@ -26,6 +26,24 @@ jobs:
       repo: self
       scriptInputs: '-InstallNet8 -RuntimeIdentifier win-x64'
       expectedCredentialProviderVersion: 'Microsoft.Net8.win-x64.NuGet.CredentialProvider'
+- job: WindowsInstallNet8winx64NoParams
+  pool:
+    vmImage: windows-latest
+  steps:
+  - template: validate-install-script-powershell.yml@self
+    parameters:
+      repo: self
+      scriptInputs: '-RuntimeIdentifier win-x64'
+      expectedCredentialProviderVersion: 'Microsoft.Net8.win-x64.NuGet.CredentialProvider'
+- job: WindowsInstallNet8winx64Net6Params
+  pool:
+    vmImage: windows-latest
+  steps:
+  - template: validate-install-script-powershell.yml@self
+    parameters:
+      repo: self
+      scriptInputs: '-InstallNet6 -RuntimeIdentifier win-x64'
+      expectedCredentialProviderVersion: 'Microsoft.Net8.win-x64.NuGet.CredentialProvider'
 - job: WindowsInstallNetfxDefault
   pool:
     vmImage: windows-latest

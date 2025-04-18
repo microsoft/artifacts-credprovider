@@ -22,7 +22,7 @@ param(
     [string]$RuntimeIdentifier 
 )
 
-$script:ErrorActionPreference='Stop'
+$script:ErrorActionPreference = 'Stop'
 
 # Without this, System.Net.WebClient.DownloadFile will fail on a client with TLS 1.0/1.1 disabled
 if ([Net.ServicePointManager]::SecurityProtocol.ToString().Split(',').Trim() -notcontains 'Tls12') {
@@ -42,6 +42,20 @@ if ($AddNetfx -eq $True -and $AddNetfx48 -eq $True) {
     Write-Error "Please select a single .Net framework version to install"
     return
 }
+if (($AddNetfx -eq $True -or $AddNetfx48 -eq $True) -and ($InstallNet6 -eq $True -or $InstallNet8 -eq $True)) {
+    Write-Error "Please select a single .Net SDK type to install"
+    return
+}
+if (![string]::IsNullOrEmpty($RuntimeIdentifier)) {
+    if (($Version.StartsWith("0.") -or $Version.StartsWith("1.0") -or $Version.StartsWith("1.1") -or $Version.StartsWith("1.2") -or $Version.StartsWith("1.3"))) {
+        Write-Error "You cannot install the .Net 8 self-contained version or with versions lower than 1.4.0"
+        return
+    }
+
+    Write-Host "RuntimeIdentifier parameter is specified, the .Net 8 self-contained version will be installed"
+    $InstallNet6 = $False
+    $InstallNet8 = $True
+}
 if ($InstallNet6 -eq $True -and $InstallNet8 -eq $True) {
     # InstallNet6 defaults to true, in the case of .Net 8 install, overwrite
     $InstallNet6 = $False
@@ -50,7 +64,8 @@ if ($InstallNet6 -eq $True -and $InstallNet8 -eq $True) {
 $userProfilePath = [System.Environment]::GetFolderPath([System.Environment+SpecialFolder]::UserProfile);
 if ($userProfilePath -ne '') {
     $profilePath = $userProfilePath
-} else {
+}
+else {
     $profilePath = $env:UserProfile
 }
 
@@ -91,7 +106,8 @@ if (![string]::IsNullOrEmpty($Version)) {
         $releaseJson = $releases | ConvertFrom-Json
         $correctReleaseVersion = $releaseJson | ? { $_.name -eq $Version }
         $releaseId = $correctReleaseVersion.id
-    } catch {
+    }
+    catch {
         Write-Error $versionError
         return
     }
@@ -103,11 +119,11 @@ if (!$releaseId) {
 }
 
 $releaseUrl = [System.IO.Path]::Combine($releaseUrlBase, $releaseId)
-$releaseUrl = $releaseUrl.Replace("\","/")
+$releaseUrl = $releaseUrl.Replace("\", "/")
 
 $releaseRidPart = ""
 if (![string]::IsNullOrEmpty($RuntimeIdentifier)) {
-    $releaseRIdPart = $RuntimeIdentifier  + "."
+    $releaseRIdPart = $RuntimeIdentifier + "."
 }
 
 $zipFile = "Microsoft.NetCore3.NuGet.CredentialProvider.zip"
@@ -122,6 +138,7 @@ if ($InstallNet8 -eq $True) {
     $zipFile = "Microsoft.Net8.${releaseRidPart}NuGet.CredentialProvider.zip"
 }
 if ($AddNetfx -eq $True) {
+    Write-Warning "The .Net Framework 3.1 version of the Credential Provider is deprecated and will be removed in the next major release. Please migrate to the .Net Framework 4.8 or .Net Core versions."
     $zipFile = "Microsoft.NuGet.CredentialProvider.zip"
 }
 if ($AddNetfx48 -eq $True) {
@@ -168,7 +185,8 @@ function InstallZip {
     try {
         $client = New-Object System.Net.WebClient
         $client.DownloadFile($packageSourceUrl, $pluginZip)
-    } catch {
+    }
+    catch {
         Write-Error "Unable to download $packageSourceUrl to the location $pluginZip"
     }
 
