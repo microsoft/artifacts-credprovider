@@ -45,7 +45,7 @@ Dotnet needs the `netcore` version to be installed. NuGet and MSBuild need the `
   - .NET 8 bits can be installed using `iex "& { $(irm https://aka.ms/install-artifacts-credprovider.ps1) } -InstallNet8"`
 - To install both netfx and netcore, run `installcredprovider.ps1 -AddNetfx`. The netfx version is needed for nuget.exe.
   - e.g. `iex "& { $(irm https://aka.ms/install-artifacts-credprovider.ps1) } -AddNetfx"`
-  - .NET Framework 4.8 support is available using the `-AddNetFx48` flag
+  - .NET Framework 4.8.1 support is available using the `-AddNetFx48` flag
 
 #### Manual installation on Windows
 
@@ -175,7 +175,7 @@ Release version [1.0.0](https://github.com/microsoft/artifacts-credprovider/rele
 
 Release version 2.0.0 will be the next major version of artifacts-credprovider and will contain changes which end support for various .NET versions which have reached their end of support. It is planned for release in Q1 2025 to allow users to migrate their usage of the tool to the new .NET versions.
 
-- .NET Framework 4.6.1 (End of Support April 26, 2022) - Replaced with .NET Framework 4.8
+- .NET Framework 4.6.1 (End of Support April 26, 2022) - Replaced with .NET Framework 4.8.1
 - .NET Core 3.1 (End of Support December 13, 2022) - Replaced with .NET 6/8
 
 .NET 6 will reach its end of support on November 12, 2024. After v2.0.0 is released, a minor version of artifacts-credprovider will be published to deprecate .NET 6 compatible binaries.

@@ -213,7 +213,7 @@ steps:
     replaceExistingArchive: true
 
 - task: CopyFiles@2
-  displayName: Copy netfx 4.8 files into tarball
+  displayName: Copy netfx 4.8.1 files into tarball
   inputs:
     sourceFolder: '$(Build.SourcesDirectory)\CredentialProvider.Microsoft\bin\$(BuildConfiguration)\net481\'
     contents: '**\*'
@@ -221,7 +221,7 @@ steps:
     cleanTargetFolder: true
 
 - task: ArchiveFiles@2
-  displayName: Create netfx 4.8 tarball
+  displayName: Create netfx 4.8.1 tarball
   inputs:
     rootFolderOrFile: '$(Build.ArtifactStagingDirectory)\tarball\'
     includeRootFolder: false
@@ -231,7 +231,7 @@ steps:
     replaceExistingArchive: true
 
 - task: ArchiveFiles@2
-  displayName: Create netfx 4.8 zip
+  displayName: Create netfx 4.8.1 zip
   inputs:
     rootFolderOrFile: '$(Build.ArtifactStagingDirectory)\tarball\'
     includeRootFolder: false
