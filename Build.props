@@ -3,7 +3,7 @@
   <PropertyGroup>
     <CredentialProviderVersion>1.4.0</CredentialProviderVersion>
     <VersionSuffix></VersionSuffix>
-    <TargetFrameworks>netcoreapp3.1;net461;net481;net6.0;net8.0</TargetFrameworks>
+    <TargetFrameworks>netcoreapp3.1;net461;net48;net6.0;net8.0</TargetFrameworks>
   </PropertyGroup>
   <!-- Remove with netcoreapp3.1; required for self-contained build -->
   <PropertyGroup Condition="'$(RuntimeIdentifier)' == 'osx-arm64'">
