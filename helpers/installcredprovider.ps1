@@ -1,28 +1,49 @@
-# A PowerShell script that adds the latest version of the Azure Artifacts credential provider
-# plugin for Dotnet and/or NuGet to ~/.nuget/plugins directory
-# To install netcore, run installcredprovider.ps1
-# To install netcore and netfx, run installcredprovider.ps1 -AddNetfx
-# To overwrite existing plugin with the latest version, run installcredprovider.ps1 -Force
-# To use a specific version of a credential provider, run installcredprovider.ps1 -Version "1.0.1" or installcredprovider.ps1 -Version "1.0.1" -Force
+<#
+.SYNOPSIS
+    Installs the Azure Artifacts Credential Provider for DotNet or NuGet tool usage.
 
+.DESCRIPTION
+    This script installs the latest version of the Azure Artifacts Credential Provider plugin
+    for DotNet and/or NuGet to the ~/.nuget/plugins directory.
+
+.PARAMETER AddNetfx
+    Installs the .NET Framework 4.6.1 Credential Provider.
+
+.PARAMETER AddNetfx48
+    Installs the .NET Framework 4.8.1 Credential Provider.
+
+.PARAMETER Force
+    Forces overwriting of existing Credential Provider installations.
+
+.PARAMETER Version
+    Specifies the GitHub release version of the Credential Provider to install.
+
+.PARAMETER InstallNet6
+    Installs the .NET 6 Credential Provider (default).
+
+.PARAMETER InstallNet8
+    Installs the .NET 8 Credential Provider.
+
+.PARAMETER RuntimeIdentifier
+    Installs the self-contained Credential Provider for the specified Runtime Identifier.
+
+.EXAMPLE
+    .\installcredprovider.ps1 -InstallNet8
+    .\installcredprovider.ps1 -Version "1.0.1" -Force
+#>
+
+[CmdletBinding(HelpUri = "https://github.com/microsoft/artifacts-credprovider/blob/master/README.md#setup")]
 param(
-    # whether or not to install netfx folder for nuget
     [switch]$AddNetfx,
-    # whether or not to install netfx 4.8.1 folder for nuget
     [switch]$AddNetfx48,
-    # override existing cred provider with the latest version
     [switch]$Force,
-    # install the version specified
     [string]$Version,
-    # install the .NET 6 cred provider instead of NetCore3.1
     [switch]$InstallNet6 = $true,
-    # install the .NET 8 cred provider instead of NetCore3.1
     [switch]$InstallNet8,
-    # install the self-contained cred provider for the specified RuntimeIdentifier .
-    [string]$RuntimeIdentifier 
+    [string]$RuntimeIdentifier
 )
 
-$script:ErrorActionPreference='Stop'
+$script:ErrorActionPreference = 'Stop'
 
 # Without this, System.Net.WebClient.DownloadFile will fail on a client with TLS 1.0/1.1 disabled
 if ([Net.ServicePointManager]::SecurityProtocol.ToString().Split(',').Trim() -notcontains 'Tls12') {
@@ -42,6 +63,16 @@ if ($AddNetfx -eq $True -and $AddNetfx48 -eq $True) {
     Write-Error "Please select a single .Net framework version to install"
     return
 }
+if (![string]::IsNullOrEmpty($RuntimeIdentifier)) {
+    if (($Version.StartsWith("0.") -or $Version.StartsWith("1.0") -or $Version.StartsWith("1.1") -or $Version.StartsWith("1.2") -or $Version.StartsWith("1.3"))) {
+        Write-Error "You cannot install the .Net 8 self-contained version or with versions lower than 1.4.0"
+        return
+    }
+
+    Write-Host "RuntimeIdentifier parameter is specified, the .Net 8 self-contained version will be installed"
+    $InstallNet6 = $False
+    $InstallNet8 = $True
+}
 if ($InstallNet6 -eq $True -and $InstallNet8 -eq $True) {
     # InstallNet6 defaults to true, in the case of .Net 8 install, overwrite
     $InstallNet6 = $False
@@ -50,7 +81,8 @@ if ($InstallNet6 -eq $True -and $InstallNet8 -eq $True) {
 $userProfilePath = [System.Environment]::GetFolderPath([System.Environment+SpecialFolder]::UserProfile);
 if ($userProfilePath -ne '') {
     $profilePath = $userProfilePath
-} else {
+}
+else {
     $profilePath = $env:UserProfile
 }
 
@@ -91,7 +123,8 @@ if (![string]::IsNullOrEmpty($Version)) {
         $releaseJson = $releases | ConvertFrom-Json
         $correctReleaseVersion = $releaseJson | ? { $_.name -eq $Version }
         $releaseId = $correctReleaseVersion.id
-    } catch {
+    }
+    catch {
         Write-Error $versionError
         return
     }
@@ -103,14 +136,13 @@ if (!$releaseId) {
 }
 
 $releaseUrl = [System.IO.Path]::Combine($releaseUrlBase, $releaseId)
-$releaseUrl = $releaseUrl.Replace("\","/")
+$releaseUrl = $releaseUrl.Replace("\", "/")
 
 $releaseRidPart = ""
 if (![string]::IsNullOrEmpty($RuntimeIdentifier)) {
-    $releaseRIdPart = $RuntimeIdentifier  + "."
+    $releaseRIdPart = $RuntimeIdentifier + "."
 }
 
-$zipFile = "Microsoft.NetCore3.NuGet.CredentialProvider.zip"
 if ($Version.StartsWith("0.")) {
     # versions lower than 1.0.0 installed NetCore2 zip
     $zipFile = "Microsoft.NetCore2.NuGet.CredentialProvider.zip"
@@ -122,10 +154,15 @@ if ($InstallNet8 -eq $True) {
     $zipFile = "Microsoft.Net8.${releaseRidPart}NuGet.CredentialProvider.zip"
 }
 if ($AddNetfx -eq $True) {
+    Write-Warning "The .Net Framework 4.6.1 version of the Credential Provider is deprecated and will be removed in the next major release. Please migrate to the .Net Framework 4.8 or .Net Core versions."
     $zipFile = "Microsoft.NuGet.CredentialProvider.zip"
 }
 if ($AddNetfx48 -eq $True) {
     $zipFile = "Microsoft.NetFx48.NuGet.CredentialProvider.zip"
+}
+if (-not $zipFile) {
+    Write-Warning "The .Net Core 3.1 version of the Credential Provider is deprecated and will be removed in the next major release. Please migrate to the .Net 8 version."
+    $zipFile = "Microsoft.NetCore3.NuGet.CredentialProvider.zip"
 }
 
 function InstallZip {
@@ -168,7 +205,8 @@ function InstallZip {
     try {
         $client = New-Object System.Net.WebClient
         $client.DownloadFile($packageSourceUrl, $pluginZip)
-    } catch {
+    }
+    catch {
         Write-Error "Unable to download $packageSourceUrl to the location $pluginZip"
     }
 
