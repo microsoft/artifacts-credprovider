@@ -36,7 +36,7 @@ public static class AzureArtifacts
     public static PublicClientApplicationBuilder WithBroker(this PublicClientApplicationBuilder builder, bool enableBroker, ILogger logger)
     {
         // Eventually will be rolled into CreateDefaultBuilder as using the brokers is desirable
-        if (!enableBroker || !RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+        if (!enableBroker || !RuntimeInformation.IsOSPlatform(OSPlatform.Windows) || !RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
         {
             return builder;
         }
@@ -45,7 +45,7 @@ public static class AzureArtifacts
 
         return builder
             .WithBroker(
-                new BrokerOptions(BrokerOptions.OperatingSystems.Windows)
+                new BrokerOptions(BrokerOptions.OperatingSystems.Windows | BrokerOptions.OperatingSystems.OSX)
                 {
                     Title = "Azure DevOps Artifacts",
                     ListOperatingSystemAccounts = true,

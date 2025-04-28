@@ -7,7 +7,7 @@
     <LangVersion>latest</LangVersion>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
-    <VersionPrefix>0.2.3</VersionPrefix>
+    <VersionPrefix>0.3.0</VersionPrefix>
     <Authors>Microsoft</Authors>
     <Owners>Microsoft</Owners>
     <Description>Azure Artifacts authentication library for credential providers.</Description>
@@ -23,6 +23,7 @@
     <PackageReference Include="Microsoft.Identity.Client.Broker" />
     <PackageReference Include="Microsoft.Identity.Client.Extensions.Msal" />
     <PackageReference Include="Microsoft.VisualStudioEng.MicroBuild.Core" PrivateAssets="All" />
+    <PackageReference Include="Microsoft.Identity.Client.NativeInterop" />
   </ItemGroup>
 
   <ItemGroup>
