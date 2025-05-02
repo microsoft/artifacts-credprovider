@@ -58,7 +58,7 @@ elif [ -z ${USE_NET6_ARTIFACTS_CREDENTIAL_PROVIDER} ] || [ ${USE_NET6_ARTIFACTS_
   esac
 # If .NET 6 is disabled and .NET 8 isn't explicitly enabled, fall back to the legacy .NET Framework.
 else
-  echo "WARNING: The .Net Framework 3.1 version of the Credential Provider is deprecated and will be removed in the next major release. Please migrate to the .Net Framework 4.8 or .Net Core versions."
+  echo "WARNING: The .NET Framework 3.1 version of the Credential Provider is deprecated and will be removed in the next major release. Please migrate to the .NET Framework 4.8 or .NET Core versions."
   FILE="Microsoft.NuGet.CredentialProvider.tar.gz"
 fi
 
