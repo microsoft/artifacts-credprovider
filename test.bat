@@ -33,9 +33,8 @@ IF %ERRORLEVEL% NEQ 0 (
 echo "All tests passed!"
 exit /b 0
 
-
 :TEST_FRAMEWORKS
-for %%I in ("netcoreapp3.1","net461","net481","net6.0","net8.0") DO (
+for %%I in ("net481","net6.0","net8.0") DO (
     del /q "!UserProfile!\AppData\Local\MicrosoftCredentialProvider\*.dat" 2>NUL
     del /q "%NUGET_CREDENTIALPROVIDER_MSAL_FILECACHE_LOCATION%" 2>NUL
     echo Testing %%I with NUGET_CREDENTIALPROVIDER_MSAL_ALLOW_BROKER=!NUGET_CREDENTIALPROVIDER_MSAL_ALLOW_BROKER!
