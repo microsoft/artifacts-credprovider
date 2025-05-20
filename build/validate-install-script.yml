@@ -154,7 +154,7 @@ jobs:
       expectedCredentialProviderVersion: 'Microsoft.Net8.osx-x64.NuGet.CredentialProvider'
 - job: LinuxInstallNet8osxx64NoParams
   pool:
-    vmImage: ubuntu-latest
+    vmImage: macos-latest
   steps:
   - template: validate-install-script-bash.yml@self
     parameters:
@@ -164,7 +164,7 @@ jobs:
       expectedCredentialProviderVersion: 'Microsoft.Net8.osx-x64.NuGet.CredentialProvider'
 - job: LinuxInstallNet8osxx64Net6Params
   pool:
-    vmImage: ubuntu-latest
+    vmImage: macos-latest
   steps:
   - template: validate-install-script-bash.yml@self
     parameters:
