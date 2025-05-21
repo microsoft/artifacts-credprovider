@@ -16,7 +16,14 @@ NUGET_PLUGIN_DIR="$HOME/.nuget/plugins"
 if [ ! -z ${ARTIFACTS_CREDENTIAL_PROVIDER_RID} ]; then
   echo "INFO: ARTIFACTS_CREDENTIAL_PROVIDER_RID variable set, defaulting to NET8 installation."
 
-  FILE="Microsoft.Net8.${ARTIFACTS_CREDENTIAL_PROVIDER_RID}.NuGet.CredentialProvider.tar.gz"
+  # If the RID is osx-*, use the zip file otherwise use the tar.gz file.
+  case ${ARTIFACTS_CREDENTIAL_PROVIDER_RID} in osx-* )
+    FILE="Microsoft.Net8.${ARTIFACTS_CREDENTIAL_PROVIDER_RID}.NuGet.CredentialProvider.zip"
+    ;;
+    *)
+    FILE="Microsoft.Net8.${ARTIFACTS_CREDENTIAL_PROVIDER_RID}.NuGet.CredentialProvider.tar.gz"
+    ;;
+  esac
 
   if [ -z ${USE_NET6_ARTIFACTS_CREDENTIAL_PROVIDER} ]; then
     echo "WARNING: The USE_NET6_ARTIFACTS_CREDENTIAL_PROVIDER variable is set, but ARTIFACTS_CREDENTIAL_PROVIDER_RID variable is defined. The NET8 version of the credential provider will be installed."
