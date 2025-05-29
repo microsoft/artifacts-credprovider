@@ -75,7 +75,6 @@ public class VstsBuildTaskServiceEndpointCredentialProviderTests
     {
         Uri sourceUri = new Uri(@"http://example.pkgs.vsts.me/_packaging/TestFeed/nuget/v3/index.json");
         string feedEndPointJson = "{\"endpointCredentials\":[{\"endpoint\":\"http://example.pkgs.vsts.me/_packaging/TestFeed/nuget/v3/index.json\", \"username\": \"testUser\", \"password\":\"testToken\"}]}";
-
         Environment.SetEnvironmentVariable(feedEndPointJsonEnvVar, feedEndPointJson);
 
         var result = await vstsCredentialProvider.CanProvideCredentialsAsync(sourceUri);
@@ -88,7 +87,6 @@ public class VstsBuildTaskServiceEndpointCredentialProviderTests
         Uri sourceUri = new Uri(@"http://example.pkgs.vsts.me/_packaging/TestFeed/nuget/v3/index.json");
         string feedEndPointJsonEnvVar = EnvUtil.BuildTaskExternalEndpoints;
         string feedEndPointJson = "{\"endpointCredentials\":[{\"endpoint\":\"http://example.pkgs.vsts.me/_packaging/TestFeed/nuget/v3/index.json\", \"username\": \"testUser\", \"password\":\"testToken\"}]}";
-
         Environment.SetEnvironmentVariable(feedEndPointJsonEnvVar, feedEndPointJson);
 
         var result = await vstsCredentialProvider.HandleRequestAsync(new GetAuthenticationCredentialsRequest(sourceUri, false, false, false), CancellationToken.None);

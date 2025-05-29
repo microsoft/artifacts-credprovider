@@ -4,6 +4,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 using System.Security.Cryptography.X509Certificates;
 using System.Threading;
 using System.Threading.Tasks;
@@ -47,8 +48,8 @@ namespace NuGetCredentialProvider.CredentialProviders.VstsBuildTaskServiceEndpoi
 
         public override Task<bool> CanProvideCredentialsAsync(Uri uri)
         {
-            string feedEndPointsJson = Environment.GetEnvironmentVariable(EnvUtil.EndpointCredentials);
-            string externalFeedEndPointsJson = Environment.GetEnvironmentVariable(EnvUtil.BuildTaskExternalEndpoints);
+            string externalFeedEndPointsJson =  EnvUtil.GetEnv(EnvUtil.BuildTaskExternalEndpoints);
+            string feedEndPointsJson = EnvUtil.GetEnv(EnvUtil.EndpointCredentials);
 
             if (string.IsNullOrWhiteSpace(feedEndPointsJson) && string.IsNullOrWhiteSpace(externalFeedEndPointsJson))
             {

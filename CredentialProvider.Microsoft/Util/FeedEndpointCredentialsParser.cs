@@ -111,7 +111,7 @@ public static class FeedEndpointCredentialsParser
 
     public static Dictionary<string, ExternalEndpointCredentials> ParseExternalFeedEndpointsJsonToDictionary(ILogger logger)
     {
-        string feedEndpointsJson = Environment.GetEnvironmentVariable(EnvUtil.BuildTaskExternalEndpoints);
+        string feedEndpointsJson = EnvUtil.GetEnv(EnvUtil.BuildTaskExternalEndpoints);
         if (string.IsNullOrWhiteSpace(feedEndpointsJson))
         {
             return new Dictionary<string, ExternalEndpointCredentials>(StringComparer.OrdinalIgnoreCase);

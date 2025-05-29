@@ -29,8 +29,8 @@ namespace NuGetCredentialProvider.CredentialProviders.VstsBuildTask
 
         public override Task<bool> CanProvideCredentialsAsync(Uri uri)
         {
-            string uriPrefixesString = Environment.GetEnvironmentVariable(EnvUtil.BuildTaskUriPrefixes);
-            string accessToken = Environment.GetEnvironmentVariable(EnvUtil.BuildTaskAccessToken);
+            string uriPrefixesString = EnvUtil.GetEnv(EnvUtil.BuildTaskUriPrefixes);
+            string accessToken = EnvUtil.GetEnv(EnvUtil.BuildTaskAccessToken);
 
             bool useBuildTaskCredProvider = string.IsNullOrWhiteSpace(uriPrefixesString) == false && string.IsNullOrWhiteSpace(accessToken) == false;
             if (useBuildTaskCredProvider == true)
@@ -46,8 +46,8 @@ namespace NuGetCredentialProvider.CredentialProviders.VstsBuildTask
         {
             cancellationToken.ThrowIfCancellationRequested();
 
-            string uriPrefixesString = Environment.GetEnvironmentVariable(EnvUtil.BuildTaskUriPrefixes);
-            string accessToken = Environment.GetEnvironmentVariable(EnvUtil.BuildTaskAccessToken);
+            string uriPrefixesString = EnvUtil.GetEnv(EnvUtil.BuildTaskUriPrefixes);
+            string accessToken = EnvUtil.GetEnv(EnvUtil.BuildTaskAccessToken);
 
             Verbose(string.Format(Resources.IsRetry, request.IsRetry));
 
