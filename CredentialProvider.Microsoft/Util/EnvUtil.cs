@@ -10,11 +10,14 @@ using System.Runtime.InteropServices;
 using Microsoft.Artifacts.Authentication;
 using NuGetCredentialProvider.CredentialProviders.Vsts;
 using NuGetCredentialProvider.Logging;
+using NuGetCredentialProvider.Util;
+using static NuGetCredentialProvider.Util.EnvUtil;
 
 namespace NuGetCredentialProvider.Util
 {
     public static class EnvUtil
     {
+        
         public const string LogPathEnvVar = "ARTIFACTS_CREDENTIALPROVIDER_LOG_PATH";
         public const string LegacyLogPathEnvVar = "NUGET_CREDENTIALPROVIDER_LOG_PATH";
         public const string LogPIIEnvVar = "ARTIFACTS_CREDENTIALPROVIDER_LOG_PII";
@@ -74,12 +77,11 @@ namespace NuGetCredentialProvider.Util
             { MsalFileCacheEnvVar, LegacyMsalFileCacheEnvVar },
             { MsalFileCacheLocationEnvVar, LegacyMsalFileCacheLocationEnvVar },
             { MsalAllowBrokerEnvVar, LegacyMsalAllowBrokerEnvVar },
-            { EndpointCredentials, LegacyBuildTaskExternalEndpoints }, // Special case: EndpointCredentials maps to VSS_NUGET_EXTERNAL_FEED_ENDPOINTS
             { BuildTaskExternalEndpoints, LegacyBuildTaskExternalEndpoints },
         };
 
         // Prefer new variable, if null fallback to legacy
-        public static string GetEnv(string envVar)
+        public static string GetEnvironmentVariable(string envVar)
         {
             var val = Environment.GetEnvironmentVariable(envVar);
             if (!string.IsNullOrWhiteSpace(val)) return val;
@@ -93,10 +95,9 @@ namespace NuGetCredentialProvider.Util
         //  Prefer ARTIFACTS_ variable, fallback to legacy if the value is not valid.
         private static bool GetEnabledFromEnvironment(string artifactsVar, bool defaultValue = true)
         {
-            var val = GetEnv(artifactsVar);
+            var val = GetEnvironmentVariable(artifactsVar);
             if (bool.TryParse(val, out bool result))
                 return result;
-            
             return defaultValue;
         }
         public static bool GetLogPIIEnabled()
@@ -104,11 +105,11 @@ namespace NuGetCredentialProvider.Util
             return GetEnabledFromEnvironment(LogPIIEnvVar, false);
         }
 
-        public static string FileLogLocation => GetEnv(LogPathEnvVar);
+        public static string FileLogLocation => GetEnvironmentVariable(LogPathEnvVar);
 
         public static Uri GetAuthorityFromEnvironment(ILogger logger)
         {
-            var environmentAuthority = GetEnv(MsalAuthorityEnvVar);
+            var environmentAuthority = GetEnvironmentVariable(MsalAuthorityEnvVar);
             if (environmentAuthority == null)
             {
                 return null;
@@ -139,7 +140,7 @@ namespace NuGetCredentialProvider.Util
 
         public static bool? ForceCanShowDialogTo()
         {
-            var fromEnv = GetEnv(ForceCanShowDialogEnvVar);
+            var fromEnv = GetEnvironmentVariable(ForceCanShowDialogEnvVar);
             if (string.IsNullOrWhiteSpace(fromEnv) || !bool.TryParse(fromEnv, out var parsed))
                 return default;
             return parsed;
@@ -147,12 +148,12 @@ namespace NuGetCredentialProvider.Util
 
         public static string GetMsalLoginHint()
         {
-            return GetEnv(MsalLoginHintEnvVar);
+            return GetEnvironmentVariable(MsalLoginHintEnvVar);
         }
 
         public static string GetMsalCacheLocation()
         {
-            var msalCacheFromEnvironment = GetEnv(MsalFileCacheLocationEnvVar);
+            var msalCacheFromEnvironment = GetEnvironmentVariable(MsalFileCacheLocationEnvVar);
             return string.IsNullOrWhiteSpace(msalCacheFromEnvironment) ? DefaultMsalCacheLocation : msalCacheFromEnvironment;
         }
 
@@ -169,7 +170,7 @@ namespace NuGetCredentialProvider.Util
         public static IList<string> GetHostsFromEnvironment(ILogger logger, string envVar, IEnumerable<string> defaultHosts, [CallerMemberName] string collectionName = null)
         {
             var hosts = new List<string>();
-            var hostsFromEnvironment = GetEnv(envVar)?.Split(new char[] { ';' }, StringSplitOptions.RemoveEmptyEntries);
+            var hostsFromEnvironment = GetEnvironmentVariable(envVar)?.Split(new char[] { ';' }, StringSplitOptions.RemoveEmptyEntries);
             if (hostsFromEnvironment != null)
             {
                 logger.Verbose(string.Format(Resources.FoundHostsInEnvironment, collectionName));
@@ -182,7 +183,7 @@ namespace NuGetCredentialProvider.Util
 
         public static TimeSpan? GetSessionTimeFromEnvironment(ILogger logger)
         {
-            var minutes = GetEnv(SessionTimeEnvVar);
+            var minutes = GetEnvironmentVariable(SessionTimeEnvVar);
             if (minutes != null)
             {
                 if (double.TryParse(minutes, out double parsedMinutes))
@@ -196,7 +197,7 @@ namespace NuGetCredentialProvider.Util
 
         public static int GetDeviceFlowTimeoutFromEnvironmentInSeconds(ILogger logger)
         {
-            var timeout = GetEnv(DeviceFlowTimeoutEnvVar);
+            var timeout = GetEnvironmentVariable(DeviceFlowTimeoutEnvVar);
             const int defaultTimeout = 90;
             if (timeout == null)
             {
@@ -212,7 +213,7 @@ namespace NuGetCredentialProvider.Util
 
         public static VstsTokenType? GetVstsTokenType()
         {
-            if (Enum.TryParse<VstsTokenType>(GetEnv(TokenTypeEnvVar), ignoreCase: true, out VstsTokenType result))
+            if (Enum.TryParse<VstsTokenType>(GetEnvironmentVariable(TokenTypeEnvVar), ignoreCase: true, out VstsTokenType result))
             {
                 return result;
             }
@@ -222,19 +223,16 @@ namespace NuGetCredentialProvider.Util
         public static Context? GetProgramContextFromEnvironment()
         {
             var context = Environment.GetEnvironmentVariable(ProgramContext);
-
             if (!string.IsNullOrWhiteSpace(context) && Enum.TryParse<Context>(context, ignoreCase: true, out Context result))
             {
                 return result;
             }
-
             return null;
         }
 
         public static void SetProgramContextInEnvironment(Context context)
         {
             Environment.SetEnvironmentVariable(ProgramContext, context.ToString());
-            return;
         }
 
         private static readonly string LocalAppDataLocation = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData, Environment.SpecialFolderOption.Create);

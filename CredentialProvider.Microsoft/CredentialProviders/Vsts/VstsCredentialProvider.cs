@@ -41,10 +41,10 @@ namespace NuGetCredentialProvider.CredentialProviders.Vsts
         {
             // If for any reason we reach this point and any of the three build task env vars are set,
             // we should not try get credentials with this cred provider.
-            string externalFeedEndPointsJsonEnvVar = EnvUtil.GetEnv(EnvUtil.BuildTaskExternalEndpoints);
-            string feedEndPointsJsonEnvVar = EnvUtil.GetEnv(EnvUtil.EndpointCredentials);
-            string uriPrefixesStringEnvVar = EnvUtil.GetEnv(EnvUtil.BuildTaskUriPrefixes);
-            string accessTokenEnvVar = EnvUtil.GetEnv(EnvUtil.BuildTaskAccessToken);
+            string externalFeedEndPointsJsonEnvVar = EnvUtil.GetEnvironmentVariable(EnvUtil.BuildTaskExternalEndpoints);
+            string feedEndPointsJsonEnvVar = EnvUtil.GetEnvironmentVariable(EnvUtil.EndpointCredentials);
+            string uriPrefixesStringEnvVar = EnvUtil.GetEnvironmentVariable(EnvUtil.BuildTaskUriPrefixes);
+            string accessTokenEnvVar = EnvUtil.GetEnvironmentVariable(EnvUtil.BuildTaskAccessToken);
 
             if (string.IsNullOrWhiteSpace(feedEndPointsJsonEnvVar) == false ||
                 string.IsNullOrWhiteSpace(externalFeedEndPointsJsonEnvVar) == false ||
