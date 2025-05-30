@@ -233,18 +233,18 @@ Session Token Cache Enabled
         Boolean to enable/disable the Session Token cache.
 
 Supported Hosts
-    ARTIFACTS_CREDENTIALPROVIDER_HOSTS
+    ARTIFACTS_CREDENTIALPROVIDER_VSTS_HOSTS
         Semi-colon separated list of hosts that the credential provider supports.
 
 Session Token Time Validity
-    ARTIFACTS_CREDENTIALPROVIDER_SESSIONTIMEMINUTES
+    ARTIFACTS_CREDENTIALPROVIDER_VSTS_SESSIONTIMEMINUTES
         Time in minutes the generated Session Tokens will be valid for.
         The default for Personal Access Tokens is 90 days.
         The default for JWT (self-describing) tokens is 4 hours.
         The maximum allowed validity period for JWT tokens is 24 hours.
 
 Token Type
-    ARTIFACTS_CREDENTIALPROVIDER_TOKENTYPE
+    ARTIFACTS_CREDENTIALPROVIDER_VSTS_TOKENTYPE
         Specify 'Compact' to generate a Personal Access Token, which may
         have a long validity period as it can easily be revoked from the UI,
         and sends a notification mail on creation.
@@ -287,7 +287,7 @@ Windows Integrated Authentication
         to authenticate as the logged-in user. Enabled by default.
 
 Device Flow Authentication Timeout
-    ARTIFACTS_CREDENTIALPROVIDER_DEVICEFLOWTIMEOUTSECONDS
+    ARTIFACTS_CREDENTIALPROVIDER_VSTS_DEVICEFLOWTIMEOUTSECONDS
         Device Flow authentication timeout in seconds. Default is 90 seconds.
 
 NuGet workarounds
