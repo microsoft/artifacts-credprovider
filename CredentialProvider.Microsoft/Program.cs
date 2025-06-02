@@ -83,22 +83,36 @@ namespace NuGetCredentialProvider
                         string.Format(
                             Resources.EnvironmentVariableHelp,
                             EnvUtil.LogPathEnvVar,
+                            EnvUtil.LegacyLogPathEnvVar,
                             EnvUtil.SessionTokenCacheEnvVar,
+                            EnvUtil.LegacySessionTokenCacheEnvVar,
                             EnvUtil.SupportedHostsEnvVar,
+                            EnvUtil.LegacySupportedHostsEnvVar,
                             EnvUtil.SessionTimeEnvVar,
+                            EnvUtil.LegacySessionTimeEnvVar,
                             EnvUtil.TokenTypeEnvVar,
+                            EnvUtil.LegacyTokenTypeEnvVar,
                             EnvUtil.BuildTaskUriPrefixes,
+                            EnvUtil.LegacyBuildTaskUriPrefixes,
                             EnvUtil.BuildTaskAccessToken,
+                            EnvUtil.LegacyBuildTaskAccessToken,
                             EnvUtil.BuildTaskExternalEndpoints,
+                            EnvUtil.LegacyBuildTaskExternalEndpoints,
                             EnvUtil.EndpointCredentials,
                             EnvUtil.DefaultMsalCacheLocation,
                             EnvUtil.SessionTokenCacheLocation,
                             EnvUtil.WindowsIntegratedAuthenticationEnvVar,
+                            EnvUtil.LegacyWindowsIntegratedAuthenticationEnvVar,
                             EnvUtil.DeviceFlowTimeoutEnvVar,
+                            EnvUtil.LegacyDeviceFlowTimeoutEnvVar,
                             EnvUtil.ForceCanShowDialogEnvVar,
+                            EnvUtil.LegacyForceCanShowDialogEnvVar,
                             EnvUtil.MsalAuthorityEnvVar,
+                            EnvUtil.LegacyMsalAuthorityEnvVar,
                             EnvUtil.MsalFileCacheEnvVar,
-                            EnvUtil.MsalFileCacheLocationEnvVar
+                            EnvUtil.LegacyMsalFileCacheEnvVar,
+                            EnvUtil.MsalFileCacheLocationEnvVar,
+                            EnvUtil.LegacyMsalFileCacheLocationEnvVar
                         ));
                     return 0;
                 }
