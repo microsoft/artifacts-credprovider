@@ -50,11 +50,11 @@ namespace NuGetCredentialProvider.Tests.Util
         [DataRow("NUGET_CREDENTIALPROVIDER_SESSIONTOKENCACHE_ENABLED", "ARTIFACTS_CREDENTIALPROVIDER_SESSIONTOKENCACHE_ENABLED", "oldCache", "newCache")]
         [DataRow("NUGET_CREDENTIALPROVIDER_WINDOWSINTEGRATEDAUTHENTICATION_ENABLED", "ARTIFACTS_CREDENTIALPROVIDER_WINDOWSINTEGRATEDAUTHENTICATION_ENABLED", "oldWinAuth", "newWinAuth")]
         [DataRow("NUGET_CREDENTIALPROVIDER_FORCE_CANSHOWDIALOG_TO", "ARTIFACTS_CREDENTIALPROVIDER_FORCE_CANSHOWDIALOG_TO", "oldDialog", "newDialog")]
-        [DataRow("NUGET_CREDENTIALPROVIDER_VSTS_DEVICEFLOWTIMEOUTSECONDS", "ARTIFACTS_CREDENTIALPROVIDER_VSTS_DEVICEFLOWTIMEOUTSECONDS", "oldTimeout", "newTimeout")]
-        [DataRow("NUGET_CREDENTIALPROVIDER_VSTS_HOSTS", "ARTIFACTS_CREDENTIALPROVIDER_VSTS_HOSTS", "oldHosts", "newHosts")]
-        [DataRow("NUGET_CREDENTIALPROVIDER_VSTS_PPEHOSTS", "ARTIFACTS_CREDENTIALPROVIDER_VSTS_PPEHOSTS", "oldPPE", "newPPE")]
-        [DataRow("NUGET_CREDENTIALPROVIDER_VSTS_SESSIONTIMEMINUTES", "ARTIFACTS_CREDENTIALPROVIDER_VSTS_SESSIONTIMEMINUTES", "oldSession", "newSession")]
-        [DataRow("NUGET_CREDENTIALPROVIDER_VSTS_TOKENTYPE", "ARTIFACTS_CREDENTIALPROVIDER_VSTS_TOKENTYPE", "oldToken", "newToken")]
+        [DataRow("NUGET_CREDENTIALPROVIDER_VSTS_DEVICEFLOWTIMEOUTSECONDS", "ARTIFACTS_CREDENTIALPROVIDER_DEVICEFLOWTIMEOUTSECONDS", "oldTimeout", "newTimeout")]
+        [DataRow("NUGET_CREDENTIALPROVIDER_VSTS_HOSTS", "ARTIFACTS_CREDENTIALPROVIDER_HOSTS", "oldHosts", "newHosts")]
+        [DataRow("NUGET_CREDENTIALPROVIDER_VSTS_PPEHOSTS", "ARTIFACTS_CREDENTIALPROVIDER_PPEHOSTS", "oldPPE", "newPPE")]
+        [DataRow("NUGET_CREDENTIALPROVIDER_VSTS_SESSIONTIMEMINUTES", "ARTIFACTS_CREDENTIALPROVIDER_SESSIONTIMEMINUTES", "oldSession", "newSession")]
+        [DataRow("NUGET_CREDENTIALPROVIDER_VSTS_TOKENTYPE", "ARTIFACTS_CREDENTIALPROVIDER_TOKENTYPE", "oldToken", "newToken")]
         [DataRow("VSS_NUGET_URI_PREFIXES", "ARTIFACTS_CREDENTIALPROVIDER_URI_PREFIXES", "oldUri", "newUri")]
         [DataRow("VSS_NUGET_ACCESSTOKEN", "ARTIFACTS_CREDENTIALPROVIDER_ACCESSTOKEN", "oldToken", "newToken")]
         [DataRow("NUGET_CREDENTIALPROVIDER_MSAL_LOGIN_HINT", "ARTIFACTS_CREDENTIALPROVIDER_MSAL_LOGIN_HINT", "oldHint", "newHint")]
@@ -63,11 +63,11 @@ namespace NuGetCredentialProvider.Tests.Util
         [DataRow("NUGET_CREDENTIALPROVIDER_MSAL_FILECACHE_LOCATION", "ARTIFACTS_CREDENTIALPROVIDER_MSAL_FILECACHE_LOCATION", "oldLoc", "newLoc")]
         [DataRow("NUGET_CREDENTIALPROVIDER_MSAL_ALLOW_BROKER", "ARTIFACTS_CREDENTIALPROVIDER_MSAL_ALLOW_BROKER", "oldBroker", "newBroker")]
         [DataRow("VSS_NUGET_EXTERNAL_FEED_ENDPOINTS", "ARTIFACTS_CREDENTIALPROVIDER_EXTERNAL_FEED_ENDPOINTS", "oldExtFeed", "newExtFeed")]
-        public void GetEnvironmentVariable_PrefersNewOverOld(string oldVar, string newVar, string oldValue, string newValue)
+        public void GetPreferredOrLegancyEnvVar_PrefersNewOverOld(string oldVar, string newVar, string oldValue, string newValue)
         {
             Environment.SetEnvironmentVariable(oldVar, oldValue);
             Environment.SetEnvironmentVariable(newVar, newValue);
-            Assert.AreEqual(newValue, EnvUtil.GetEnvironmentVariable(newVar));
+            Assert.AreEqual(newValue, EnvUtil.GetPreferredOrLegancyEnvVar(newVar));
         }
 
         [DataTestMethod]
@@ -89,10 +89,10 @@ namespace NuGetCredentialProvider.Tests.Util
         [DataRow("NUGET_CREDENTIALPROVIDER_MSAL_FILECACHE_LOCATION", "legacyLoc")]
         [DataRow("NUGET_CREDENTIALPROVIDER_MSAL_ALLOW_BROKER", "legacyBroker")]
         [DataRow("VSS_NUGET_EXTERNAL_FEED_ENDPOINTS", "legacyExtFeed")]
-        public void GetEnvironmentVariable_FallsBackToLegacyWhenNewEnvironmentVariableIsNotAvailable(string oldVar, string value)
+        public void GetPreferredOrLegancyEnvVar_FallsBackToLegacyWhenNewEnvironmentVariableIsNotAvailable(string oldVar, string value)
         {
             Environment.SetEnvironmentVariable(oldVar, value);
-            Assert.AreEqual(value, EnvUtil.GetEnvironmentVariable(oldVar));
+            Assert.AreEqual(value, EnvUtil.GetPreferredOrLegancyEnvVar(oldVar));
         }
 
         [TestMethod]

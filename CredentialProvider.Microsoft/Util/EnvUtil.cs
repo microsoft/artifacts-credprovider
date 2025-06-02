@@ -26,15 +26,15 @@ namespace NuGetCredentialProvider.Util
         public const string LegacyWindowsIntegratedAuthenticationEnvVar = "NUGET_CREDENTIALPROVIDER_WINDOWSINTEGRATEDAUTHENTICATION_ENABLED";
         public const string ForceCanShowDialogEnvVar = "ARTIFACTS_CREDENTIALPROVIDER_FORCE_CANSHOWDIALOG_TO";
         public const string LegacyForceCanShowDialogEnvVar = "NUGET_CREDENTIALPROVIDER_FORCE_CANSHOWDIALOG_TO";
-        public const string DeviceFlowTimeoutEnvVar = "ARTIFACTS_CREDENTIALPROVIDER_VSTS_DEVICEFLOWTIMEOUTSECONDS";
+        public const string DeviceFlowTimeoutEnvVar = "ARTIFACTS_CREDENTIALPROVIDER_DEVICEFLOWTIMEOUTSECONDS";
         public const string LegacyDeviceFlowTimeoutEnvVar = "NUGET_CREDENTIALPROVIDER_VSTS_DEVICEFLOWTIMEOUTSECONDS";
-        public const string SupportedHostsEnvVar = "ARTIFACTS_CREDENTIALPROVIDER_VSTS_HOSTS";
+        public const string SupportedHostsEnvVar = "ARTIFACTS_CREDENTIALPROVIDER_HOSTS";
         public const string LegacySupportedHostsEnvVar = "NUGET_CREDENTIALPROVIDER_VSTS_HOSTS";
-        public const string PpeHostsEnvVar = "ARTIFACTS_CREDENTIALPROVIDER_VSTS_PPEHOSTS";
+        public const string PpeHostsEnvVar = "ARTIFACTS_CREDENTIALPROVIDER_PPEHOSTS";
         public const string LegacyPpeHostsEnvVar = "NUGET_CREDENTIALPROVIDER_VSTS_PPEHOSTS";
-        public const string SessionTimeEnvVar = "ARTIFACTS_CREDENTIALPROVIDER_VSTS_SESSIONTIMEMINUTES";
+        public const string SessionTimeEnvVar = "ARTIFACTS_CREDENTIALPROVIDER_SESSIONTIMEMINUTES";
         public const string LegacySessionTimeEnvVar = "NUGET_CREDENTIALPROVIDER_VSTS_SESSIONTIMEMINUTES";
-        public const string TokenTypeEnvVar = "ARTIFACTS_CREDENTIALPROVIDER_VSTS_TOKENTYPE";
+        public const string TokenTypeEnvVar = "ARTIFACTS_CREDENTIALPROVIDER_TOKENTYPE";
         public const string LegacyTokenTypeEnvVar = "NUGET_CREDENTIALPROVIDER_VSTS_TOKENTYPE";
         public const string BuildTaskUriPrefixes = "ARTIFACTS_CREDENTIALPROVIDER_URI_PREFIXES";
         public const string LegacyBuildTaskUriPrefixes = "VSS_NUGET_URI_PREFIXES";
@@ -79,7 +79,7 @@ namespace NuGetCredentialProvider.Util
         };
 
         // Prefer new variable, if null fallback to legacy
-        public static string GetEnvironmentVariable(string envVar)
+        public static string GetPreferredOrLegancyEnvVar(string envVar)
         {
             var val = Environment.GetEnvironmentVariable(envVar);
             if (!string.IsNullOrWhiteSpace(val)) return val;
@@ -104,13 +104,13 @@ namespace NuGetCredentialProvider.Util
         //      as Visual Studio itself follows, as well as other Microsoft developer tools such as the Azure PowerShell CLI.
         public static string DefaultMsalCacheLocation => MsalCache.DefaultMsalCacheLocation;
 
-        public static string FileLogLocation => GetEnvironmentVariable(LogPathEnvVar);
+        public static string FileLogLocation => GetPreferredOrLegancyEnvVar(LogPathEnvVar);
 
         public static string SessionTokenCacheLocation { get; } = Path.Combine(LocalAppDataLocation, CredentialProviderFolderName, "SessionTokenCache.dat");
 
         public static Uri GetAuthorityFromEnvironment(ILogger logger)
         {
-            var environmentAuthority = GetEnvironmentVariable(MsalAuthorityEnvVar);
+            var environmentAuthority = GetPreferredOrLegancyEnvVar(MsalAuthorityEnvVar);
             if (environmentAuthority == null)
             {
                 return null;
@@ -132,12 +132,12 @@ namespace NuGetCredentialProvider.Util
 
         public static string GetMsalLoginHint()
         {
-            return GetEnvironmentVariable(MsalLoginHintEnvVar);
+            return GetPreferredOrLegancyEnvVar(MsalLoginHintEnvVar);
         }
 
         public static string GetMsalCacheLocation()
         {
-            var msalCacheFromEnvironment = GetEnvironmentVariable(MsalFileCacheLocationEnvVar);
+            var msalCacheFromEnvironment = GetPreferredOrLegancyEnvVar(MsalFileCacheLocationEnvVar);
             return string.IsNullOrWhiteSpace(msalCacheFromEnvironment) ? DefaultMsalCacheLocation : msalCacheFromEnvironment;
         }
 
@@ -154,7 +154,7 @@ namespace NuGetCredentialProvider.Util
         public static IList<string> GetHostsFromEnvironment(ILogger logger, string envVar, IEnumerable<string> defaultHosts, [CallerMemberName] string collectionName = null)
         {
             var hosts = new List<string>();
-            var hostsFromEnvironment = GetEnvironmentVariable(envVar)?.Split(new char[] { ';' }, StringSplitOptions.RemoveEmptyEntries);
+            var hostsFromEnvironment = GetPreferredOrLegancyEnvVar(envVar)?.Split(new char[] { ';' }, StringSplitOptions.RemoveEmptyEntries);
             if (hostsFromEnvironment != null)
             {
                 logger.Verbose(string.Format(Resources.FoundHostsInEnvironment, collectionName));
@@ -167,7 +167,7 @@ namespace NuGetCredentialProvider.Util
 
         public static bool? ForceCanShowDialogTo()
         {
-            var fromEnv = GetEnvironmentVariable(ForceCanShowDialogEnvVar);
+            var fromEnv = GetPreferredOrLegancyEnvVar(ForceCanShowDialogEnvVar);
             if (string.IsNullOrWhiteSpace(fromEnv) || !bool.TryParse(fromEnv, out var parsed))
                 return default;
             return parsed;
@@ -185,7 +185,7 @@ namespace NuGetCredentialProvider.Util
 
         public static TimeSpan? GetSessionTimeFromEnvironment(ILogger logger)
         {
-            var minutes = GetEnvironmentVariable(SessionTimeEnvVar);
+            var minutes = GetPreferredOrLegancyEnvVar(SessionTimeEnvVar);
             if (minutes != null)
             {
                 if (double.TryParse(minutes, out double parsedMinutes))
@@ -199,7 +199,7 @@ namespace NuGetCredentialProvider.Util
 
         public static int GetDeviceFlowTimeoutFromEnvironmentInSeconds(ILogger logger)
         {
-            var timeout = GetEnvironmentVariable(DeviceFlowTimeoutEnvVar);
+            var timeout = GetPreferredOrLegancyEnvVar(DeviceFlowTimeoutEnvVar);
             const int defaultTimeout = 90;
             if (timeout == null)
             {
@@ -215,7 +215,7 @@ namespace NuGetCredentialProvider.Util
 
         public static VstsTokenType? GetVstsTokenType()
         {
-            if (Enum.TryParse<VstsTokenType>(GetEnvironmentVariable(TokenTypeEnvVar), ignoreCase: true, out VstsTokenType result))
+            if (Enum.TryParse<VstsTokenType>(GetPreferredOrLegancyEnvVar(TokenTypeEnvVar), ignoreCase: true, out VstsTokenType result))
             {
                 return result;
             }
@@ -239,7 +239,7 @@ namespace NuGetCredentialProvider.Util
 
         private static bool GetEnabledFromEnvironment(string artifactsVar, bool defaultValue = true)
         {
-            var val = GetEnvironmentVariable(artifactsVar);
+            var val = GetPreferredOrLegancyEnvVar(artifactsVar);
             if (bool.TryParse(val, out bool result))
                 return result;
             return defaultValue;
