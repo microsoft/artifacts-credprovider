@@ -67,7 +67,7 @@ namespace NuGetCredentialProvider.Tests.Util
         {
             Environment.SetEnvironmentVariable(oldVar, oldValue);
             Environment.SetEnvironmentVariable(newVar, newValue);
-            Assert.AreEqual(newValue, EnvUtil.GetPreferredOrLegancyEnvVar(newVar));
+            Assert.AreEqual(newValue, EnvUtil.GetEnvironmentVariable(newVar));
         }
 
         [DataTestMethod]
@@ -92,7 +92,7 @@ namespace NuGetCredentialProvider.Tests.Util
         public void GetPreferredOrLegancyEnvVar_FallsBackToLegacyWhenNewEnvironmentVariableIsNotAvailable(string oldVar, string value)
         {
             Environment.SetEnvironmentVariable(oldVar, value);
-            Assert.AreEqual(value, EnvUtil.GetPreferredOrLegancyEnvVar(oldVar));
+            Assert.AreEqual(value, EnvUtil.GetEnvironmentVariable(oldVar));
         }
 
         [TestMethod]
@@ -185,7 +185,7 @@ namespace NuGetCredentialProvider.Tests.Util
         public void SetProgramContextInEnvironment_SetsValue()
         {
             EnvUtil.SetProgramContextInEnvironment(Context.NuGet);
-            Assert.AreEqual("NuGet", Environment.GetEnvironmentVariable(EnvUtil.ProgramContext));
+            Assert.AreEqual("NuGet", EnvUtil.GetEnvironmentVariable(EnvUtil.ProgramContext));
         }
     }
 }

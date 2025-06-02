@@ -50,7 +50,7 @@ public static class FeedEndpointCredentialsParser
 
     public static Dictionary<string, EndpointCredentials> ParseFeedEndpointsJsonToDictionary(ILogger logger)
     {
-        string feedEndpointsJson = Environment.GetEnvironmentVariable(EnvUtil.EndpointCredentials);
+        string feedEndpointsJson = EnvUtil.GetEnvironmentVariable(EnvUtil.EndpointCredentials);
         if (string.IsNullOrWhiteSpace(feedEndpointsJson))
         {
             return new Dictionary<string, EndpointCredentials>(StringComparer.OrdinalIgnoreCase);
@@ -111,7 +111,7 @@ public static class FeedEndpointCredentialsParser
 
     public static Dictionary<string, ExternalEndpointCredentials> ParseExternalFeedEndpointsJsonToDictionary(ILogger logger)
     {
-        string feedEndpointsJson = EnvUtil.GetPreferredOrLegancyEnvVar(EnvUtil.BuildTaskExternalEndpoints);
+        string feedEndpointsJson = EnvUtil.GetEnvironmentVariable(EnvUtil.BuildTaskExternalEndpoints);
         if (string.IsNullOrWhiteSpace(feedEndpointsJson))
         {
             return new Dictionary<string, ExternalEndpointCredentials>(StringComparer.OrdinalIgnoreCase);
