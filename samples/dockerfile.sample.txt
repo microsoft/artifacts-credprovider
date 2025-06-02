@@ -21,7 +21,7 @@ ENV ARTIFACTS_CREDENTIALPROVIDER_SESSIONTOKENCACHE_ENABLED true
 # Environment variable for adding endpoint credentials. More on this here: https://github.com/Microsoft/artifacts-credprovider#help
 # Add "FEED_URL" AND "PAT" using --build-arg in docker build step. "endpointCredentials" field is an array, you can add multiple endpoint configurations.
 # Make sure that you *do not* hard code the "PAT" here. That is a sensitive information and must not be checked in.
-ENV ARTIFACTS_CREDENTIALPROVIDER_EXTERNAL_FEED_ENDPOINTS {"endpointCredentials": [{"endpoint":"${FEED_URL}", "username":"ArtifactsDocker", "password":"${PAT}"}]}
+ENV ARTIFACTS_CREDENTIALPROVIDER_EXTERNAL_FEED_ENDPOINTS {\"endpointCredentials\": [{\"endpoint\":\"${FEED_URL}\", \"username\":\"ArtifactsDocker\", \"password\":\"${PAT}\"}]}
 
 # Use this if you have a nuget.config file with all the endpoints.
 RUN dotnet restore
