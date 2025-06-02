@@ -81,11 +81,11 @@ namespace NuGetCredentialProvider.Util
         // Prefer new variable, if null fallback to legacy
         public static string GetEnvironmentVariable(string envVar)
         {
-            var val = EnvUtil.GetEnvironmentVariable(envVar);
+            var val = Environment.GetEnvironmentVariable(envVar);
             if (!string.IsNullOrWhiteSpace(val)) return val;
             if (EnvVarLegacyMap.TryGetValue(envVar, out var legacyVar))
             {
-                return EnvUtil.GetEnvironmentVariable(legacyVar);
+                return Environment.GetEnvironmentVariable(legacyVar);
             }
             return null;
         }
