@@ -13,12 +13,7 @@ namespace NuGetCredentialProvider.Tests.Util
     public class EnvUtilTests
     {
         private Mock<ILogger> loggerMock;
-        [TestInitialize]
-        public void TestInitialize()
-        {
-            loggerMock = new Mock<ILogger>();
-            // Clear all relevant environment variables before each test
-            foreach (var envVar in new[] {
+        private string[] envVarsToClear = new[] {
                 EnvUtil.LogPathEnvVar, EnvUtil.LegacyLogPathEnvVar,
                 EnvUtil.LogPIIEnvVar, EnvUtil.LegacyLogPIIEnvVar,
                 EnvUtil.SessionTokenCacheEnvVar, EnvUtil.LegacySessionTokenCacheEnvVar,
@@ -38,7 +33,24 @@ namespace NuGetCredentialProvider.Tests.Util
                 EnvUtil.MsalAllowBrokerEnvVar, EnvUtil.LegacyMsalAllowBrokerEnvVar,
                 EnvUtil.EndpointCredentials, EnvUtil.BuildTaskExternalEndpoints, EnvUtil.LegacyBuildTaskExternalEndpoints,
                 EnvUtil.ProgramContext
-            })
+            };
+        [TestInitialize]
+        public void TestInitialize()
+        {
+            loggerMock = new Mock<ILogger>();
+            // Clear all relevant environment variables before each test
+
+            foreach (var envVar in envVarsToClear)
+            {
+                Environment.SetEnvironmentVariable(envVar, null);
+            }
+        }
+
+        [TestCleanup]
+        public void TestCleanup()
+        {
+            // Clear all relevant environment variables after each test
+            foreach (var envVar in envVarsToClear)
             {
                 Environment.SetEnvironmentVariable(envVar, null);
             }

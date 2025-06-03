@@ -224,7 +224,7 @@ namespace NuGetCredentialProvider.Util
 
         public static Context? GetProgramContextFromEnvironment()
         {
-            var context = EnvUtil.GetEnvironmentVariable(ProgramContext);
+            var context = GetEnvironmentVariable(ProgramContext);
             if (!string.IsNullOrWhiteSpace(context) && Enum.TryParse<Context>(context, ignoreCase: true, out Context result))
             {
                 return result;
