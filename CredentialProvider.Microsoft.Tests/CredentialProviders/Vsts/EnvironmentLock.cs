@@ -2,6 +2,7 @@
 //
 // Licensed under the MIT license.
 
+using NuGetCredentialProvider.Util;
 using System;
 using System.Collections.Generic;
 using System.Threading;
@@ -35,7 +36,7 @@ namespace CredentialProvider.Microsoft.Tests.CredentialProviders.Vsts
                 string name = (string)nameObj;
                 if (name.Contains("NUGET"))
                 {
-                    savedEnvVars[name] = Environment.GetEnvironmentVariable(name);
+                    savedEnvVars[name] = EnvUtil.GetEnvironmentVariable(name);
                     Environment.SetEnvironmentVariable(name, null);
                 }
             }
