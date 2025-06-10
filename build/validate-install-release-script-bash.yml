@@ -12,10 +12,8 @@ parameters:
 steps:
 - checkout: ${{ parameters.repo }}
 - bash: |
-    # Set environment variables
     ${{ parameters.scriptEnvVariables }}
     
-    # Test the installcredproviderrelease.sh script
     RELEASE_VERSION="${{ parameters.releaseVersion }}"
     if [ "$RELEASE_VERSION" = "latest" ]; then
       ./helpers/installcredproviderrelease.sh -Force >> ./output.log 2>&1
@@ -41,12 +39,3 @@ steps:
     echo "Credential provider installed successfully via release script"
   workingDirectory: $(Build.SourcesDirectory)
   displayName: Validate Install Release Script
-# - bash: |
-#     # Clean up the installed credential provider for next test
-#     PLUGIN_PATH="$HOME/.nuget/plugins"
-#     if [ -d "$PLUGIN_PATH" ]; then
-#       rm -rf "$PLUGIN_PATH"
-#       echo "Cleaned up credential provider installation"
-#     fi
-#   workingDirectory: $(Build.SourcesDirectory)
-#   displayName: Cleanup Installed Credential Provider
