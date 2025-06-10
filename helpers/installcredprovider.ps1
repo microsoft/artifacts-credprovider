@@ -42,6 +42,7 @@ param(
     [string]$Version,
     [switch]$InstallNet6,
     [switch]$InstallNet8 = $true,
+    [switch]$NonSelfContained,
     [string]$RuntimeIdentifier
 )
 
@@ -107,7 +108,7 @@ function Get-RuntimeIdentifier {
     }
 
     Write-Host "Calculated artifacts-credprovider RuntimeIdentifier: $runtimeId"
-    return "$runtimeId."
+    return $runtimeId
 }
 
 function Get-ReleaseUrl {
@@ -244,9 +245,11 @@ if (!$Force) {
 }
 
 $releaseUrl = Get-ReleaseUrl
-
-if ([string]::IsNullOrEmpty($RuntimeIdentifier)) {
-    $releaseRidPart = Get-RuntimeIdentifier
+if ($NonSelfContained -eq $True) {
+    $releaseRidPart = ""
+}
+elseif ([string]::IsNullOrEmpty($RuntimeIdentifier)) {
+    $releaseRidPart = "$(Get-RuntimeIdentifier)."
 }
 else {
     $releaseRidPart = "$RuntimeIdentifier."

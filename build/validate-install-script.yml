@@ -7,7 +7,7 @@ jobs:
     parameters:
       repo: self
       scriptInputs: ''
-      expectedCredentialProviderVersion: 'Microsoft.Net8.NuGet.CredentialProvider'
+      expectedCredentialProviderVersion: 'Microsoft.Net8.win-x64.NuGet.CredentialProvider'
 - job: WindowsInstallNet6
   pool:
     vmImage: windows-latest
@@ -17,6 +17,15 @@ jobs:
       repo: self
       scriptInputs: '-InstallNet6 -InstallNet8:$False'
       expectedCredentialProviderVersion: 'Microsoft.Net6.NuGet.CredentialProvider'
+- job: WindowsInstallNet8NonSC
+  pool:
+    vmImage: windows-latest
+  steps:
+  - template: validate-install-script-powershell.yml@self
+    parameters:
+      repo: self
+      scriptInputs: '-InstallNet8 -NonSelfContained'
+      expectedCredentialProviderVersion: 'Microsoft.Net8.NuGet.CredentialProvider'
 - job: WindowsInstallNet8
   pool:
     vmImage: windows-latest
@@ -25,7 +34,7 @@ jobs:
     parameters:
       repo: self
       scriptInputs: '-InstallNet8'
-      expectedCredentialProviderVersion: 'Microsoft.Net8.NuGet.CredentialProvider'
+      expectedCredentialProviderVersion: 'Microsoft.Net8.win-x64.NuGet.CredentialProvider'
 - job: WindowsInstallNet8winx64
   pool:
     vmImage: windows-latest

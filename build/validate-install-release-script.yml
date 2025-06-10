@@ -186,30 +186,30 @@ jobs:
       releaseVersion: 'latest'
 
 # Test with specific release version (using a common stable version 1.4.0)
-# TODO: enable the below job when a 2.x release is available, prior to 2.x version must have the v prefix
-# - job: WindowsReleaseInstallVersionNoPrefix
-#   pool:
-#     vmImage: windows-latest
-#   steps:
-#   - template: validate-install-release-script-powershell.yml@self
-#     parameters:
-#       repo: self
-#       scriptInputs: '-InstallNet8'
-#       expectedCredentialProviderVersion: 'Microsoft.Net8.NuGet.CredentialProvider'
-#       releaseVersion: '1.4.0'
-
-- job: LinuxReleaseInstallVersionNoPrefix
+- job: WindowsReleaseInstallVersionNoPrefix
   pool:
-    vmImage: ubuntu-latest
+    vmImage: windows-latest
   steps:
-  - template: validate-install-release-script-bash.yml@self
+  - template: validate-install-release-script-powershell.yml@self
     parameters:
       repo: self
-      scriptEnvVariables: |
-        export USE_NET6_ARTIFACTS_CREDENTIAL_PROVIDER=false
-        export USE_NET8_ARTIFACTS_CREDENTIAL_PROVIDER=true
+      scriptInputs: '-InstallNet8'
       expectedCredentialProviderVersion: 'Microsoft.Net8.NuGet.CredentialProvider'
       releaseVersion: '1.4.0'
+
+# TODO: enable the below job when a 2.x release is available, prior to 2.x version must have the v prefix
+# - job: LinuxReleaseInstallVersionNoPrefix
+#   pool:
+#     vmImage: ubuntu-latest
+#   steps:
+#   - template: validate-install-release-script-bash.yml@self
+#     parameters:
+#       repo: self
+#       scriptEnvVariables: |
+#         export USE_NET6_ARTIFACTS_CREDENTIAL_PROVIDER=false
+#         export USE_NET8_ARTIFACTS_CREDENTIAL_PROVIDER=true
+#       expectedCredentialProviderVersion: 'Microsoft.Net8.NuGet.CredentialProvider'
+#       releaseVersion: '1.4.0'
 
 - job: WindowsReleaseInstallVersion
   pool:
