@@ -46,7 +46,7 @@ fi
 echo "Fetching versioned release install script at: ${INSTALL_URL}"
 
 # Download and validate the script content
-echo "Fetching install script from ${INSTALL_URL}..."
+echo "Fetching install script from ${INSTALL_URL}"
 
 # Get the script content without writing to disk
 SCRIPT_CONTENT=$(curl -s -S -L "${INSTALL_URL}")
