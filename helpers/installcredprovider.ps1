@@ -246,7 +246,6 @@ if ([string]::IsNullOrEmpty($RuntimeIdentifier)) {
 else {
     $releaseRidPart = "$RuntimeIdentifier."
 }
-Write-Host "Using RuntimeIdentifier: $releaseRidPart"
 
 if ($InstallNet6 -eq $True) {
     $archiveFile = "Microsoft.Net6.NuGet.CredentialProvider.zip"

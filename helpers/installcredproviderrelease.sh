@@ -123,31 +123,8 @@ fi
 
 # Execute the script content directly
 echo "Executing install script..."
-
-# Build parameter string for passing to the install script
-PARAM_STRING=""
-
-# Pass runtime identifier if set
-if [ ! -z "${ARTIFACTS_CREDENTIAL_PROVIDER_RID}" ]; then
-  PARAM_STRING="${PARAM_STRING} -RuntimeIdentifier ${ARTIFACTS_CREDENTIAL_PROVIDER_RID}"
-fi
-
-# Pass .NET version settings if provided
-if [ "${USE_NET6_ARTIFACTS_CREDENTIAL_PROVIDER}" = "true" ]; then
-  PARAM_STRING="${PARAM_STRING} -InstallNet6"
-fi
-
-if [ "${USE_NET8_ARTIFACTS_CREDENTIAL_PROVIDER}" = "true" ]; then
-  PARAM_STRING="${PARAM_STRING} -InstallNet8"
-fi
-
-# Execute the script with parameters
-if [ ! -z "${PARAM_STRING}" ]; then
-  echo "Passing parameters: ${PARAM_STRING}"
-fi
-
 RESULT=0
-eval "${SCRIPT_CONTENT} ${PARAM_STRING}"
+eval "${SCRIPT_CONTENT}"
 RESULT=$?
 
 echo "Installation completed with exit code: ${RESULT}"
