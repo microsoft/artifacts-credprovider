@@ -106,7 +106,7 @@ function Get-RuntimeIdentifier {
     }
 
     Write-Verbose "Calculated artifacts-credprovider RuntimeIdentifier: $runtimeId"
-    return $runtimeId
+    return "$runtimeId."
 }
 
 function Get-ReleaseUrl {
@@ -241,7 +241,7 @@ if (!$Force) {
 $releaseUrl = Get-ReleaseUrl
 
 if ([string]::IsNullOrEmpty($RuntimeIdentifier)) {
-    $releaseRidPart = "$(Get-RuntimeIdentifier)."
+    $releaseRidPart = Get-RuntimeIdentifier
 }
 else {
     $releaseRidPart = "$RuntimeIdentifier."
