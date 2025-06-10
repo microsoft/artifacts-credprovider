@@ -1,0 +1,52 @@
+parameters:
+- name: repo
+  type: string
+- name: scriptEnvVariables
+  type: string
+- name: expectedCredentialProviderVersion
+  type: string
+- name: releaseVersion
+  type: string
+  default: 'latest'
+
+steps:
+- checkout: ${{ parameters.repo }}
+- bash: |
+    # Set environment variables
+    ${{ parameters.scriptEnvVariables }}
+    
+    # Test the installcredproviderrelease.sh script
+    RELEASE_VERSION="${{ parameters.releaseVersion }}"
+    if [ "$RELEASE_VERSION" = "latest" ]; then
+      ./helpers/installcredproviderrelease.sh -Force >> ./output.log 2>&1
+    else
+      export AZURE_ARTIFACTS_CREDENTIAL_PROVIDER_VERSION="$RELEASE_VERSION"
+      ./helpers/installcredproviderrelease.sh -Force >> ./output.log 2>&1
+    fi
+    
+    cat ./output.log
+
+    # Check if expected credential provider version was found in output
+    if ! grep "${{ parameters.expectedCredentialProviderVersion }}" ./output.log; then
+      echo "Expected credential provider not found in output"
+      exit 1
+    fi
+    
+    # Verify the credential provider directory was created
+    if [ ! -d "$HOME/.nuget/plugins/netcore/CredentialProvider.Microsoft" ]; then
+      echo "Credential provider plugin directory not found at: $HOME/.nuget/plugins/netcore/CredentialProvider.Microsoft"
+      exit 1
+    fi
+    
+    echo "Credential provider installed successfully via release script"
+  workingDirectory: $(Build.SourcesDirectory)
+  displayName: Validate Install Release Script
+# - bash: |
+#     # Clean up the installed credential provider for next test
+#     PLUGIN_PATH="$HOME/.nuget/plugins"
+#     if [ -d "$PLUGIN_PATH" ]; then
+#       rm -rf "$PLUGIN_PATH"
+#       echo "Cleaned up credential provider installation"
+#     fi
+#   workingDirectory: $(Build.SourcesDirectory)
+#   displayName: Cleanup Installed Credential Provider

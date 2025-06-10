@@ -1,0 +1,57 @@
+parameters:
+- name: repo
+  type: string
+- name: scriptInputs
+  type: string
+- name: expectedCredentialProviderVersion
+  type: string
+- name: releaseVersion
+  type: string
+  default: 'latest'
+
+steps:
+- checkout: ${{ parameters.repo }}
+- task: PowerShell@2
+  displayName: Validate Install Release Script
+  inputs:
+    targetType: 'inline'
+    script: |
+      # Test the installcredproviderrelease.ps1 script
+      $releaseVersion = "${{ parameters.releaseVersion }}"
+      if ($releaseVersion -eq "latest") {
+        ./helpers/installcredproviderrelease.ps1 ${{ parameters.scriptInputs }} -Force 6>> ./output.log
+      } else {
+        ./helpers/installcredproviderrelease.ps1 -Version $releaseVersion ${{ parameters.scriptInputs }} -Force 6>> ./output.log
+      }
+      
+      cat ./output.log
+      
+      # Check if expected credential provider version was installed
+      if( (Select-String -Path .\output.log -Pattern ${{ parameters.expectedCredentialProviderVersion }}) -eq $null) {
+        echo "Expected credential provider file not found in output."
+        exit 1
+      }
+      
+      # Verify the credential provider was actually installed
+      $pluginPath = "$env:USERPROFILE\.nuget\plugins\netcore\CredentialProvider.Microsoft"
+      if (!(Test-Path $pluginPath)) {
+        echo "Credential provider plugin directory not found at: $pluginPath"
+        exit 1
+      }
+      
+      echo "Credential provider installed successfully via release script"
+    workingDirectory: $(Build.SourcesDirectory)
+    failOnStderr: false
+# - task: PowerShell@2
+#   displayName: Cleanup Installed Credential Provider
+#   inputs:
+#     targetType: 'inline'
+#     script: |
+#       # Clean up the installed credential provider for next test
+#       $pluginPath = "$env:USERPROFILE\.nuget\plugins"
+#       if (Test-Path $pluginPath) {
+#         Remove-Item -Path $pluginPath -Recurse -Force -ErrorAction SilentlyContinue
+#         echo "Cleaned up credential provider installation"
+#       }
+#     workingDirectory: $(Build.SourcesDirectory)
+#     failOnStderr: false
