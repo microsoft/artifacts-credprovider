@@ -21,7 +21,12 @@ stages:
       parameters:
         nuspecProperties: 'VersionSuffix=CI-$(Build.BuildNumber)'
 
-- stage: Validate
+- stage: Validate Install
   dependsOn: [] 
   jobs:
   - template: build/validate-install-script.yml
+
+- stage: Validate Install Release
+  dependsOn: [] 
+  jobs:
+  - template: build/validate-install-release-script.yml
