@@ -108,7 +108,6 @@ jobs:
     parameters:
       repo: self
       scriptEnvVariables: |
-        export USE_NET8_ARTIFACTS_CREDENTIAL_PROVIDER=true
         export ARTIFACTS_CREDENTIAL_PROVIDER_NON_SC=true
       expectedCredentialProviderVersion: 'Microsoft.Net8.linux-x64.NuGet.CredentialProvider'
 - job: LinuxInstallNet6
