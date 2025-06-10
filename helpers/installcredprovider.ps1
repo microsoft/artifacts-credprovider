@@ -184,7 +184,15 @@ function Install-CredProvider {
     # Extract zip to temp directory
     Write-Host "Extracting zip to the Credential Provider temp directory $tempZipLocation"
     # Add-Type -AssemblyName System.IO.Compression.FileSystem
-    Expand-Archive -Path $pluginZip -DestinationPath $tempZipLocation -Force
+    if ($archiveFile -like "*.tar.gz") {
+        # Extract .tar.gz using tar, available on Windows 10 and later
+        Write-Host "Extracting tar.gz archive $pluginZip to $tempZipLocation"
+        tar -xzf $pluginZip -C $tempZipLocation
+    }
+    else {
+        # Extract .zip using Expand-Archive
+        Expand-Archive -Path $pluginZip -DestinationPath $tempZipLocation -Force
+    }
 }
 
 # Without this, System.Net.WebClient.DownloadFile will fail on a client with TLS 1.0/1.1 disabled
@@ -244,7 +252,13 @@ if ($InstallNet6 -eq $True) {
     $archiveFile = "Microsoft.Net6.NuGet.CredentialProvider.zip"
 }
 if ($InstallNet8 -eq $True) {
-    $archiveFile = "Microsoft.Net8.${releaseRidPart}NuGet.CredentialProvider.zip"
+    if ($releaseRidPart -like 'linux*') {
+        # For linux runtimes, only .tar.gz is available
+        $archiveFile = "Microsoft.Net8.${releaseRidPart}NuGet.CredentialProvider.tar.gz"
+    }
+    else {
+        $archiveFile = "Microsoft.Net8.${releaseRidPart}NuGet.CredentialProvider.zip"
+    }
 }
 if ($AddNetfx -eq $True) {
     # This conditional must come last as two downloads occur when NetFx/Core are installed
@@ -273,7 +287,13 @@ if ($AddNetfx -eq $True -and $InstallNet6 -eq $True) {
     Install-CredProvider
 }
 if ($AddNetfx -eq $True -and $InstallNet8 -eq $True) {
-    $archiveFile = "Microsoft.Net8.${releaseRidPart}NuGet.CredentialProvider.zip"
+    if ($releaseRidPart -like 'linux*') {
+        # For linux runtimes, only .tar.gz is available
+        $archiveFile = "Microsoft.Net8.${releaseRidPart}NuGet.CredentialProvider.tar.gz"
+    }
+    else {
+        $archiveFile = "Microsoft.Net8.${releaseRidPart}NuGet.CredentialProvider.zip"
+    }
     Write-Verbose "Installing Net8"
     Install-CredProvider
 }
