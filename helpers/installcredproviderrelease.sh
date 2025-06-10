@@ -12,7 +12,7 @@
 set -e
 
 INSTALL_SCRIPT="installcredprovider.sh"
-RELEASE_BASE_URL="https://api.github.com/repos/microsoft/artifacts-credprovider/releases"
+RELEASE_BASE_URL="https://github.com/repos/microsoft/artifacts-credprovider/releases"
 
 # Process version - if not set, use latest
 if [ -z "${AZURE_ARTIFACTS_CREDENTIAL_PROVIDER_VERSION}" ] || [ "${AZURE_ARTIFACTS_CREDENTIAL_PROVIDER_VERSION}" = "latest" ]; then
@@ -123,6 +123,7 @@ fi
 
 # Execute the script content directly
 echo "Executing install script..."
+
 RESULT=0
 eval "${SCRIPT_CONTENT}"
 RESULT=$?

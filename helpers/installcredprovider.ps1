@@ -70,6 +70,10 @@ function Initialize-InstallParameters {
         # For backward compatibility, AddNetfx and AddNetfx48 are equivalent
         $AddNetfx = $True
     }
+    if ($AddNetfx -eq $False -and $InstallNet6 -eq $False -and $InstallNet8 -eq $False) {
+        Write-Error "At least one of the runtime parameters -AddNetfx, -InstallNet6, or -InstallNet8 must be true."
+        return
+    }
 }
 
 function Get-RuntimeIdentifier {
