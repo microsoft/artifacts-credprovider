@@ -47,70 +47,6 @@ param(
 
 $script:ErrorActionPreference = 'Stop'
 
-# Without this, System.Net.WebClient.DownloadFile will fail on a client with TLS 1.0/1.1 disabled
-if ([Net.ServicePointManager]::SecurityProtocol.ToString().Split(',').Trim() -notcontains 'Tls12') {
-    [Net.ServicePointManager]::SecurityProtocol += [Net.SecurityProtocolType]::Tls12
-}
-
-# Run script parameter validation
-Initialize-InstallParameters
-
-$userProfilePath = [System.Environment]::GetFolderPath([System.Environment+SpecialFolder]::UserProfile);
-if ($userProfilePath -ne '') {
-    $profilePath = $userProfilePath
-}
-else {
-    $profilePath = $env:UserProfile
-}
-
-$tempPath = [System.IO.Path]::GetTempPath()
-
-$pluginLocation = [System.IO.Path]::Combine($profilePath, ".nuget", "plugins");
-$tempZipLocation = [System.IO.Path]::Combine($tempPath, "CredProviderZip");
-
-$localNetcoreCredProviderPath = [System.IO.Path]::Combine("netcore", "CredentialProvider.Microsoft");
-$localNetfxCredProviderPath = [System.IO.Path]::Combine("netfx", "CredentialProvider.Microsoft");
-
-$fullNetfxCredProviderPath = [System.IO.Path]::Combine($pluginLocation, $localNetfxCredProviderPath)
-$fullNetcoreCredProviderPath = [System.IO.Path]::Combine($pluginLocation, $localNetcoreCredProviderPath)
-
-$netfxExists = Test-Path -Path ($fullNetfxCredProviderPath)
-$netcoreExists = Test-Path -Path ($fullNetcoreCredProviderPath)
-
-# Check if plugin already exists if -Force swich is not set
-if (!$Force) {
-    if ($AddNetfx -eq $True -and $netfxExists -eq $True) {
-        Write-Host "The netfx Credential Providers are already in $pluginLocation. Please use -Force to overwrite."
-        return
-    }
-
-    if (($InstallNet6 -eq $True -or $InstallNet8 -eq $True) -and $netcoreExists -eq $True) {
-        Write-Host "The netcore Credential Provider is already in $pluginLocation. Please use -Force to overwrite."
-        return
-    }
-}
-
-# Fetch the release URL from GitHub
-Get-ReleaseUrl
-
-if ([string]::IsNullOrEmpty($RuntimeIdentifier)) {
-    $releaseRIdPart = Get-RuntimeIdentifier + "."
-}
-else {
-    $releaseRidPart = $RuntimeIdentifier + "."
-}
-
-if ($InstallNet6 -eq $True) {
-    $archiveFile = "Microsoft.Net6.NuGet.CredentialProvider.zip"
-}
-if ($InstallNet8 -eq $True) {
-    $archiveFile = "Microsoft.Net8.${releaseRidPart}NuGet.CredentialProvider.zip"
-}
-if ($AddNetfx -eq $True) {
-    # This conditional must come last as two downloads occur when NetFx/Core are installed
-    $archiveFile = "Microsoft.NetFx48.NuGet.CredentialProvider.zip"
-}
-
 function Initialize-InstallParameters {
     # Start with invalid parameter checks
     if (![string]::IsNullOrEmpty($Version)) {
@@ -196,8 +132,8 @@ function Get-ReleaseUrl {
         return
     }
 
-    $releaseUrl = [System.IO.Path]::Combine($releaseUrlBase, $releaseId)
-    $releaseUrl = $releaseUrl.Replace("\", "/")
+    $releaseUrlId = [System.IO.Path]::Combine($releaseUrlBase, $releaseId)
+    return $releaseUrlId.Replace("\", "/")
 }
 
 function Install-CredProvider {
@@ -247,8 +183,72 @@ function Install-CredProvider {
 
     # Extract zip to temp directory
     Write-Host "Extracting zip to the Credential Provider temp directory $tempZipLocation"
-    Add-Type -AssemblyName System.IO.Compression.FileSystem
-    [System.IO.Compression.archiveFile]::ExtractToDirectory($pluginZip, $tempZipLocation)
+    # Add-Type -AssemblyName System.IO.Compression.FileSystem
+    Expand-Archive -Path $pluginZip -DestinationPath $tempZipLocation -Force
+}
+
+# Without this, System.Net.WebClient.DownloadFile will fail on a client with TLS 1.0/1.1 disabled
+if ([Net.ServicePointManager]::SecurityProtocol.ToString().Split(',').Trim() -notcontains 'Tls12') {
+    [Net.ServicePointManager]::SecurityProtocol += [Net.SecurityProtocolType]::Tls12
+}
+
+# Run script parameter validation
+Initialize-InstallParameters
+
+$userProfilePath = [System.Environment]::GetFolderPath([System.Environment+SpecialFolder]::UserProfile);
+if ($userProfilePath -ne '') {
+    $profilePath = $userProfilePath
+}
+else {
+    $profilePath = $env:UserProfile
+}
+
+$tempPath = [System.IO.Path]::GetTempPath()
+
+$pluginLocation = [System.IO.Path]::Combine($profilePath, ".nuget", "plugins");
+$tempZipLocation = [System.IO.Path]::Combine($tempPath, "CredProviderZip");
+
+$localNetcoreCredProviderPath = [System.IO.Path]::Combine("netcore", "CredentialProvider.Microsoft");
+$localNetfxCredProviderPath = [System.IO.Path]::Combine("netfx", "CredentialProvider.Microsoft");
+
+$fullNetfxCredProviderPath = [System.IO.Path]::Combine($pluginLocation, $localNetfxCredProviderPath)
+$fullNetcoreCredProviderPath = [System.IO.Path]::Combine($pluginLocation, $localNetcoreCredProviderPath)
+
+$netfxExists = Test-Path -Path ($fullNetfxCredProviderPath)
+$netcoreExists = Test-Path -Path ($fullNetcoreCredProviderPath)
+
+# Check if plugin already exists if -Force swich is not set
+if (!$Force) {
+    if ($AddNetfx -eq $True -and $netfxExists -eq $True) {
+        Write-Host "The netfx Credential Providers are already in $pluginLocation. Please use -Force to overwrite."
+        return
+    }
+
+    if (($InstallNet6 -eq $True -or $InstallNet8 -eq $True) -and $netcoreExists -eq $True) {
+        Write-Host "The netcore Credential Provider is already in $pluginLocation. Please use -Force to overwrite."
+        return
+    }
+}
+
+$releaseUrl = Get-ReleaseUrl
+
+if ([string]::IsNullOrEmpty($RuntimeIdentifier)) {
+    $releaseRidPart = "$(Get-RuntimeIdentifier)."
+}
+else {
+    $releaseRidPart = "$RuntimeIdentifier."
+}
+Write-Host "Using RuntimeIdentifier: $releaseRidPart"
+
+if ($InstallNet6 -eq $True) {
+    $archiveFile = "Microsoft.Net6.NuGet.CredentialProvider.zip"
+}
+if ($InstallNet8 -eq $True) {
+    $archiveFile = "Microsoft.Net8.${releaseRidPart}NuGet.CredentialProvider.zip"
+}
+if ($AddNetfx -eq $True) {
+    # This conditional must come last as two downloads occur when NetFx/Core are installed
+    $archiveFile = "Microsoft.NetFx48.NuGet.CredentialProvider.zip"
 }
 
 # Call Install-CredProvider function

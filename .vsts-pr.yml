@@ -4,7 +4,7 @@ resources:
 pool:
   vmImage: windows-latest
 
-pr:
+trigger:
 - master
 - releases/*
 

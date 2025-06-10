@@ -113,17 +113,9 @@ if ($AdditionalParams) {
 # Fetch the checksum file and validate the hash
 try {
     if ($null -ne $checksumUrl) {
-        # If the checksum file exists locally, read it with UTF-8 encoding
-        $localChecksumPath = "C:\Users\coallred\Downloads\TestHash\artifacts-credprovider-sha256.txt"
-        if (Test-Path $localChecksumPath) {
-            $checksumContent = [System.IO.File]::ReadAllText($localChecksumPath, [System.Text.Encoding]::UTF8)
-        }
-        else {
-            # Fetch from remote as currently implemented
-            Write-Host "Fetching checksum file from $checksumUrl..."
-            $response = Invoke-WebRequest -Uri $checksumUrl -UseBasicParsing
-            $checksumContent = $response.Content
-        }
+        Write-Host "Fetching checksum file from $checksumUrl..."
+        $response = Invoke-WebRequest -Uri $checksumUrl -UseBasicParsing
+        $checksumContent = $response.Content
 
         # Extract the expected hash from the checksum content by splitting by newline and finding the entry for installcredprovider.ps1
         $checksumLines = $checksumContent -split '\r?\n'
@@ -135,10 +127,16 @@ try {
             $expectedHash = $parts[1]
         }
         else {
-            Write-Warning "Could not find hash for $installScriptName in artifacts-credprovider-sha256.txt. Proceeding without validation."
+            Write-Warning "Could not find hash for $installScriptName in artifacts-credprovider-sha256.txt. Proceeding without SHA256 validation."
         }
     }
+}
+catch {
+    Write-Warning "Failed to fetch or parse checksum file from $checksumUrl. Proceeding without SHA256 validation."
+    $expectedHash = $null
+}
 
+try {
     # Fetch the install file content
     Write-Host "Fetching $installScriptName from $installUrl..."
     $tempScriptLocation = [System.IO.Path]::Combine([System.IO.Path]::GetTempPath(), $installScriptName);
@@ -160,7 +158,6 @@ try {
     # Execute the script directly from the URL with additional parameters
     Write-Host "Executing $installScriptName..."
     $execCmd = "& { $($tempScriptLocation) $paramString }"
-    Write-Host "Executing command: $execCmd`n"
     Invoke-Expression -Command $execCmd
 }
 catch {
