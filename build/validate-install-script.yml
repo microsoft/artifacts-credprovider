@@ -69,7 +69,7 @@ jobs:
   - template: validate-install-script-powershell.yml@self
     parameters:
       repo: self
-      scriptInputs: '-AddNetFx48'
+      scriptInputs: '-AddNetfx48'
       expectedCredentialProviderVersion: 'Microsoft.NetFx48.NuGet.CredentialProvider'
 - job: LinuxInstallDefault
   pool:

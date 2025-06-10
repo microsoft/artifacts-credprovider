@@ -11,12 +11,15 @@
 
 set -e
 
+# URL pattern to get latest documented at https://help.github.com/en/articles/linking-to-releases as of 2019-03-29
 INSTALL_SCRIPT="installcredprovider.sh"
 RELEASE_BASE_URL="https://github.com/repos/microsoft/artifacts-credprovider/releases"
+RELEASE_LATEST_DOWNLOAD_URL="https://github.com/repos/microsoft/artifacts-credprovider/releases/latest"
 
 # Process version - if not set, use latest
 if [ -z "${AZURE_ARTIFACTS_CREDENTIAL_PROVIDER_VERSION}" ] || [ "${AZURE_ARTIFACTS_CREDENTIAL_PROVIDER_VERSION}" = "latest" ]; then
-  RELEASE_DOWNLOAD_URL="$RELEASE_BASE_URL/latest/download"
+  DOWNLOAD_URL="${RELEASE_LATEST_DOWNLOAD_URL}"
+  INSTALL_URL="${DOWNLOAD_URL}/${INSTALL_SCRIPT}"
   echo "No version specified, using latest release."
 else
   VERSION="${AZURE_ARTIFACTS_CREDENTIAL_PROVIDER_VERSION}"
@@ -38,39 +41,12 @@ else
     TAG_VERSION="v${AZURE_ARTIFACTS_CREDENTIAL_PROVIDER_VERSION}"
   fi
   
-  RELEASE_DOWNLOAD_URL="$RELEASE_BASE_URL/download/v${VERSION}"
-  echo "Fetching tagged release: ${VERSION}"
+  echo "Fetching tagged release: ${TAG_VERSION}"
+  DOWNLOAD_URL="${RELEASE_BASE_URL}/download/${TAG_VERSION}"
+  INSTALL_URL="${DOWNLOAD_URL}/${INSTALL_SCRIPT}"
 fi
 
-INSTALL_URL="${RELEASE_DOWNLOAD_URL}/installcredprovider.sh"
 echo "Fetching versioned release install script at: ${INSTALL_URL}"
-
-# Check if we need to validate with checksum
-SHOULD_VALIDATE=false
-CHECKSUM_URL=""
-
-if [[ "${VERSION}" != 0.* ]] && [[ "${VERSION}" != 1.* ]]; then
-  # Extract the assets URL to find the checksum file using the normalized data
-  ASSETS_URL=$(echo "${NORMALIZED_RELEASE_DATA}" | grep -o "\"assets_url\":\"[^\"]*\"" | head -1 | awk -F'"' '{print $4}')
-  
-  if [ ! -z "${ASSETS_URL}" ]; then
-    # Get the assets data
-    ASSETS_DATA=$(curl -s -H "Accept: application/json" "${ASSETS_URL}")
-    
-    # Normalize assets data too
-    NORMALIZED_ASSETS_DATA=$(echo "${ASSETS_DATA}" | tr -d '\r\n' | sed 's/[[:space:]]*\([{}[\],]\)[[:space:]]*/\1/g')
-    
-    # Look for sha256 checksum file
-    CHECKSUM_URL=$(echo "${NORMALIZED_ASSETS_DATA}" | grep -o "\"browser_download_url\":\"[^\"]*artifacts-credprovider-sha256.txt\"" | head -1 | awk -F'"' '{print $4}')
-    
-    if [ ! -z "${CHECKSUM_URL}" ]; then
-      SHOULD_VALIDATE=true
-      echo "Found checksum file at: ${CHECKSUM_URL}"
-    else
-      echo "WARNING: Could not find SHA256 checksum file, proceeding without validation"
-    fi
-  fi
-fi
 
 # Download and validate the script content
 echo "Fetching install script from ${INSTALL_URL}..."
@@ -80,6 +56,15 @@ SCRIPT_CONTENT=$(curl -s -S -L "${INSTALL_URL}")
 if [ -z "${SCRIPT_CONTENT}" ]; then
   echo "ERROR: Failed to download install script content"
   exit 1
+fi
+
+# Check if we need to validate with checksum
+SHOULD_VALIDATE=true
+if [[ "${VERSION}" == 0.* ]] || [[ "${VERSION}" == 1.* ]]; then
+  SHOULD_VALIDATE=false
+  echo "Skipping checksum validation for version ${VERSION} as it is not available for 0.x and 1.x versions."
+else
+  CHECKSUM_URL="${DOWNLOAD_URL}/artifacts-credprovider-sha256.txt"
 fi
 
 # Validate the script if checksum is available
