@@ -13,8 +13,8 @@ set -e
 
 # URL pattern to get latest documented at https://help.github.com/en/articles/linking-to-releases as of 2019-03-29
 INSTALL_SCRIPT="installcredprovider.sh"
-RELEASE_BASE_URL="https://github.com/repos/microsoft/artifacts-credprovider/releases"
-RELEASE_LATEST_DOWNLOAD_URL="https://github.com/repos/microsoft/artifacts-credprovider/releases/latest/download"
+RELEASE_BASE_URL="https://github.com/microsoft/artifacts-credprovider/releases"
+RELEASE_LATEST_DOWNLOAD_URL="https://github.com/microsoft/artifacts-credprovider/releases/latest/download"
 
 # Process version - if not set, use latest
 if [ -z "${AZURE_ARTIFACTS_CREDENTIAL_PROVIDER_VERSION}" ] || [ "${AZURE_ARTIFACTS_CREDENTIAL_PROVIDER_VERSION}" = "latest" ]; then
@@ -57,7 +57,7 @@ if [ -z "${SCRIPT_CONTENT}" ]; then
   echo "ERROR: Failed to download install script content"
   exit 1
 fi
-echo "Successfully fetched install script content. ${#SCRIPT_CONTENT:0:1000}"
+echo "Successfully fetched install script content. ${SCRIPT_CONTENT}"
 
 # Check if we need to validate with checksum
 SHOULD_VALIDATE=true

@@ -68,6 +68,7 @@ function Initialize-InstallParameters {
     }
     if ($AddNetfx48 -eq $True) {
         # For backward compatibility, AddNetfx and AddNetfx48 are equivalent
+        Write-Host "AddNetfx48 is specified, defaulting to AddNetfx"
         $AddNetfx = $True
     }
     if ($AddNetfx -eq $False -and $InstallNet6 -eq $False -and $InstallNet8 -eq $False) {
