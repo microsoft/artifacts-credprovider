@@ -264,28 +264,36 @@
     The following is a list of environment variables that can be used to modify the
     behavior of the credential provider. They may be used for workarounds but their
     use is not supported. Use at your own risk.
+    
+    Note: When both a new (preferred) environment variable and its legacy equivalent are set,
+    the new variable takes precedence. Legacy variables are supported for backward compatibility only.
 
 Log Path
-    {0}
+    {0} (Preferred)
+    {1} (Legacy)
         Absolute path to a log file where the provider will write log messages.
 
 Session Token Cache Enabled
-    {1}
+    {2} (Preferred)
+    {3} (Legacy)
         Boolean to enable/disable the Session Token cache.
 
 Supported Hosts
-    {2}
+    {4} (Preferred)
+    {5} (Legacy)
         Semi-colon separated list of hosts that the credential provider supports.
 
 Session Token Time Validity
-    {3}
+    {6} (Preferred)
+    {7} (Legacy)
         Time in minutes the generated Session Tokens will be valid for.
         The default for Personal Access Tokens is 90 days.
         The default for JWT (self-describing) tokens is 4 hours.
         The maximum allowed validity period for JWT tokens is 24 hours.
 
 Token Type
-    {4}
+    {8} (Preferred)
+    {9} (Legacy)
         Specify 'Compact' to generate a Personal Access Token, which may
         have a long validity period as it can easily be revoked from the UI,
         and sends a notification mail on creation.
@@ -296,23 +304,26 @@ Token Type
         unless authentication can be performed non-interactively.
 
 Build Provider URI Prefixes
-    {5}
+    {10} (Preferred)
+    {11} (Legacy)
         Semi-colon separated list of hosts the build provider supports.
 
 Build Provider Access Token
-    {6}
+    {12} (Preferred)
+    {13} (Legacy)
         The Personal Access Token that will be returned as credentials by
         the build provider.
 
 Build Provider Service Endpoint Json
-    {7}
+    {14} (Preferred)
+    {15} (Legacy)
         Json that contains an array of service endpoints, usernames and
         access tokens to authenticate endpoints in nuget.config.
         Example: {{"endpointCredentials": [{{"endpoint":"http://example.index.json",
         "username":"optional", "password":"accesstoken"}}]}}
 
 Artifacts Service Endpoint Json
-    {8}
+    {16}
         Json that contains an array of service endpoints, client ids, and certificate 
         information to authenticate endpoints for Azure Managed Identities 
         and Service Principals.
@@ -326,36 +337,42 @@ Cache Location
     will need to be provided again.
 
     MSAL Token Cache
-    {9}
+    {17}
 
     Session Token Cache
-    {10}
+    {18}
 
 Windows Integrated Authentication
-    {11}
+    {19} (Preferred)
+    {20} (Legacy)
         Boolean to enable/disable using silent Windows Integrated Authentication
         to authenticate as the logged-in user. Enabled by default.
 
 Device Flow Authentication Timeout
-    {12}
+    {21} (Preferred)
+    {22} (Legacy)
         Device Flow authentication timeout in seconds. Default is 90 seconds.
 
 NuGet workarounds
-    {13}
+    {23} (Preferred)
+    {24} (Legacy)
         Set to "true" or "false" to override any other sources of the
         CanShowDialog parameter.
 
 MSAL Authority
-    {14}
+    {25} (Preferred)
+    {26} (Legacy)
         Set to override the authority used when fetching an MSAL token.
         e.g. https://login.microsoftonline.com/organizations
 
 MSAL Token File Cache Enabled
-    {15}
+    {27} (Preferred)
+    {28} (Legacy)
         Boolean to enable/disable the MSAL token cache. Enabled by default.
 
 Provide MSAL Cache Location
-    {16}
+    {29} (Preferred)
+    {30} (Legacy)
     Provide the location where the MSAL cache should be read and written to.</value>
   </data>
   <data name="CredentialParseFailure" xml:space="preserve">
@@ -407,10 +424,10 @@ Provide MSAL Cache Location
     <value>Could not parse Device Flow Timeout override: {0}</value>
   </data>
   <data name="BuildTaskCredProviderIsUsedError" xml:space="preserve">
-    <value>This credential provider must not run if any build task environment variables are set. Variables: VSS_NUGET_URI_PREFIXES, VSS_NUGET_ACCESSTOKEN, VSS_NUGET_EXTERNAL_FEED_ENDPOINTS, ARTIFACTS_CREDENTIALPROVIDER_FEED_ENDPOINTS</value>
+    <value>This credential provider must not run if any build task environment variables are set. Variables: ARTIFACTS_CREDENTIALPROVIDER_URI_PREFIXES, ARTIFACTS_CREDENTIALPROVIDER_ACCESSTOKEN, ARTIFACTS_CREDENTIALPROVIDER_EXTERNAL_FEED_ENDPOINTS, ARTIFACTS_CREDENTIALPROVIDER_FEED_ENDPOINTS</value>
   </data>
   <data name="BuildTaskEndpointNoMatchingUrl" xml:space="preserve">
-    <value>Environment variable VSS_NUGET_EXTERNAL_FEED_ENDPOINTS did not have credentials for endpoint {0}</value>
+    <value>Environment variable ARTIFACTS_CREDENTIALPROVIDER_EXTERNAL_FEED_ENDPOINTS did not have credentials for endpoint {0}</value>
   </data>
   <data name="BuildTaskEndpointMatchingUrlFound" xml:space="preserve">
     <value>Found credentials for endpoint {0}</value>

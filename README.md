@@ -124,13 +124,13 @@ Once you've successfully acquired a token, you can run authenticated commands wi
 Use the [NuGet Authenticate](https://docs.microsoft.com/en-us/azure/devops/pipelines/tasks/package/nuget-authenticate?view=azure-devops) task before running NuGet, dotnet or MSBuild commands that need authentication.
 
 #### Other automated build scenarios
-If you're running the command as part of an automated build on an unattended build agent outside of Azure DevOps Pipelines, you can supply an access token directly using the `VSS_NUGET_EXTERNAL_FEED_ENDPOINTS` [environment variable](#environment-variables). The use of [Personal Access Tokens](https://docs.microsoft.com/en-us/azure/devops/organizations/accounts/use-personal-access-tokens-to-authenticate?view=azure-devops) is recommended. You may need to restart the agent service or the computer before the environment variables are available to the agent.
+If you're running the command as part of an automated build on an unattended build agent outside of Azure DevOps Pipelines, you can supply an access token directly using the `ARTIFACTS_CREDENTIALPROVIDER_EXTERNAL_FEED_ENDPOINTS` [environment variable](#environment-variables). The use of [Personal Access Tokens](https://docs.microsoft.com/en-us/azure/devops/organizations/accounts/use-personal-access-tokens-to-authenticate?view=azure-devops) is recommended. You may need to restart the agent service or the computer before the environment variables are available to the agent.
 
 ### Docker containers
 [Managing NuGet credentials in Docker scenarios](https://github.com/dotnet/dotnet-docker/blob/master/documentation/scenarios/nuget-credentials.md#using-the-azure-artifact-credential-provider)
 
 ### Azure DevOps Server
-The Azure Artifacts Credential Provider may not be necessary for an on-premises Azure DevOps Server on Windows. If the credential provider is needed, it cannot acquire credentials interactively, therefore, the VSS_NUGET_EXTERNAL_FEED_ENDPOINTS environment variable must be used as an alternative. Supply a [Personal Access Token](https://docs.microsoft.com/en-us/azure/devops/organizations/accounts/use-personal-access-tokens-to-authenticate?view=azure-devops) directly using the `VSS_NUGET_EXTERNAL_FEED_ENDPOINTS` [environment variable](#environment-variables).
+The Azure Artifacts Credential Provider may not be necessary for an on-premises Azure DevOps Server on Windows. If the credential provider is needed, it cannot acquire credentials interactively, therefore, the `ARTIFACTS_CREDENTIALPROVIDER_EXTERNAL_FEED_ENDPOINTS` environment variable must be used as an alternative. Supply a [Personal Access Token](https://docs.microsoft.com/en-us/azure/devops/organizations/accounts/use-personal-access-tokens-to-authenticate?view=azure-devops) directly using the `ARTIFACTS_CREDENTIALPROVIDER_EXTERNAL_FEED_ENDPOINTS` [environment variable](#environment-variables).
 
 From Azure DevOps Server 2020 RC1 forward, the NuGet Authenticate task can be used in Pipelines.
 
@@ -148,18 +148,21 @@ On Linux or Mac, the tokens are additionally saved to the Keyring/Keychain under
 
 The Credential Provider accepts a set of environment variables. Not all of them we recommend using in production, but these two are considered safe.
 
--   `NUGET_CREDENTIALPROVIDER_SESSIONTOKENCACHE_ENABLED`: Controls whether or not the session token is saved to disk. If false, the Credential Provider will prompt for auth every time.
--   `VSS_NUGET_EXTERNAL_FEED_ENDPOINTS`: Json that contains an array of service endpoints, usernames and access tokens to authenticate endpoints in nuget.config. Example:
+> **Note:** When both a new (preferred) environment variable and its legacy equivalent are set, the new variable takes precedence. Legacy variables are supported for backward compatibility only.
+
+-   `ARTIFACTS_CREDENTIALPROVIDER_SESSIONTOKENCACHE_ENABLED` (Preferred) 
+    `NUGET_CREDENTIALPROVIDER_SESSIONTOKENCACHE_ENABLED` (legacy): Boolean value that controls whether the session token is saved to disk. If set to `false`, the Credential Provider will prompt for authentication every time.
+
+-   `ARTIFACTS_CREDENTIALPROVIDER_EXTERNAL_FEED_ENDPOINTS` (Preferred)
+    `VSS_NUGET_EXTERNAL_FEED_ENDPOINTS` (Legacy): JSON string containing an array of service endpoints, usernames, and access tokens used to authenticate endpoints specified in `nuget.config`. Example:
 
     ```javascript
     {"endpointCredentials": [{"endpoint":"http://example.index.json", "username":"optional", "password":"accesstoken"}]}
     ```
-
--   `ARTIFACTS_CREDENTIALPROVIDER_FEED_ENDPOINTS`: Json that contains an array of endpoints, usernames and azure service principal information needed to authenticate to Azure Artifacts feed endponts. Example:
+-   `ARTIFACTS_CREDENTIALPROVIDER_FEED_ENDPOINTS` (Preferred): Json that contains an array of endpoints, usernames and azure service principal information needed to authenticate to Azure Artifacts feed endpoints. Example:
     ```javascript
     {"endpointCredentials": [{"endpoint":"http://example.index.json", "clientId":"required", "clientCertificateSubjectName":"optional", "clientCertificateFilePath":"optional"}]}
     ```
-
     - `endpoint`: Required. Feed url to authenticate.
     - `clientId`: Required for both Azure Managed Identites and Service Principals. For user assigned managed identities enter the Entra client id. For system assigned managed identities set the value to `system`.
     - `clientCertificateSubjectName`: Subject Name of the certificate located in the CurrentUser or LocalMachine certificate store. Optional field. Only used for service principal authentication.
@@ -226,26 +229,32 @@ List of Environment Variables
     use is not supported. Use at your own risk.
 
 Log Path
-    NUGET_CREDENTIALPROVIDER_LOG_PATH
+    ARTIFACTS_CREDENTIALPROVIDER_LOG_PATH (Preferred)
+    NUGET_CREDENTIALPROVIDER_LOG_PATH (Legacy)
         Absolute path to a log file where the provider will write log messages.
+    
 
 Session Token Cache Enabled
-    NUGET_CREDENTIALPROVIDER_SESSIONTOKENCACHE_ENABLED
+    ARTIFACTS_CREDENTIALPROVIDER_SESSIONTOKENCACHE_ENABLED (Preferred)
+    NUGET_CREDENTIALPROVIDER_SESSIONTOKENCACHE_ENABLED (Legacy)
         Boolean to enable/disable the Session Token cache.
 
 Supported Hosts
-    NUGET_CREDENTIALPROVIDER_VSTS_HOSTS
+    ARTIFACTS_CREDENTIALPROVIDER_HOSTS (Preferred)
+    NUGET_CREDENTIALPROVIDER_VSTS_HOSTS (Legacy)
         Semi-colon separated list of hosts that the credential provider supports.
-
+    
 Session Token Time Validity
-    NUGET_CREDENTIALPROVIDER_VSTS_SESSIONTIMEMINUTES
+    ARTIFACTS_CREDENTIALPROVIDER_SESSIONTIMEMINUTES (Preferred)
+    NUGET_CREDENTIALPROVIDER_VSTS_SESSIONTIMEMINUTES (Legacy)
         Time in minutes the generated Session Tokens will be valid for.
         The default for Personal Access Tokens is 90 days.
         The default for JWT (self-describing) tokens is 4 hours.
         The maximum allowed validity period for JWT tokens is 24 hours.
 
 Token Type
-    NUGET_CREDENTIALPROVIDER_VSTS_TOKENTYPE
+    ARTIFACTS_CREDENTIALPROVIDER_TOKENTYPE (Preferred)
+    NUGET_CREDENTIALPROVIDER_VSTS_TOKENTYPE (Legacy)
         Specify 'Compact' to generate a Personal Access Token, which may
         have a long validity period as it can easily be revoked from the UI,
         and sends a notification mail on creation.
@@ -256,16 +265,19 @@ Token Type
         unless authentication can be performed non-interactively.
 
 Build Provider URI Prefixes
-    VSS_NUGET_URI_PREFIXES
+    ARTIFACTS_CREDENTIALPROVIDER_URI_PREFIXES (Preferred)
+    VSS_NUGET_URI_PREFIXES (Legacy)
         Semi-colon separated list of hosts the build provider supports.
 
 Build Provider Access Token
-    VSS_NUGET_ACCESSTOKEN
+    ARTIFACTS_CREDENTIALPROVIDER_ACCESSTOKEN (Preferred)
+    VSS_NUGET_ACCESSTOKEN (Legacy)
         The Personal Access Token that will be returned as credentials by
         the build provider.
 
 Build Provider Service Endpoint Json
-    VSS_NUGET_EXTERNAL_FEED_ENDPOINTS
+    ARTIFACTS_CREDENTIALPROVIDER_EXTERNAL_FEED_ENDPOINTS (Preferred)
+    VSS_NUGET_EXTERNAL_FEED_ENDPOINTS (Legacy)
         Json that contains an array of service endpoints, usernames and
         access tokens to authenticate endpoints in nuget.config.
         Example: {"endpointCredentials": [{"endpoint":"http://example.index.json",
@@ -283,30 +295,36 @@ Cache Location
     C:\Users\someuser\AppData\Local\MicrosoftCredentialProvider\SessionTokenCache.dat
 
 Windows Integrated Authentication
-    NUGET_CREDENTIALPROVIDER_WINDOWSINTEGRATEDAUTHENTICATION_ENABLED
+    ARTIFACTS_CREDENTIALPROVIDER_WINDOWSINTEGRATEDAUTHENTICATION_ENABLED (Preferred)
+    NUGET_CREDENTIALPROVIDER_WINDOWSINTEGRATEDAUTHENTICATION_ENABLED (Legacy)
         Boolean to enable/disable using silent Windows Integrated Authentication
         to authenticate as the logged-in user. Enabled by default.
 
 Device Flow Authentication Timeout
-    NUGET_CREDENTIALPROVIDER_VSTS_DEVICEFLOWTIMEOUTSECONDS
+    ARTIFACTS_CREDENTIALPROVIDER_DEVICEFLOWTIMEOUTSECONDS (Preferred)
+    NUGET_CREDENTIALPROVIDER_VSTS_DEVICEFLOWTIMEOUTSECONDS (Legacy)
         Device Flow authentication timeout in seconds. Default is 90 seconds.
 
 NuGet workarounds
-    NUGET_CREDENTIALPROVIDER_FORCE_CANSHOWDIALOG_TO
+    ARTIFACTS_CREDENTIALPROVIDER_FORCE_CANSHOWDIALOG_TO (Preferred)
+    NUGET_CREDENTIALPROVIDER_FORCE_CANSHOWDIALOG_TO (Legacy)
         Set to "true" or "false" to override any other sources of the
         CanShowDialog parameter.
 
 MSAL Authority
-    NUGET_CREDENTIALPROVIDER_MSAL_AUTHORITY
+    ARTIFACTS_CREDENTIALPROVIDER_MSAL_AUTHORITY (Preferred)
+    NUGET_CREDENTIALPROVIDER_MSAL_AUTHORITY (Legacy)
         Set to override the authority used when fetching an MSAL token.
         e.g. https://login.microsoftonline.com/organizations
 
 MSAL Token File Cache Enabled
-    NUGET_CREDENTIALPROVIDER_MSAL_FILECACHE_ENABLED
+    ARTIFACTS_CREDENTIALPROVIDER_MSAL_FILECACHE_ENABLED (Preferred)
+    NUGET_CREDENTIALPROVIDER_MSAL_FILECACHE_ENABLED (Preferred)
         Boolean to enable/disable the MSAL token cache. Enabled by default.
 
 Provide MSAL Cache Location
-    NUGET_CREDENTIALPROVIDER_MSAL_FILECACHE_LOCATION
+    ARTIFACTS_CREDENTIALPROVIDER_MSAL_FILECACHE_LOCATION (Preferred)
+    NUGET_CREDENTIALPROVIDER_MSAL_FILECACHE_LOCATION (Legacy)
     Provide the location where the MSAL cache should be read and written to.
 
 ```

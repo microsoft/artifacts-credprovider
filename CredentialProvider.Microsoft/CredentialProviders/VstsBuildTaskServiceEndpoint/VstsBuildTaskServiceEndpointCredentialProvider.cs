@@ -47,8 +47,8 @@ namespace NuGetCredentialProvider.CredentialProviders.VstsBuildTaskServiceEndpoi
 
         public override Task<bool> CanProvideCredentialsAsync(Uri uri)
         {
-            string feedEndPointsJson = Environment.GetEnvironmentVariable(EnvUtil.EndpointCredentials);
-            string externalFeedEndPointsJson = Environment.GetEnvironmentVariable(EnvUtil.BuildTaskExternalEndpoints);
+            string externalFeedEndPointsJson =  EnvUtil.GetEnvironmentVariable(EnvUtil.BuildTaskExternalEndpoints);
+            string feedEndPointsJson = EnvUtil.GetEnvironmentVariable(EnvUtil.EndpointCredentials);
 
             if (string.IsNullOrWhiteSpace(feedEndPointsJson) && string.IsNullOrWhiteSpace(externalFeedEndPointsJson))
             {
