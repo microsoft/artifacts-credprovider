@@ -22,7 +22,7 @@ if [ -z "${AZURE_ARTIFACTS_CREDENTIAL_PROVIDER_VERSION}" ] || [ "${AZURE_ARTIFAC
   INSTALL_URL="${DOWNLOAD_URL}/${INSTALL_SCRIPT}"
   echo "No version specified, using latest release."
 else
-  VERSION="${AZURE_ARTIFACTS_CREDENTIAL_PROVIDER_VERSION}"
+  VERSION=$(echo "${AZURE_ARTIFACTS_CREDENTIAL_PROVIDER_VERSION}" | sed 's/^v//')
   # Validate version format
   if ! [[ "${VERSION}" =~ ^[0-9]+\.[0-9]+\.[0-9]+(-[a-zA-Z0-9]+(\.[a-zA-Z0-9]+)*)?$ ]]; then
     echo "ERROR: Invalid version format. Please use format #.#.# (e.g., 1.4.1)"
@@ -57,7 +57,6 @@ if [ -z "${SCRIPT_CONTENT}" ]; then
   echo "ERROR: Failed to download install script content"
   exit 1
 fi
-echo "Successfully fetched install script content. ${SCRIPT_CONTENT}"
 
 # Check if we need to validate with checksum
 SHOULD_VALIDATE=true

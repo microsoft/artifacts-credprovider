@@ -112,7 +112,7 @@ jobs:
       scriptEnvVariables: |
         export USE_NET6_ARTIFACTS_CREDENTIAL_PROVIDER=false
         export USE_NET8_ARTIFACTS_CREDENTIAL_PROVIDER=false
-      expectedCredentialProviderVersion: 'Microsoft.NuGet.CredentialProvider'
+      expectedCredentialProviderVersion: 'Microsoft.NetFx48.NuGet.CredentialProvider'
 - job: LinuxInstallNet8linuxx64
   pool:
     vmImage: ubuntu-latest

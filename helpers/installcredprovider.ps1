@@ -55,22 +55,17 @@ function Initialize-InstallParameters {
             return
         }
     }
-
     # Check if the version is valid given the install options
     if (![string]::IsNullOrEmpty($RuntimeIdentifier)) {
         Write-Host "RuntimeIdentifier parameter is specified, the $RuntimeIdentifier self-contained version will be installed"
         $InstallNet6 = $False
         $InstallNet8 = $True
     }
+    # If .NET 6 and 8 are specified, .NET 8 will be installed
     if ($InstallNet6 -eq $True -and $InstallNet8 -eq $True) {
-        # If .NET 6 and 8 are specified, .NET 8 will be installed
         $InstallNet6 = $False
     }
-    if ($AddNetfx48 -eq $True) {
-        # For backward compatibility, AddNetfx and AddNetfx48 are equivalent
-        Write-Host "AddNetfx48 is specified, defaulting to AddNetfx"
-        $AddNetfx = $True
-    }
+    # Don't allow a no-op installation
     if ($AddNetfx -eq $False -and $InstallNet6 -eq $False -and $InstallNet8 -eq $False) {
         Write-Error "At least one of the runtime parameters -AddNetfx, -InstallNet6, or -InstallNet8 must be true."
         return
@@ -78,17 +73,18 @@ function Initialize-InstallParameters {
 }
 
 function Get-RuntimeIdentifier {
-    if ($IsLinux) {
+    $osName = Get-ComputerInfo -Property *OSName* | Select OSName
+    if ($osName -like "*linux*") {
         $runtimeId = "linux"
     }
-    elseif ($IsMacOS) {
+    elseif ($osName -like "*macos*" -or $osName -like "*darwin*") {
         $runtimeId = "osx"
     }
-    elseif ($IsWindows) {
+    elseif ($osName -like "*windows*") {
         $runtimeId = "win"
     }
     else {
-        Write-Warning "Unable to automatically detect a supported OS. The .NET 8 version will be installed by default. Please set the RuntimeIdentifier parameter to specify a runtime version."
+        Write-Warning "Unable to automatically detect a supported OS from '$osName'. The .NET 8 version will be installed by default. Please set the RuntimeIdentifier parameter to specify a runtime version."
         return ""
     }
 
@@ -110,7 +106,7 @@ function Get-RuntimeIdentifier {
         $runtimeId += $osArch
     }
 
-    Write-Verbose "Calculated artifacts-credprovider RuntimeIdentifier: $runtimeId"
+    Write-Host "Calculated artifacts-credprovider RuntimeIdentifier: $runtimeId"
     return "$runtimeId."
 }
 
@@ -206,6 +202,10 @@ if ([Net.ServicePointManager]::SecurityProtocol.ToString().Split(',').Trim() -no
 }
 
 # Run script parameter validation
+# For backward compatibility, AddNetfx and AddNetfx48 are equivalent
+if ($AddNetfx48 -eq $True) {
+    $AddNetfx = $True
+}
 Initialize-InstallParameters
 
 $userProfilePath = [System.Environment]::GetFolderPath([System.Environment+SpecialFolder]::UserProfile);
@@ -269,7 +269,6 @@ if ($AddNetfx -eq $True) {
     $archiveFile = "Microsoft.NetFx48.NuGet.CredentialProvider.zip"
 }
 
-# Call Install-CredProvider function
 Install-CredProvider
 
 # Remove existing content and copy netfx directories to plugins directory
@@ -287,7 +286,6 @@ if ($AddNetfx -eq $True) {
 # Also install NET6/NET8 provider if requested
 if ($AddNetfx -eq $True -and $InstallNet6 -eq $True) {
     $archiveFile = "Microsoft.Net6.NuGet.CredentialProvider.zip"
-    Write-Verbose "Installing Net6"
     Install-CredProvider
 }
 if ($AddNetfx -eq $True -and $InstallNet8 -eq $True) {
@@ -298,7 +296,6 @@ if ($AddNetfx -eq $True -and $InstallNet8 -eq $True) {
     else {
         $archiveFile = "Microsoft.Net8.${releaseRidPart}NuGet.CredentialProvider.zip"
     }
-    Write-Verbose "Installing Net8"
     Install-CredProvider
 }
 
