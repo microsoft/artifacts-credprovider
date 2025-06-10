@@ -74,7 +74,7 @@ if [ ! -z ${ARTIFACTS_CREDENTIAL_PROVIDER_RID} ]; then
       ;;
   esac
 # .NET 6 is the legacy installation, attempt to install only when explicitly set.
-elif [ -z ${USE_NET6_ARTIFACTS_CREDENTIAL_PROVIDER} ] && [ ${USE_NET6_ARTIFACTS_CREDENTIAL_PROVIDER} != "false" ]; then
+elif [ ! -z ${USE_NET6_ARTIFACTS_CREDENTIAL_PROVIDER} ] && [ ${USE_NET6_ARTIFACTS_CREDENTIAL_PROVIDER} != "false" ]; then
   FILE="Microsoft.Net6.NuGet.CredentialProvider.tar.gz"
 
   # throw if version starts with 0. (net6 not supported)
@@ -86,7 +86,7 @@ elif [ -z ${USE_NET6_ARTIFACTS_CREDENTIAL_PROVIDER} ] && [ ${USE_NET6_ARTIFACTS_
   esac
 # The .NET 8 install is the default installation, attempt to install unless set to false.
 # If .NET 8 variable is set, install the .NET 8 version of the credential provider even if USE_NET6_ARTIFACTS_CREDENTIAL_PROVIDER is true.
-elif [ ! -z ${USE_NET8_ARTIFACTS_CREDENTIAL_PROVIDER} ] || [ ${USE_NET8_ARTIFACTS_CREDENTIAL_PROVIDER} != "false" ]; then
+elif [ -z ${USE_NET8_ARTIFACTS_CREDENTIAL_PROVIDER} ] || [ ${USE_NET8_ARTIFACTS_CREDENTIAL_PROVIDER} != "false" ]; then
   if [ ! -z ${ARTIFACTS_CREDENTIAL_PROVIDER_NON_SC} ] && [ ${ARTIFACTS_CREDENTIAL_PROVIDER_NON_SC} != "false" ]; then
     # Default to the full zip file if ARTIFACTS_CREDENTIAL_PROVIDER_NON_SC is specified.
     FILE="Microsoft.Net8.NuGet.CredentialProvider.tar.gz"
