@@ -88,8 +88,8 @@ jobs:
     parameters:
       repo: self
       scriptEnvVariables: ''
-      expectedCredentialProviderVersion: 'Microsoft.Net6.NuGet.CredentialProvider'
-- job: LinuxInstallNet8
+      expectedCredentialProviderVersion: 'Microsoft.Net8.linux-x64.NuGet.CredentialProvider'
+- job: LinuxInstallNet8Auto
   pool:
     vmImage: ubuntu-latest
   steps:
@@ -99,7 +99,28 @@ jobs:
       scriptEnvVariables: |
         export USE_NET6_ARTIFACTS_CREDENTIAL_PROVIDER=false
         export USE_NET8_ARTIFACTS_CREDENTIAL_PROVIDER=true
-      expectedCredentialProviderVersion: 'Microsoft.Net8.NuGet.CredentialProvider'
+      expectedCredentialProviderVersion: 'Microsoft.Net8.linux-x64.NuGet.CredentialProvider'
+- job: LinuxInstallNet8NonSC
+  pool:
+    vmImage: ubuntu-latest
+  steps:
+  - template: validate-install-script-bash.yml@self
+    parameters:
+      repo: self
+      scriptEnvVariables: |
+        export USE_NET8_ARTIFACTS_CREDENTIAL_PROVIDER=true
+        export ARTIFACTS_CREDENTIAL_PROVIDER_NON_SC=true
+      expectedCredentialProviderVersion: 'Microsoft.Net8.linux-x64.NuGet.CredentialProvider'
+- job: LinuxInstallNet6
+  pool:
+    vmImage: ubuntu-latest
+  steps:
+  - template: validate-install-script-bash.yml@self
+    parameters:
+      repo: self
+      scriptEnvVariables: |
+        export USE_NET6_ARTIFACTS_CREDENTIAL_PROVIDER=true
+      expectedCredentialProviderVersion: 'Microsoft.Net6.NuGet.CredentialProvider'
 - job: LinuxInstallNet8Net6Param
   pool:
     vmImage: ubuntu-latest
@@ -110,7 +131,7 @@ jobs:
       scriptEnvVariables: |
         export USE_NET6_ARTIFACTS_CREDENTIAL_PROVIDER=true
         export USE_NET8_ARTIFACTS_CREDENTIAL_PROVIDER=true
-      expectedCredentialProviderVersion: 'Microsoft.Net8.NuGet.CredentialProvider'
+      expectedCredentialProviderVersion: 'Microsoft.Net8.linux-x64.NuGet.CredentialProvider'
 - job: LinuxInstallNetFx
   pool:
     vmImage: ubuntu-latest
