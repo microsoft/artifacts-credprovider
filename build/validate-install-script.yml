@@ -89,7 +89,7 @@ jobs:
       repo: self
       scriptEnvVariables: ''
       expectedCredentialProviderVersion: 'Microsoft.Net8.linux-x64.NuGet.CredentialProvider'
-- job: LinuxInstallNet8Auto
+- job: LinuxInstallNet8
   pool:
     vmImage: ubuntu-latest
   steps:
