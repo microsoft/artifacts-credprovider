@@ -17,12 +17,12 @@ RELEASE_BASE_URL="https://github.com/microsoft/artifacts-credprovider/releases"
 RELEASE_LATEST_DOWNLOAD_URL="https://github.com/microsoft/artifacts-credprovider/releases/latest/download"
 
 # Process version - if not set, use latest
+VERSION=$(echo "${AZURE_ARTIFACTS_CREDENTIAL_PROVIDER_VERSION}" | sed 's/^v//')
 if [ -z "${AZURE_ARTIFACTS_CREDENTIAL_PROVIDER_VERSION}" ] || [ "${AZURE_ARTIFACTS_CREDENTIAL_PROVIDER_VERSION}" = "latest" ]; then
   DOWNLOAD_URL="${RELEASE_LATEST_DOWNLOAD_URL}"
   INSTALL_URL="${DOWNLOAD_URL}/${INSTALL_SCRIPT}"
   echo "No version specified, using latest release."
 else
-  VERSION=$(echo "${AZURE_ARTIFACTS_CREDENTIAL_PROVIDER_VERSION}" | sed 's/^v//')
   # Validate version format
   if ! [[ "${VERSION}" =~ ^[0-9]+\.[0-9]+\.[0-9]+(-[a-zA-Z0-9]+(\.[a-zA-Z0-9]+)*)?$ ]]; then
     echo "ERROR: Invalid version format. Please use format #.#.# (e.g., 1.4.1)"
@@ -35,11 +35,8 @@ else
     VERSION="1.4.1"
   fi
 
-  # Attach 'v' prefix if not present
-  TAG_VERSION="$VERSION"
-  if [[ "${VERSION}" != v* ]]; then
-    TAG_VERSION="v${AZURE_ARTIFACTS_CREDENTIAL_PROVIDER_VERSION}"
-  fi
+  # Attach 'v' prefix since it was removed during normalization
+  TAG_VERSION="v${VERSION}"
   
   echo "Fetching tagged release: ${TAG_VERSION}"
   DOWNLOAD_URL="${RELEASE_BASE_URL}/download/${TAG_VERSION}"
