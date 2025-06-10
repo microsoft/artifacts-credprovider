@@ -15,7 +15,7 @@ jobs:
   - template: validate-install-script-powershell.yml@self
     parameters:
       repo: self
-      scriptInputs: '-InstallNet6 -InstallNet8=False'
+      scriptInputs: '-InstallNet6 -InstallNet8:$False'
       expectedCredentialProviderVersion: 'Microsoft.Net6.NuGet.CredentialProvider'
 - job: WindowsInstallNet8
   pool:
