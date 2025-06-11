@@ -74,7 +74,7 @@ if [ ! -z ${ARTIFACTS_CREDENTIAL_PROVIDER_RID} ]; then
       ;;
   esac
 # .NET 6 is the legacy installation, attempt to install only when explicitly set.
-elif [ ! -z ${USE_NET6_ARTIFACTS_CREDENTIAL_PROVIDER} ] && [ ${USE_NET6_ARTIFACTS_CREDENTIAL_PROVIDER} != "false" ] && [ ${USE_NET8_ARTIFACTS_CREDENTIAL_PROVIDER} != "true"]; then
+elif [ ! -z ${USE_NET6_ARTIFACTS_CREDENTIAL_PROVIDER} ] && [ ${USE_NET6_ARTIFACTS_CREDENTIAL_PROVIDER} != "false" ] && [ ${USE_NET8_ARTIFACTS_CREDENTIAL_PROVIDER} != "true" ]; then
   FILE="Microsoft.Net6.NuGet.CredentialProvider.tar.gz"
 
   # throw if version starts with 0. (net6 not supported)
@@ -93,9 +93,12 @@ elif [ -z ${USE_NET8_ARTIFACTS_CREDENTIAL_PROVIDER} ] || [ ${USE_NET8_ARTIFACTS_
   else
     # Get the correct runtime identifier for the self-contained version.
     set_runtime_identifier
-    FILE="Microsoft.Net8.${RUNTIME_ID}.NuGet.CredentialProvider.tar.gz"
 
-    # TODO: zip install if needed for non-linux distros
+    if [ ${RUNTIME_ID} == "osx-x64" ] || [ ${RUNTIME_ID} == "osx-arm64" ]; then
+      FILE="Microsoft.Net8.${RUNTIME_ID}.NuGet.CredentialProvider.zip"
+    else
+      FILE="Microsoft.Net8.${RUNTIME_ID}.NuGet.CredentialProvider.tar.gz"
+    fi
   fi
 
   # throw if version starts < 1.3.0. (net8 not supported)

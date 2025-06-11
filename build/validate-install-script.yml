@@ -119,6 +119,7 @@ jobs:
       repo: self
       scriptEnvVariables: |
         export USE_NET6_ARTIFACTS_CREDENTIAL_PROVIDER=true
+        export USE_NET8_ARTIFACTS_CREDENTIAL_PROVIDER=false
       expectedCredentialProviderVersion: 'Microsoft.Net6.NuGet.CredentialProvider'
 - job: LinuxInstallNet8Net6Param
   pool:
