@@ -208,7 +208,6 @@ jobs:
       repo: self
       scriptEnvVariables: ''
       expectedCredentialProviderVersion: 'Microsoft.Net8.osx-x64.NuGet.CredentialProvider'
-      releaseVersion: 'latest'
 - job: macOSInstallNet8osxx64NoParams
   pool:
     vmImage: macOS-latest
