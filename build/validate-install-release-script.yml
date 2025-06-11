@@ -7,7 +7,7 @@ jobs:
     parameters:
       repo: self
       scriptInputs: ''
-      expectedCredentialProviderVersion: 'Microsoft.Net8.NuGet.CredentialProvider'
+      expectedCredentialProviderVersion: 'Microsoft.Net6.NuGet.CredentialProvider' # Temporary, will be updated to Net8 once the 2.x release is available
       releaseVersion: 'latest'
 
 - job: WindowsReleaseInstallNet8

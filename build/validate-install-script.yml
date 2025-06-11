@@ -109,7 +109,7 @@ jobs:
       repo: self
       scriptEnvVariables: |
         export ARTIFACTS_CREDENTIAL_PROVIDER_NON_SC=true
-      expectedCredentialProviderVersion: 'Microsoft.Net8.linux-x64.NuGet.CredentialProvider'
+      expectedCredentialProviderVersion: 'Microsoft.Net8.NuGet.CredentialProvider'
 - job: LinuxInstallNet6
   pool:
     vmImage: ubuntu-latest
@@ -203,7 +203,7 @@ jobs:
   pool:
     vmImage: macOS-latest
   steps:
-  - template: validate-install-release-script-bash.yml@self
+  - template: validate-install-script-bash.yml@self
     parameters:
       repo: self
       scriptEnvVariables: ''
