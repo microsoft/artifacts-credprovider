@@ -4,8 +4,9 @@ resources:
 pool:
   vmImage: windows-latest
 
-trigger:
+pr:
 - master
+- releases/*
 
 variables:
   BuildConfiguration: 'Debug'
@@ -21,7 +22,12 @@ stages:
       parameters:
         nuspecProperties: 'VersionSuffix=CI-$(Build.BuildNumber)'
 
-- stage: Validate
+- stage: ValidateInstall
   dependsOn: [] 
   jobs:
   - template: build/validate-install-script.yml
+
+- stage: ValidateInstallRelease
+  dependsOn: [] 
+  jobs:
+  - template: build/validate-install-release-script.yml

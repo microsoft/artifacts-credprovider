@@ -61,7 +61,7 @@ exit /b 0
 
 :TEST_FRAMEWORKS
 REM %1 = envtype (legacy/new), %2 = broker (true/false)
-for %%I in ("netcoreapp3.1","net461","net481","net6.0","net8.0") DO (
+for %%I in ("net481","net6.0","net8.0") DO (
     del /q "!UserProfile!\AppData\Local\MicrosoftCredentialProvider\*.dat" 2>NUL
     if "%1"=="legacy" del /q "%NUGET_CREDENTIALPROVIDER_MSAL_FILECACHE_LOCATION%" 2>NUL
     if "%1"=="new" del /q "%ARTIFACTS_CREDENTIALPROVIDER_MSAL_FILECACHE_LOCATION%" 2>NUL
