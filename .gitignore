@@ -336,3 +336,6 @@ ASALocalRun/
 # MicroBuild build output
 MicroBuild
 keys
+
+# Ignore nupkg 
+**/nupkg/**/*.*

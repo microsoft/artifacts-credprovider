@@ -3,15 +3,10 @@
   <PropertyGroup>
     <CredentialProviderVersion>1.4.1</CredentialProviderVersion>
     <VersionSuffix></VersionSuffix>
-    <!--PackAsTool is set to true for net8.0 framework-->
     <PackAsTool>false</PackAsTool>
-    <ToolCommandName>nuget-plugin-microsoft-artifacts-credential-provider</ToolCommandName>
-    <PackageOutputPath>./nupkg</PackageOutputPath>
-    <PackageId Condition="'$(PackAsTool)' == 'true'">Microsoft.Artifacts.CredentialProvider.NuGet.Tool</PackageId>
-
-    <TargetFrameworks Condition="'$(PackAsTool)' != 'true'">netcoreapp3.1;net461;net481;net6.0;net8.0</TargetFrameworks>
-    <TargetFrameworks Condition="'$(PackAsTool)' == 'true'">net8.0</TargetFrameworks>
+    <TargetFrameworks>netcoreapp3.1;net461;net481;net6.0;net8.0</TargetFrameworks>
   </PropertyGroup>
+
   <!-- Remove with netcoreapp3.1; required for self-contained build -->
   <PropertyGroup Condition="'$(RuntimeIdentifier)' == 'osx-arm64'">
     <TargetFrameworks>net8.0</TargetFrameworks>
