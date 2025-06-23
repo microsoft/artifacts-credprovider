@@ -3,7 +3,6 @@
   <PropertyGroup>
     <CredentialProviderVersion>1.4.1</CredentialProviderVersion>
     <VersionSuffix></VersionSuffix>
-    <PackAsTool>false</PackAsTool>
     <TargetFrameworks>netcoreapp3.1;net461;net481;net6.0;net8.0</TargetFrameworks>
   </PropertyGroup>
 
