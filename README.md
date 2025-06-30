@@ -1,6 +1,6 @@
 ﻿# Azure Artifacts Credential Provider
 
-The Azure Artifacts Credential Provider automates the acquisition of credentials for your Azure Artifacts feed. It is most commonly used as a component in an environment-specific tool, such as tools and credential providers for `dotnet`, npm, Maven, PyPI, and others. Used directly, it integrates with MSBuild and NuGet(.exe). Windows, Mac, and Linux are all supported.
+The Azure Artifacts Credential Provider automates the acquisition of credentials for your Azure Artifacts feed. It is most commonly used as a component in package manager tools, such as credential providers for `dotnet`, npm, Maven, pip, and others. Used directly, it integrates with MSBuild and NuGet(.exe). Windows, Mac, and Linux are all supported.
 
 Any time you want to restore or install packages from an Azure Artifacts feed, the Credential Provider will automatically acquire and securely store a token on behalf of the NuGet client you're using.
 
@@ -20,11 +20,13 @@ The Azure Artifacts Credential Provider and its related tools are intended for u
 
 ## Prerequisites
 
-If using one of the credential provider tools for an environment other than .NET (npm, Maven, etc.), follow the guidance for that tool. A separate installation of the Azure Artifacts Credential Provider is not required.
+If using one of the credential provider tools for other package management ecosystems (npm, Maven, pip, etc.), follow the guidance for that tool. A separate installation of the Azure Artifacts Credential Provider is not required.
 
 ### For `dotnet` (preferred)
 
-The default installation requires the [.NET SDK](https://www.microsoft.com/net/download) version `8.0.x` or later. If you use Visual Studio, this may already be included. Users of Visual Studio Code may already have it installed via the [C# Dev Kit extensions](https://code.visualstudio.com/docs/languages/dotnet).
+Installation requires the [.NET SDK](https://www.microsoft.com/net/download) version `9.0.200` or later for tool functionality. If you use Visual Studio, this may already be included. Users of Visual Studio Code may already have it installed via the [C# Dev Kit extensions](https://code.visualstudio.com/docs/languages/dotnet).
+
+If you need to use older versions of .NET, use the plugin method described below.
 
 ### For MSBuild on Windows
 
@@ -57,7 +59,7 @@ If you are using nuget.exe, you can use the Azure Artifacts Credential Provider 
 
 `dotnet` needs the `netcore` version to be installed. NuGet and MSBuild need the `netfx` version to be installed.
 
-Once the plugin has been added, follow the instructions specific to your operating system.
+Once the plugin has been added, follow the OS-specific installation instructions below.
 
 ### Installation on Windows
 
@@ -109,7 +111,7 @@ Users requiring .NET 6, such as ARM64 users, can manually download the .NET 6 ve
 
 ## Use
 
-The Azure Artifacts Credential Provider is most commonly used indirectly, either through a related, environment-specific credential provider or by performing a NuGet operation that requires authentication such as `dotnet`, nuget.exe, or MSBuild.
+The Azure Artifacts Credential Provider is most commonly used indirectly, either through a credential provider specific to a package management ecosystem or by performing a NuGet operation that requires authentication such as `dotnet`, nuget.exe, or MSBuild.
 
 ### `dotnet`
 
@@ -121,7 +123,7 @@ If interactive authorization is available, navigate to your project directory an
 dotnet restore --interactive
 ```
 
-Once you've successfully acquired a token, you can run authenticated commands with or without the `--interactive` flag for the lifespan of the token, saved in the [session token cache location](#session-token-cache-locations).
+Once you've successfully acquired a token, you can run authenticated commands without the `--interactive` flag for the lifespan of the token, saved in the [session token cache location](#session-token-cache-locations).
 
 ### nuget.exe
 
@@ -227,7 +229,7 @@ Failing to do so may result in obtaining invalid credentials.
 Usage - CredentialProvider.Microsoft -options
 
 GlobalOption          Description
-Plugin (-P)           Used by nuget.exe to run the credential helper in plugin mode
+Plugin (-P)           Used by nuget to run the credential helper in plugin mode
 Uri (-U)              The package source URI for which credentials will be filled
 NonInteractive (-N)   If present and true, providers will not issue interactive prompts
 IsRetry (-I)          If false / unset, INVALID CREDENTIALS MAY BE RETURNED. The caller is required to validate returned credentials themselves, and if
@@ -303,7 +305,7 @@ Build Provider Access Token
 Build Provider Service Endpoint Json
     ARTIFACTS_CREDENTIALPROVIDER_EXTERNAL_FEED_ENDPOINTS (Preferred)
     VSS_NUGET_EXTERNAL_FEED_ENDPOINTS (Legacy)
-        JSON that contains an array of service endpoints, usernames and
+        Json that contains an array of service endpoints, usernames and
         access tokens to authenticate endpoints in nuget.config.
         Example: {"endpointCredentials": [{"endpoint":"http://example.index.json",
         "username":"optional", "password":"accesstoken"}]}
@@ -350,7 +352,7 @@ MSAL Token File Cache Enabled
 Provide MSAL Cache Location
     ARTIFACTS_CREDENTIALPROVIDER_MSAL_FILECACHE_LOCATION (Preferred)
     NUGET_CREDENTIALPROVIDER_MSAL_FILECACHE_LOCATION (Legacy)
-    Provide the location where the MSAL cache should be read from and written to.
+    Provide the location where the MSAL cache should be read and written to.
 
 ```
 
