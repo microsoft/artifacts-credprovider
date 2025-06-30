@@ -4,8 +4,6 @@ The Azure Artifacts Credential Provider automates the acquisition of credentials
 
 Any time you want to restore or install packages from an Azure Artifacts feed, the Credential Provider will automatically acquire and securely store a token on behalf of the NuGet client you're using.
 
-The Azure Artifacts Credential Provider and its related tools are intended for use in individual developer environments. For authentication in Azure DevOps Pipelines and other automated scenarios, you should use pipeline tasks (e.g. [NuGetAuthenticate](https://docs.microsoft.com/azure/devops/pipelines/tasks/package/nuget-authenticate)) or environment variables as [mentioned below](#unattended-build-agents).
-
 [![Build Status](https://dev.azure.com/mseng/PipelineTools/_apis/build/status/artifacts-credprovider/microsoft.artifacts-credprovider.CI?branchName=master)](https://dev.azure.com/mseng/PipelineTools/_build/latest?definitionId=13881&branchName=master)
 
 -   [Prerequisites](#prerequisites)
@@ -24,9 +22,9 @@ If using one of the credential provider tools for other package management ecosy
 
 ### For `dotnet`
 
-Installation requires the [.NET SDK](https://www.microsoft.com/net/download) version `9.0.200` or later for tool functionality. If you use Visual Studio, this may already be included. Users of Visual Studio Code may already have it installed via the [C# Dev Kit extensions](https://code.visualstudio.com/docs/languages/dotnet).
+`dotnet tool` installation requires the [.NET SDK](https://www.microsoft.com/net/download) version `9.0.200` or later. You can read about `dotnet tool` in its [public documentation](https://learn.microsoft.com/dotnet/core/tools/global-tools). If you use Visual Studio, .NET 9 may already be included. Users of Visual Studio Code may already have it installed via the [C# Dev Kit extensions](https://code.visualstudio.com/docs/languages/dotnet).
 
-If you need to use older versions of .NET, use the plugin method described below.
+If you need to use .NET 8, use the [plugin method described for NuGet](#nugetexe-or-msbuild) below.
 
 ### For MSBuild on Windows
 
