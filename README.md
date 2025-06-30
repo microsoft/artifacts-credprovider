@@ -1,6 +1,10 @@
 ﻿# Azure Artifacts Credential Provider
 
-The Azure Artifacts Credential Provider automates the acquisition of credentials needed to restore NuGet packages as part of your .NET development workflow. It integrates with MSBuild, dotnet, and NuGet(.exe) and works on Windows, Mac, and Linux. Any time you want to use packages from an Azure Artifacts feed, the Credential Provider will automatically acquire and securely store a token on behalf of the NuGet client you're using.
+The Azure Artifacts Credential Provider automates the acquisition of credentials for your Azure Artifacts feed. It is most commonly used as a component in an environment-specific tool, such as tools and credential providers for `dotnet`, npm, Maven, PyPI, and others. Used directly, it integrates with MSBuild and NuGet(.exe). Windows, Mac, and Linux are all supported.
+
+Any time you want to restore or install packages from an Azure Artifacts feed, the Credential Provider will automatically acquire and securely store a token on behalf of the NuGet client you're using.
+
+The Azure Artifacts Credential Provider and its related tools are intended for use in individual developer environments. For authentication in Azure DevOps Pipelines and other automated scenarios, you should use pipeline tasks (e.g. [NuGetAuthenticate](https://docs.microsoft.com/azure/devops/pipelines/tasks/package/nuget-authenticate)) or environment variables as [mentioned below](#unattended-build-agents).
 
 [![Build Status](https://dev.azure.com/mseng/PipelineTools/_apis/build/status/artifacts-credprovider/microsoft.artifacts-credprovider.CI?branchName=master)](https://dev.azure.com/mseng/PipelineTools/_build/latest?definitionId=13881&branchName=master)
 
@@ -9,30 +13,51 @@ The Azure Artifacts Credential Provider automates the acquisition of credentials
 -   [Use](#use)
 -   [Session Token Cache Locations](#session-token-cache-locations)
 -   [Environment Variables](#environment-variables)
--   [Release version 1.0.0](#release-version-1.0.0)
--   [Upcoming version 2.0.0](#release-version-2.0.0)
+-   [Release version 1.0.0](#release-version-100)
+-   [Upcoming version 2.0.0](#release-version-200)
 -   [Help](#help)
 -   [Contribute](#contribute)
 
 ## Prerequisites
 
-### MSBuild on Windows
+If using one of the credential provider tools for an environment other than .NET (npm, Maven, etc.), follow the guidance for that tool. A separate installation of the Azure Artifacts Credential Provider is not required.
+
+### For `dotnet` (preferred)
+
+The default installation requires the [.NET SDK](https://www.microsoft.com/net/download) version `8.0.x` or later. If you use Visual Studio, this may already be included. Users of Visual Studio Code may already have it installed via the [C# Dev Kit extensions](https://code.visualstudio.com/docs/languages/dotnet).
+
+### For MSBuild on Windows
 
 Install [Visual Studio version 15.9-preview1 or later](https://visualstudio.microsoft.com/vs/preview/) to get the required version of MSBuild (`15.8.166.59604` or later). Alternatively, you can download MSBuild directly by downloading the [Build Tools for Visual Studio](https://visualstudio.microsoft.com/downloads/?q=build+tools). MSBuild is also installed as a part of the [.NET Core SDK](https://dotnet.microsoft.com/download).
 
-### NuGet
+### For NuGet
 
-[NuGet(.exe)](https://www.nuget.org/downloads) on the command line version `4.8.0.5385` or later is required. The recommended NuGet version is `5.5.x` or later as it has some important bug fixes related to cancellations and timeouts.
-
-### dotnet
-
-The default installation requires the [dotnet runtime](https://www.microsoft.com/net/download) version `8.0.x` or later.
+[nuget.exe](https://www.nuget.org/downloads) on the command line version `4.8.0.5385` or later is required. The recommended NuGet version is `5.5.x` or later as it has some important bug fixes related to cancellations and timeouts.
 
 ## Setup
 
-If you are using `dotnet` or `nuget`, you can use the Azure Artifact Credential Provider by adding it to [NuGet's plugin search path](https://github.com/NuGet/Home/wiki/NuGet-cross-plat-authentication-plugin#plugin-installation-and-discovery). This section contains both manual and scripted instructions for doing so.
+### `dotnet`
+Use the [tool installer](https://learn.microsoft.com/dotnet/core/tools/dotnet-tool-install) included with `dotnet` to acquire and install the credential provider specific to `dotnet`, regardless of operating system.
 
-Dotnet needs the `netcore` version to be installed. NuGet and MSBuild need the `netfx` version to be installed.
+```shell
+dotnet tool install --global  Microsoft.Artifacts.CredentialProvider.NuGet.Tool
+```
+
+If your project is already configured through a `nuget.config` to use an Azure Artifacts feed exclusively, you may need to run the command from a folder *outside* of your project. Alternatively, you can specify nuget.org as the source:
+
+```shell
+dotnet tool install --global  Microsoft.Artifacts.CredentialProvider.NuGet.Tool --source https://api.nuget.org/v3/index.json
+```
+
+You do not need to do any further installation after using `dotnet tool install`.
+
+### nuget.exe or MSBuild
+
+If you are using nuget.exe, you can use the Azure Artifacts Credential Provider by adding it to [NuGet's plugin search path](https://github.com/NuGet/Home/wiki/NuGet-cross-plat-authentication-plugin#plugin-installation-and-discovery). This section contains both manual and scripted instructions for doing so. If necessary, the plugin method also works for `dotnet`.
+
+`dotnet` needs the `netcore` version to be installed. NuGet and MSBuild need the `netfx` version to be installed.
+
+Once the plugin has been added, follow the instructions specific to your operating system.
 
 ### Installation on Windows
 
@@ -53,7 +78,7 @@ Dotnet needs the `netcore` version to be installed. NuGet and MSBuild need the `
 2. Unzip the file
 3. Copy the `netcore` (and `netfx` for nuget.exe) directory from the extracted archive to `$env:UserProfile\.nuget\plugins` (%UserProfile%/.nuget/plugins/)
 
-Using the above is recommended, but as per [NuGet's plugin discovery rules](https://github.com/NuGet/Home/wiki/NuGet-cross-plat-authentication-plugin#plugin-installation-and-discovery), alternatively you can install the credential provider to a location you prefer, and then set the environment variable NUGET_PLUGIN_PATHS to the .exe of the credential provider found in plugins\netfx\CredentialProvider.Microsoft\CredentialProvider.Microsoft.exe. For example, $env:NUGET_PLUGIN_PATHS="my-alternative-location\CredentialProvider.Microsoft.exe". Note that if you are using both nuget and dotnet, this environment variable is not recommended due to this issue: https://github.com/NuGet/Home/issues/8151
+Using the above is recommended, but as per [NuGet's plugin discovery rules](https://github.com/NuGet/Home/wiki/NuGet-cross-plat-authentication-plugin#plugin-installation-and-discovery), alternatively you can install the credential provider to a location you prefer, and then set the environment variable NUGET_PLUGIN_PATHS to the .exe of the credential provider found in plugins\netfx\CredentialProvider.Microsoft\CredentialProvider.Microsoft.exe. For example, $env:NUGET_PLUGIN_PATHS="my-alternative-location\CredentialProvider.Microsoft.exe". Note that if you are using both nuget.exe and `dotnet`, this environment variable is not recommended due to this issue: https://github.com/NuGet/Home/issues/8151
 
 ### Installation on Linux and Mac
 
@@ -65,13 +90,13 @@ Examples:
 - `wget -qO- https://aka.ms/install-artifacts-credprovider.sh | bash`
 - `sh -c "$(curl -fsSL https://aka.ms/install-artifacts-credprovider.sh)"`
 
-> Note: this script only installs the netcore version of the plugin. If you need to have it working with mono msbuild, you will need to download the version with both netcore and netfx binaries following the steps in [Manual installation on Linux and Mac](#installation-on-linux-and-mac)
+> Note: this script only installs the netcore version of the plugin. If you need to have it working with mono MSBuild, you will need to download the version with both netcore and netfx binaries following the steps in [Manual installation on Linux and Mac](#installation-on-linux-and-mac)
 
 #### Manual installation on Linux and Mac
 
 1. Download the latest release of [Microsoft.NuGet.CredentialProvider.tar.gz](https://github.com/Microsoft/artifacts-credprovider/releases)
 2. Untar the file
-3. Copy the `netcore` (and 'netfx' for msbuild /t:restore command) directory from the extracted archive to `$HOME/.nuget/plugins`
+3. Copy the `netcore` (and `netfx` for `msbuild /t:restore`) directory from the extracted archive to `$HOME/.nuget/plugins`
 
 Using the above is recommended, but as per [NuGet's plugin discovery rules](https://github.com/NuGet/Home/wiki/NuGet-cross-plat-authentication-plugin#plugin-installation-and-discovery), alternatively you can install the credential provider to a location you prefer, and then set the environment variable NUGET_PLUGIN_PATHS to the .dll of the credential provider found in plugins\netcore\CredentialProvider.Microsoft\CredentialProvider.Microsoft.dll. For example, $env:NUGET_PLUGIN_PATHS="my-alternative-location\CredentialProvider.Microsoft.dll".
 
@@ -84,23 +109,23 @@ Users requiring .NET 6, such as ARM64 users, can manually download the .NET 6 ve
 
 ## Use
 
-Because the Credential Provider is a NuGet plugin, it is most commonly used indirectly, by performing a NuGet operation that requires authentication using `dotnet`, `nuget`, or `msbuild`.
+The Azure Artifacts Credential Provider is most commonly used indirectly, either through a related, environment-specific credential provider or by performing a NuGet operation that requires authentication such as `dotnet`, nuget.exe, or MSBuild.
 
-### dotnet
+### `dotnet`
 
-The first time you perform an operation that requires authentication using `dotnet`, you must either use the `--interactive` flag to allow `dotnet` to prompt you for credentials, or provide them via an environment variable.
+The first time you perform an operation that requires authentication using `dotnet`, you should either use the `--interactive` flag to allow `dotnet` to prompt you for credentials, or provide them via [an environment variable](#environment-variables).
 
-If you're running interactively navigate to your project directory and run:
+If interactive authorization is available, navigate to your project directory and run:
 
 ```shell
 dotnet restore --interactive
 ```
 
-Once you've successfully acquired a token, you can run authenticated commands without the `--interactive` flag for the lifespan of the token which is saved in the [session token cache location](#session-token-cache-locations).
+Once you've successfully acquired a token, you can run authenticated commands with or without the `--interactive` flag for the lifespan of the token, saved in the [session token cache location](#session-token-cache-locations).
 
-### nuget
+### nuget.exe
 
-The nuget client will prompt for authentication when you run a `restore` and it does not find credential in the [session token cache location](#session-token-cache-locations). By default, it will attempt to open a dialog for authentication and will fall back to console input if that fails.
+The nuget.exe client will prompt for authentication when you run a `restore` and it does not find credentials in the [session token cache location](#session-token-cache-locations). By default, it will attempt to open a dialog for authentication and will fall back to console input if that fails.
 
 ```shell
 nuget restore
@@ -108,9 +133,9 @@ nuget restore
 
 When using Windows and you are already signed in to Azure DevOps, Windows Integrated Authentication may be used to get automatically authenticated as the signed in user.
 
-### msbuild
+### MSBuild
 
-The first time you perform an operation that requires authentication using `msbuild`, you must use the `/p:nugetInteractive=true` switch to allow `msbuild` to prompt you for credentials. For example, to restore packages, navigate to your project or solution directory and run:
+The first time you perform an operation that requires authentication using MSBuild, you must use the `/p:nugetInteractive=true` switch to allow MSBuild to prompt you for credentials. For example, to restore packages, navigate to your project or solution directory and run:
 
 ```shell
 msbuild /t:restore /p:nugetInteractive=true
@@ -121,10 +146,10 @@ Once you've successfully acquired a token, you can run authenticated commands wi
 ### Unattended build agents
 
 #### Azure DevOps Pipelines
-Use the [NuGet Authenticate](https://docs.microsoft.com/en-us/azure/devops/pipelines/tasks/package/nuget-authenticate?view=azure-devops) task before running NuGet, dotnet or MSBuild commands that need authentication.
+Use the [NuGetAuthenticate](https://docs.microsoft.com/azure/devops/pipelines/tasks/package/nuget-authenticate) task before running NuGet, `dotnet` or MSBuild commands that need authentication.
 
 #### Other automated build scenarios
-If you're running the command as part of an automated build on an unattended build agent outside of Azure DevOps Pipelines, you can supply an access token directly using the `ARTIFACTS_CREDENTIALPROVIDER_EXTERNAL_FEED_ENDPOINTS` [environment variable](#environment-variables). The use of [Personal Access Tokens](https://docs.microsoft.com/en-us/azure/devops/organizations/accounts/use-personal-access-tokens-to-authenticate?view=azure-devops) is recommended. You may need to restart the agent service or the computer before the environment variables are available to the agent.
+If you're running the command as part of an automated build on an unattended build agent outside of Azure DevOps Pipelines, you can supply an access token directly using the `ARTIFACTS_CREDENTIALPROVIDER_EXTERNAL_FEED_ENDPOINTS` [environment variable](#environment-variables). The use of [Personal Access Tokens](https://docs.microsoft.com/en-us/azure/devops/organizations/accounts/use-personal-access-tokens-to-authenticate?view=azure-devops) is recommended for this scenario. You may need to restart the agent service or the computer before the environment variables are available to the agent.
 
 ### Docker containers
 [Managing NuGet credentials in Docker scenarios](https://github.com/dotnet/dotnet-docker/blob/master/documentation/scenarios/nuget-credentials.md#using-the-azure-artifact-credential-provider)
@@ -132,7 +157,7 @@ If you're running the command as part of an automated build on an unattended bui
 ### Azure DevOps Server
 The Azure Artifacts Credential Provider may not be necessary for an on-premises Azure DevOps Server on Windows. If the credential provider is needed, it cannot acquire credentials interactively, therefore, the `ARTIFACTS_CREDENTIALPROVIDER_EXTERNAL_FEED_ENDPOINTS` environment variable must be used as an alternative. Supply a [Personal Access Token](https://docs.microsoft.com/en-us/azure/devops/organizations/accounts/use-personal-access-tokens-to-authenticate?view=azure-devops) directly using the `ARTIFACTS_CREDENTIALPROVIDER_EXTERNAL_FEED_ENDPOINTS` [environment variable](#environment-variables).
 
-From Azure DevOps Server 2020 RC1 forward, the NuGet Authenticate task can be used in Pipelines.
+From Azure DevOps Server 2020 RC1 forward, the [NuGetAuthenticate](https://docs.microsoft.com/azure/devops/pipelines/tasks/package/nuget-authenticate) task can be used in Pipelines.
 
 ## Session Token Cache Locations
 
@@ -159,35 +184,35 @@ The Credential Provider accepts a set of environment variables. Not all of them 
     ```javascript
     {"endpointCredentials": [{"endpoint":"http://example.index.json", "username":"optional", "password":"accesstoken"}]}
     ```
--   `ARTIFACTS_CREDENTIALPROVIDER_FEED_ENDPOINTS` (Preferred): Json that contains an array of endpoints, usernames and azure service principal information needed to authenticate to Azure Artifacts feed endpoints. Example:
+-   `ARTIFACTS_CREDENTIALPROVIDER_FEED_ENDPOINTS` (Preferred): JSON that contains an array of endpoints, usernames and azure service principal information needed to authenticate to Azure Artifacts feed endpoints. Example:
     ```javascript
     {"endpointCredentials": [{"endpoint":"http://example.index.json", "clientId":"required", "clientCertificateSubjectName":"optional", "clientCertificateFilePath":"optional"}]}
     ```
-    - `endpoint`: Required. Feed url to authenticate.
-    - `clientId`: Required for both Azure Managed Identites and Service Principals. For user assigned managed identities enter the Entra client id. For system assigned managed identities set the value to `system`.
+    - `endpoint`: Required. Feed URL to authenticate.
+    - `clientId`: Required for both Azure Managed Identities and Service Principals. For user assigned managed identities enter the Entra client id. For system assigned managed identities set the value to `system`.
     - `clientCertificateSubjectName`: Subject Name of the certificate located in the CurrentUser or LocalMachine certificate store. Optional field. Only used for service principal authentication.
-    - `clientCertificateFilePath`: File path location of the certificate on the machine. Optional field. Only used by service principal authentication. 
+    - `clientCertificateFilePath`: File path location of the certificate on the machine. Optional field. Only used for service principal authentication. 
 
 ## Release version 1.0.0
 
-Release version [1.0.0](https://github.com/microsoft/artifacts-credprovider/releases/tag/v1.0.0) was released in March 2022. Netcore version 1.0.0 of the Artifacts Credential Provider requires .NET Core 3.1. Older versions than 1.0.0 required .NET Core 2.1. `Microsoft.NetCore2.NuGet.CredentialProvider` asset is no longer available. Use  `Microsoft.NetCore3.NuGet.CredentialProvider.zip` instead.
+Release version [1.0.0](https://github.com/microsoft/artifacts-credprovider/releases/tag/v1.0.0) was released in March 2022. Version 1.0.0 of the Artifacts Credential Provider requires .NET Core 3.1. Older versions than 1.0.0 required .NET Core 2.1. `Microsoft.NetCore2.NuGet.CredentialProvider` asset is no longer available. Use `Microsoft.NetCore3.NuGet.CredentialProvider.zip` instead.
 
 [1.0.0 release](https://github.com/microsoft/artifacts-credprovider/releases/tag/v1.0.0) also publishes the credential provider for .NET 6 users as `Microsoft.Net6.NuGet.CredentialProvider`.
 
 ## Release version 2.0.0
 
-Release version 2.0.0 will be the next major version of artifacts-credprovider and will contain changes which end support for various .NET versions which have reached their end of support. It is planned for release in Q1 2025 to allow users to migrate their usage of the tool to the new .NET versions.
+Release version 2.0.0 will be the next major version of artifacts-credprovider and will contain changes which end support for various .NET versions which have reached their end of support. It is planned for release in Q1 FY 2026 to allow users to migrate their usage of the tool to the new .NET versions.
 
 - .NET Framework 4.6.1 (End of Support April 26, 2022) - Replaced with .NET Framework 4.8.1
 - .NET Core 3.1 (End of Support December 13, 2022) - Replaced with .NET 6/8
 
-.NET 6 will reach its end of support on November 12, 2024. After v2.0.0 is released, a minor version of artifacts-credprovider will be published to deprecate .NET 6 compatible binaries.
+.NET 6 reached its end of support on November 12, 2024. After v2.0.0 is released, a minor version of artifacts-credprovider will be published to deprecate .NET 6 compatible binaries.
 
 - .NET 6 (End of Support November 12, 2024) - Replaced with .NET 8
 
 ## Help
 
-The windows plugin, delivered in the `netfx` folder of `Microsoft.NuGet.CredentialProvider.zip`, ships a stand-alone executable that will acquire credentials. This program will place the credentials in the same location that the .dll would if it were called by nuget.exe, dotnet.exe, or msbuild.exe. The stand-alone executable will also print the available command options, environment variables, and credential storage locations. This information is reproduced here:
+The Windows plugin, delivered in the `netfx` folder of `Microsoft.NuGet.CredentialProvider.zip`, ships a stand-alone executable that will acquire credentials. This program will place the credentials in the same location that the .dll would if it were called by nuget.exe, dotnet.exe, or msbuild.exe. The stand-alone executable will also print the available command options, environment variables, and credential storage locations. This information is reproduced here:
 
 ```
 C:\> .\CredentialProvider.Microsoft.exe -h
@@ -202,7 +227,7 @@ Failing to do so may result in obtaining invalid credentials.
 Usage - CredentialProvider.Microsoft -options
 
 GlobalOption          Description
-Plugin (-P)           Used by nuget to run the credential helper in plugin mode
+Plugin (-P)           Used by nuget.exe to run the credential helper in plugin mode
 Uri (-U)              The package source URI for which credentials will be filled
 NonInteractive (-N)   If present and true, providers will not issue interactive prompts
 IsRetry (-I)          If false / unset, INVALID CREDENTIALS MAY BE RETURNED. The caller is required to validate returned credentials themselves, and if
@@ -278,7 +303,7 @@ Build Provider Access Token
 Build Provider Service Endpoint Json
     ARTIFACTS_CREDENTIALPROVIDER_EXTERNAL_FEED_ENDPOINTS (Preferred)
     VSS_NUGET_EXTERNAL_FEED_ENDPOINTS (Legacy)
-        Json that contains an array of service endpoints, usernames and
+        JSON that contains an array of service endpoints, usernames and
         access tokens to authenticate endpoints in nuget.config.
         Example: {"endpointCredentials": [{"endpoint":"http://example.index.json",
         "username":"optional", "password":"accesstoken"}]}
@@ -325,26 +350,26 @@ MSAL Token File Cache Enabled
 Provide MSAL Cache Location
     ARTIFACTS_CREDENTIALPROVIDER_MSAL_FILECACHE_LOCATION (Preferred)
     NUGET_CREDENTIALPROVIDER_MSAL_FILECACHE_LOCATION (Legacy)
-    Provide the location where the MSAL cache should be read and written to.
+    Provide the location where the MSAL cache should be read from and written to.
 
 ```
 
 ### Troubleshooting
-#### How do I know the cred provider is installed correctly? / I'm still getting username/password prompt after installing
-This means that either nuget/dotnet was unable to find the cred provider from [NuGet's plugin search path](https://github.com/microsoft/artifacts-credprovider#setup), or the cred provider failed to authenticate so the client defaulted to the username/password prompt. Verify the cred provider is correctly installed by checking it exists in the nuget/plugins folder in your user profile (Refer to the [setup docs](https://github.com/microsoft/artifacts-credprovider#setup)). If using nuget.exe and used the [install script](https://github.com/microsoft/artifacts-credprovider#automatic-powershell-script) to install the cred provider, please make sure you ran it with -AddNetfx.
+#### How do I know the credential provider is installed correctly? / I'm still getting username/password prompt after installing
+This means that either nuget.exe was unable to find the credential provider from [NuGet's plugin search path](https://github.com/microsoft/artifacts-credprovider#setup), or the credential provider failed to authenticate so the client defaulted to the username/password prompt. Verify the credential provider is correctly installed by checking it exists in the `nuget/plugins` folder in your user profile (Refer to the [setup docs](https://github.com/microsoft/artifacts-credprovider#setup)). If using nuget.exe and used the [install script](https://github.com/microsoft/artifacts-credprovider#automatic-powershell-script) to install the credential provider, please make sure you ran it with `-AddNetfx`.
 
-#### How do I get better error logs from the cred provider?
-Run the nuget.exe/dotnet command with detailed verbosity to see more cred provider logs that may help debugging (`nuget.exe -verbosity detailed`, `dotnet --verbosity detailed`).
+#### How do I get better error logs from the credential provider?
+Run the nuget.exe/`dotnet` command with detailed verbosity to see more credential provider logs that may help debugging (`nuget.exe -verbosity detailed`, `dotnet --verbosity detailed`).
 
 #### How do I find out if my issue is a real 401?
 Run the credential provider directly with the following command: `C:\Users\<user>\.nuget\plugins\netfx\CredentialProvider.Microsoft\CredentialProvider.Microsoft.exe  -I -V Verbose -U "https://pkgs.dev.azure.com/{organization}/{project-if-feed-is-project-scoped}/_packaging/{feed}/nuget/v3/index.json"`. Check you have the right permissions from the [feed permissions](https://docs.microsoft.com/en-us/azure/devops/artifacts/feeds/feed-permissions?view=azure-devops).
 
 In an Azure DevOps Pipeline, verify you have set the right permissions for the pipeline by following the [docs](https://docs.microsoft.com/en-us/azure/devops/artifacts/feeds/feed-permissions?view=azure-devops#package-permissions-in-azure-pipelines).
 
-#### Cred provider used to work but now it asks me to update the .NET version.
+#### The credential provider used to work but now it asks me to update the .NET version.
 The .NET version installed is [out of support](https://dotnet.microsoft.com/platform/support/policy/dotnet-core#lifecycle), you should update to .NET 8.0 or greater to keep using the latest versions of the credential provider.
 
-> .NET Core 3.1 and .NET Framework 4.6.1 compatability will also be removed from major version 2.0.0. See the announcement [here](https://github.com/microsoft/artifacts-credprovider/discussions/386).
+> .NET Core 3.1 and .NET Framework 4.6.1 compatibility will also be removed from major version 2.0.0. See the announcement [here](https://github.com/microsoft/artifacts-credprovider/discussions/386).
 
 To keep using .NET versions which are past their end of support date, see the table below for the maximum Artifacts Credential Provider version.
 
