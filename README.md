@@ -22,7 +22,7 @@ The Azure Artifacts Credential Provider and its related tools are intended for u
 
 If using one of the credential provider tools for other package management ecosystems (npm, Maven, pip, etc.), follow the guidance for that tool. A separate installation of the Azure Artifacts Credential Provider is not required.
 
-### For `dotnet` (preferred)
+### For `dotnet`
 
 Installation requires the [.NET SDK](https://www.microsoft.com/net/download) version `9.0.200` or later for tool functionality. If you use Visual Studio, this may already be included. Users of Visual Studio Code may already have it installed via the [C# Dev Kit extensions](https://code.visualstudio.com/docs/languages/dotnet).
 
