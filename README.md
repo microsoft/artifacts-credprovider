@@ -18,7 +18,7 @@ Any time you want to restore or install packages from an Azure Artifacts feed, 
 
 ## Prerequisites
 
-If using one of the credential provider tools for other package management ecosystems (npm, Maven, pip, etc.), follow the guidance for that tool. A separate installation of the Azure Artifacts Credential Provider is not required.
+If using one of the credential provider tools for other package management ecosystems (Maven, pip, etc.), follow the guidance for that tool. A separate installation of the Azure Artifacts Credential Provider may not required.
 
 ### For `dotnet`
 
