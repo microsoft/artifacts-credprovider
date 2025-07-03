@@ -42,20 +42,20 @@ steps:
     configuration: '$(BuildConfiguration)'
     msbuildArguments: '/t:rebuild /p:TreatWarningsAsErrors=true /p:${{ parameters.nuspecProperties }}'
 
-- ${{ if eq(parameters.sign, 'true') }}:
-  - task: MSBuild@1
-    displayName: Build swixproj
-    inputs:
-      solution: 'CredentialProvider.Microsoft.VSIX/Microsoft.CredentialProvider.swixproj'
-      configuration: '$(BuildConfiguration)'
-      msbuildArguments: '/p:OutputPath=$(Build.ArtifactStagingDirectory)\$(BuildConfiguration)\vsix\ /p:TreatWarningsAsErrors=true'
-
-  - task: MSBuild@1
-    displayName: Build vsmanproj
-    inputs:
-      solution: 'CredentialProvider.Microsoft.VSIX/Microsoft.CredentialProvider.vsmanproj'
-      configuration: '$(BuildConfiguration)'
-      msbuildArguments: '/p:OutputPath=$(Build.ArtifactStagingDirectory)\$(BuildConfiguration)\vsix\ /p:TreatWarningsAsErrors=true'
+# - ${{ if eq(parameters.sign, 'true') }}:
+#   - task: MSBuild@1
+#     displayName: Build swixproj
+#     inputs:
+#       solution: 'CredentialProvider.Microsoft.VSIX/Microsoft.CredentialProvider.swixproj'
+#       configuration: '$(BuildConfiguration)'
+#       msbuildArguments: '/p:OutputPath=$(Build.ArtifactStagingDirectory)\$(BuildConfiguration)\vsix\ /p:TreatWarningsAsErrors=true'
+#
+#   - task: MSBuild@1
+#     displayName: Build vsmanproj
+#     inputs:
+#       solution: 'CredentialProvider.Microsoft.VSIX/Microsoft.CredentialProvider.vsmanproj'
+#       configuration: '$(BuildConfiguration)'
+#       msbuildArguments: '/p:OutputPath=$(Build.ArtifactStagingDirectory)\$(BuildConfiguration)\vsix\ /p:TreatWarningsAsErrors=true'
 
 - ${{ if ne(parameters.sign, 'true') }}:
   - script: dotnet test MicrosoftCredentialProvider.sln --logger trx --results-directory $(Agent.TempDirectory)
