@@ -25,7 +25,7 @@ if [ ! -z ${ARTIFACTS_CREDENTIAL_PROVIDER_RID} ]; then
     ;;
   esac
 
-  if [ -z ${USE_NET6_ARTIFACTS_CREDENTIAL_PROVIDER} ]; then
+  if [ ! -z ${USE_NET6_ARTIFACTS_CREDENTIAL_PROVIDER} ]; then
     echo "WARNING: The USE_NET6_ARTIFACTS_CREDENTIAL_PROVIDER variable is set, but ARTIFACTS_CREDENTIAL_PROVIDER_RID variable is defined. The NET8 version of the credential provider will be installed."
   fi
   
