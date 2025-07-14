@@ -100,3 +100,4 @@ if ! curl -H "Accept: application/octet-stream" \
 fi
 
 echo "INFO: credential provider netcore plugin extracted to $HOME/.nuget/"
+
