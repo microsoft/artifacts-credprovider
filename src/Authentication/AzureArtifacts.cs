@@ -14,7 +14,7 @@ public static class AzureArtifacts
     /// <summary>
     /// Azure Artifacts application ID.
     /// </summary>
-    public const string ClientId = "d5a56ea4-7369-46b8-a538-c370805301bf";
+    public const string ClientId = "308558c0-3d2d-47ed-af3a-9db48685e512"; //"d5a56ea4-7369-46b8-a538-c370805301bf";
 
     /// <summary>
     /// Visual Studio application ID.
@@ -36,16 +36,16 @@ public static class AzureArtifacts
     public static PublicClientApplicationBuilder WithBroker(this PublicClientApplicationBuilder builder, bool enableBroker, IntPtr? parentWindowHandle, ILogger logger)
     {
         // Eventually will be rolled into CreateDefaultBuilder as using the brokers is desirable
-        if (!enableBroker || !RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+        if (!enableBroker && (RuntimeInformation.IsOSPlatform(OSPlatform.Windows) || RuntimeInformation.IsOSPlatform(OSPlatform.OSX) || RuntimeInformation.IsOSPlatform(OSPlatform.Linux)))
         {
             return builder;
         }
 
-        logger.LogTrace(Resources.MsalUsingWamBroker);
+        logger.LogTrace("Using broker");
 
         return builder
             .WithBroker(
-                new BrokerOptions(BrokerOptions.OperatingSystems.Windows)
+                new BrokerOptions(BrokerOptions.OperatingSystems.Windows | BrokerOptions.OperatingSystems.OSX | BrokerOptions.OperatingSystems.Linux)
                 {
                     Title = "Azure DevOps Artifacts",
                     ListOperatingSystemAccounts = true,
@@ -93,8 +93,26 @@ public static class AzureArtifacts
     [DllImport("kernel32.dll")]
     static extern IntPtr GetConsoleWindow();
 
+    [DllImport("libX11")]
+    public static extern IntPtr XOpenDisplay(IntPtr display);
+
+    [DllImport("libX11")]
+    public static extern IntPtr XDefaultRootWindow(IntPtr display);
+
+
     private static IntPtr GetConsoleOrTerminalWindow()
     {
+        if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
+        {
+            IntPtr display = XOpenDisplay(IntPtr.Zero);
+            if (display == IntPtr.Zero)
+            {
+                return IntPtr.Zero;
+            }
+
+            return XDefaultRootWindow(display);
+        }
+
         IntPtr consoleHandle = GetConsoleWindow();
         IntPtr handle = GetAncestor(consoleHandle, GetAncestorFlags.GetRootOwner);
 
