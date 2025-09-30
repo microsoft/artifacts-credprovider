@@ -57,7 +57,7 @@ namespace NuGetCredentialProvider
         public bool IsRetry { get; set; }
 
         [EnvironmentDefaultHook(EnvUtil.VerbosityDefaultEnvVar, LogLevel.Information)]
-        [ArgDescription("Display this amount of detail in the output")]
+        [ArgDescription("Display this amount of detail in the output [Default='Information']")]
         public LogLevel Verbosity { get; set; }
 
         [ArgDescription("Prevents writing the password to standard output (for troubleshooting purposes)")]

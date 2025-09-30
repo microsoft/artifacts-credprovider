@@ -98,7 +98,8 @@ namespace NuGetCredentialProvider
                             EnvUtil.ForceCanShowDialogEnvVar,
                             EnvUtil.MsalAuthorityEnvVar,
                             EnvUtil.MsalFileCacheEnvVar,
-                            EnvUtil.MsalFileCacheLocationEnvVar
+                            EnvUtil.MsalFileCacheLocationEnvVar,
+                            EnvUtil.VerbosityDefaultEnvVar
                         ));
                     return 0;
                 }

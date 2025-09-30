@@ -356,7 +356,12 @@ MSAL Token File Cache Enabled
 
 Provide MSAL Cache Location
     {16}
-    Provide the location where the MSAL cache should be read and written to.</value>
+        Provide the location where the MSAL cache should be read and written to.
+
+Provide a default value for verbosity
+    {17}
+        Provides a value to be used when Verbosity (-V) option is not present.
+        Valid choices are: Debug, Verbose, Information, Minimal, Warning, Error</value>
   </data>
   <data name="CredentialParseFailure" xml:space="preserve">
     <value>Failed to parse credentials</value>
