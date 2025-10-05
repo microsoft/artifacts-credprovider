@@ -8,6 +8,18 @@
 # variable to match the TAG NAME of a supported release, e.g. "v1.0.1".
 # Releases: https://github.com/microsoft/artifacts-credprovider/releases
 
+# SKIP_CERTIFICATE_CHECK: Set to "true" to skip SSL certificate validation (default: false)
+# WARNING: This should ONLY be used in development and build environments where certificate
+# validation fails due to:
+#   - Corporate proxies that intercept SSL traffic
+#   - Docker containers with incomplete certificate chains
+#   - Build agents behind firewalls
+# This is SAFE for build purposes when fetching packages from password-protected private NuGet feeds,
+# as the feed authentication itself provides security. However, this is NOT RECOMMENDED for production
+# runtime environments.
+# Usage: SKIP_CERTIFICATE_CHECK=true ./installcredprovider.sh
+SKIP_CERTIFICATE_CHECK="${SKIP_CERTIFICATE_CHECK:-false}"
+
 REPO="Microsoft/artifacts-credprovider"
 NUGET_PLUGIN_DIR="$HOME/.nuget/plugins"
 
@@ -28,9 +40,9 @@ if [ ! -z ${ARTIFACTS_CREDENTIAL_PROVIDER_RID} ]; then
   if [ -z ${USE_NET6_ARTIFACTS_CREDENTIAL_PROVIDER} ]; then
     echo "WARNING: The USE_NET6_ARTIFACTS_CREDENTIAL_PROVIDER variable is set, but ARTIFACTS_CREDENTIAL_PROVIDER_RID variable is defined. The NET8 version of the credential provider will be installed."
   fi
-  
+
   # throw if version starts < 1.4.0. (self-contained not supported)
-  case ${AZURE_ARTIFACTS_CREDENTIAL_PROVIDER_VERSION} in 
+  case ${AZURE_ARTIFACTS_CREDENTIAL_PROVIDER_VERSION} in
     0.*|v0.*|1.0.*|v1.0.*|1.1.*|v1.1.*|1.2.*|v1.2.*|1.3.*|v1.3.*)
       echo "ERROR: To install NET8 cred provider using the ARTIFACTS_CREDENTIAL_PROVIDER_RID variable, version to be installed must be 1.4.0 or greater. Check your AZURE_ARTIFACTS_CREDENTIAL_PROVIDER_VERSION variable."
       exit 1
@@ -46,7 +58,7 @@ elif [ ! -z ${USE_NET8_ARTIFACTS_CREDENTIAL_PROVIDER} ] && [ ${USE_NET8_ARTIFACT
   fi
 
   # throw if version starts < 1.3.0. (net8 not supported)
-  case ${AZURE_ARTIFACTS_CREDENTIAL_PROVIDER_VERSION} in 
+  case ${AZURE_ARTIFACTS_CREDENTIAL_PROVIDER_VERSION} in
     0.*|v0.*|1.0.*|v1.0.*|1.1.*|v1.1.*|1.2.*|v1.2.*)
       echo "ERROR: To install NET8 cred provider using the USE_NET8_ARTIFACTS_CREDENTIAL_PROVIDER variable, version to be installed must be 1.3.0 or greater. Check your AZURE_ARTIFACTS_CREDENTIAL_PROVIDER_VERSION variable."
       exit 1
@@ -57,7 +69,7 @@ elif [ -z ${USE_NET6_ARTIFACTS_CREDENTIAL_PROVIDER} ] || [ ${USE_NET6_ARTIFACTS_
   FILE="Microsoft.Net6.NuGet.CredentialProvider.tar.gz"
 
   # throw if version starts with 0. (net6 not supported)
-  case ${AZURE_ARTIFACTS_CREDENTIAL_PROVIDER_VERSION} in 
+  case ${AZURE_ARTIFACTS_CREDENTIAL_PROVIDER_VERSION} in
     0.*|v0.*)
       echo "ERROR: To install NET6 cred provider using the USE_NET6_ARTIFACTS_CREDENTIAL_PROVIDER variable, version to be installed must be 1.0.0 or greater. Check your AZURE_ARTIFACTS_CREDENTIAL_PROVIDER_VERSION variable."
       exit 1
@@ -90,13 +102,16 @@ fi
 echo "Downloading from $URI"
 # Extract netcore from the .tar.gz into the plugin directory
 
+# Build curl command with optional certificate check skip
+CURL_OPTS=(-H "Accept: application/octet-stream" -s -S -L)
+if $SKIP_CERTIFICATE_CHECK; then
+  echo "WARNING: Certificate validation is disabled. This should only be used in development/build environments."
+  CURL_OPTS+=(-k)
+fi
+
 #Fetch the file
-if ! curl -H "Accept: application/octet-stream" \
-     -s \
-     -S \
-     -L \
-     "$URI" | tar xz -C "$HOME/.nuget/" "plugins/netcore"; then
-        exit 1
+if ! curl "${CURL_OPTS[@]}" "$URI" | tar xz -C "$HOME/.nuget/" "plugins/netcore"; then
+  exit 1
 fi
 
 echo "INFO: credential provider netcore plugin extracted to $HOME/.nuget/"
