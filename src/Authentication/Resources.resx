@@ -159,4 +159,7 @@
   <data name="MsalInteractivePrompt" xml:space="preserve">
     <value>Use the opened dialog or browser window to log in. It may be behind other windows.</value>
   </data>
+  <data name="MsalWindowsIntegratedAuthObsoleteWarning" xml:space="preserve">
+    <value>Warning: Windows Integrated Auth is obsolete. For scenarios requiring SSO with the Windows OS's default account, please transition to using WAM.</value>
+  </data>
 </root>
