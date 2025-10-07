@@ -26,6 +26,7 @@ namespace NuGetCredentialProvider.Util
         public const string PpeHostsEnvVar = "NUGET_CREDENTIALPROVIDER_VSTS_PPEHOSTS";
         public const string SessionTimeEnvVar = "NUGET_CREDENTIALPROVIDER_VSTS_SESSIONTIMEMINUTES";
         public const string TokenTypeEnvVar = "NUGET_CREDENTIALPROVIDER_VSTS_TOKENTYPE";
+        public const string UseEntraTokenEnvVar = "ARTIFACTS_CREDENTIALPROVIDER_USE_ENTRA_TOKEN";
 
         public const string BuildTaskUriPrefixes = "VSS_NUGET_URI_PREFIXES";
         public const string BuildTaskAccessToken = "VSS_NUGET_ACCESSTOKEN";
@@ -200,6 +201,11 @@ namespace NuGetCredentialProvider.Util
         {
             Environment.SetEnvironmentVariable(ProgramContext, context.ToString());
             return;
+        }
+
+        public static bool UseEntraTokenDirectly()
+        {
+            return GetEnabledFromEnvironment(UseEntraTokenEnvVar, defaultValue: false);
         }
 
         private static bool GetEnabledFromEnvironment(string envVar, bool defaultValue = true)

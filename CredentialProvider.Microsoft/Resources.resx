@@ -397,6 +397,9 @@ Provide MSAL Cache Location
   <data name="ExchangingBearerTokenForSessionToken" xml:space="preserve">
     <value>Attempting to exchange the bearer token for an Azure DevOps session token.</value>
   </data>
+  <data name="UsingEntraTokenDirectly" xml:space="preserve">
+    <value>Using Entra token directly for {0} (bypassing session token exchange and caching)</value>
+  </data>
   <data name="NotRunningBearerTokenProvider" xml:space="preserve">
     <value>Not running bearer token provider '{0}'</value>
   </data>

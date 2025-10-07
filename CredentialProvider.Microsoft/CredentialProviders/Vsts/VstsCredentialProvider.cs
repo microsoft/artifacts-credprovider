@@ -37,6 +37,8 @@ namespace NuGetCredentialProvider.CredentialProviders.Vsts
 
         protected override string LoggingName => nameof(VstsCredentialProvider);
 
+        public override bool IsCachable => !EnvUtil.UseEntraTokenDirectly();
+
         public override async Task<bool> CanProvideCredentialsAsync(Uri uri)
         {
             // If for any reason we reach this point and any of the three build task env vars are set,
@@ -155,6 +157,19 @@ namespace NuGetCredentialProvider.CredentialProviders.Vsts
                 }
 
                 Info(string.Format(Resources.AcquireBearerTokenSuccess, tokenProvider.Name));
+
+                // Check if we should return Entra token directly without caching
+                if (EnvUtil.UseEntraTokenDirectly())
+                {
+                    Verbose(string.Format(Resources.UsingEntraTokenDirectly, request.Uri.AbsoluteUri));
+                    return new GetAuthenticationCredentialsResponse(
+                        Username,
+                        bearerToken,
+                        message: null,
+                        authenticationTypes: new List<string>() { "Basic" },
+                        responseCode: MessageResponseCode.Success);
+                }
+
                 Info(Resources.ExchangingBearerTokenForSessionToken);
                 try
                 {
