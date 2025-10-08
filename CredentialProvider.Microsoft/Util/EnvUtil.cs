@@ -35,6 +35,7 @@ namespace NuGetCredentialProvider.Util
         public const string MsalFileCacheEnvVar = "NUGET_CREDENTIALPROVIDER_MSAL_FILECACHE_ENABLED";
         public const string MsalFileCacheLocationEnvVar = "NUGET_CREDENTIALPROVIDER_MSAL_FILECACHE_LOCATION";
         public const string MsalAllowBrokerEnvVar = "NUGET_CREDENTIALPROVIDER_MSAL_ALLOW_BROKER";
+        public const string MsalBrokerWindowEnvVar = "ARTIFACTS_CREDENTIALPROVIDER_MSAL_BROKER_WINDOW";
 
         public const string EndpointCredentials = "ARTIFACTS_CREDENTIALPROVIDER_FEED_ENDPOINTS";
         public const string BuildTaskExternalEndpoints = "VSS_NUGET_EXTERNAL_FEED_ENDPOINTS";
@@ -100,6 +101,22 @@ namespace NuGetCredentialProvider.Util
         public static bool MsalAllowBrokerEnabled()
         {
             return GetEnabledFromEnvironment(MsalAllowBrokerEnvVar, defaultValue: RuntimeInformation.IsOSPlatform(OSPlatform.Windows));
+        }
+
+        public static IntPtr? GetMsalBrokerWindowHandle()
+        {
+            var handleRaw = Environment.GetEnvironmentVariable(MsalBrokerWindowEnvVar);
+            if (handleRaw == null)
+            {
+                return null;
+            }
+
+            if (!long.TryParse(handleRaw, out var numericHandle))
+            {
+                return null;
+            }
+
+            return new IntPtr(numericHandle);
         }
 
         public static IList<string> GetHostsFromEnvironment(ILogger logger, string envVar, IEnumerable<string> defaultHosts, [CallerMemberName] string collectionName = null)
