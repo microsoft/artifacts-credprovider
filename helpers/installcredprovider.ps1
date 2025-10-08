@@ -207,7 +207,11 @@ function InstallZip {
         $client.DownloadFile($packageSourceUrl, $pluginZip)
     }
     catch {
-        Write-Error "Unable to download $packageSourceUrl to the location $pluginZip"
+        $errorMessage = "Unable to download $packageSourceUrl to the location $pluginZip. `n$_"
+        if ($_.Exception.InnerException) {
+            $errorMessage += "`nInner Exception: $($_.Exception.InnerException.Message)"
+        }
+        Write-Error $errorMessage
     }
 
     # Extract zip to temp directory
