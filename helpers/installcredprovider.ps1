@@ -180,7 +180,11 @@ function Install-CredProvider {
         $client.DownloadFile($packageSourceUrl, $pluginZip)
     }
     catch {
-        Write-Error "Unable to download $packageSourceUrl to the location $pluginZip"
+        $errorMessage = "Unable to download $packageSourceUrl to the location $pluginZip. `n$_"
+        if ($_.Exception.InnerException) {
+            $errorMessage += "`nInner Exception: $($_.Exception.InnerException.Message)"
+        }
+        Write-Error $errorMessage
     }
 
     # Extract zip to temp directory
@@ -272,6 +276,7 @@ if ($AddNetfx -eq $True) {
     $archiveFile = "Microsoft.NetFx48.NuGet.CredentialProvider.zip"
 }
 
+# Call Install-CredProvider function
 Install-CredProvider
 
 # Remove existing content and copy netfx directories to plugins directory
