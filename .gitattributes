@@ -27,6 +27,7 @@
 # Likewise, force cmd and batch scripts to always use crlf
 *.cmd text eol=crlf
 *.bat text eol=crlf
+*.ps1 text eol=crlf
 
 *.cs text diff=csharp
 *.vb text

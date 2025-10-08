@@ -16,5 +16,5 @@ indent_size = 4
 [*.sh]
 end_of_line = lf
 
-[*.{cmd,bat}]
+[*.{cmd,bat,ps1}]
 end_of_line = crlf
