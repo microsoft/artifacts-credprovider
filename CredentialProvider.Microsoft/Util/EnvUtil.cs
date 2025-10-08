@@ -54,6 +54,7 @@ namespace NuGetCredentialProvider.Util
         public const string BuildTaskExternalEndpoints = "ARTIFACTS_CREDENTIALPROVIDER_EXTERNAL_FEED_ENDPOINTS";
         public const string LegacyBuildTaskExternalEndpoints = "VSS_NUGET_EXTERNAL_FEED_ENDPOINTS";
         public const string ProgramContext = "ARTIFACTS_CREDENTIALPROVIDER_PROGRAM_CONTEXT";
+        public const string MsalBrokerWindowEnvVar = "ARTIFACTS_CREDENTIALPROVIDER_MSAL_BROKER_WINDOW";
 
         // Map of new environment variables to their legacy equivalents
         private static readonly Dictionary<string, string> EnvVarLegacyMap = new Dictionary<string, string>
@@ -149,6 +150,22 @@ namespace NuGetCredentialProvider.Util
         public static bool MsalAllowBrokerEnabled()
         {
             return GetEnabledFromEnvironment(MsalAllowBrokerEnvVar, RuntimeInformation.IsOSPlatform(OSPlatform.Windows));
+        }
+
+        public static IntPtr? GetMsalBrokerWindowHandle()
+        {
+            var handleRaw = Environment.GetEnvironmentVariable(MsalBrokerWindowEnvVar);
+            if (handleRaw == null)
+            {
+                return null;
+            }
+
+            if (!long.TryParse(handleRaw, out var numericHandle))
+            {
+                return null;
+            }
+
+            return new IntPtr(numericHandle);
         }
 
         public static IList<string> GetHostsFromEnvironment(ILogger logger, string envVar, IEnumerable<string> defaultHosts, [CallerMemberName] string collectionName = null)
