@@ -64,7 +64,7 @@ public static class AzureArtifacts
         })));
     }
 
-#region https://github.com/AzureAD/microsoft-authentication-library-for-dotnet/issues/3590
+    #region https://github.com/AzureAD/microsoft-authentication-library-for-dotnet/issues/3590
     enum GetAncestorFlags
     {
         GetParent = 1,
@@ -95,5 +95,5 @@ public static class AzureArtifacts
 
         return handle;
     }
-#endregion
+    #endregion
 }

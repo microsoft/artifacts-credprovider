@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Text.Json;
 using System.Text.Json.Serialization;
@@ -6,6 +6,7 @@ using Newtonsoft.Json;
 using ILogger = NuGetCredentialProvider.Logging.ILogger;
 
 namespace NuGetCredentialProvider.Util;
+
 public class ExternalEndpointCredentials
 {
     [JsonProperty("endpoint")]
