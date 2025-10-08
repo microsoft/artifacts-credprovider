@@ -1,4 +1,4 @@
-﻿// Copyright (c) Microsoft. All rights reserved.
+// Copyright (c) Microsoft. All rights reserved.
 //
 // Licensed under the MIT license.
 
@@ -47,7 +47,7 @@ namespace NuGetCredentialProvider.CredentialProviders.VstsBuildTaskServiceEndpoi
 
         public override Task<bool> CanProvideCredentialsAsync(Uri uri)
         {
-            string externalFeedEndPointsJson =  EnvUtil.GetEnvironmentVariable(EnvUtil.BuildTaskExternalEndpoints);
+            string externalFeedEndPointsJson = EnvUtil.GetEnvironmentVariable(EnvUtil.BuildTaskExternalEndpoints);
             string feedEndPointsJson = EnvUtil.GetEnvironmentVariable(EnvUtil.EndpointCredentials);
 
             if (string.IsNullOrWhiteSpace(feedEndPointsJson) && string.IsNullOrWhiteSpace(externalFeedEndPointsJson))
@@ -104,7 +104,7 @@ namespace NuGetCredentialProvider.CredentialProviders.VstsBuildTaskServiceEndpoi
                     TenantId = authInfo.EntraTenantId
                 };
 
-                foreach(var tokenProvider in tokenProviders)
+                foreach (var tokenProvider in tokenProviders)
                 {
                     bool shouldRun = tokenProvider.CanGetToken(tokenRequest);
                     if (!shouldRun)

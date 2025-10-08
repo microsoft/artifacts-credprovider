@@ -113,7 +113,7 @@ namespace NuGetCredentialProvider.Tests.Util
             Environment.SetEnvironmentVariable(EnvUtil.LogPIIEnvVar, "true");
             Assert.IsTrue(EnvUtil.GetLogPIIEnabled());
         }
-           public void GetLogPIIEnabled_ReturnsDefaultVIfUnset()
+        public void GetLogPIIEnabled_ReturnsDefaultVIfUnset()
         {
             Assert.IsFalse(EnvUtil.GetLogPIIEnabled());
         }

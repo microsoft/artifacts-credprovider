@@ -1,4 +1,4 @@
-﻿// Copyright (c) Microsoft. All rights reserved.
+// Copyright (c) Microsoft. All rights reserved.
 //
 // Licensed under the MIT license.
 
@@ -56,10 +56,12 @@ namespace NuGetCredentialProvider.RequestHandlers
 
             TRequest request = MessageUtilities.DeserializePayload<TRequest>(message);
 
-            try {
+            try
+            {
                 TResponse response = null;
                 Logger.Verbose(string.Format(Resources.HandlingRequest, message.Type, message.Method, timer.ElapsedMilliseconds, message.Payload.ToString(Formatting.None)));
-                try {
+                try
+                {
                     using (GetProgressReporter(connection, message, cancellationToken))
                     {
                         response = await HandleRequestAsync(request).ConfigureAwait(continueOnCapturedContext: false);

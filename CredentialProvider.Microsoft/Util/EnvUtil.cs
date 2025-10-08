@@ -1,4 +1,4 @@
-﻿// Copyright (c) Microsoft. All rights reserved.
+// Copyright (c) Microsoft. All rights reserved.
 //
 // Licensed under the MIT license.
 
@@ -15,7 +15,7 @@ namespace NuGetCredentialProvider.Util
 {
     public static class EnvUtil
     {
-        
+
         public const string LogPathEnvVar = "ARTIFACTS_CREDENTIALPROVIDER_LOG_PATH";
         public const string LegacyLogPathEnvVar = "NUGET_CREDENTIALPROVIDER_LOG_PATH";
         public const string LogPIIEnvVar = "ARTIFACTS_CREDENTIALPROVIDER_LOG_PII";

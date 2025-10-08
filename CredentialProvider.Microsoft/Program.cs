@@ -1,4 +1,4 @@
-﻿// Copyright (c) Microsoft. All rights reserved.
+// Copyright (c) Microsoft. All rights reserved.
 //
 // Licensed under the MIT license.
 
@@ -139,7 +139,7 @@ namespace NuGetCredentialProvider
 
                         // This is probably more confusing than interesting to users, but may be helpful in debugging,
                         // so log the exception but not to the console.
-                        multiLogger.Log(LogLevel.Verbose, allowOnConsole:false, ex.ToString());
+                        multiLogger.Log(LogLevel.Verbose, allowOnConsole: false, ex.ToString());
                     }
 
                     return 0;
