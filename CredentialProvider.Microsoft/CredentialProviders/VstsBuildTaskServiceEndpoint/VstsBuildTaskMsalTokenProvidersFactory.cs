@@ -24,7 +24,7 @@ internal class VstsBuildTaskMsalTokenProvidersFactory : ITokenProvidersFactory
     public Task<IEnumerable<ITokenProvider>> GetAsync(Uri authority)
     {
         var app = AzureArtifacts.CreateDefaultBuilder(authority)
-            .WithBroker(EnvUtil.MsalAllowBrokerEnabled(), logger)
+            .WithBroker(EnvUtil.MsalAllowBrokerEnabled(), EnvUtil.GetMsalBrokerWindowHandle(), logger)
             .WithHttpClientFactory(HttpClientFactory.Default)
             .WithLogging(
                 (level, message, containsPii) =>
