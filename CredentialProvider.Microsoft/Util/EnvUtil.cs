@@ -41,7 +41,7 @@ namespace NuGetCredentialProvider.Util
 
         public const string ProgramContext = "ARTIFACTS_CREDENTIALPROVIDER_PROGRAM_CONTEXT";
 
-        public const string VerbosityDefaultEnvVar = "NUGET_CREDENTIALPROVIDER_VERBOSITY_DEFAULT";
+        public const string VerbosityDefaultEnvVar = "ARTIFACTS_CREDENTIALPROVIDER_VERBOSITY_DEFAULT";
 
         public static bool GetLogPIIEnabled()
         {
