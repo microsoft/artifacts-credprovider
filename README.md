@@ -376,8 +376,8 @@ To keep using .NET versions which are past their end of support date, see the ta
 | .NET Version | End of ACP Support |
 | -------- | ------- |
 | .NET Core 2.1 | 0.1.28 |
-| .NET Core 3.1 | 1.x.x (pending final release) |
-| .NET Framework 4.6.1 | 1.x.x (pending final release) |
+| .NET Core 3.1 | 1.4.1 |
+| .NET Framework 4.6.1 | 1.4.1 |
 | .NET 6.0 | 2.x.x (pending release) |
 
 ## Contribute
