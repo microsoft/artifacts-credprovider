@@ -1,20 +1,18 @@
+# Based on https://github.com/dotnet/runtime/blob/main/.editorconfig
 root = true
 
 [*]
 charset = utf-8
+insert_final_newline = true
 indent_style = space
 indent_size = 2
-insert_final_newline = true
 trim_trailing_whitespace = true
 
-[*.sln]
-indent_style = tab
-indent_size = 4
-
+# C# files
 [*.cs]
 indent_size = 4
-tab_width = 4
 
+# Shell scripts
 [*.sh]
 end_of_line = lf
 
