@@ -208,8 +208,13 @@ function InstallZip {
     }
     catch {
         $errorMessage = "Unable to download $packageSourceUrl to the location $pluginZip. `n$_"
-        if ($_.Exception.InnerException) {
-            $errorMessage += "`nInner Exception: $($_.Exception.InnerException.Message)"
+        # Print all inner exceptions
+        $innerException = $_.Exception.InnerException
+        $innerCount = 1
+        while ($innerException) {
+            $errorMessage += "`nInner Exception $innerCount`: $($innerException.Message)"
+            $innerException = $innerException.InnerException
+            $innerCount++
         }
         Write-Error $errorMessage
     }
