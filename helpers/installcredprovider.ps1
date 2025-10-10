@@ -263,12 +263,17 @@ if ($InstallNet6 -eq $True) {
     $archiveFile = "Microsoft.Net6.NuGet.CredentialProvider.zip"
 }
 if ($InstallNet8 -eq $True) {
-    if ($releaseRidPart -like 'linux*') {
+    # Self-contained builds use RID without .Net8 prefix (v2.0.0+)
+    # Runtime-dependent builds still use Net8 prefix
+    if ([string]::IsNullOrEmpty($releaseRidPart)) {
+        $archiveFile = "Microsoft.Net8.NuGet.CredentialProvider.zip"
+    }
+    elseif ($releaseRidPart -like 'linux*') {
         # For linux runtimes, only .tar.gz is available
-        $archiveFile = "Microsoft.Net8.${releaseRidPart}NuGet.CredentialProvider.tar.gz"
+        $archiveFile = "Microsoft.${releaseRidPart}NuGet.CredentialProvider.tar.gz"
     }
     else {
-        $archiveFile = "Microsoft.Net8.${releaseRidPart}NuGet.CredentialProvider.zip"
+        $archiveFile = "Microsoft.${releaseRidPart}NuGet.CredentialProvider.zip"
     }
 }
 if ($AddNetfx -eq $True) {
@@ -297,12 +302,17 @@ if ($AddNetfx -eq $True -and $InstallNet6 -eq $True) {
     Install-CredProvider
 }
 if ($AddNetfx -eq $True -and $InstallNet8 -eq $True) {
-    if ($releaseRidPart -like 'linux*') {
+    # Self-contained builds use RID without .Net8 prefix (v2.0.0+)
+    # Runtime-dependent builds still use Net8 prefix
+    if ([string]::IsNullOrEmpty($releaseRidPart)) {
+        $archiveFile = "Microsoft.Net8.NuGet.CredentialProvider.zip"
+    }
+    elseif ($releaseRidPart -like 'linux*') {
         # For linux runtimes, only .tar.gz is available
-        $archiveFile = "Microsoft.Net8.${releaseRidPart}NuGet.CredentialProvider.tar.gz"
+        $archiveFile = "Microsoft.${releaseRidPart}NuGet.CredentialProvider.tar.gz"
     }
     else {
-        $archiveFile = "Microsoft.Net8.${releaseRidPart}NuGet.CredentialProvider.zip"
+        $archiveFile = "Microsoft.${releaseRidPart}NuGet.CredentialProvider.zip"
     }
     Install-CredProvider
 }
