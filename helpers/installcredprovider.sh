@@ -54,11 +54,12 @@ if [ ! -z ${ARTIFACTS_CREDENTIAL_PROVIDER_RID} ]; then
   echo "INFO: ARTIFACTS_CREDENTIAL_PROVIDER_RID variable set, defaulting to self-contained installation."
 
   # If the RID is osx-*, use the zip file otherwise use the tar.gz file.
+  # Self-contained builds use RID without .Net8 prefix (v2.0.0+)
   case ${ARTIFACTS_CREDENTIAL_PROVIDER_RID} in osx-*)
-    FILE="Microsoft.Net8.${ARTIFACTS_CREDENTIAL_PROVIDER_RID}.NuGet.CredentialProvider.zip"
+    FILE="Microsoft.${ARTIFACTS_CREDENTIAL_PROVIDER_RID}.NuGet.CredentialProvider.zip"
     ;;
   *)
-    FILE="Microsoft.Net8.${ARTIFACTS_CREDENTIAL_PROVIDER_RID}.NuGet.CredentialProvider.tar.gz"
+    FILE="Microsoft.${ARTIFACTS_CREDENTIAL_PROVIDER_RID}.NuGet.CredentialProvider.tar.gz"
     ;;
   esac
 
@@ -89,15 +90,17 @@ elif [ ! -z ${USE_NET6_ARTIFACTS_CREDENTIAL_PROVIDER} ] && [ ${USE_NET6_ARTIFACT
 elif [ -z ${USE_NET8_ARTIFACTS_CREDENTIAL_PROVIDER} ] || [ ${USE_NET8_ARTIFACTS_CREDENTIAL_PROVIDER} != "false" ]; then
   if [ ! -z ${ARTIFACTS_CREDENTIAL_PROVIDER_NON_SC} ] && [ ${ARTIFACTS_CREDENTIAL_PROVIDER_NON_SC} != "false" ]; then
     # Default to the full zip file if ARTIFACTS_CREDENTIAL_PROVIDER_NON_SC is specified.
+    # Runtime-dependent builds still use Net8 prefix
     FILE="Microsoft.Net8.NuGet.CredentialProvider.tar.gz"
   else
     # Get the correct runtime identifier for the self-contained version.
+    # Self-contained builds use RID without .Net8 prefix (v2.0.0+)
     set_runtime_identifier
 
     if [ ${RUNTIME_ID} == "osx-x64" ] || [ ${RUNTIME_ID} == "osx-arm64" ]; then
-      FILE="Microsoft.Net8.${RUNTIME_ID}.NuGet.CredentialProvider.zip"
+      FILE="Microsoft.${RUNTIME_ID}.NuGet.CredentialProvider.zip"
     else
-      FILE="Microsoft.Net8.${RUNTIME_ID}.NuGet.CredentialProvider.tar.gz"
+      FILE="Microsoft.${RUNTIME_ID}.NuGet.CredentialProvider.tar.gz"
     fi
   fi
 

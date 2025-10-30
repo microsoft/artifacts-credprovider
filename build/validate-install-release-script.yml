@@ -29,7 +29,7 @@ jobs:
     parameters:
       repo: self
       scriptInputs: '-InstallNet8 -RuntimeIdentifier win-x64'
-      expectedCredentialProviderVersion: 'Microsoft.Net8.win-x64.NuGet.CredentialProvider'
+      expectedCredentialProviderVersion: 'Microsoft.win-x64.NuGet.CredentialProvider'
       releaseVersion: 'latest'
 
 - job: WindowsReleaseInstallNet8winx64NoParams
@@ -40,7 +40,7 @@ jobs:
     parameters:
       repo: self
       scriptInputs: '-RuntimeIdentifier win-x64'
-      expectedCredentialProviderVersion: 'Microsoft.Net8.win-x64.NuGet.CredentialProvider'
+      expectedCredentialProviderVersion: 'Microsoft.win-x64.NuGet.CredentialProvider'
       releaseVersion: 'latest'
 
 - job: WindowsReleaseInstallNetfxDefault
@@ -115,7 +115,7 @@ jobs:
         export USE_NET6_ARTIFACTS_CREDENTIAL_PROVIDER=false
         export USE_NET8_ARTIFACTS_CREDENTIAL_PROVIDER=true
         export ARTIFACTS_CREDENTIAL_PROVIDER_RID=linux-x64
-      expectedCredentialProviderVersion: 'Microsoft.Net8.linux-x64.NuGet.CredentialProvider'
+      expectedCredentialProviderVersion: 'Microsoft.linux-x64.NuGet.CredentialProvider'
       releaseVersion: 'latest'
 
 - job: LinuxReleaseInstallNet8linuxarm64
@@ -129,7 +129,7 @@ jobs:
         export USE_NET6_ARTIFACTS_CREDENTIAL_PROVIDER=false
         export USE_NET8_ARTIFACTS_CREDENTIAL_PROVIDER=true
         export ARTIFACTS_CREDENTIAL_PROVIDER_RID=linux-arm64
-      expectedCredentialProviderVersion: 'Microsoft.Net8.linux-arm64.NuGet.CredentialProvider'
+      expectedCredentialProviderVersion: 'Microsoft.linux-arm64.NuGet.CredentialProvider'
       releaseVersion: 'latest'
 
 - job: macOSReleaseInstallNet8osxarm64
@@ -143,7 +143,7 @@ jobs:
         export USE_NET6_ARTIFACTS_CREDENTIAL_PROVIDER=false
         export USE_NET8_ARTIFACTS_CREDENTIAL_PROVIDER=true
         export ARTIFACTS_CREDENTIAL_PROVIDER_RID=osx-arm64
-      expectedCredentialProviderVersion: 'Microsoft.Net8.osx-arm64.NuGet.CredentialProvider'
+      expectedCredentialProviderVersion: 'Microsoft.osx-arm64.NuGet.CredentialProvider'
       releaseVersion: 'latest'
 
 - job: macOSReleaseInstallNet8osxx64
@@ -157,7 +157,7 @@ jobs:
         export USE_NET6_ARTIFACTS_CREDENTIAL_PROVIDER=false
         export USE_NET8_ARTIFACTS_CREDENTIAL_PROVIDER=true
         export ARTIFACTS_CREDENTIAL_PROVIDER_RID=osx-x64
-      expectedCredentialProviderVersion: 'Microsoft.Net8.osx-x64.NuGet.CredentialProvider'
+      expectedCredentialProviderVersion: 'Microsoft.osx-x64.NuGet.CredentialProvider'
       releaseVersion: 'latest'
 
 - job: macOSReleaseInstallNet8osxx64NoParams
@@ -169,7 +169,7 @@ jobs:
       repo: self
       scriptEnvVariables: |
         export ARTIFACTS_CREDENTIAL_PROVIDER_RID=osx-x64
-      expectedCredentialProviderVersion: 'Microsoft.Net8.osx-x64.NuGet.CredentialProvider'
+      expectedCredentialProviderVersion: 'Microsoft.osx-x64.NuGet.CredentialProvider'
       releaseVersion: 'latest'
 
 - job: macOSReleaseInstallNet8osxx64Net6Params
@@ -182,7 +182,7 @@ jobs:
       scriptEnvVariables: |
         export USE_NET6_ARTIFACTS_CREDENTIAL_PROVIDER=true
         export ARTIFACTS_CREDENTIAL_PROVIDER_RID=osx-x64
-      expectedCredentialProviderVersion: 'Microsoft.Net8.osx-x64.NuGet.CredentialProvider'
+      expectedCredentialProviderVersion: 'Microsoft.osx-x64.NuGet.CredentialProvider'
       releaseVersion: 'latest'
 
 # Test with specific release version (using a common stable version 1.4.0)
