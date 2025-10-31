@@ -14,17 +14,12 @@ public static class AzureArtifacts
     /// <summary>
     /// Azure Artifacts application ID.
     /// </summary>
-    public const string ClientId = "160b01af-fa00-4390-8fba-43187f581f31"; //"d5a56ea4-7369-46b8-a538-c370805301bf";
+    public const string ClientId = "d5a56ea4-7369-46b8-a538-c370805301bf";
 
     /// <summary>
     /// Visual Studio application ID.
     /// </summary>
     private const string LegacyClientId = "872cd9fa-d31f-45e0-9eab-6e460a02d1f1";
-
-    /// <summary>
-    /// Custom URI scheme for MSAL redirects on macOS.
-    /// </summary>
-    private const string MacOSRedirectUri = "msauth.com.microsoft.azureartifacts.credentialprovider://auth";
 
     public static PublicClientApplicationBuilder CreateDefaultBuilder(Uri authority)
     {
@@ -32,16 +27,8 @@ public static class AzureArtifacts
         bool prod = !authority.Host.Equals("login.windows-ppe.net", StringComparison.OrdinalIgnoreCase);
 
         var builder = PublicClientApplicationBuilder.Create(prod ? AzureArtifacts.ClientId : AzureArtifacts.LegacyClientId)
-            .WithAuthority(authority);
-
-        if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
-        {
-            builder = builder.WithRedirectUri(MacOSRedirectUri);
-        }
-        else
-        {
-            builder = builder.WithDefaultRedirectUri();
-        }
+            .WithAuthority(authority)
+            .WithDefaultRedirectUri();
 
         return builder;
     }
@@ -49,7 +36,7 @@ public static class AzureArtifacts
     public static PublicClientApplicationBuilder WithBroker(this PublicClientApplicationBuilder builder, bool enableBroker, IntPtr? parentWindowHandle, ILogger logger)
     {
         // Eventually will be rolled into CreateDefaultBuilder as using the brokers is desirable
-        if (!enableBroker && (RuntimeInformation.IsOSPlatform(OSPlatform.Windows) || RuntimeInformation.IsOSPlatform(OSPlatform.OSX) || RuntimeInformation.IsOSPlatform(OSPlatform.Linux)))
+        if (!enableBroker && (RuntimeInformation.IsOSPlatform(OSPlatform.Windows) || RuntimeInformation.IsOSPlatform(OSPlatform.Linux)))
         {
             return builder;
         }
@@ -58,7 +45,7 @@ public static class AzureArtifacts
 
         return builder
             .WithBroker(
-                new BrokerOptions(BrokerOptions.OperatingSystems.Windows | BrokerOptions.OperatingSystems.OSX | BrokerOptions.OperatingSystems.Linux)
+                new BrokerOptions(BrokerOptions.OperatingSystems.Windows | BrokerOptions.OperatingSystems.Linux)
                 {
                     Title = "Azure DevOps Artifacts",
                     ListOperatingSystemAccounts = true,
@@ -115,6 +102,11 @@ public static class AzureArtifacts
 
     private static IntPtr GetConsoleOrTerminalWindow()
     {
+        if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
+        {
+            return IntPtr.Zero;
+        }
+
         if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
         {
             IntPtr display = XOpenDisplay(IntPtr.Zero);
