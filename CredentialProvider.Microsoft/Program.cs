@@ -9,6 +9,7 @@ using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Artifacts.Authentication;
+using Microsoft.Identity.Client.Utils;
 using NuGet.Common;
 using NuGet.Protocol.Plugins;
 using NuGetCredentialProvider.CredentialProviders;
@@ -29,6 +30,26 @@ namespace NuGetCredentialProvider
         public static bool IsShuttingDown => Volatile.Read(ref shuttingDown);
 
         public static async Task<int> Main(string[] args)
+        {
+            var scheduler = MacMainThreadScheduler.Instance();
+
+            int returnCode = -1;
+            _ = Task.Run(async () => {
+                try
+                {
+                    returnCode = await BackgroundWork(args);
+                }
+                finally
+                {
+                    scheduler.Stop();
+                }
+            });
+
+            scheduler.StartMessageLoop();
+            return returnCode;
+        }
+
+        public static async Task<int> BackgroundWork(string[] args)
         {
             CancellationTokenSource tokenSource = new CancellationTokenSource();
             var parsedArgs = await Args.ParseAsync<CredentialProviderArgs>(args);

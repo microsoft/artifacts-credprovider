@@ -21,14 +21,24 @@ public static class AzureArtifacts
     /// </summary>
     private const string LegacyClientId = "872cd9fa-d31f-45e0-9eab-6e460a02d1f1";
 
+    private const string MacOSXRedirectUri = "msauth.com.microsoft.azureartifacts.credentialprovider://auth";
+
     public static PublicClientApplicationBuilder CreateDefaultBuilder(Uri authority)
     {
         // Azure Artifacts is not yet present in PPE, so revert to the old app in that case
         bool prod = !authority.Host.Equals("login.windows-ppe.net", StringComparison.OrdinalIgnoreCase);
 
         var builder = PublicClientApplicationBuilder.Create(prod ? AzureArtifacts.ClientId : AzureArtifacts.LegacyClientId)
-            .WithAuthority(authority)
-            .WithDefaultRedirectUri();
+            .WithAuthority(authority);
+
+        if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
+        {
+            builder = builder.WithRedirectUri(MacOSXRedirectUri);
+        }
+        else
+        {
+            builder = builder.WithDefaultRedirectUri();
+        }
 
         return builder;
     }
@@ -45,7 +55,7 @@ public static class AzureArtifacts
 
         return builder
             .WithBroker(
-                new BrokerOptions(BrokerOptions.OperatingSystems.Windows | BrokerOptions.OperatingSystems.Linux)
+                new BrokerOptions(BrokerOptions.OperatingSystems.Windows | BrokerOptions.OperatingSystems.OSX | BrokerOptions.OperatingSystems.Linux)
                 {
                     Title = "Azure DevOps Artifacts",
                     ListOperatingSystemAccounts = true,
