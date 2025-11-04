@@ -53,7 +53,7 @@ public static class AzureArtifacts
             return builder;
         }
 
-        logger.LogTrace("Using broker");
+        logger.LogTrace(Resources.MsalUsingBroker);
 
         return builder
             .WithMacOSXRedirectUri()
