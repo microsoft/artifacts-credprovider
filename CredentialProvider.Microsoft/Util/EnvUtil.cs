@@ -36,7 +36,7 @@ namespace NuGetCredentialProvider.Util
         public const string MsalFileCacheLocationEnvVar = "NUGET_CREDENTIALPROVIDER_MSAL_FILECACHE_LOCATION";
         public const string MsalAllowBrokerEnvVar = "NUGET_CREDENTIALPROVIDER_MSAL_ALLOW_BROKER";
         public const string MsalBrokerWindowEnvVar = "ARTIFACTS_CREDENTIALPROVIDER_MSAL_BROKER_WINDOW";
-
+        public const string EntraTokenOptInEnvVar = "ARTIFACTS_CREDENTIALPROVIDER_RETURN_ENTRA_TOKENS";
         public const string EndpointCredentials = "ARTIFACTS_CREDENTIALPROVIDER_FEED_ENDPOINTS";
         public const string BuildTaskExternalEndpoints = "VSS_NUGET_EXTERNAL_FEED_ENDPOINTS";
 
@@ -117,6 +117,11 @@ namespace NuGetCredentialProvider.Util
             }
 
             return new IntPtr(numericHandle);
+        }
+
+        public static bool EntraTokenOptInEnabled()
+        {
+            return GetEnabledFromEnvironment(EntraTokenOptInEnvVar, defaultValue: false);
         }
 
         public static IList<string> GetHostsFromEnvironment(ILogger logger, string envVar, IEnumerable<string> defaultHosts, [CallerMemberName] string collectionName = null)

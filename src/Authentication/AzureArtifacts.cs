@@ -21,6 +21,8 @@ public static class AzureArtifacts
     /// </summary>
     private const string LegacyClientId = "872cd9fa-d31f-45e0-9eab-6e460a02d1f1";
 
+    private const string MacOSXRedirectUri = "msauth.com.microsoft.azureartifacts.credentialprovider://auth";
+
     public static PublicClientApplicationBuilder CreateDefaultBuilder(Uri authority)
     {
         // Azure Artifacts is not yet present in PPE, so revert to the old app in that case
@@ -28,24 +30,35 @@ public static class AzureArtifacts
 
         var builder = PublicClientApplicationBuilder.Create(prod ? AzureArtifacts.ClientId : AzureArtifacts.LegacyClientId)
             .WithAuthority(authority)
-            .WithRedirectUri("http://localhost");
+            .WithDefaultRedirectUri();
 
         return builder;
+    }
+
+    public static PublicClientApplicationBuilder WithMacOSXRedirectUri(this PublicClientApplicationBuilder builder)
+    {
+        if (!RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
+        {
+            return builder;
+        }
+
+        return builder.WithRedirectUri(MacOSXRedirectUri);
     }
 
     public static PublicClientApplicationBuilder WithBroker(this PublicClientApplicationBuilder builder, bool enableBroker, IntPtr? parentWindowHandle, ILogger logger)
     {
         // Eventually will be rolled into CreateDefaultBuilder as using the brokers is desirable
-        if (!enableBroker || !RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+        if (!enableBroker)
         {
             return builder;
         }
 
-        logger.LogTrace(Resources.MsalUsingWamBroker);
+        logger.LogTrace(Resources.MsalUsingBroker);
 
         return builder
+            .WithMacOSXRedirectUri()
             .WithBroker(
-                new BrokerOptions(BrokerOptions.OperatingSystems.Windows)
+                new BrokerOptions(BrokerOptions.OperatingSystems.Windows | BrokerOptions.OperatingSystems.OSX | BrokerOptions.OperatingSystems.Linux)
                 {
                     Title = "Azure DevOps Artifacts",
                     ListOperatingSystemAccounts = true,
@@ -93,8 +106,31 @@ public static class AzureArtifacts
     [DllImport("kernel32.dll")]
     static extern IntPtr GetConsoleWindow();
 
+    [DllImport("libX11")]
+    public static extern IntPtr XOpenDisplay(IntPtr display);
+
+    [DllImport("libX11")]
+    public static extern IntPtr XDefaultRootWindow(IntPtr display);
+
+
     private static IntPtr GetConsoleOrTerminalWindow()
     {
+        if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
+        {
+            return IntPtr.Zero;
+        }
+
+        if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
+        {
+            IntPtr display = XOpenDisplay(IntPtr.Zero);
+            if (display == IntPtr.Zero)
+            {
+                return IntPtr.Zero;
+            }
+
+            return XDefaultRootWindow(display);
+        }
+
         IntPtr consoleHandle = GetConsoleWindow();
         IntPtr handle = GetAncestor(consoleHandle, GetAncestorFlags.GetRootOwner);
 

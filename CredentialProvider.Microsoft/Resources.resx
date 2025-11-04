@@ -229,6 +229,9 @@
   <data name="SessionTokenCacheDisabled" xml:space="preserve">
     <value>SessionToken cache disabled by environment</value>
   </data>
+  <data name="SessionTokenCacheDisabledByEntraTokenOptIn" xml:space="preserve">
+    <value>SessionToken cache disabled by Entra token opt-in</value>
+  </data>
   <data name="SessionTokenCacheLocation" xml:space="preserve">
     <value>SessionToken cache location: {0}</value>
   </data>

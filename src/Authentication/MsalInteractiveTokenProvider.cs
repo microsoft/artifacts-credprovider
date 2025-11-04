@@ -4,6 +4,7 @@
 
 using Microsoft.Extensions.Logging;
 using Microsoft.Identity.Client;
+using Microsoft.Identity.Client.Utils;
 
 namespace Microsoft.Artifacts.Authentication;
 
@@ -42,10 +43,15 @@ public class MsalInteractiveTokenProvider : ITokenProvider
         try
         {
             logger.LogInformation(Resources.MsalInteractivePrompt);
-            var result = await app.AcquireTokenInteractive(MsalConstants.AzureDevOpsScopes)
-                .WithPrompt(Prompt.SelectAccount)
-                .WithUseEmbeddedWebView(false)
-                .ExecuteAsync(cts.Token);
+
+            AuthenticationResult? result = null;
+            await MacMainThreadScheduler.Instance().RunOnMainThreadAsync(async () =>
+            {
+                result = await app.AcquireTokenInteractive(MsalConstants.AzureDevOpsScopes)
+                    .WithPrompt(Prompt.SelectAccount)
+                    .WithUseEmbeddedWebView(false)
+                    .ExecuteAsync(cts.Token);
+            });
 
             return result;
         }

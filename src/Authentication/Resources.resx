@@ -147,9 +147,6 @@
   <data name="MsalUsingBroker" xml:space="preserve">
     <value>MSAL using Broker</value>
   </data>
-  <data name="MsalUsingWamBroker" xml:space="preserve">
-    <value>MSAL using WAM Broker</value>
-  </data>
   <data name="MsalNotUserInteractive" xml:space="preserve">
     <value>Cannot use interactive authentication in a non-interactive app</value>
   </data>
@@ -158,5 +155,8 @@
   </data>
   <data name="MsalInteractivePrompt" xml:space="preserve">
     <value>Use the opened dialog or browser window to log in. It may be behind other windows.</value>
+  </data>
+  <data name="MsalWindowsIntegratedAuthObsoleteWarning" xml:space="preserve">
+    <value>Warning: Windows Integrated Auth is obsolete. For scenarios requiring SSO with the Windows OS's default account, please transition to using WAM.</value>
   </data>
 </root>

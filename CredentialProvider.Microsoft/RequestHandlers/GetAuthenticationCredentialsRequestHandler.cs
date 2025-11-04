@@ -73,7 +73,7 @@ namespace NuGetCredentialProvider.RequestHandlers
                         username: "VssSessionToken",
                         password: cachedToken,
                         message: null,
-                        authenticationTypes: new List<string> { "Basic" },
+                        authenticationTypes: ["Basic"],
                         responseCode: MessageResponseCode.Success);
                 }
 
@@ -125,14 +125,21 @@ namespace NuGetCredentialProvider.RequestHandlers
 
         private static ICache<Uri, string> GetSessionTokenCache(ILogger logger, CancellationToken cancellationToken)
         {
-            if (EnvUtil.SessionTokenCacheEnabled())
+            if (!EnvUtil.SessionTokenCacheEnabled())
             {
-                logger.Verbose(string.Format(Resources.SessionTokenCacheLocation, EnvUtil.SessionTokenCacheLocation));
-                return new SessionTokenCache(EnvUtil.SessionTokenCacheLocation, logger, cancellationToken);
+                logger.Verbose(Resources.SessionTokenCacheDisabled);
+                return new NoOpCache<Uri, string>();
             }
 
-            logger.Verbose(Resources.SessionTokenCacheDisabled);
-            return new NoOpCache<Uri, string>();
+            // Disable session token cache when Entra token opt-in is enabled. Entra tokens are cached by the MSAL cache instead.
+            if (EnvUtil.EntraTokenOptInEnabled())
+            {
+                logger.Verbose(Resources.SessionTokenCacheDisabledByEntraTokenOptIn);
+                return new NoOpCache<Uri, string>();
+            }
+
+            logger.Verbose(string.Format(Resources.SessionTokenCacheLocation, EnvUtil.SessionTokenCacheLocation));
+            return new SessionTokenCache(EnvUtil.SessionTokenCacheLocation, logger, cancellationToken);
         }
 
         private bool TryCache(GetAuthenticationCredentialsRequest request, out string cachedToken)
