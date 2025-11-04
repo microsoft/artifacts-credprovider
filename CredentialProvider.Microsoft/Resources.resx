@@ -161,7 +161,7 @@
     <value>Could not find cached SessionToken for {0}</value>
   </data>
   <data name="CachingSessionToken" xml:space="preserve">
-    <value>Caching {0} for {1}</value>
+    <value>Caching SessionToken for {0}</value>
   </data>
   <data name="CommandLineArgs" xml:space="preserve">
     <value>Command-line v{0}: {1}</value>
@@ -228,6 +228,9 @@
   </data>
   <data name="SessionTokenCacheDisabled" xml:space="preserve">
     <value>SessionToken cache disabled by environment</value>
+  </data>
+  <data name="SessionTokenCacheDisabledByEntraTokenOptIn" xml:space="preserve">
+    <value>SessionToken cache disabled by Entra token opt-in</value>
   </data>
   <data name="SessionTokenCacheLocation" xml:space="preserve">
     <value>SessionToken cache location: {0}</value>

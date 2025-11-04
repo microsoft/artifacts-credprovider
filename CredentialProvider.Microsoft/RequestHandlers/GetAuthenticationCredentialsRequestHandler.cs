@@ -69,28 +69,12 @@ namespace NuGetCredentialProvider.RequestHandlers
 
                 if (credentialProvider.IsCachable && TryCache(request, out string cachedToken))
                 {
-                    var isEntraToken = CredentialUtil.IsEntraToken(cachedToken);
-                    if (EnvUtil.EntraTokenOptInEnabled())
-                    {
-                        if (isEntraToken)
-                        {
-                            return new GetAuthenticationCredentialsResponse(
-                                username: "EntraToken",
-                                password: cachedToken,
-                                message: null,
-                                authenticationTypes: ["Bearer"],
-                                responseCode: MessageResponseCode.Success);
-                        }
-                    }
-                    else if (!isEntraToken)
-                    {
-                        return new GetAuthenticationCredentialsResponse(
-                            username: "VssSessionToken",
-                            password: cachedToken,
-                            message: null,
-                            authenticationTypes: ["Basic"],
-                            responseCode: MessageResponseCode.Success);
-                    }
+                    return new GetAuthenticationCredentialsResponse(
+                        username: "VssSessionToken",
+                        password: cachedToken,
+                        message: null,
+                        authenticationTypes: ["Basic"],
+                        responseCode: MessageResponseCode.Success);
                 }
 
                 try
@@ -100,7 +84,7 @@ namespace NuGetCredentialProvider.RequestHandlers
                     {
                         if (cache != null && credentialProvider.IsCachable)
                         {
-                            Logger.Verbose(string.Format(Resources.CachingSessionToken, response.Username, request.Uri.AbsoluteUri));
+                            Logger.Verbose(string.Format(Resources.CachingSessionToken, request.Uri.AbsoluteUri));
                             cache[request.Uri] = response.Password;
                         }
 
@@ -141,14 +125,21 @@ namespace NuGetCredentialProvider.RequestHandlers
 
         private static ICache<Uri, string> GetSessionTokenCache(ILogger logger, CancellationToken cancellationToken)
         {
-            if (EnvUtil.SessionTokenCacheEnabled())
+            if (!EnvUtil.SessionTokenCacheEnabled())
             {
-                logger.Verbose(string.Format(Resources.SessionTokenCacheLocation, EnvUtil.SessionTokenCacheLocation));
-                return new SessionTokenCache(EnvUtil.SessionTokenCacheLocation, logger, cancellationToken);
+                logger.Verbose(Resources.SessionTokenCacheDisabled);
+                return new NoOpCache<Uri, string>();
             }
 
-            logger.Verbose(Resources.SessionTokenCacheDisabled);
-            return new NoOpCache<Uri, string>();
+            // Disable session token cache when Entra token opt-in is enabled. Entra tokens are cached by the MSAL cache instead.
+            if (EnvUtil.EntraTokenOptInEnabled())
+            {
+                logger.Verbose(Resources.SessionTokenCacheDisabledByEntraTokenOptIn);
+                return new NoOpCache<Uri, string>();
+            }
+
+            logger.Verbose(string.Format(Resources.SessionTokenCacheLocation, EnvUtil.SessionTokenCacheLocation));
+            return new SessionTokenCache(EnvUtil.SessionTokenCacheLocation, logger, cancellationToken);
         }
 
         private bool TryCache(GetAuthenticationCredentialsRequest request, out string cachedToken)
