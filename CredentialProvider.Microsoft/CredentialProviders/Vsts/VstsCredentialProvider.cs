@@ -155,6 +155,16 @@ namespace NuGetCredentialProvider.CredentialProviders.Vsts
                 }
 
                 Info(string.Format(Resources.AcquireBearerTokenSuccess, tokenProvider.Name));
+                if (EnvUtil.EntraTokenOptInEnabled())
+                {
+                    return new GetAuthenticationCredentialsResponse(
+                        "EntraToken",
+                        bearerToken,
+                        message: null,
+                        authenticationTypes: ["Bearer"],
+                        responseCode: MessageResponseCode.Success);
+                }
+
                 Info(Resources.ExchangingBearerTokenForSessionToken);
                 try
                 {
@@ -167,7 +177,7 @@ namespace NuGetCredentialProvider.CredentialProviders.Vsts
                             Username,
                             sessionToken,
                             message: null,
-                            authenticationTypes: new List<string>() { "Basic" },
+                            authenticationTypes: ["Basic"],
                             responseCode: MessageResponseCode.Success);
                     }
                 }

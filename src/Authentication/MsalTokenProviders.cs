@@ -9,7 +9,7 @@ namespace Microsoft.Artifacts.Authentication;
 
 public class MsalTokenProviders
 {
-    public static IEnumerable<ITokenProvider> Get(IPublicClientApplication app, ILogger logger)
+    public static IEnumerable<ITokenProvider> Get(IPublicClientApplication app, IPublicClientApplication appInteractiveBroker, ILogger logger)
     {
         yield return new MsalServicePrincipalTokenProvider(app, logger);
         yield return new MsalManagedIdentityTokenProvider(app, logger);
@@ -22,7 +22,7 @@ public class MsalTokenProviders
             yield return new MsalIntegratedWindowsAuthTokenProvider(app, logger);
         }
 
-        yield return new MsalInteractiveTokenProvider(app, logger);
+        yield return new MsalInteractiveTokenProvider(appInteractiveBroker, logger);
         yield return new MsalDeviceCodeTokenProvider(app, logger);
     }
 }

@@ -69,12 +69,28 @@ namespace NuGetCredentialProvider.RequestHandlers
 
                 if (credentialProvider.IsCachable && TryCache(request, out string cachedToken))
                 {
-                    return new GetAuthenticationCredentialsResponse(
-                        username: "VssSessionToken",
-                        password: cachedToken,
-                        message: null,
-                        authenticationTypes: new List<string> { "Basic" },
-                        responseCode: MessageResponseCode.Success);
+                    var isEntraToken = CredentialUtil.IsEntraToken(cachedToken);
+                    if (EnvUtil.EntraTokenOptInEnabled())
+                    {
+                        if (isEntraToken)
+                        {
+                            return new GetAuthenticationCredentialsResponse(
+                                username: "EntraToken",
+                                password: cachedToken,
+                                message: null,
+                                authenticationTypes: ["Bearer"],
+                                responseCode: MessageResponseCode.Success);
+                        }
+                    }
+                    else if (!isEntraToken)
+                    {
+                        return new GetAuthenticationCredentialsResponse(
+                            username: "VssSessionToken",
+                            password: cachedToken,
+                            message: null,
+                            authenticationTypes: ["Basic"],
+                            responseCode: MessageResponseCode.Success);
+                    }
                 }
 
                 try
@@ -84,7 +100,7 @@ namespace NuGetCredentialProvider.RequestHandlers
                     {
                         if (cache != null && credentialProvider.IsCachable)
                         {
-                            Logger.Verbose(string.Format(Resources.CachingSessionToken, request.Uri.AbsoluteUri));
+                            Logger.Verbose(string.Format(Resources.CachingSessionToken, response.Username, request.Uri.AbsoluteUri));
                             cache[request.Uri] = response.Password;
                         }
 

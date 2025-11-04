@@ -29,24 +29,26 @@ public static class AzureArtifacts
         bool prod = !authority.Host.Equals("login.windows-ppe.net", StringComparison.OrdinalIgnoreCase);
 
         var builder = PublicClientApplicationBuilder.Create(prod ? AzureArtifacts.ClientId : AzureArtifacts.LegacyClientId)
-            .WithAuthority(authority);
-
-        if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
-        {
-            builder = builder.WithRedirectUri(MacOSXRedirectUri);
-        }
-        else
-        {
-            builder = builder.WithDefaultRedirectUri();
-        }
+            .WithAuthority(authority)
+            .WithDefaultRedirectUri();
 
         return builder;
+    }
+
+    public static PublicClientApplicationBuilder WithMacOSXRedirectUri(this PublicClientApplicationBuilder builder)
+    {
+        if (!RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
+        {
+            return builder;
+        }
+
+        return builder.WithRedirectUri(MacOSXRedirectUri);
     }
 
     public static PublicClientApplicationBuilder WithBroker(this PublicClientApplicationBuilder builder, bool enableBroker, IntPtr? parentWindowHandle, ILogger logger)
     {
         // Eventually will be rolled into CreateDefaultBuilder as using the brokers is desirable
-        if (!enableBroker && (RuntimeInformation.IsOSPlatform(OSPlatform.Windows) || RuntimeInformation.IsOSPlatform(OSPlatform.OSX) || RuntimeInformation.IsOSPlatform(OSPlatform.Linux)))
+        if (!enableBroker)
         {
             return builder;
         }
@@ -54,6 +56,7 @@ public static class AzureArtifacts
         logger.LogTrace("Using broker");
 
         return builder
+            .WithMacOSXRedirectUri()
             .WithBroker(
                 new BrokerOptions(BrokerOptions.OperatingSystems.Windows | BrokerOptions.OperatingSystems.OSX | BrokerOptions.OperatingSystems.Linux)
                 {

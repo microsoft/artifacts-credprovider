@@ -29,7 +29,7 @@ namespace NuGetCredentialProvider
         private static bool shuttingDown = false;
         public static bool IsShuttingDown => Volatile.Read(ref shuttingDown);
 
-        public static async Task<int> Main(string[] args)
+        public static int Main(string[] args)
         {
             var scheduler = MacMainThreadScheduler.Instance();
 
