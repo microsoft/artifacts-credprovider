@@ -44,8 +44,8 @@ public class MsalIntegratedWindowsAuthTokenProvider : ITokenProvider
             var result = await app.AcquireTokenByIntegratedWindowsAuth(MsalConstants.AzureDevOpsScopes)
                 .WithUsername(upn)
                 .ExecuteAsync(cancellationToken);
-            
             #pragma warning restore CS0618
+
             return result;
         }
         catch (MsalClientException ex) when (ex.ErrorCode is MsalError.WsTrustEndpointNotFoundInMetadataDocument or MsalError.IntegratedWindowsAuthNotSupportedForManagedUser)
