@@ -161,7 +161,7 @@ namespace NuGetCredentialProvider.CredentialProviders.Vsts
                         "EntraToken",
                         bearerToken,
                         message: null,
-                        authenticationTypes: ["Bearer"],
+                        authenticationTypes: ["Basic"],
                         responseCode: MessageResponseCode.Success);
                 }
 
