@@ -40,4 +40,14 @@ public class TokenRequest
     public string? TenantId { get; set; } = null;
 
     public X509Certificate2? ClientCertificate { get; set; } = null;
+
+    public ClientSecret? ClientSecret { get; set; } = null;
+}
+
+/// <summary>
+/// Wraps a client secret string to avoid accidental logging.
+/// </summary>
+public class ClientSecret(string secret)
+{
+    public string GetSecretString() => secret;
 }

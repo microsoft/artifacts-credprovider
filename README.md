@@ -157,13 +157,14 @@ The Credential Provider accepts a set of environment variables. Not all of them 
 
 -   `ARTIFACTS_CREDENTIALPROVIDER_FEED_ENDPOINTS`: Json that contains an array of endpoints, usernames and azure service principal information needed to authenticate to Azure Artifacts feed endponts. Example:
     ```javascript
-    {"endpointCredentials": [{"endpoint":"http://example.index.json", "clientId":"required", "clientCertificateSubjectName":"optional", "clientCertificateFilePath":"optional"}]}
+    {"endpointCredentials": [{"endpoint":"http://example.index.json", "clientId":"required", "clientCertificateSubjectName":"optional", "clientCertificateFilePath":"optional", "clientSecret":"optional"}]}
     ```
 
     - `endpoint`: Required. Feed url to authenticate.
     - `clientId`: Required for both Azure Managed Identites and Service Principals. For user assigned managed identities enter the Entra client id. For system assigned managed identities set the value to `system`.
     - `clientCertificateSubjectName`: Subject Name of the certificate located in the CurrentUser or LocalMachine certificate store. Optional field. Only used for service principal authentication.
-    - `clientCertificateFilePath`: File path location of the certificate on the machine. Optional field. Only used by service principal authentication. 
+    - `clientCertificateFilePath`: File path location of the certificate on the machine. Optional field. Only used by service principal authentication.
+    - `clientSecret`: Client secret used for service principal authentication. Optional field. Only used for sevice principal authentication if client certificate is not specified. Prefer using a certificate for improved security.
 
 ## Release version 1.0.0
 

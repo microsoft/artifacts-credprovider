@@ -32,6 +32,8 @@ public class EndpointCredentials
     public string CertificateFilePath { get; set; }
     [JsonPropertyName("clientCertificateSubjectName")]
     public string CertificateSubjectName { get; set; }
+    [JsonPropertyName("clientSecret")]
+    public string ClientSecret { get; set; }
 }
 
 public class EndpointCredentialsContainer
@@ -72,25 +74,25 @@ public static class FeedEndpointCredentialsParser
                 if (credentials == null)
                 {
                     logger.Verbose(Resources.EndpointParseFailure);
-                    break;
+                    continue;
                 }
 
                 if (credentials.ClientId == null)
                 {
                     logger.Verbose(Resources.EndpointParseFailure);
-                    break;
+                    continue;
                 }
 
                 if (credentials.CertificateSubjectName != null && credentials.CertificateFilePath != null)
                 {
                     logger.Verbose(Resources.EndpointParseFailure);
-                    break;
+                    continue;
                 }
 
                 if (!Uri.TryCreate(credentials.Endpoint, UriKind.Absolute, out var endpointUri))
                 {
                     logger.Verbose(Resources.EndpointParseFailure);
-                    break;
+                    continue;
                 }
 
                 var urlEncodedEndpoint = endpointUri.AbsoluteUri;
@@ -105,7 +107,7 @@ public static class FeedEndpointCredentialsParser
         catch (Exception ex)
         {
             logger.Verbose(string.Format(Resources.VstsBuildTaskExternalCredentialCredentialProviderError, ex));
-            return new Dictionary<string, EndpointCredentials>(StringComparer.OrdinalIgnoreCase); ;
+            return new Dictionary<string, EndpointCredentials>(StringComparer.OrdinalIgnoreCase);
         }
     }
 
