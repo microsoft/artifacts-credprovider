@@ -21,7 +21,7 @@ public static class AzureArtifacts
     /// </summary>
     private const string LegacyClientId = "872cd9fa-d31f-45e0-9eab-6e460a02d1f1";
 
-    private const string MacOSXRedirectUri = "msauth.com.microsoft.azureartifacts.credentialprovider://auth";
+    private const string MacOSXRedirectUri = "msauth.CredentialProvider://auth";
 
     public static PublicClientApplicationBuilder CreateDefaultBuilder(Uri authority)
     {
