@@ -9,7 +9,7 @@ namespace Microsoft.Artifacts.Authentication;
 
 public class MsalTokenProviders
 {
-    public static IEnumerable<ITokenProvider> Get(IPublicClientApplication app, IPublicClientApplication appInteractiveBroker, bool brokerEnabled, ILogger logger)
+    public static IEnumerable<ITokenProvider> Get(IPublicClientApplication app, ILogger logger, IPublicClientApplication? appInteractiveBroker = null)
     {
         yield return new MsalServicePrincipalTokenProvider(app, logger);
         yield return new MsalManagedIdentityTokenProvider(app, logger);
@@ -23,7 +23,7 @@ public class MsalTokenProviders
         }
 
         // Use broker authentication first if enabled
-        if (brokerEnabled)
+        if (appInteractiveBroker != null)
         {
             yield return new MsalInteractiveTokenProvider(appInteractiveBroker, logger);
         }

@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using Microsoft.Artifacts.Authentication;
 using Microsoft.Extensions.Logging;
+using Microsoft.Identity.Client;
 using Microsoft.Identity.Client.Extensions.Msal;
 using NuGetCredentialProvider.Util;
 
@@ -42,23 +43,32 @@ namespace NuGetCredentialProvider.CredentialProviders.Vsts
                 .Build();
 
             var brokerEnabled = EnvUtil.MsalAllowBrokerEnabled();
-            var appInteractiveBroker = AzureArtifacts.CreateDefaultBuilder(authority)
-                .WithHttpClientFactory(HttpClientFactory.Default)
-                .WithLogging(
-                    (Microsoft.Identity.Client.LogLevel level, string message, bool containsPii) =>
-                    {
-                        // We ignore containsPii param because we are passing in enablePiiLogging below.
-                        logger.LogTrace("MSAL Log ({level}): {message}", level, message);
-                    },
-                    enablePiiLogging: EnvUtil.GetLogPIIEnabled()
-                )
-                .WithBroker(brokerEnabled, EnvUtil.GetMsalBrokerWindowHandle(), logger)
-                .Build();
+            #nullable enable
+            IPublicClientApplication? appInteractiveBroker = null;
+            #nullable disable
+            if (brokerEnabled)
+            {
+                appInteractiveBroker = AzureArtifacts.CreateDefaultBuilder(authority)
+                    .WithHttpClientFactory(HttpClientFactory.Default)
+                    .WithLogging(
+                        (Microsoft.Identity.Client.LogLevel level, string message, bool containsPii) =>
+                        {
+                            // We ignore containsPii param because we are passing in enablePiiLogging below.
+                            logger.LogTrace("MSAL Log ({level}): {message}", level, message);
+                        },
+                        enablePiiLogging: EnvUtil.GetLogPIIEnabled()
+                    )
+                    .WithBroker(brokerEnabled, EnvUtil.GetMsalBrokerWindowHandle(), logger)
+                    .Build();
+            }
 
             cache?.RegisterCache(app.UserTokenCache);
-            cache?.RegisterCache(appInteractiveBroker.UserTokenCache);
+            if (appInteractiveBroker != null)
+            {
+                cache?.RegisterCache(appInteractiveBroker.UserTokenCache);
+            }
 
-            return MsalTokenProviders.Get(app, appInteractiveBroker, brokerEnabled, logger);
+            return MsalTokenProviders.Get(app, logger, appInteractiveBroker: appInteractiveBroker);
         }
     }
 }
