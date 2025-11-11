@@ -38,11 +38,11 @@ public static class AzureArtifacts
 
     public static PublicClientApplicationBuilder WithBrokerRedirectUri(this PublicClientApplicationBuilder builder)
     {
-        return RuntimeInformation.IsOSPlatform(OSPlatform.OSX) switch
+        return true switch
         {
-            true when RuntimeInformation.IsOSPlatform(OSPlatform.OSX) => builder.WithRedirectUri(MacOSXRedirectUri),
+            _ when RuntimeInformation.IsOSPlatform(OSPlatform.OSX)   => builder.WithRedirectUri(MacOSXRedirectUri),
             _ when RuntimeInformation.IsOSPlatform(OSPlatform.Linux) => builder.WithRedirectUri(LinuxRedirectUri),
-            _ => builder // Windows or other platforms use default
+            _                                                        => builder // Windows or other platforms use default
         };
     }
 
