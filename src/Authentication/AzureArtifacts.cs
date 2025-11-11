@@ -30,7 +30,7 @@ public static class AzureArtifacts
 
         var builder = PublicClientApplicationBuilder.Create(prod ? AzureArtifacts.ClientId : AzureArtifacts.LegacyClientId)
             .WithAuthority(authority)
-            .WithDefaultRedirectUri();
+            .WithRedirectUri("http://localhost");
 
         return builder;
     }
