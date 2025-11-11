@@ -22,6 +22,7 @@ public static class AzureArtifacts
     private const string LegacyClientId = "872cd9fa-d31f-45e0-9eab-6e460a02d1f1";
 
     private const string MacOSXRedirectUri = "msauth.com.microsoft.azureartifacts.credentialprovider://auth";
+    private const string LinuxRedirectUri = "https://login.microsoftonline.com/oauth2/nativeclient";
 
     public static PublicClientApplicationBuilder CreateDefaultBuilder(Uri authority)
     {
@@ -30,19 +31,19 @@ public static class AzureArtifacts
 
         var builder = PublicClientApplicationBuilder.Create(prod ? AzureArtifacts.ClientId : AzureArtifacts.LegacyClientId)
             .WithAuthority(authority)
-            .WithDefaultRedirectUri();
+            .WithRedirectUri("http://localhost");
 
         return builder;
     }
 
-    public static PublicClientApplicationBuilder WithMacOSXRedirectUri(this PublicClientApplicationBuilder builder)
+    public static PublicClientApplicationBuilder WithBrokerRedirectUri(this PublicClientApplicationBuilder builder)
     {
-        if (!RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
+        return true switch
         {
-            return builder;
-        }
-
-        return builder.WithRedirectUri(MacOSXRedirectUri);
+            _ when RuntimeInformation.IsOSPlatform(OSPlatform.OSX)   => builder.WithRedirectUri(MacOSXRedirectUri),
+            _ when RuntimeInformation.IsOSPlatform(OSPlatform.Linux) => builder.WithRedirectUri(LinuxRedirectUri),
+            _                                                        => builder // Windows or other platforms use default
+        };
     }
 
     public static PublicClientApplicationBuilder WithBroker(this PublicClientApplicationBuilder builder, bool enableBroker, IntPtr? parentWindowHandle, ILogger logger)
@@ -56,7 +57,7 @@ public static class AzureArtifacts
         logger.LogTrace(Resources.MsalUsingBroker);
 
         return builder
-            .WithMacOSXRedirectUri()
+            .WithBrokerRedirectUri()
             .WithBroker(
                 new BrokerOptions(BrokerOptions.OperatingSystems.Windows | BrokerOptions.OperatingSystems.OSX | BrokerOptions.OperatingSystems.Linux)
                 {
