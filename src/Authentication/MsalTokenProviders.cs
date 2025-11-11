@@ -9,7 +9,7 @@ namespace Microsoft.Artifacts.Authentication;
 
 public class MsalTokenProviders
 {
-    public static IEnumerable<ITokenProvider> Get(IPublicClientApplication app, IPublicClientApplication appInteractiveBroker, ILogger logger)
+    public static IEnumerable<ITokenProvider> Get(IPublicClientApplication app, ILogger logger, IPublicClientApplication? appInteractiveBroker = null)
     {
         yield return new MsalServicePrincipalTokenProvider(app, logger);
         yield return new MsalManagedIdentityTokenProvider(app, logger);
@@ -22,7 +22,16 @@ public class MsalTokenProviders
             yield return new MsalIntegratedWindowsAuthTokenProvider(app, logger);
         }
 
-        yield return new MsalInteractiveTokenProvider(appInteractiveBroker, logger);
+        // Use broker authentication first if enabled
+        if (appInteractiveBroker != null)
+        {
+            yield return new MsalInteractiveTokenProvider(appInteractiveBroker, logger);
+        }
+
+        // Fallback to non-broker interactive browser auth
+        yield return new MsalInteractiveTokenProvider(app, logger);
+
+        // Fallback to device code flow as last resort
         yield return new MsalDeviceCodeTokenProvider(app, logger);
     }
 }
