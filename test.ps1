@@ -37,8 +37,8 @@ function Test-Frameworks {
             Remove-Item $credProviderPath -Force -ErrorAction SilentlyContinue
         }
         
-        Write-Host "Removing MSAL file cache at $env:NUGET_CREDENTIALPROVIDER_MSAL_FILECACHE_LOCATION" -ForegroundColor Yellow
         if (Test-Path $env:NUGET_CREDENTIALPROVIDER_MSAL_FILECACHE_LOCATION) {
+            Write-Host "Removing MSAL file cache at $env:NUGET_CREDENTIALPROVIDER_MSAL_FILECACHE_LOCATION" -ForegroundColor Yellow
             Remove-Item $env:NUGET_CREDENTIALPROVIDER_MSAL_FILECACHE_LOCATION -Force -ErrorAction SilentlyContinue
         }
         
