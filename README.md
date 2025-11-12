@@ -355,5 +355,5 @@ contact [opencode@microsoft.com](mailto:opencode@microsoft.com) with any additio
 
 ### Testing
 
-- Run `./test.ps1 -Uri <packageFeedUri>` to run end-to-end tests for common configurations of artifacts-credprovider
+- Run `./test.ps1 -TestFeed <packageFeedUri>` to run end-to-end tests for common configurations of artifacts-credprovider
 - Debug `CredentialProvider.Microsoft` by launching the `CredentialProvider.Microsoft (stand-alone)` configuration in the vs code debugger. You will be prompted to provide a packageFeedUri for testing.
