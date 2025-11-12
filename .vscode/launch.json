@@ -2,15 +2,18 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": ".NET Core Launch (console)",
+            "name": "CredentialProvider.Microsoft (stand-alone)",
             "type": "coreclr",
             "request": "launch",
             "preLaunchTask": "build",
             "program": "${workspaceFolder}/CredentialProvider.Microsoft/bin/Debug/net6.0/CredentialProvider.Microsoft.dll",
             "args": [
-                "-Uri", "https://pkgs.dev.azure.com/mseng/PipelineTools/_packaging/artifacts-credprovider/nuget/v3/index.json",
-                "-Verbosity", "Debug"
+                "-Uri",
+                "${input:packageFeedUri}",
+                "-Verbosity",
+                "Debug"
             ],
+            "env": {},
             "cwd": "${workspaceFolder}/CredentialProvider.Microsoft",
             "console": "integratedTerminal",
             "stopAtEntry": false
@@ -19,6 +22,14 @@
             "name": ".NET Core Attach",
             "type": "coreclr",
             "request": "attach"
+        }
+    ],
+    "inputs": [
+        {
+            "id": "packageFeedUri",
+            "description": "Package feed URI",
+            "default": "https://pkgs.dev.azure.com/mseng/PipelineTools/_packaging/artifacts-credprovider/nuget/v3/index.json",
+            "type": "promptString"
         }
     ]
 }
