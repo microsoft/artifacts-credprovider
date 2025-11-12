@@ -395,3 +395,8 @@ When submitting a pull request, please include a description of the problem your
 This project has adopted the [Microsoft Open Source Code of Conduct](https://opensource.microsoft.com/codeofconduct/).
 For more information see the [Code of Conduct FAQ](https://opensource.microsoft.com/codeofconduct/faq/) or
 contact [opencode@microsoft.com](mailto:opencode@microsoft.com) with any additional questions or comments.
+
+### Testing
+
+- Run `./test.ps1 -TestFeed <packageFeedUri>` to run end-to-end tests for common configurations of artifacts-credprovider
+- Debug `CredentialProvider.Microsoft` by launching the `CredentialProvider.Microsoft (stand-alone)` configuration in the vs code debugger. You will be prompted to provide a packageFeedUri for testing.
