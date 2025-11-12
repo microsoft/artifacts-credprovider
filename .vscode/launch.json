@@ -2,7 +2,7 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": ".NET Core Launch (console)",
+            "name": "CredentialProvider.Microsoft (stand-alone)",
             "type": "coreclr",
             "request": "launch",
             "preLaunchTask": "build",
@@ -13,9 +13,7 @@
                 "-Verbosity",
                 "Debug"
             ],
-            "env": {
-                // "NUGET_CREDENTIALPROVIDER_MSAL_ALLOW_BROKER": "true"
-            },
+            "env": {},
             "cwd": "${workspaceFolder}/CredentialProvider.Microsoft",
             "console": "integratedTerminal",
             "stopAtEntry": false
