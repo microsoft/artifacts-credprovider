@@ -132,6 +132,18 @@ public class ExternalCredentialsList : List<ExternalCredentialsBase>
         return false;
     }
 
+
+    public ExternalCredentialsBase this[string index]
+    {
+        get
+        {
+            if (FindMatch(index, out var matchingExternalEndpoint))
+            {
+                return matchingExternalEndpoint;
+            }
+            return null;
+        }
+    }
 }
 
 public class ExternalEndpointCredentialsContainer
