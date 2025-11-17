@@ -18,13 +18,13 @@ namespace NuGetCredentialProvider.CredentialProviders.VstsBuildTaskServiceEndpoi
     public sealed class VstsBuildTaskServiceEndpointCredentialProvider : CredentialProviderBase
     {
         private Lazy<Dictionary<string, EndpointCredentials>> LazyCredentials;
-        private Lazy<Dictionary<string, ExternalEndpointCredentials>> LazyExternalCredentials;
+        private Lazy<ExternalCredentialsList> LazyExternalCredentials;
         private ITokenProvidersFactory TokenProvidersFactory;
         private IAuthUtil AuthUtil;
 
         // Dictionary that maps an endpoint string to EndpointCredentials
         private Dictionary<string, EndpointCredentials> Credentials => LazyCredentials.Value;
-        private Dictionary<string, ExternalEndpointCredentials> ExternalCredentials => LazyExternalCredentials.Value;
+        private ExternalCredentialsList ExternalCredentials => LazyExternalCredentials.Value;
 
         public VstsBuildTaskServiceEndpointCredentialProvider(ILogger logger, ITokenProvidersFactory tokenProvidersFactory, IAuthUtil authUtil)
             : base(logger)
@@ -34,9 +34,9 @@ namespace NuGetCredentialProvider.CredentialProviders.VstsBuildTaskServiceEndpoi
             {
                 return FeedEndpointCredentialsParser.ParseFeedEndpointsJsonToDictionary(logger);
             });
-            LazyExternalCredentials = new Lazy<Dictionary<string, ExternalEndpointCredentials>>(() =>
+            LazyExternalCredentials = new Lazy<ExternalCredentialsList>(() =>
             {
-                return FeedEndpointCredentialsParser.ParseExternalFeedEndpointsJsonToDictionary(logger);
+                return FeedEndpointCredentialsParser.ParseExternalFeedEndpointsJsonToList(logger);
             });
             AuthUtil = authUtil;
         }
@@ -66,7 +66,7 @@ namespace NuGetCredentialProvider.CredentialProviders.VstsBuildTaskServiceEndpoi
             Verbose(string.Format(Resources.IsRetry, request.IsRetry));
 
             string uriString = request.Uri.AbsoluteUri;
-            bool externalEndpointFound = ExternalCredentials.TryGetValue(uriString, out ExternalEndpointCredentials matchingExternalEndpoint);
+            bool externalEndpointFound = ExternalCredentials.FindMatch(uriString, out var matchingExternalEndpoint);
             if (externalEndpointFound && !string.IsNullOrWhiteSpace(matchingExternalEndpoint.Password))
             {
                 Verbose(string.Format(Resources.BuildTaskEndpointMatchingUrlFound, uriString));

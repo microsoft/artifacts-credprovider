@@ -204,7 +204,7 @@ public class VstsBuildTaskServiceEndpointCredentialProviderTests
 
         mockTokenProviderFactory.Setup(x =>
             x.GetAsync(It.IsAny<Uri>()))
-                .ReturnsAsync(new List<ITokenProvider>() { 
+                .ReturnsAsync(new List<ITokenProvider>() {
                     SetUpMockManagedIdentityTokenProvider(null).Object });
 
         var result = await vstsCredentialProvider.HandleRequestAsync(new GetAuthenticationCredentialsRequest(sourceUri, false, false, false), CancellationToken.None);
@@ -274,4 +274,34 @@ public class VstsBuildTaskServiceEndpointCredentialProviderTests
 
         return mockTokenProvider;
     }
-}
+
+    [DataTestMethod]
+    [DataRow(EnvUtil.BuildTaskExternalEndpoints)]
+    [DataRow(EnvUtil.EndpointCredentials)]
+    public async Task CanProvideCredentialsPrefix_ReturnsTrueForCorrectEnvironmentVariable(string feedEndPointJsonEnvVar)
+    {
+        Uri sourceUri = new Uri(@"http://example.pkgs.vsts.me/_packaging/TestFeed/nuget/v3/index.json");
+        string feedEndPointJson = "{\"endpointCredentials\":[{\"endpointPrefix\":\"http://example.pkgs.vsts.me/\", \"username\": \"testUser\", \"password\":\"testToken\"}]}";
+
+        Environment.SetEnvironmentVariable(feedEndPointJsonEnvVar, feedEndPointJson);
+
+        var result = await vstsCredentialProvider.CanProvideCredentialsAsync(sourceUri);
+        Assert.AreEqual(true, result);
+    }
+
+    [TestMethod]
+    public async Task HandleRequestAsync_WithExternalEndpointPrefix_ReturnsSuccess()
+    {
+        Uri sourceUri = new Uri(@"http://example.pkgs.vsts.me/_packaging/TestFeed/nuget/v3/index.json");
+        string feedEndPointJson = "{\"endpointCredentials\":[{\"endpointPrefix\":\"http://example.pkgs.vsts.me/\", \"username\": \"testUser\", \"password\": \"testToken\"}]}";
+
+        Environment.SetEnvironmentVariable(EnvUtil.EndpointCredentials, null);
+        Environment.SetEnvironmentVariable(EnvUtil.BuildTaskExternalEndpoints, feedEndPointJson);
+
+        var result = await vstsCredentialProvider.HandleRequestAsync(new GetAuthenticationCredentialsRequest(sourceUri, false, false, false), CancellationToken.None);
+        Assert.AreEqual(MessageResponseCode.Success, result.ResponseCode);
+        Assert.AreEqual("testUser", result.Username);
+        Assert.AreEqual("testToken", result.Password);
+    }
+
+}    
