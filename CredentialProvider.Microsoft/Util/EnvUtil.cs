@@ -55,6 +55,7 @@ namespace NuGetCredentialProvider.Util
         public const string LegacyBuildTaskExternalEndpoints = "VSS_NUGET_EXTERNAL_FEED_ENDPOINTS";
         public const string ProgramContext = "ARTIFACTS_CREDENTIALPROVIDER_PROGRAM_CONTEXT";
         public const string MsalBrokerWindowEnvVar = "ARTIFACTS_CREDENTIALPROVIDER_MSAL_BROKER_WINDOW";
+        public const string EntraTokenOptInEnvVar = "ARTIFACTS_CREDENTIALPROVIDER_RETURN_ENTRA_TOKENS";
 
         // Map of new environment variables to their legacy equivalents
         private static readonly Dictionary<string, string> EnvVarLegacyMap = new Dictionary<string, string>
@@ -78,7 +79,6 @@ namespace NuGetCredentialProvider.Util
             { MsalAllowBrokerEnvVar, LegacyMsalAllowBrokerEnvVar },
             { BuildTaskExternalEndpoints, LegacyBuildTaskExternalEndpoints },
         };
-
         // Prefer new variable, if null fallback to legacy
         public static string GetEnvironmentVariable(string envVar)
         {
@@ -166,6 +166,11 @@ namespace NuGetCredentialProvider.Util
             }
 
             return new IntPtr(numericHandle);
+        }
+
+        public static bool EntraTokenOptInEnabled()
+        {
+            return GetEnabledFromEnvironment(EntraTokenOptInEnvVar, defaultValue: false);
         }
 
         public static IList<string> GetHostsFromEnvironment(ILogger logger, string envVar, IEnumerable<string> defaultHosts, [CallerMemberName] string collectionName = null)
