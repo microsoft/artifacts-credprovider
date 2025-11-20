@@ -18,10 +18,10 @@ if [ ! -z ${ARTIFACTS_CREDENTIAL_PROVIDER_RID} ]; then
 
   # If the RID is osx-*, use the zip file otherwise use the tar.gz file.
   case ${ARTIFACTS_CREDENTIAL_PROVIDER_RID} in osx-* )
-    FILE="Microsoft.Net8.${ARTIFACTS_CREDENTIAL_PROVIDER_RID}.NuGet.CredentialProvider.zip"
+    FILE="Microsoft.${ARTIFACTS_CREDENTIAL_PROVIDER_RID}.NuGet.CredentialProvider.zip"
     ;;
     *)
-    FILE="Microsoft.Net8.${ARTIFACTS_CREDENTIAL_PROVIDER_RID}.NuGet.CredentialProvider.tar.gz"
+    FILE="Microsoft.${ARTIFACTS_CREDENTIAL_PROVIDER_RID}.NuGet.CredentialProvider.tar.gz"
     ;;
   esac
 
