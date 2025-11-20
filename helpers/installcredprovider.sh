@@ -16,26 +16,38 @@ NUGET_PLUGIN_DIR="$HOME/.nuget/plugins"
 if [ ! -z ${ARTIFACTS_CREDENTIAL_PROVIDER_RID} ]; then
   echo "INFO: ARTIFACTS_CREDENTIAL_PROVIDER_RID variable set, defaulting to NET8 installation."
 
-  # If the RID is osx-*, use the zip file otherwise use the tar.gz file.
-  case ${ARTIFACTS_CREDENTIAL_PROVIDER_RID} in osx-* )
-    FILE="Microsoft.${ARTIFACTS_CREDENTIAL_PROVIDER_RID}.NuGet.CredentialProvider.zip"
-    ;;
+  # Version 1.5.0+ uses simplified naming: Microsoft.{rid}.NuGet.CredentialProvider.{ext}
+  # Earlier versions use: Microsoft.Net8.{rid}.NuGet.CredentialProvider.{ext}
+  case ${AZURE_ARTIFACTS_CREDENTIAL_PROVIDER_VERSION} in
+    1.0.*|v1.0.*|1.1.*|v1.1.*|1.2.*|v1.2.*|1.3.*|v1.3.*|1.4.*|v1.4.*)
+      # Use legacy naming for versions 1.0.x through 1.4.x
+      case ${ARTIFACTS_CREDENTIAL_PROVIDER_RID} in osx-* )
+        FILE="Microsoft.Net8.${ARTIFACTS_CREDENTIAL_PROVIDER_RID}.NuGet.CredentialProvider.zip"
+        ;;
+        *)
+        FILE="Microsoft.Net8.${ARTIFACTS_CREDENTIAL_PROVIDER_RID}.NuGet.CredentialProvider.tar.gz"
+        ;;
+      esac
+      ;;
+    0.*|v0.*)
+      echo "ERROR: To install NET8 cred provider using the ARTIFACTS_CREDENTIAL_PROVIDER_RID variable, version to be installed must be 1.4.0 or greater. Check your AZURE_ARTIFACTS_CREDENTIAL_PROVIDER_VERSION variable."
+      exit 1
+      ;;
     *)
-    FILE="Microsoft.${ARTIFACTS_CREDENTIAL_PROVIDER_RID}.NuGet.CredentialProvider.tar.gz"
-    ;;
+      # Use simplified naming for version 1.5.0+ or latest
+      case ${ARTIFACTS_CREDENTIAL_PROVIDER_RID} in osx-* )
+        FILE="Microsoft.${ARTIFACTS_CREDENTIAL_PROVIDER_RID}.NuGet.CredentialProvider.zip"
+        ;;
+        *)
+        FILE="Microsoft.${ARTIFACTS_CREDENTIAL_PROVIDER_RID}.NuGet.CredentialProvider.tar.gz"
+        ;;
+      esac
+      ;;
   esac
 
   if [ -z ${USE_NET6_ARTIFACTS_CREDENTIAL_PROVIDER} ]; then
     echo "WARNING: The USE_NET6_ARTIFACTS_CREDENTIAL_PROVIDER variable is set, but ARTIFACTS_CREDENTIAL_PROVIDER_RID variable is defined. The NET8 version of the credential provider will be installed."
   fi
-  
-  # throw if version starts < 1.4.0. (self-contained not supported)
-  case ${AZURE_ARTIFACTS_CREDENTIAL_PROVIDER_VERSION} in 
-    0.*|v0.*|1.0.*|v1.0.*|1.1.*|v1.1.*|1.2.*|v1.2.*|1.3.*|v1.3.*)
-      echo "ERROR: To install NET8 cred provider using the ARTIFACTS_CREDENTIAL_PROVIDER_RID variable, version to be installed must be 1.4.0 or greater. Check your AZURE_ARTIFACTS_CREDENTIAL_PROVIDER_VERSION variable."
-      exit 1
-      ;;
-  esac
 # If .NET 8 variable is set, install the .NET 8 version of the credential provider even if USE_NET6_ARTIFACTS_CREDENTIAL_PROVIDER is true.
 elif [ ! -z ${USE_NET8_ARTIFACTS_CREDENTIAL_PROVIDER} ] && [ ${USE_NET8_ARTIFACTS_CREDENTIAL_PROVIDER} != "false" ]; then
   # Default to the full zip file since ARTIFACTS_CREDENTIAL_PROVIDER_RID is not specified.

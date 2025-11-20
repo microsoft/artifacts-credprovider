@@ -149,7 +149,15 @@ if ($InstallNet8 -eq $True) {
     $zipFile = "Microsoft.Net8.NuGet.CredentialProvider.zip"
 }
 if (![string]::IsNullOrEmpty($RuntimeIdentifier)) {
-    $zipFile = "Microsoft.$RuntimeIdentifier.NuGet.CredentialProvider.zip"
+    # Version 1.5.0+ uses simplified naming: Microsoft.{rid}.NuGet.CredentialProvider.zip
+    # Earlier versions use: Microsoft.Net8.{rid}.NuGet.CredentialProvider.zip
+    if ([string]::IsNullOrEmpty($Version) -or 
+        (!$Version.StartsWith("1.0") -and !$Version.StartsWith("1.1") -and 
+         !$Version.StartsWith("1.2") -and !$Version.StartsWith("1.3") -and !$Version.StartsWith("1.4"))) {
+        $zipFile = "Microsoft.$RuntimeIdentifier.NuGet.CredentialProvider.zip"
+    } else {
+        $zipFile = "Microsoft.Net8.$RuntimeIdentifier.NuGet.CredentialProvider.zip"
+    }
 }
 if ($AddNetfx -eq $True) {
     Write-Warning "The .Net Framework 4.6.1 version of the Credential Provider is deprecated and will be removed in the next major release. Please migrate to the .Net Framework 4.8 or .Net Core versions."
