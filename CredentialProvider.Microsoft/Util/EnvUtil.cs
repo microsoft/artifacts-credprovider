@@ -1,4 +1,4 @@
-// Copyright (c) Microsoft. All rights reserved.
+﻿// Copyright (c) Microsoft. All rights reserved.
 //
 // Licensed under the MIT license.
 
@@ -149,7 +149,7 @@ namespace NuGetCredentialProvider.Util
 
         public static bool MsalAllowBrokerEnabled()
         {
-            return GetEnabledFromEnvironment(MsalAllowBrokerEnvVar, RuntimeInformation.IsOSPlatform(OSPlatform.Windows));
+            return GetEnabledFromEnvironment(MsalAllowBrokerEnvVar, defaultValue: true);
         }
 
         public static IntPtr? GetMsalBrokerWindowHandle()
