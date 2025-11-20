@@ -100,7 +100,7 @@ namespace NuGetCredentialProvider.Util
 
         public static bool MsalAllowBrokerEnabled()
         {
-            return GetEnabledFromEnvironment(MsalAllowBrokerEnvVar, defaultValue: RuntimeInformation.IsOSPlatform(OSPlatform.Windows));
+            return GetEnabledFromEnvironment(MsalAllowBrokerEnvVar, defaultValue: true);
         }
 
         public static IntPtr? GetMsalBrokerWindowHandle()
