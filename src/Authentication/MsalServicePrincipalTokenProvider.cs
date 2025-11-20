@@ -21,7 +21,7 @@ namespace Microsoft.Artifacts.Authentication
         public bool CanGetToken(TokenRequest tokenRequest)
         {
             return !string.IsNullOrWhiteSpace(tokenRequest.ClientId)
-                && tokenRequest.ClientCertificate != null;
+                && (tokenRequest.ClientCertificate != null || tokenRequest.ClientSecret != null);
         }
 
         public async Task<AuthenticationResult?> GetTokenAsync(TokenRequest tokenRequest, CancellationToken cancellationToken = default)
@@ -37,7 +37,7 @@ namespace Microsoft.Artifacts.Authentication
                 var app = ConfidentialClientApplicationBuilder.Create(tokenRequest.ClientId)
                     .WithHttpClientFactory(appConfig.HttpClientFactory)
                     .WithLogging(appConfig.LoggingCallback, appConfig.LogLevel, appConfig.EnablePiiLogging, appConfig.IsDefaultPlatformLoggingEnabled)
-                    .WithCertificate(tokenRequest.ClientCertificate, sendX5C: true)
+                    .WithCertificateOrClientSecret(tokenRequest)
                     .WithTenantId(tokenRequest.TenantId)
                     .Build();
 
@@ -51,6 +51,24 @@ namespace Microsoft.Artifacts.Authentication
             {
                 logger.LogTrace(ex.Message);
                 return null;
+            }
+        }
+    }
+
+    public static class MsalApplicationBuilderExtensions
+    {
+        public static ConfidentialClientApplicationBuilder WithCertificateOrClientSecret(
+            this ConfidentialClientApplicationBuilder builder,
+            TokenRequest tokenRequest
+        )
+        {
+            if (tokenRequest.ClientCertificate != null)
+            {
+                return builder.WithCertificate(tokenRequest.ClientCertificate, sendX5C: true);
+            }
+            else
+            {
+                return builder.WithClientSecret(tokenRequest.ClientSecret?.GetSecretString()!);
             }
         }
     }

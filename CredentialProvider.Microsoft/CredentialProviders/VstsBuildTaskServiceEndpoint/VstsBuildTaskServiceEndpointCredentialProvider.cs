@@ -101,7 +101,8 @@ namespace NuGetCredentialProvider.CredentialProviders.VstsBuildTaskServiceEndpoi
                     InteractiveTimeout = TimeSpan.FromSeconds(EnvUtil.GetDeviceFlowTimeoutFromEnvironmentInSeconds(Logger)),
                     ClientId = matchingEndpoint.ClientId,
                     ClientCertificate = clientCertificate,
-                    TenantId = authInfo.EntraTenantId
+                    TenantId = authInfo.EntraTenantId,
+                    ClientSecret = !string.IsNullOrEmpty(matchingEndpoint.ClientSecret) ? new(matchingEndpoint.ClientSecret) : null,
                 };
 
                 foreach(var tokenProvider in tokenProviders)
