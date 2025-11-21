@@ -307,7 +307,12 @@ MSAL Token File Cache Enabled
 
 Provide MSAL Cache Location
     NUGET_CREDENTIALPROVIDER_MSAL_FILECACHE_LOCATION
-    Provide the location where the MSAL cache should be read and written to.
+        Provide the location where the MSAL cache should be read and written to.
+
+Provide a default value for verbosity
+    ARTIFACTS_CREDENTIALPROVIDER_VERBOSITY_DEFAULT
+        Provides a value to be used when Verbosity (-V) option is not present.
+        Valid choices are: Debug, Verbose, Information, Minimal, Warning, Error
 
 ```
 
@@ -317,6 +322,8 @@ This means that either nuget/dotnet was unable to find the cred provider from [N
 
 #### How do I get better error logs from the cred provider?
 Run the nuget.exe/dotnet command with detailed verbosity to see more cred provider logs that may help debugging (`nuget.exe -verbosity detailed`, `dotnet --verbosity detailed`).
+
+Or set the environment variable `ARTIFACTS_CREDENTIALPROVIDER_VERBOSITY_DEFAULT` to `Verbose` to enable more logging if you cannot directly control the command line.
 
 #### How do I find out if my issue is a real 401?
 Run the credential provider directly with the following command: `C:\Users\<user>\.nuget\plugins\netfx\CredentialProvider.Microsoft\CredentialProvider.Microsoft.exe  -I -V Verbose -U "https://pkgs.dev.azure.com/{organization}/{project-if-feed-is-project-scoped}/_packaging/{feed}/nuget/v3/index.json"`. Check you have the right permissions from the [feed permissions](https://docs.microsoft.com/en-us/azure/devops/artifacts/feeds/feed-permissions?view=azure-devops).
