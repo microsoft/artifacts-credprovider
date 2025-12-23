@@ -134,6 +134,12 @@ if [ ! -d "${NUGET_PLUGIN_DIR}" ]; then
   fi
 fi
 
+# Remove existing content from Microsoft credential provider to ensure clean installation
+if [ -d "${NUGET_PLUGIN_DIR}/netcore/CredentialProvider.Microsoft" ]; then
+  echo "INFO: Removing existing Microsoft credential provider for clean installation"
+  rm -rf "${NUGET_PLUGIN_DIR}/netcore/CredentialProvider.Microsoft"
+fi
+
 echo "INFO: Downloading from $URI"
 # Extract netcore from the .tar.gz into the plugin directory
 
