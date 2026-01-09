@@ -63,22 +63,19 @@ if ($Version) {
     }
 }
 
-# Construct the GitHub release URL
 if ($Version -and ($Version.StartsWith("0.") -or $Version.StartsWith("1."))) {
-    # For versions 0.x and 1.0.x, use the last 1.x release URL without sha256 validation
-    # for backward compatibility
+    # For versions 0.x and 1.0.x, use the last 1.x release URL for backward compatibility
     $ReleaseVersion = "1.4.1"
     $releaseUrl = Get-ReleaseUrl
 }
 else {
     $ReleaseVersion = $Version
     $releaseUrl = Get-ReleaseUrl
-    $checksumUrl = "$releaseUrl/artifacts-credprovider-sha256.txt"
 }
 
 $installScriptName = "installcredprovider.ps1"
 try {
-    Write-Host "Fetching release $releaseUrl"
+    Write-Host "Fetching release metadata from $releaseUrl"
     $release = Invoke-WebRequest -UseBasicParsing $releaseUrl
     if (!$release) {
         throw ("Unable to make Web Request to $releaseUrl")
@@ -90,6 +87,13 @@ try {
     $installAsset = $releaseJson.assets | ? { $_.name -eq $installScriptName }
     if (!$installAsset) {
         throw ("Unable to find asset $installScriptName from release JSON object")
+    }
+    $installHash = $installAsset.digest
+    if ($installHash -and $installHash.StartsWith("sha256:")) {
+        $expectedHash = $installHash.Substring(7) # Remove "sha256:" prefix
+    }
+    else {
+        $expectedHash = $null
     }
     $installUrl = $installAsset.browser_download_url
     if (!$installUrl) {
@@ -108,32 +112,6 @@ if ($Version) {
 }
 if ($AdditionalParams) {
     $paramString += $AdditionalParams
-}
-
-# Fetch the checksum file and validate the hash
-try {
-    if ($null -ne $checksumUrl) {
-        Write-Host "Fetching checksum file from $checksumUrl..."
-        $response = Invoke-WebRequest -Uri $checksumUrl -UseBasicParsing
-        $checksumContent = $response.Content
-
-        # Extract the expected hash from the checksum content by splitting by newline and finding the entry for installcredprovider.ps1
-        $checksumLines = $checksumContent -split '\r?\n'
-        $matchingLine = $checksumLines | Where-Object { $_ -match $installScriptName }
-        
-        if ($matchingLine) {
-            # Extract the hash from the matching line which are formatted as "filename hash"
-            $parts = $matchingLine -split '\s+'
-            $expectedHash = $parts[1]
-        }
-        else {
-            Write-Warning "Could not find hash for $installScriptName in artifacts-credprovider-sha256.txt. Proceeding without SHA256 validation."
-        }
-    }
-}
-catch {
-    Write-Warning "Failed to fetch or parse checksum file from $checksumUrl. Proceeding without SHA256 validation."
-    $expectedHash = $null
 }
 
 try {
