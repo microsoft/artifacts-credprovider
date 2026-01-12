@@ -87,7 +87,7 @@ jobs:
   - template: validate-install-script-bash.yml@self
     parameters:
       repo: self
-      scriptEnvVariables: '-Version 2.0.0-beta'
+      scriptEnvVariables: 'AZURE_ARTIFACTS_CREDENTIAL_PROVIDER_VERSION=2.0.0-beta'
       expectedCredentialProviderVersion: 'Microsoft.linux-x64.NuGet.CredentialProvider'
 - job: LinuxInstallNet8
   pool:

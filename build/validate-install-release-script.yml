@@ -51,7 +51,7 @@ jobs:
     parameters:
       repo: self
       scriptInputs: '-AddNetfx'
-      expectedCredentialProviderVersion: 'Microsoft.NuGet.CredentialProvider'
+      expectedCredentialProviderVersion: 'Microsoft.NetFx48.NuGet.CredentialProvider'
       releaseVersion: '2.0.0-beta'
 
 - job: LinuxReleaseInstallDefault
@@ -101,7 +101,7 @@ jobs:
       scriptEnvVariables: |
         export USE_NET6_ARTIFACTS_CREDENTIAL_PROVIDER=false
         export USE_NET8_ARTIFACTS_CREDENTIAL_PROVIDER=false
-      expectedCredentialProviderVersion: 'Microsoft.NuGet.CredentialProvider'
+      expectedCredentialProviderVersion: 'Microsoft.NetFx48.NuGet.CredentialProvider'
       releaseVersion: '2.0.0-beta'
 
 - job: LinuxReleaseInstallNet8linuxx64
