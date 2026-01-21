@@ -23,17 +23,19 @@ if [ -z "${AZURE_ARTIFACTS_CREDENTIAL_PROVIDER_VERSION}" ] || [ "${AZURE_ARTIFAC
   INSTALL_URL="${RELEASE_BASE_URL}/latest/download/${INSTALL_SCRIPT}"
   echo "No version specified, using latest release."
 else
-  # Validate version format
-  if ! [[ "${VERSION}" =~ ^[0-9]+\.[0-9]+\.[0-9]+(-[a-zA-Z0-9]+(\.[a-zA-Z0-9]+)*)?$ ]]; then
+  # Validate version format (POSIX-compliant)
+  if ! echo "${VERSION}" | grep -qE '^[0-9]+\.[0-9]+\.[0-9]+(-[a-zA-Z0-9]+(\.[a-zA-Z0-9]+)*)?$'; then
     echo "ERROR: Invalid version format. Please use format #.#.# (e.g., 1.4.1)"
     exit 1
   fi
   
   # For versions 0.x and 1.x, use the last published 1.x version for backward compatibility
-  if [[ "${VERSION}" == 0.* ]] || [[ "${VERSION}" == 1.* ]]; then
+  case "${VERSION}" in
+  0.* | 1.*)
     echo "Using installcredprovider script from version 1.4.1 to support 0.x and 1.x versions."
     VERSION="1.4.1"
-  fi
+    ;;
+  esac
 
   # Attach 'v' prefix since it was removed during normalization
   TAG_VERSION="v${VERSION}"
@@ -62,34 +64,30 @@ if [ -z "${API_RESPONSE}" ]; then
   exit 1
 else
   EXPECTED_HASH=""
-  FOUND_ASSET=false
+  DIGEST_VALUE=""
 
-  while IFS= read -r line; do
-    if [[ "${line}" == *"\"name\":"*"\"${INSTALL_SCRIPT}\""* ]]; then
-      FOUND_ASSET=true
-      continue
-    fi
-
-    if [ "${FOUND_ASSET}" = false ]; then
-      continue
-    fi
-
-    if [[ "${line}" == *"\"digest\":"* ]]; then
-      DIGEST_VALUE=$(echo "${line}" | sed 's/.*"digest"[[:space:]]*:[[:space:]]*//' | sed 's/[[:space:]]*,$//' | tr -d '"')
-      break
-    fi
-
-    if [[ "${line}" == *"\"name\":"* ]]; then
-      break
-    fi
-  done <<< "${API_RESPONSE}"
+  # Extract digest using POSIX-compliant approach
+  # First find the line with our asset name, then find the digest line that follows
+  DIGEST_VALUE=$(echo "${API_RESPONSE}" | awk -v asset="${INSTALL_SCRIPT}" '
+    /"name":.*"'"${INSTALL_SCRIPT}"'"/ { found=1; next }
+    found && /"digest":/ {
+      gsub(/.*"digest"[[:space:]]*:[[:space:]]*"?/, "")
+      gsub(/"?[[:space:]]*,?$/, "")
+      print
+      exit
+    }
+    found && /"name":/ { exit }
+  ')
 
   if [ -n "${DIGEST_VALUE}" ] && [ "${DIGEST_VALUE}" != "null" ]; then
-    if [[ "${DIGEST_VALUE}" == sha256:* ]]; then
+    case "${DIGEST_VALUE}" in
+    sha256:*)
       EXPECTED_HASH="${DIGEST_VALUE#sha256:}"
-    else
+      ;;
+    *)
       echo "WARNING: Invalid digest '${DIGEST_VALUE}', expected sha256: format"
-    fi
+      ;;
+    esac
   fi
 
   if [ -z "${EXPECTED_HASH}" ]; then

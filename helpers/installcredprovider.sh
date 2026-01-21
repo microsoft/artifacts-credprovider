@@ -13,18 +13,23 @@ NUGET_PLUGIN_DIR="$HOME/.nuget/plugins"
 VERSION_NORMALIZED=$(echo "${AZURE_ARTIFACTS_CREDENTIAL_PROVIDER_VERSION}" | sed 's/^v//')
 
 set_runtime_identifier() {
-  if [[ "$OSTYPE" == "linux-gnu"* ]]; then
+  case "$OSTYPE" in
+  linux-gnu*)
     RUNTIME_ID="linux"
-  elif [[ "$OSTYPE" == "darwin"* ]]; then
+    ;;
+  darwin*)
     RUNTIME_ID="osx"
-  elif [[ "$OSTYPE" == "cygwin" ]] || [[ "$OSTYPE" == "msys" ]] || [[ "$OSTYPE" == "win32" ]]; then
+    ;;
+  cygwin | msys | win32)
     RUNTIME_ID="win"
-  else
+    ;;
+  *)
     echo "WARNING: Unable to automatically detect a supported OS from '$OSTYPE'. The .NET 8 version will be installed by default. Please set the ARTIFACTS_CREDENTIAL_PROVIDER_RID environment variable to specify a runtime version." >&2
     return ""
-  fi
+    ;;
+  esac
 
-  local arch=$(uname -m)
+  arch=$(uname -m)
   case "$arch" in
     x86_64 | amd64)
       OS_ARCH="-x64"
@@ -39,7 +44,7 @@ set_runtime_identifier() {
   esac
 
   # Windows on ARM64 runs x64 binaries (similar to PowerShell logic)
-  if [[ "$OS_ARCH" == "-arm64" && "$RUNTIME_ID" == "win" ]]; then
+  if [ "$OS_ARCH" = "-arm64" ] && [ "$RUNTIME_ID" = "win" ]; then
     RUNTIME_ID="${RUNTIME_ID}-x64"
   else
     RUNTIME_ID="${RUNTIME_ID}${OS_ARCH}"
@@ -97,11 +102,14 @@ elif [ -z ${USE_NET8_ARTIFACTS_CREDENTIAL_PROVIDER} ] || [ ${USE_NET8_ARTIFACTS_
     # Self-contained builds use RID without .Net8 prefix (v2.0.0+)
     set_runtime_identifier
 
-    if [ ${RUNTIME_ID} == "osx-x64" ] || [ ${RUNTIME_ID} == "osx-arm64" ]; then
+    case "${RUNTIME_ID}" in
+    osx-x64 | osx-arm64)
       FILE="Microsoft.${RUNTIME_ID}.NuGet.CredentialProvider.zip"
-    else
+      ;;
+    *)
       FILE="Microsoft.${RUNTIME_ID}.NuGet.CredentialProvider.tar.gz"
-    fi
+      ;;
+    esac
   fi
 
   # throw if version starts < 1.3.0. (net8 not supported)
