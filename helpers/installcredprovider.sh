@@ -13,19 +13,21 @@ NUGET_PLUGIN_DIR="$HOME/.nuget/plugins"
 VERSION_NORMALIZED=$(echo "${AZURE_ARTIFACTS_CREDENTIAL_PROVIDER_VERSION}" | sed 's/^v//')
 
 set_runtime_identifier() {
-  case "$OSTYPE" in
-  linux-gnu*)
+  # Use uname -s for POSIX-compliant OS detection (OSTYPE is bash-specific)
+  OS_NAME=$(uname -s)
+  case "$OS_NAME" in
+  Linux*)
     RUNTIME_ID="linux"
     ;;
-  darwin*)
+  Darwin*)
     RUNTIME_ID="osx"
     ;;
-  cygwin | msys | win32)
+  CYGWIN* | MINGW* | MSYS*)
     RUNTIME_ID="win"
     ;;
   *)
-    echo "WARNING: Unable to automatically detect a supported OS from '$OSTYPE'. The .NET 8 version will be installed by default. Please set the ARTIFACTS_CREDENTIAL_PROVIDER_RID environment variable to specify a runtime version." >&2
-    return ""
+    echo "WARNING: Unable to automatically detect a supported OS from '$OS_NAME'. The .NET 8 version will be installed by default. Please set the ARTIFACTS_CREDENTIAL_PROVIDER_RID environment variable to specify a runtime version." >&2
+    return 1
     ;;
   esac
 
@@ -39,7 +41,7 @@ set_runtime_identifier() {
       ;;
     *)
       echo "WARNING: Unable to automatically detect a supported CPU architecture from '$arch'. The .NET 8 version will be installed by default. Please set the ARTIFACTS_CREDENTIAL_PROVIDER_RID environment variable to specify a runtime version." >&2
-      return ""
+      return 1
       ;;
   esac
 
