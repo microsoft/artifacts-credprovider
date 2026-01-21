@@ -27,7 +27,7 @@ set_runtime_identifier() {
     ;;
   *)
     echo "WARNING: Unable to automatically detect a supported OS from '$OS_NAME'. The .NET 8 version will be installed by default. Please set the ARTIFACTS_CREDENTIAL_PROVIDER_RID environment variable to specify a runtime version." >&2
-    return 1
+    return
     ;;
   esac
 
@@ -41,7 +41,7 @@ set_runtime_identifier() {
       ;;
     *)
       echo "WARNING: Unable to automatically detect a supported CPU architecture from '$arch'. The .NET 8 version will be installed by default. Please set the ARTIFACTS_CREDENTIAL_PROVIDER_RID environment variable to specify a runtime version." >&2
-      return 1
+      return
       ;;
   esac
 
