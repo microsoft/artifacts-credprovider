@@ -7,7 +7,25 @@ jobs:
     parameters:
       repo: self
       scriptInputs: ''
+      expectedCredentialProviderVersion: 'Microsoft.win-x64.NuGet.CredentialProvider'
+- job: WindowsInstallNet6
+  pool:
+    vmImage: windows-latest
+  steps:
+  - template: validate-install-script-powershell.yml@self
+    parameters:
+      repo: self
+      scriptInputs: '-InstallNet6 -InstallNet8:$False'
       expectedCredentialProviderVersion: 'Microsoft.Net6.NuGet.CredentialProvider'
+- job: WindowsInstallNet8NonSC
+  pool:
+    vmImage: windows-latest
+  steps:
+  - template: validate-install-script-powershell.yml@self
+    parameters:
+      repo: self
+      scriptInputs: '-InstallNet8 -NonSelfContained'
+      expectedCredentialProviderVersion: 'Microsoft.Net8.NuGet.CredentialProvider'
 - job: WindowsInstallNet8
   pool:
     vmImage: windows-latest
@@ -16,7 +34,7 @@ jobs:
     parameters:
       repo: self
       scriptInputs: '-InstallNet8'
-      expectedCredentialProviderVersion: 'Microsoft.Net8.NuGet.CredentialProvider'
+      expectedCredentialProviderVersion: 'Microsoft.win-x64.NuGet.CredentialProvider'
 - job: WindowsInstallNet8winx64
   pool:
     vmImage: windows-latest
@@ -25,7 +43,7 @@ jobs:
     parameters:
       repo: self
       scriptInputs: '-InstallNet8 -RuntimeIdentifier win-x64'
-      expectedCredentialProviderVersion: 'Microsoft.Net8.win-x64.NuGet.CredentialProvider'
+      expectedCredentialProviderVersion: 'Microsoft.win-x64.NuGet.CredentialProvider'
 - job: WindowsInstallNet8winx64NoParams
   pool:
     vmImage: windows-latest
@@ -34,7 +52,7 @@ jobs:
     parameters:
       repo: self
       scriptInputs: '-RuntimeIdentifier win-x64'
-      expectedCredentialProviderVersion: 'Microsoft.Net8.win-x64.NuGet.CredentialProvider'
+      expectedCredentialProviderVersion: 'Microsoft.win-x64.NuGet.CredentialProvider'
 - job: WindowsInstallNet8winx64Net6Params
   pool:
     vmImage: windows-latest
@@ -42,8 +60,8 @@ jobs:
   - template: validate-install-script-powershell.yml@self
     parameters:
       repo: self
-      scriptInputs: '-InstallNet6 -RuntimeIdentifier win-x64'
-      expectedCredentialProviderVersion: 'Microsoft.Net8.win-x64.NuGet.CredentialProvider'
+      scriptInputs: ' -InstallNet6 -RuntimeIdentifier win-x64'
+      expectedCredentialProviderVersion: 'Microsoft.win-x64.NuGet.CredentialProvider'
 - job: WindowsInstallNetfxDefault
   pool:
     vmImage: windows-latest
@@ -51,8 +69,8 @@ jobs:
   - template: validate-install-script-powershell.yml@self
     parameters:
       repo: self
-      scriptInputs: '-AddNetfx'
-      expectedCredentialProviderVersion: 'Microsoft.NuGet.CredentialProvider'
+      scriptInputs: ' -AddNetfx'
+      expectedCredentialProviderVersion: 'Microsoft.NetFx48.NuGet.CredentialProvider'
 - job: WindowsInstallNetfx48
   pool:
     vmImage: windows-latest
@@ -60,7 +78,7 @@ jobs:
   - template: validate-install-script-powershell.yml@self
     parameters:
       repo: self
-      scriptInputs: '-AddNetFx48'
+      scriptInputs: ' -AddNetfx48'
       expectedCredentialProviderVersion: 'Microsoft.NetFx48.NuGet.CredentialProvider'
 - job: LinuxInstallDefault
   pool:
@@ -70,7 +88,7 @@ jobs:
     parameters:
       repo: self
       scriptEnvVariables: ''
-      expectedCredentialProviderVersion: 'Microsoft.Net6.NuGet.CredentialProvider'
+      expectedCredentialProviderVersion: 'Microsoft.linux-x64.NuGet.CredentialProvider'
 - job: LinuxInstallNet8
   pool:
     vmImage: ubuntu-latest
@@ -80,8 +98,29 @@ jobs:
       repo: self
       scriptEnvVariables: |
         export USE_NET6_ARTIFACTS_CREDENTIAL_PROVIDER=false
-        export USE_NET8_ARTIFACTS_CREDENTIAL_PROVIDER=true
+        export USE_NET8_ARTIFACTS_CREDENTIAL_PROVIDER=true        
+      expectedCredentialProviderVersion: 'Microsoft.linux-x64.NuGet.CredentialProvider'
+- job: LinuxInstallNet8NonSC
+  pool:
+    vmImage: ubuntu-latest
+  steps:
+  - template: validate-install-script-bash.yml@self
+    parameters:
+      repo: self
+      scriptEnvVariables: |
+        export ARTIFACTS_CREDENTIAL_PROVIDER_NON_SC=true        
       expectedCredentialProviderVersion: 'Microsoft.Net8.NuGet.CredentialProvider'
+- job: LinuxInstallNet6
+  pool:
+    vmImage: ubuntu-latest
+  steps:
+  - template: validate-install-script-bash.yml@self
+    parameters:
+      repo: self
+      scriptEnvVariables: |
+        export USE_NET6_ARTIFACTS_CREDENTIAL_PROVIDER=true
+        export USE_NET8_ARTIFACTS_CREDENTIAL_PROVIDER=false        
+      expectedCredentialProviderVersion: 'Microsoft.Net6.NuGet.CredentialProvider'
 - job: LinuxInstallNet8Net6Param
   pool:
     vmImage: ubuntu-latest
@@ -91,8 +130,8 @@ jobs:
       repo: self
       scriptEnvVariables: |
         export USE_NET6_ARTIFACTS_CREDENTIAL_PROVIDER=true
-        export USE_NET8_ARTIFACTS_CREDENTIAL_PROVIDER=true
-      expectedCredentialProviderVersion: 'Microsoft.Net8.NuGet.CredentialProvider'
+        export USE_NET8_ARTIFACTS_CREDENTIAL_PROVIDER=true        
+      expectedCredentialProviderVersion: 'Microsoft.linux-x64.NuGet.CredentialProvider'
 - job: LinuxInstallNetFx
   pool:
     vmImage: ubuntu-latest
@@ -102,8 +141,8 @@ jobs:
       repo: self
       scriptEnvVariables: |
         export USE_NET6_ARTIFACTS_CREDENTIAL_PROVIDER=false
-        export USE_NET8_ARTIFACTS_CREDENTIAL_PROVIDER=false
-      expectedCredentialProviderVersion: 'Microsoft.NuGet.CredentialProvider'
+        export USE_NET8_ARTIFACTS_CREDENTIAL_PROVIDER=false        
+      expectedCredentialProviderVersion: 'Microsoft.NetFx48.NuGet.CredentialProvider'
 - job: LinuxInstallNet8linuxx64
   pool:
     vmImage: ubuntu-latest
@@ -114,8 +153,17 @@ jobs:
       scriptEnvVariables: |
         export USE_NET6_ARTIFACTS_CREDENTIAL_PROVIDER=false
         export USE_NET8_ARTIFACTS_CREDENTIAL_PROVIDER=true
-        export ARTIFACTS_CREDENTIAL_PROVIDER_RID=linux-x64
-      expectedCredentialProviderVersion: 'Microsoft.Net8.linux-x64.NuGet.CredentialProvider'
+        export ARTIFACTS_CREDENTIAL_PROVIDER_RID=linux-x64        
+      expectedCredentialProviderVersion: 'Microsoft.linux-x64.NuGet.CredentialProvider'
+- job: LinuxInstallNet8Auto
+  pool:
+    vmImage: ubuntu-latest
+  steps:
+  - template: validate-install-script-bash.yml@self
+    parameters:
+      repo: self
+      scriptEnvVariables: |        
+      expectedCredentialProviderVersion: 'Microsoft.linux-x64.NuGet.CredentialProvider'
 - job: LinuxInstallNet8linuxarm64
   pool:
     vmImage: ubuntu-latest
@@ -126,8 +174,8 @@ jobs:
       scriptEnvVariables: |
         export USE_NET6_ARTIFACTS_CREDENTIAL_PROVIDER=false
         export USE_NET8_ARTIFACTS_CREDENTIAL_PROVIDER=true
-        export ARTIFACTS_CREDENTIAL_PROVIDER_RID=linux-arm64
-      expectedCredentialProviderVersion: 'Microsoft.Net8.linux-arm64.NuGet.CredentialProvider'
+        export ARTIFACTS_CREDENTIAL_PROVIDER_RID=linux-arm64        
+      expectedCredentialProviderVersion: 'Microsoft.linux-arm64.NuGet.CredentialProvider'
 - job: macOSInstallNet8osxarm64
   pool:
     vmImage: macOS-latest
@@ -138,8 +186,8 @@ jobs:
       scriptEnvVariables: |
         export USE_NET6_ARTIFACTS_CREDENTIAL_PROVIDER=false
         export USE_NET8_ARTIFACTS_CREDENTIAL_PROVIDER=true
-        export ARTIFACTS_CREDENTIAL_PROVIDER_RID=osx-arm64
-      expectedCredentialProviderVersion: 'Microsoft.Net8.osx-arm64.NuGet.CredentialProvider'
+        export ARTIFACTS_CREDENTIAL_PROVIDER_RID=osx-arm64        
+      expectedCredentialProviderVersion: 'Microsoft.osx-arm64.NuGet.CredentialProvider'
 - job: macOSnstallNet8osxx64
   pool:
     vmImage: macOS-latest
@@ -150,8 +198,17 @@ jobs:
       scriptEnvVariables: |
         export USE_NET6_ARTIFACTS_CREDENTIAL_PROVIDER=false
         export USE_NET8_ARTIFACTS_CREDENTIAL_PROVIDER=true
-        export ARTIFACTS_CREDENTIAL_PROVIDER_RID=osx-x64
-      expectedCredentialProviderVersion: 'Microsoft.Net8.osx-x64.NuGet.CredentialProvider'
+        export ARTIFACTS_CREDENTIAL_PROVIDER_RID=osx-x64        
+      expectedCredentialProviderVersion: 'Microsoft.osx-x64.NuGet.CredentialProvider'
+- job: macOSInstallNet8Auto
+  pool:
+    vmImage: macOS-latest
+  steps:
+  - template: validate-install-script-bash.yml@self
+    parameters:
+      repo: self
+      scriptEnvVariables: ''       
+      expectedCredentialProviderVersion: 'Microsoft.osx-x64.NuGet.CredentialProvider'
 - job: macOSInstallNet8osxx64NoParams
   pool:
     vmImage: macOS-latest
@@ -161,7 +218,7 @@ jobs:
       repo: self
       scriptEnvVariables: |
         export ARTIFACTS_CREDENTIAL_PROVIDER_RID=osx-x64
-      expectedCredentialProviderVersion: 'Microsoft.Net8.osx-x64.NuGet.CredentialProvider'
+      expectedCredentialProviderVersion: 'Microsoft.osx-x64.NuGet.CredentialProvider'
 - job: macOSnstallNet8osxx64Net6Params
   pool:
     vmImage: macOS-latest
@@ -172,5 +229,5 @@ jobs:
       scriptEnvVariables: |
         export USE_NET6_ARTIFACTS_CREDENTIAL_PROVIDER=true
         export ARTIFACTS_CREDENTIAL_PROVIDER_RID=osx-x64
-      expectedCredentialProviderVersion: 'Microsoft.Net8.osx-x64.NuGet.CredentialProvider'
+      expectedCredentialProviderVersion: 'Microsoft.osx-x64.NuGet.CredentialProvider'
   
