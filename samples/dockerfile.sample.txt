@@ -5,7 +5,7 @@ FROM mcr.microsoft.com/dotnet/sdk:10.0 AS dotnet-builder
 ARG FEED_URL
 ARG PAT
 
-# download and install latest credential provider. Not required after https://github.com/dotnet/dotnet-docker/issues/878
+# download and install latest credential provider.
 RUN dotnet tool install --global  Microsoft.Artifacts.CredentialProvider.NuGet.Tool --source https://api.nuget.org/v3/index.json
 
 # Optional
