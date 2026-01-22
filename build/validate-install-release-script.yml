@@ -1,0 +1,236 @@
+jobs:
+- job: WindowsReleaseInstallDefault
+  pool:
+    vmImage: windows-latest
+  steps:
+  - template: validate-install-release-script-powershell.yml@self
+    parameters:
+      repo: self
+      scriptInputs: ''
+      expectedCredentialProviderVersion: 'Microsoft.win-x64.NuGet.CredentialProvider'
+      releaseVersion: 'latest'
+
+- job: WindowsReleaseInstallNet8
+  pool:
+    vmImage: windows-latest
+  steps:
+  - template: validate-install-release-script-powershell.yml@self
+    parameters:
+      repo: self
+      scriptInputs: '-InstallNet8'
+      expectedCredentialProviderVersion: 'Microsoft.win-x64.NuGet.CredentialProvider'
+      releaseVersion: 'latest'
+
+- job: WindowsReleaseInstallNet8winx64
+  pool:
+    vmImage: windows-latest
+  steps:
+  - template: validate-install-release-script-powershell.yml@self
+    parameters:
+      repo: self
+      scriptInputs: '-InstallNet8 -RuntimeIdentifier win-x64'
+      expectedCredentialProviderVersion: 'Microsoft.win-x64.NuGet.CredentialProvider'
+      releaseVersion: 'latest'
+
+- job: WindowsReleaseInstallNet8winx64NoParams
+  pool:
+    vmImage: windows-latest
+  steps:
+  - template: validate-install-release-script-powershell.yml@self
+    parameters:
+      repo: self
+      scriptInputs: '-RuntimeIdentifier win-x64'
+      expectedCredentialProviderVersion: 'Microsoft.win-x64.NuGet.CredentialProvider'
+      releaseVersion: 'latest'
+
+- job: WindowsReleaseInstallNetfxDefault
+  pool:
+    vmImage: windows-latest
+  steps:
+  - template: validate-install-release-script-powershell.yml@self
+    parameters:
+      repo: self
+      scriptInputs: '-AddNetfx'
+      expectedCredentialProviderVersion: 'Microsoft.NetFx48.NuGet.CredentialProvider'
+      releaseVersion: 'latest'
+
+- job: LinuxReleaseInstallDefault
+  pool:
+    vmImage: ubuntu-latest
+  steps:
+  - template: validate-install-release-script-bash.yml@self
+    parameters:
+      repo: self
+      scriptEnvVariables: ''
+      expectedCredentialProviderVersion: 'Microsoft.linux-x64.NuGet.CredentialProvider'
+      releaseVersion: 'latest'
+
+- job: LinuxReleaseInstallNet8
+  pool:
+    vmImage: ubuntu-latest
+  steps:
+  - template: validate-install-release-script-bash.yml@self
+    parameters:
+      repo: self
+      scriptEnvVariables: |
+        export USE_NET6_ARTIFACTS_CREDENTIAL_PROVIDER=false
+        export USE_NET8_ARTIFACTS_CREDENTIAL_PROVIDER=true
+      expectedCredentialProviderVersion: 'Microsoft.linux-x64.NuGet.CredentialProvider'
+      releaseVersion: 'latest'
+
+- job: LinuxReleaseInstallNet8Net6Param
+  pool:
+    vmImage: ubuntu-latest
+  steps:
+  - template: validate-install-release-script-bash.yml@self
+    parameters:
+      repo: self
+      scriptEnvVariables: |
+        export USE_NET6_ARTIFACTS_CREDENTIAL_PROVIDER=true
+        export USE_NET8_ARTIFACTS_CREDENTIAL_PROVIDER=true
+      expectedCredentialProviderVersion: 'Microsoft.linux-x64.NuGet.CredentialProvider'
+      releaseVersion: 'latest'
+
+- job: LinuxReleaseInstallNetFx
+  pool:
+    vmImage: ubuntu-latest
+  steps:
+  - template: validate-install-release-script-bash.yml@self
+    parameters:
+      repo: self
+      scriptEnvVariables: |
+        export USE_NET6_ARTIFACTS_CREDENTIAL_PROVIDER=false
+        export USE_NET8_ARTIFACTS_CREDENTIAL_PROVIDER=false
+      expectedCredentialProviderVersion: 'Microsoft.NetFx48.NuGet.CredentialProvider'
+      releaseVersion: 'latest'
+
+- job: LinuxReleaseInstallNet8linuxx64
+  pool:
+    vmImage: ubuntu-latest
+  steps:
+  - template: validate-install-release-script-bash.yml@self
+    parameters:
+      repo: self
+      scriptEnvVariables: |
+        export USE_NET6_ARTIFACTS_CREDENTIAL_PROVIDER=false
+        export USE_NET8_ARTIFACTS_CREDENTIAL_PROVIDER=true
+        export ARTIFACTS_CREDENTIAL_PROVIDER_RID=linux-x64
+      expectedCredentialProviderVersion: 'Microsoft.linux-x64.NuGet.CredentialProvider'
+      releaseVersion: 'latest'
+
+- job: LinuxReleaseInstallNet8linuxarm64
+  pool:
+    vmImage: ubuntu-latest
+  steps:
+  - template: validate-install-release-script-bash.yml@self
+    parameters:
+      repo: self
+      scriptEnvVariables: |
+        export USE_NET6_ARTIFACTS_CREDENTIAL_PROVIDER=false
+        export USE_NET8_ARTIFACTS_CREDENTIAL_PROVIDER=true
+        export ARTIFACTS_CREDENTIAL_PROVIDER_RID=linux-arm64
+      expectedCredentialProviderVersion: 'Microsoft.linux-arm64.NuGet.CredentialProvider'
+      releaseVersion: 'latest'
+
+- job: macOSReleaseInstallNet8osxarm64
+  pool:
+    vmImage: macOS-latest
+  steps:
+  - template: validate-install-release-script-bash.yml@self
+    parameters:
+      repo: self
+      scriptEnvVariables: |
+        export USE_NET6_ARTIFACTS_CREDENTIAL_PROVIDER=false
+        export USE_NET8_ARTIFACTS_CREDENTIAL_PROVIDER=true
+        export ARTIFACTS_CREDENTIAL_PROVIDER_RID=osx-arm64
+      expectedCredentialProviderVersion: 'Microsoft.osx-arm64.NuGet.CredentialProvider'
+      releaseVersion: 'latest'
+
+- job: macOSReleaseInstallNet8osxx64
+  pool:
+    vmImage: macOS-latest
+  steps:
+  - template: validate-install-release-script-bash.yml@self
+    parameters:
+      repo: self
+      scriptEnvVariables: |
+        export USE_NET6_ARTIFACTS_CREDENTIAL_PROVIDER=false
+        export USE_NET8_ARTIFACTS_CREDENTIAL_PROVIDER=true
+        export ARTIFACTS_CREDENTIAL_PROVIDER_RID=osx-x64
+      expectedCredentialProviderVersion: 'Microsoft.osx-x64.NuGet.CredentialProvider'
+      releaseVersion: 'latest'
+
+- job: macOSReleaseInstallNet8osxx64NoParams
+  pool:
+    vmImage: macOS-latest
+  steps:
+  - template: validate-install-release-script-bash.yml@self
+    parameters:
+      repo: self
+      scriptEnvVariables: |
+        export ARTIFACTS_CREDENTIAL_PROVIDER_RID=osx-x64
+      expectedCredentialProviderVersion: 'Microsoft.osx-x64.NuGet.CredentialProvider'
+      releaseVersion: 'latest'
+
+- job: macOSReleaseInstallNet8osxx64Net6Params
+  pool:
+    vmImage: macOS-latest
+  steps:
+  - template: validate-install-release-script-bash.yml@self
+    parameters:
+      repo: self
+      scriptEnvVariables: |
+        export USE_NET6_ARTIFACTS_CREDENTIAL_PROVIDER=true
+        export ARTIFACTS_CREDENTIAL_PROVIDER_RID=osx-x64
+      expectedCredentialProviderVersion: 'Microsoft.osx-x64.NuGet.CredentialProvider'
+      releaseVersion: 'latest'
+
+# Test with specific release version (using a common stable version 1.4.0)
+- job: WindowsReleaseInstallVersionNoPrefix
+  pool:
+    vmImage: windows-latest
+  steps:
+  - template: validate-install-release-script-powershell.yml@self
+    parameters:
+      repo: self
+      scriptInputs: '-InstallNet8'
+      expectedCredentialProviderVersion: 'Microsoft.Net8.NuGet.CredentialProvider'
+      releaseVersion: '1.4.0'
+
+# TODO: enable the below job when a 2.x release is available, prior to 2.x version must have the v prefix
+# - job: LinuxReleaseInstallVersionNoPrefix
+#   pool:
+#     vmImage: ubuntu-latest
+#   steps:
+#   - template: validate-install-release-script-bash.yml@self
+#     parameters:
+#       repo: self
+#       scriptEnvVariables: |
+#         export USE_NET6_ARTIFACTS_CREDENTIAL_PROVIDER=false
+#         export USE_NET8_ARTIFACTS_CREDENTIAL_PROVIDER=true
+#       expectedCredentialProviderVersion: 'Microsoft.Net8.NuGet.CredentialProvider'
+#       releaseVersion: '1.4.0'
+
+- job: WindowsReleaseInstallVersion
+  pool:
+    vmImage: windows-latest
+  steps:
+  - template: validate-install-release-script-powershell.yml@self
+    parameters:
+      repo: self
+      scriptInputs: '-InstallNet8'
+      expectedCredentialProviderVersion: 'Microsoft.Net8.NuGet.CredentialProvider'
+      releaseVersion: 'v1.4.0'
+
+- job: LinuxReleaseInstallVersion
+  pool:
+    vmImage: ubuntu-latest
+  steps:
+  - template: validate-install-release-script-bash.yml@self
+    parameters:
+      repo: self
+      scriptEnvVariables: |
+        export USE_NET6_ARTIFACTS_CREDENTIAL_PROVIDER=false
+        export USE_NET8_ARTIFACTS_CREDENTIAL_PROVIDER=true
+      expectedCredentialProviderVersion: 'Microsoft.Net8.NuGet.CredentialProvider'
+      releaseVersion: 'v1.4.0'
