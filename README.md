@@ -34,6 +34,10 @@ Install [Visual Studio version 15.9-preview1 or later](https://visualstudio.micr
 
 [nuget.exe](https://www.nuget.org/downloads) on the command line version `4.8.0.5385` or later is required. The recommended NuGet version is `5.5.x` or later as it has some important bug fixes related to cancellations and timeouts.
 
+### For Linux self-contained installs
+
+Self-contained .NET applications on Linux may require additional native dependencies such as `libicu` and `libssl`. See [.NET 8 Linux packages](https://github.com/dotnet/core/blob/main/release-notes/8.0/linux-packages.md) and [Self-contained Linux applications](https://github.com/dotnet/core/blob/main/Documentation/self-contained-linux-apps.md) for the full list of dependencies.
+
 ## Setup
 
 ### `dotnet`
@@ -74,7 +78,7 @@ Once the plugin has been added, follow the OS-specific installation instructions
 
 #### Manual installation on Windows
 
-1. Download the latest release of [Microsoft.NuGet.CredentialProvider.zip](https://github.com/Microsoft/artifacts-credprovider/releases)
+1. Download the latest release of [Microsoft.Net8.NuGet.CredentialProvider.zip](https://github.com/Microsoft/artifacts-credprovider/releases)
 2. Unzip the file
 3. Copy the `netcore` (and `netfx` for nuget.exe) directory from the extracted archive to `$env:UserProfile\.nuget\plugins` (%UserProfile%/.nuget/plugins/)
 
@@ -91,6 +95,8 @@ Examples:
 - `sh -c "$(curl -fsSL https://aka.ms/install-artifacts-credprovider.sh)"`
 
 > Note: this script only installs the netcore version of the plugin. If you need to have it working with mono MSBuild, you will need to download the version with both netcore and netfx binaries following the steps in [Manual installation on Linux and Mac](#installation-on-linux-and-mac)
+
+> **Note:** The scripts install the latest, self-contained versions by default. For installs on Linux, see [prerequisites for Linux self-contained installs](#for-linux-self-contained-installs) for additional dependencies or use the `ARTIFACTS_CREDENTIAL_PROVIDER_NON_SC` variable to use the non-self-contained version that requires the .NET runtime.
 
 #### Manual installation on Linux and Mac
 
