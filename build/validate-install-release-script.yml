@@ -234,3 +234,25 @@ jobs:
         export USE_NET8_ARTIFACTS_CREDENTIAL_PROVIDER=true
       expectedCredentialProviderVersion: 'Microsoft.Net8.NuGet.CredentialProvider'
       releaseVersion: 'v1.4.0'
+
+# Shell (sh) validation jobs
+- job: LinuxReleaseInstallDefaultSh
+  pool:
+    vmImage: ubuntu-latest
+  steps:
+  - template: validate-install-release-script-sh.yml@self
+    parameters:
+      repo: self
+      scriptEnvVariables: ''
+      expectedCredentialProviderVersion: 'Microsoft.linux-x64.NuGet.CredentialProvider'
+      releaseVersion: 'latest'
+- job: macOSReleaseInstallDefaultSh
+  pool:
+    vmImage: macOS-latest
+  steps:
+  - template: validate-install-release-script-sh.yml@self
+    parameters:
+      repo: self
+      scriptEnvVariables: ''
+      expectedCredentialProviderVersion: 'Microsoft.osx-x64.NuGet.CredentialProvider'
+      releaseVersion: 'latest'

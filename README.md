@@ -53,6 +53,11 @@ If your project is already configured through a `nuget.config` to use an Azure A
 dotnet tool install --global  Microsoft.Artifacts.CredentialProvider.NuGet.Tool --source https://api.nuget.org/v3/index.json
 ```
 
+Optionally, use the `--version` parameter to pin to a major version, especially when installing on containers:
+```shell
+dotnet tool install --global  Microsoft.Artifacts.CredentialProvider.NuGet.Tool --version 2.* --source https://api.nuget.org/v3/index.json
+```
+
 You do not need to do any further installation after using `dotnet tool install`.
 
 ### nuget.exe or MSBuild
