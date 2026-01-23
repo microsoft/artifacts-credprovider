@@ -10,7 +10,7 @@ steps:
 - checkout: ${{ parameters.repo }}
 - bash: |
     ${{ parameters.scriptEnvVariables }}
-    ./helpers/installcredprovider.sh -Force >> ./output.log
+    sh ./helpers/installcredprovider.sh -Force >> ./output.log
     cat ./output.log
 
     if ! grep ${{ parameters.expectedCredentialProviderVersion }} ./output.log; then
@@ -22,9 +22,9 @@ steps:
       exit 1
     fi
     
-    echo "Credential provider installed successfully"
+    echo "Credential provider installed successfully with sh"
   workingDirectory: $(Build.SourcesDirectory)
-  displayName: Validate Install Script (bash)
+  displayName: Validate Install Script (sh)
 - bash: |
     if grep $'\r' ./helpers/installcredprovider.sh; then 
       echo "CRLF line ending found"
