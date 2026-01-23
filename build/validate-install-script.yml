@@ -230,4 +230,23 @@ jobs:
         export USE_NET6_ARTIFACTS_CREDENTIAL_PROVIDER=true
         export ARTIFACTS_CREDENTIAL_PROVIDER_RID=osx-x64
       expectedCredentialProviderVersion: 'Microsoft.osx-x64.NuGet.CredentialProvider'
-  
+
+# Shell (sh) validation jobs
+- job: LinuxInstallDefaultSh
+  pool:
+    vmImage: ubuntu-latest
+  steps:
+  - template: validate-install-script-sh.yml@self
+    parameters:
+      repo: self
+      scriptEnvVariables: ''
+      expectedCredentialProviderVersion: 'Microsoft.linux-x64.NuGet.CredentialProvider'
+- job: macOSInstallDefaultSh
+  pool:
+    vmImage: macOS-latest
+  steps:
+  - template: validate-install-script-sh.yml@self
+    parameters:
+      repo: self
+      scriptEnvVariables: ''
+      expectedCredentialProviderVersion: 'Microsoft.osx-x64.NuGet.CredentialProvider'
