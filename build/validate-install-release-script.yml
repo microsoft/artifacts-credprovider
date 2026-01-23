@@ -259,7 +259,7 @@ jobs:
       expectedCredentialProviderVersion: 'Microsoft.linux-x64.NuGet.CredentialProvider'
       releaseVersion: 'latest'
 
-- job: LinuxReleaseInstallNet8Net6Param
+- job: LinuxReleaseInstallNet8Net6ParamSh
   pool:
     vmImage: ubuntu-latest
   steps:
@@ -299,7 +299,7 @@ jobs:
       expectedCredentialProviderVersion: 'Microsoft.linux-x64.NuGet.CredentialProvider'
       releaseVersion: 'latest'
 
-- job: LinuxReleaseInstallNet8linuxarm64SH
+- job: LinuxReleaseInstallNet8linuxarm64Sh
   pool:
     vmImage: ubuntu-latest
   steps:
@@ -322,17 +322,6 @@ jobs:
       repo: self
       scriptEnvVariables: ''
       expectedCredentialProviderVersion: 'Microsoft.osx-x64.NuGet.CredentialProvider'
-      releaseVersion: 'latest'
-
-- job: LinuxReleaseInstallDefaultSh
-  pool:
-    vmImage: ubuntu-latest
-  steps:
-  - template: validate-install-release-script-sh.yml@self
-    parameters:
-      repo: self
-      scriptEnvVariables: ''
-      expectedCredentialProviderVersion: 'Microsoft.linux-x64.NuGet.CredentialProvider'
       releaseVersion: 'latest'
 
 - job: LinuxReleaseInstallVersionNoPrefixSh
