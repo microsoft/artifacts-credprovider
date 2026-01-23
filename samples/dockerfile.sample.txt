@@ -7,6 +7,7 @@ ARG FEED_URL
 ARG PAT
 
 # download and install latest credential provider.
+ENV PATH="$PATH:/root/.dotnet/tools"
 RUN dotnet tool install --global  Microsoft.Artifacts.CredentialProvider.NuGet.Tool --source https://api.nuget.org/v3/index.json
 
 # Optional
