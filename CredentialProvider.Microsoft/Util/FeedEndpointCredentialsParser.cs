@@ -3,23 +3,153 @@ using System.Collections.Generic;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using ILogger = NuGetCredentialProvider.Logging.ILogger;
 
 namespace NuGetCredentialProvider.Util;
-public class ExternalEndpointCredentials
+
+public class ExternalCredentialsConverter : Newtonsoft.Json.JsonConverter<ExternalCredentialsBase>
 {
-    [JsonProperty("endpoint")]
-    public string Endpoint { get; set; }
+    public override ExternalCredentialsBase ReadJson(JsonReader reader, Type objectType, ExternalCredentialsBase existingValue, bool hasExistingValue, Newtonsoft.Json.JsonSerializer serializer)
+    {
+        // Load the object so we can inspect which discriminator property is present
+        var jtoken = JObject.Load(reader);
+        if (jtoken is not JObject obj)
+        {
+            return null;
+        }
+
+        // Determine the concrete type based on endpoint / endpointPrefix and deserialize fully
+        if (obj.TryGetValue("endpointPrefix", StringComparison.OrdinalIgnoreCase, out var p) && p.Type == JTokenType.String)
+        {
+            var c = new ExternalEndpointPrefixCredentials();
+            serializer.Populate(jtoken.CreateReader(), c);
+            return c;
+        }
+        else if (obj.TryGetValue("endpoint", StringComparison.OrdinalIgnoreCase, out _))
+        {
+            var c = new ExternalEndpointCredentials();
+            serializer.Populate(jtoken.CreateReader(), c);
+            return c;
+        }
+
+        // Unknown shape; allow caller to handle validation failure
+        return null;
+    }
+
+    public override void WriteJson(JsonWriter writer, ExternalCredentialsBase value, Newtonsoft.Json.JsonSerializer serializer)
+    {
+        // Not required
+        throw new NotImplementedException();
+    }
+}
+
+[Newtonsoft.Json.JsonConverter(typeof(ExternalCredentialsConverter))]
+public abstract class ExternalCredentialsBase
+{
     [JsonProperty("username")]
     public string Username { get; set; }
     [JsonProperty("password")]
     public string Password { get; set; }
+
+    internal abstract bool Validate();
+
+    internal abstract bool IsMatch(string uriString, out ExternalCredentialsBase matchingExternalEndpoint);
+}
+
+public class ExternalEndpointCredentials : ExternalCredentialsBase
+{
+    [JsonProperty("endpoint")]
+    public string Endpoint { get; set; }
+
+    internal override bool IsMatch(string uriString, out ExternalCredentialsBase matchingExternalEndpoint)
+    {
+        matchingExternalEndpoint = null;
+        if (!Uri.TryCreate(Endpoint, UriKind.Absolute, out var endpointUri))
+        {
+            return false;
+        }
+        var url = endpointUri.AbsoluteUri;
+        if (url.Equals(uriString, StringComparison.OrdinalIgnoreCase))
+        {
+            matchingExternalEndpoint = this;
+            return true;
+        }
+        return false;
+    }
+
+    internal override bool Validate()
+    {
+        return Uri.TryCreate(Endpoint, UriKind.Absolute, out var endpointUri);
+    }
+
+}
+
+public class ExternalEndpointPrefixCredentials : ExternalCredentialsBase
+{
+    [JsonProperty("endpointPrefix")]
+    public string EndpointPrefix { get; set; }
+
+    internal override bool IsMatch(string uriString, out ExternalCredentialsBase matchingExternalEndpoint)
+    {
+        matchingExternalEndpoint = null;
+        if (!Uri.TryCreate(EndpointPrefix, UriKind.Absolute, out var endpointUri))
+        {
+            return false;
+        }
+        var url = endpointUri.AbsoluteUri;
+        if (!url.EndsWith("/"))
+        {
+            url += '/';
+        }
+        if (uriString.StartsWith(url, StringComparison.OrdinalIgnoreCase))
+        {
+            matchingExternalEndpoint = this;
+            return true;
+        }
+        return false;
+    }
+
+    internal override bool Validate()
+    {
+        return Uri.TryCreate(EndpointPrefix, UriKind.Absolute, out var endpointUri);
+    }
+}
+
+
+public class ExternalCredentialsList : List<ExternalCredentialsBase>
+{
+    internal bool FindMatch(string uriString, out ExternalCredentialsBase matchingExternalEndpoint)
+    {
+        matchingExternalEndpoint = null;
+        foreach (var credentials in this)
+        {
+            if (credentials.IsMatch(uriString, out matchingExternalEndpoint))
+            {
+                return true;
+            }
+        }
+        return false;
+    }
+
+
+    public ExternalCredentialsBase this[string index]
+    {
+        get
+        {
+            if (FindMatch(index, out var matchingExternalEndpoint))
+            {
+                return matchingExternalEndpoint;
+            }
+            return null;
+        }
+    }
 }
 
 public class ExternalEndpointCredentialsContainer
 {
     [JsonProperty("endpointCredentials")]
-    public ExternalEndpointCredentials[] EndpointCredentials { get; set; }
+    public ExternalCredentialsList EndpointCredentials { get; set; }
 }
 
 public class EndpointCredentials
@@ -109,12 +239,12 @@ public static class FeedEndpointCredentialsParser
         }
     }
 
-    public static Dictionary<string, ExternalEndpointCredentials> ParseExternalFeedEndpointsJsonToDictionary(ILogger logger)
+    public static ExternalCredentialsList ParseExternalFeedEndpointsJsonToList(ILogger logger)
     {
         string feedEndpointsJson = Environment.GetEnvironmentVariable(EnvUtil.BuildTaskExternalEndpoints);
         if (string.IsNullOrWhiteSpace(feedEndpointsJson))
         {
-            return new Dictionary<string, ExternalEndpointCredentials>(StringComparer.OrdinalIgnoreCase);
+            return new ExternalCredentialsList();
         }
 
         try
@@ -124,15 +254,17 @@ public static class FeedEndpointCredentialsParser
             {
                 logger.Warning(Resources.InvalidJsonWarning);
             }
+            logger.Info(feedEndpointsJson);
 
-            Dictionary<string, ExternalEndpointCredentials> credsResult = new Dictionary<string, ExternalEndpointCredentials>(StringComparer.OrdinalIgnoreCase);
+            var credsResult = new ExternalCredentialsList();
             ExternalEndpointCredentialsContainer endpointCredentials = JsonConvert.DeserializeObject<ExternalEndpointCredentialsContainer>(feedEndpointsJson);
-            if (endpointCredentials == null)
+            if (endpointCredentials == null || endpointCredentials.EndpointCredentials == null)
             {
                 logger.Verbose(Resources.NoEndpointsFound);
                 return credsResult;
             }
 
+            
             foreach (var credentials in endpointCredentials.EndpointCredentials)
             {
                 if (credentials == null)
@@ -146,17 +278,13 @@ public static class FeedEndpointCredentialsParser
                     credentials.Username = "VssSessionToken";
                 }
 
-                if (!Uri.TryCreate(credentials.Endpoint, UriKind.Absolute, out var endpointUri))
+                if (!credentials.Validate())
                 {
                     logger.Verbose(Resources.EndpointParseFailure);
                     break;
                 }
-
-                var urlEncodedEndpoint = endpointUri.AbsoluteUri;
-                if (!credsResult.ContainsKey(urlEncodedEndpoint))
-                {
-                    credsResult.Add(urlEncodedEndpoint, credentials);
-                }
+                
+                credsResult.Add(credentials);
             }
 
             return credsResult;
@@ -164,7 +292,7 @@ public static class FeedEndpointCredentialsParser
         catch (Exception ex)
         {
             logger.Verbose(string.Format(Resources.VstsBuildTaskExternalCredentialCredentialProviderError, ex));
-            return new Dictionary<string, ExternalEndpointCredentials>(StringComparer.OrdinalIgnoreCase);
+            return new ExternalCredentialsList();
         }
     }
 }

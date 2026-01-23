@@ -138,7 +138,7 @@ public class FeedEndpointCredentialParserTests
         string feedEndPointJson = "{\"endpointCredentials\":[{\"endpoint\":\"http://example.pkgs.vsts.me/_packaging/TestFeed/nuget/v3/index.json\", \"username\": \"testuser\", \"password\": \"testPassword\"}]}";
         Environment.SetEnvironmentVariable(EnvUtil.BuildTaskExternalEndpoints, feedEndPointJson);
 
-        var result = FeedEndpointCredentialsParser.ParseExternalFeedEndpointsJsonToDictionary(loggerMock.Object);
+        var result = FeedEndpointCredentialsParser.ParseExternalFeedEndpointsJsonToList(loggerMock.Object);
 
         result.Count.Should().Be(1);
         result["http://example.pkgs.vsts.me/_packaging/TestFeed/nuget/v3/index.json"].Username.Should().Be("testuser");
@@ -151,7 +151,7 @@ public class FeedEndpointCredentialParserTests
         string feedEndPointJson = "{\"endpointCredentials\":[{\"endpoint\":\"http://example.pkgs.vsts.me/_packaging/TestFeed/nuget/v3/index.json\", \"password\": \"testPassword\"}]}";
         Environment.SetEnvironmentVariable(EnvUtil.BuildTaskExternalEndpoints, feedEndPointJson);
 
-        var result = FeedEndpointCredentialsParser.ParseExternalFeedEndpointsJsonToDictionary(loggerMock.Object);
+        var result = FeedEndpointCredentialsParser.ParseExternalFeedEndpointsJsonToList(loggerMock.Object);
 
         result.Count.Should().Be(1);
         result["http://example.pkgs.vsts.me/_packaging/TestFeed/nuget/v3/index.json"].Username.Should().Be("VssSessionToken");
@@ -164,7 +164,7 @@ public class FeedEndpointCredentialParserTests
         string feedEndPointJson = "{\'endpointCredentials\':[{\'endpoint\':\'http://example.pkgs.vsts.me/_packaging/TestFeed/nuget/v3/index.json\', \'username\': \'testuser\', \'password\': \'testPassword\'}]}";
         Environment.SetEnvironmentVariable(EnvUtil.BuildTaskExternalEndpoints, feedEndPointJson);
 
-        var result = FeedEndpointCredentialsParser.ParseExternalFeedEndpointsJsonToDictionary(loggerMock.Object);
+        var result = FeedEndpointCredentialsParser.ParseExternalFeedEndpointsJsonToList(loggerMock.Object);
 
         result.Count.Should().Be(1);
         result["http://example.pkgs.vsts.me/_packaging/TestFeed/nuget/v3/index.json"].Username.Should().Be("testuser");
@@ -180,7 +180,7 @@ public class FeedEndpointCredentialParserTests
     {
         Environment.SetEnvironmentVariable(EnvUtil.BuildTaskExternalEndpoints, input);
 
-        var result = FeedEndpointCredentialsParser.ParseExternalFeedEndpointsJsonToDictionary(loggerMock.Object);
+        var result = FeedEndpointCredentialsParser.ParseExternalFeedEndpointsJsonToList(loggerMock.Object);
 
         result.Should().BeEmpty();
     }
