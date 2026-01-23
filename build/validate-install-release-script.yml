@@ -197,19 +197,6 @@ jobs:
       expectedCredentialProviderVersion: 'Microsoft.Net8.NuGet.CredentialProvider'
       releaseVersion: '1.4.0'
 
-- job: LinuxReleaseInstallVersionNoPrefix
-  pool:
-    vmImage: ubuntu-latest
-  steps:
-  - template: validate-install-release-script-bash.yml@self
-    parameters:
-      repo: self
-      scriptEnvVariables: |
-        export USE_NET6_ARTIFACTS_CREDENTIAL_PROVIDER=false
-        export USE_NET8_ARTIFACTS_CREDENTIAL_PROVIDER=true
-      expectedCredentialProviderVersion: 'Microsoft.Net8.NuGet.CredentialProvider'
-      releaseVersion: '1.4.0'
-
 - job: WindowsReleaseInstallVersion
   pool:
     vmImage: windows-latest
@@ -323,19 +310,6 @@ jobs:
       scriptEnvVariables: ''
       expectedCredentialProviderVersion: 'Microsoft.osx-x64.NuGet.CredentialProvider'
       releaseVersion: 'latest'
-
-- job: LinuxReleaseInstallVersionNoPrefixSh
-  pool:
-    vmImage: ubuntu-latest
-  steps:
-  - template: validate-install-release-script-sh.yml@self
-    parameters:
-      repo: self
-      scriptEnvVariables: |
-        export USE_NET6_ARTIFACTS_CREDENTIAL_PROVIDER=false
-        export USE_NET8_ARTIFACTS_CREDENTIAL_PROVIDER=true
-      expectedCredentialProviderVersion: 'Microsoft.Net8.NuGet.CredentialProvider'
-      releaseVersion: '1.4.0'
 
 - job: macOSReleaseInstallNet8osxx64Net6ParamsSh
   pool:
