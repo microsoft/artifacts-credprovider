@@ -15,12 +15,11 @@ steps:
     ${{ parameters.scriptEnvVariables }}
     
     RELEASE_VERSION="${{ parameters.releaseVersion }}"
-    if [ "$RELEASE_VERSION" = "latest" ]; then
-      sh ./helpers/installcredproviderrelease.sh -Force >> ./output.log 2>&1
-    else
+    if [ ! "$RELEASE_VERSION" = "latest" ]; then
       export AZURE_ARTIFACTS_CREDENTIAL_PROVIDER_VERSION="$RELEASE_VERSION"
       sh ./helpers/installcredproviderrelease.sh -Force >> ./output.log 2>&1
     fi
+    sh ./helpers/installcredproviderrelease.sh -Force >> ./output.log 
     
     cat ./output.log
 
