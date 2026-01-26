@@ -58,7 +58,8 @@ Optionally, use the `--version` parameter to pin to a major version, especially 
 dotnet tool install --global  Microsoft.Artifacts.CredentialProvider.NuGet.Tool --version 2.* --source https://api.nuget.org/v3/index.json
 ```
 
-You do not need to do any further installation after using `dotnet tool install`.
+Most users will not require further install steps. Some containers or manual dotnet install scenarios require adding the dotnet tools directory to your PATH 
+(e.g., `ENV PATH="$PATH:/root/.dotnet/tools"`). See [samples/dockerfile.sample.txt](samples/dockerfile.sample.txt) for an example.
 
 ### nuget.exe or MSBuild
 
@@ -71,6 +72,8 @@ Once the plugin has been added, follow the OS-specific installation instructions
 ### Installation on Windows
 
 #### Automatic PowerShell script
+
+The [PowerShell helper scripts](helpers/installcredprovider.ps1) require [PowerShell 5.1](https://docs.microsoft.com/powershell/scripting/install/installing-powershell) or later.
 
 [PowerShell helper script](helpers/installcredprovider.ps1)
 - To install netcore, run `installcredprovider.ps1`
