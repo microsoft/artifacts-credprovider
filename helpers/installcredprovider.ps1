@@ -99,8 +99,8 @@ function Get-RuntimeIdentifier {
         }
     }
 
-    # Windows on ARM64 runs x64 binaries
-    if ($osArch -eq "-arm64" -and $IsWindows) {
+    # Windows on ARM64 runs x64 binaries (use $runtimeId check since $IsWindows is not available in Windows PowerShell 5.1)
+    if ($osArch -eq "-arm64" -and $runtimeId -eq "win") {
         $runtimeId += "-x64"  
     }
     else {
