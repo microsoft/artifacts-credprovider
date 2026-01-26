@@ -58,9 +58,8 @@ Optionally, use the `--version` parameter to pin to a major version, especially 
 dotnet tool install --global  Microsoft.Artifacts.CredentialProvider.NuGet.Tool --version 2.* --source https://api.nuget.org/v3/index.json
 ```
 
-Most users will not need further installation after using `dotnet tool install`. 
-Some containers or manual dotnet install scenarios require adding the dotnet tools directory to your PATH (e.g., `ENV PATH="$PATH:/root/.dotnet/tools"`). 
-See [samples/dockerfile.sample.txt](samples/dockerfile.sample.txt) for an example.
+Most users will not require further install steps. Some containers or manual dotnet install scenarios require adding the dotnet tools directory to your PATH 
+(e.g., `ENV PATH="$PATH:/root/.dotnet/tools"`). See [samples/dockerfile.sample.txt](samples/dockerfile.sample.txt) for an example.
 
 ### nuget.exe or MSBuild
 
