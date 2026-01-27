@@ -23,19 +23,44 @@ if [ -z "${AZURE_ARTIFACTS_CREDENTIAL_PROVIDER_VERSION}" ] || [ "${AZURE_ARTIFAC
   INSTALL_URL="${RELEASE_BASE_URL}/latest/download/${INSTALL_SCRIPT}"
   echo "No version specified, using latest release."
 else
+  # For versions 0.x and 1.x, use the last published 1.x version for backward compatibility
+  case "${VERSION}" in
+    0.* | 1.*)
+      echo "Using installcredprovider script from version 1.4.1 to support 0.x and 1.x versions."
+      VERSION="1.4.1"
+      ;;
+    *)
+      # major version pinning
+      if [[ "${VERSION}" =~ ^[0-9]+$ ]]; then
+        MAJOR_VER="${VERSION}"
+        echo "Fetching the latest stable V${MAJOR_VER}.x release..."
+        
+        # 1. Fetch releases JSON
+        # 2. Grep for "tag_name": "v2.x.x" (matching the major version)
+        # 3. Take the first match (latest)
+        # 4. Strip quotes to get just the tag
+        LATEST_MAJOR_VER=$(curl -s "$RELEASE_API_URL" | \
+          grep -oE '"tag_name":\s*"v?'"${MAJOR_VER}"'\.[0-9.]+"' | \
+          head -n 1 | \
+          sed -E 's/.*"([^"]+)".*/\1/')
+
+        if [[ -n "$LATEST_MAJOR_VER" ]]; then
+          # Strip leading 'v' so it matches the semver check later (e.g. v2.1.0 -> 2.1.0)
+          VERSION=$(echo "$LATEST_MAJOR_VER" | sed 's/^v//')
+          echo "Resolved Major Version ${MAJOR_VER} to latest tag: $VERSION"
+        else
+          echo "ERROR: Could not find a stable V${MAJOR_VER} release via API."
+          exit 1
+        fi
+      fi
+      ;;
+  esac
+
   # Validate version format (POSIX-compliant)
   if ! echo "${VERSION}" | grep -qE '^[0-9]+\.[0-9]+\.[0-9]+(-[a-zA-Z0-9]+(\.[a-zA-Z0-9]+)*)?$'; then
     echo "ERROR: Invalid version format. Please use format #.#.# (e.g., 1.4.1)"
     exit 1
   fi
-  
-  # For versions 0.x and 1.x, use the last published 1.x version for backward compatibility
-  case "${VERSION}" in
-  0.* | 1.*)
-    echo "Using installcredprovider script from version 1.4.1 to support 0.x and 1.x versions."
-    VERSION="1.4.1"
-    ;;
-  esac
 
   # Attach 'v' prefix since it was removed during normalization
   TAG_VERSION="v${VERSION}"
