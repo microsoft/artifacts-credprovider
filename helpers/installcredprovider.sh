@@ -12,11 +12,25 @@ REPO="Microsoft/artifacts-credprovider"
 NUGET_PLUGIN_DIR="$HOME/.nuget/plugins"
 VERSION_NORMALIZED=$(echo "${AZURE_ARTIFACTS_CREDENTIAL_PROVIDER_VERSION}" | sed 's/^v//')
 
+# Detect musl libc (e.g., Alpine Linux)
+is_musl() {
+  # Check ldd output for musl, suppress errors if ldd is not available
+  if command -v ldd >/dev/null 2>&1 && ldd --version 2>&1 | grep -qi musl; then
+    return 0
+  fi
+  return 1
+}
+
 set_runtime_identifier() {
   # Use uname -s for POSIX-compliant OS detection (OSTYPE is bash-specific)
   OS_NAME=$(uname -s)
   case "$OS_NAME" in
   Linux*)
+    # musl-based systems (like Alpine) are not supported for self-contained builds
+    if is_musl; then
+      echo "WARNING: musl libc detected. Self-contained builds are not available for musl-based systems. The .NET 8 runtime-dependent version will be installed instead." >&2
+      return
+    fi
     RUNTIME_ID="linux"
     ;;
   Darwin*)
@@ -104,14 +118,19 @@ elif [ -z ${USE_NET8_ARTIFACTS_CREDENTIAL_PROVIDER} ] || [ ${USE_NET8_ARTIFACTS_
     # Self-contained builds use RID without .Net8 prefix (v2.0.0+)
     set_runtime_identifier
 
-    case "${RUNTIME_ID}" in
-    osx-x64 | osx-arm64)
-      FILE="Microsoft.${RUNTIME_ID}.NuGet.CredentialProvider.zip"
-      ;;
-    *)
-      FILE="Microsoft.${RUNTIME_ID}.NuGet.CredentialProvider.tar.gz"
-      ;;
-    esac
+    # If RUNTIME_ID is not set (e.g., musl detected or unsupported OS/arch), fall back to runtime-dependent version
+    if [ -z "${RUNTIME_ID}" ]; then
+      FILE="Microsoft.Net8.NuGet.CredentialProvider.tar.gz"
+    else
+      case "${RUNTIME_ID}" in
+      osx-*)
+        FILE="Microsoft.${RUNTIME_ID}.NuGet.CredentialProvider.zip"
+        ;;
+      *)
+        FILE="Microsoft.${RUNTIME_ID}.NuGet.CredentialProvider.tar.gz"
+        ;;
+      esac
+    fi
   fi
 
   # throw if version starts < 1.3.0. (net8 not supported)
