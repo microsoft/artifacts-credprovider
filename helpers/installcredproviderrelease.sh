@@ -64,20 +64,28 @@ if [ -z "${API_RESPONSE}" ]; then
   exit 1
 else
   EXPECTED_HASH=""
-  DIGEST_VALUE=""
 
   # Extract digest using POSIX-compliant approach
   # First find the line with our asset name, then find the digest line that follows
-  DIGEST_VALUE=$(echo "${API_RESPONSE}" | awk -v asset="${INSTALL_SCRIPT}" '
-    /"name":.*"'"${INSTALL_SCRIPT}"'"/ { found=1; next }
-    found && /"digest":/ {
-      gsub(/.*"digest"[[:space:]]*:[[:space:]]*"?/, "")
-      gsub(/"?[[:space:]]*,?$/, "")
-      print
-      exit
-    }
-    found && /"name":/ { exit }
-  ')
+  if command -v awk >/dev/null 2>&1; then
+    DIGEST_VALUE=$(echo "${API_RESPONSE}" | awk -v asset="${INSTALL_SCRIPT}" '
+      /"name":.*"'"${INSTALL_SCRIPT}"'"/ { found=1; next }
+      found && /"digest":/ {
+        gsub(/.*"digest"[[:space:]]*:[[:space:]]*"?/, "")
+        gsub(/"?[[:space:]]*,?$/, "")
+        print
+        exit
+      }
+      found && /"name":/ { exit }
+    ')
+  elif command -v sed >/dev/null 2>&1; then
+    DIGEST_VALUE=$(echo "${API_RESPONSE}" | sed -n \
+      -e ':a;N;$!ba;s/\n/ /g;s/"name"[[:space:]]*:/\n/g' \
+      -e 's/.*\n[^"\n]*"'"${INSTALL_SCRIPT}"'"[^\n]*"digest"[[:space:]]*:[[:space:]]*"\([^"]*\)".*/\1/p')
+  else
+    echo "WARNING: No utility available to extract digest from release metadata, expected awk or sed"
+    DIGEST_VALUE=""
+  fi
 
   if [ -n "${DIGEST_VALUE}" ] && [ "${DIGEST_VALUE}" != "null" ]; then
     case "${DIGEST_VALUE}" in
