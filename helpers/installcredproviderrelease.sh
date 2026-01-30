@@ -105,9 +105,9 @@ else
 
     # Calculate actual hash from the script content
     if command -v shasum >/dev/null 2>&1; then
-      ACTUAL_HASH=$(echo "${SCRIPT_CONTENT}" | shasum -a 256 | awk '{print $1}')
+      ACTUAL_HASH=$(echo "${SCRIPT_CONTENT}" | shasum -a 256 | cut -d ' ' -f 1)
     elif command -v sha256sum >/dev/null 2>&1; then
-      ACTUAL_HASH=$(echo "${SCRIPT_CONTENT}" | sha256sum | awk '{print $1}')
+      ACTUAL_HASH=$(echo "${SCRIPT_CONTENT}" | sha256sum | cut -d ' ' -f 1)
     else
       echo "WARNING: No SHA256 utility available, skipping validation"
       ACTUAL_HASH=""
