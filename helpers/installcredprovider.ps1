@@ -76,8 +76,8 @@ function Initialize-InstallParameters {
 function Get-RuntimeIdentifier {
     $runtimeId = ""
 
-    # Prefer built-in PowerShell variables where available (PowerShell Core)
-    if (Get-Variable -Name IsWindows -Scope Global -ErrorAction SilentlyContinue) {
+    # Prefer built-in PowerShell Core variables where available
+    if ($PSVersionTable.PSEdition -eq 'Core') {
         if ($IsWindows) { $runtimeId = "win" }
         elseif ($IsLinux) { $runtimeId = "linux" }
         elseif ($IsMacOS) { $runtimeId = "osx" }
@@ -87,26 +87,20 @@ function Get-RuntimeIdentifier {
     if ([string]::IsNullOrEmpty($runtimeId)) {
         try {
             $ri = [System.Runtime.InteropServices.RuntimeInformation]
-            if ($ri::IsOSPlatform([System.Runtime.InteropServices.OSPlatform]::Windows)) {
-                $runtimeId = "win"
-            }
-            elseif ($ri::IsOSPlatform([System.Runtime.InteropServices.OSPlatform]::Linux)) {
-                $runtimeId = "linux"
-            }
-            elseif ($ri::IsOSPlatform([System.Runtime.InteropServices.OSPlatform]::OSX)) {
-                $runtimeId = "osx"
-            }
+            if ($ri::IsOSPlatform([System.Runtime.InteropServices.OSPlatform]::Windows)) { $runtimeId = "win" }
+            elseif ($ri::IsOSPlatform([System.Runtime.InteropServices.OSPlatform]::Linux)) { $runtimeId = "linux" }
+            elseif ($ri::IsOSPlatform([System.Runtime.InteropServices.OSPlatform]::OSX)) { $runtimeId = "osx" }
         }
         catch {
             $runtimeId = ""
         }
     }
 
-    # Final fallback using platform string
+    # Final fallback using Environment.OSVersion (legacy; values on Linux/macOS are "Unix" in many runtimes).
     if ([string]::IsNullOrEmpty($runtimeId)) {
         $platform = [System.Environment]::OSVersion.Platform.ToString().ToLowerInvariant()
         if ($platform -like "*win*") { $runtimeId = "win" }
-        elseif ($platform -like "*linux*") { $runtimeId = "linux" }
+        elseif ($platform -like "*unix*") { $runtimeId = "linux" }
         elseif ($platform -like "*mac*" -or $platform -like "*darwin*") { $runtimeId = "osx" }
     }
 
@@ -115,26 +109,27 @@ function Get-RuntimeIdentifier {
         return ""
     }
 
-    $osArch = $null
+    $osArch = ""
     # Prefer RuntimeInformation for architecture
     try {
         $osArch = [System.Runtime.InteropServices.RuntimeInformation]::OSArchitecture.ToString().ToLowerInvariant()
     }
     catch {
-        $osArch = $null
+        $osArch = ""
     }
 
     # Fallback for Windows PowerShell without RuntimeInformation
     if ([string]::IsNullOrEmpty($osArch) -and $runtimeId -eq "win") {
-        $envArch = $env:PROCESSOR_ARCHITECTURE
+        # Prefer PROCESSOR_ARCHITEW6432 if present (WOW64) else PROCESSOR_ARCHITECTURE
+        $envArch = if ($env:PROCESSOR_ARCHITEW6432) { $env:PROCESSOR_ARCHITEW6432 } else { $env:PROCESSOR_ARCHITECTURE }
         if ($envArch) { $osArch = $envArch.ToLowerInvariant() }
     }
 
     switch ($osArch) {
-        "x64" { $osArch = "-x64" }
-        "amd64" { $osArch = "-x64" }
-        "arm64" { $osArch = "-arm64" }
-        "aarch64" { $osArch = "-arm64" }
+        "x64"    { $osArch = "-x64" }
+        "amd64"  { $osArch = "-x64" }
+        "arm64"  { $osArch = "-arm64" }
+        "aarch64"{ $osArch = "-arm64" }
         default {
             Write-Warning "Unable to automatically detect a supported CPU architecture. The .NET 8 version will be installed by default. Please set the RuntimeIdentifier parameter to specify a runtime version."
             return ""
