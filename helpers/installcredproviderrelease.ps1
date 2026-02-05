@@ -19,7 +19,7 @@ param(
     [string]$Version,
 
     [Parameter(Mandatory = $false, ValueFromRemainingArguments = $true)]
-    [string]$AdditionalParams
+    $AdditionalParams
 )
 
 $ErrorActionPreference = 'Stop'
@@ -105,15 +105,10 @@ catch {
     return
 }
 
-# Build the parameters for the executed install script
 $paramString = ""
 if ($Version) {
     $paramString += "-Version $Version "
 }
-if ($AdditionalParams) {
-    $paramString += $AdditionalParams
-}
-
 try {
     # Fetch the install file content
     Write-Host "Fetching $installScriptName from $installUrl..."
@@ -133,9 +128,9 @@ try {
         }
     }
 
-    # Execute the script directly from the URL with additional parameters
+     # Execute the script directly from the URL with additional parameters
     Write-Host "Executing $installScriptName..."
-    $execCmd = "& { $($tempScriptLocation) $paramString }"
+    $execCmd = "& '$tempScriptLocation' $paramString $($AdditionalParams -join ' ')"
     Invoke-Expression -Command $execCmd
 }
 catch {
