@@ -25,6 +25,9 @@ $script:TestsFailed = 0
 
 Write-Host "PowerShell Version: $($PSVersionTable.PSVersion)" -ForegroundColor Cyan
 
+# Get the current PowerShell executable for cross-platform compatibility
+$script:PowerShellExe = (Get-Process -Id $PID).Path
+
 $script:ScriptUnderTest = Join-Path $PSScriptRoot "installcredproviderrelease.ps1"
 $script:MockScriptPath = Join-Path ([System.IO.Path]::GetTempPath()) "installcredprovider.ps1"
 $script:CaptureFilePath = Join-Path ([System.IO.Path]::GetTempPath()) "test-captured-params.json"
@@ -115,7 +118,7 @@ function New-Object { param([string]`$TypeName,[object[]]`$ArgumentList)
 & '$scriptPath' $escapedArgs
 "@
         
-        powershell.exe -NoProfile -ExecutionPolicy Bypass -Command $wrapper 2>&1 | Out-Null
+        & $script:PowerShellExe -NoProfile -ExecutionPolicy Bypass -Command $wrapper 2>&1 | Out-Null
         Start-Sleep -Milliseconds 100
         
         if (-not (Test-Path $script:CaptureFilePath)) {
