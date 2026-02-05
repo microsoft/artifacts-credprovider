@@ -105,10 +105,27 @@ catch {
     return
 }
 
-$paramString = ""
+# Build the parameters for the executed install script
+$scriptArgs = @()
 if ($Version) {
-    $paramString += "-Version $Version "
+    $scriptArgs += "-Version"
+    $scriptArgs += $Version
 }
+if ($AdditionalParams) {
+    # Recombine arguments that were split by PowerShell's parser (e.g., "-Switch:" and "False")
+    for ($i = 0; $i -lt $AdditionalParams.Count; $i++) {
+        $arg = $AdditionalParams[$i]
+        if ($arg -is [string] -and $arg.EndsWith(':') -and ($i + 1) -lt $AdditionalParams.Count) {
+            # Combine "-Switch:" with its value (e.g., "-AddNetfx:" + "False" -> "-AddNetfx:False")
+            $scriptArgs += "$arg$($AdditionalParams[$i + 1])"
+            $i++
+        } else {
+            $scriptArgs += $arg
+        }
+    }
+}
+$paramString = $scriptArgs -join ' '
+
 try {
     # Fetch the install file content
     Write-Host "Fetching $installScriptName from $installUrl..."
@@ -128,10 +145,9 @@ try {
         }
     }
 
-     # Execute the script directly from the URL with additional parameters
+     # Execute the script with parameters
     Write-Host "Executing $installScriptName..."
-    $execCmd = "& '$tempScriptLocation' $paramString $($AdditionalParams -join ' ')"
-    Invoke-Expression -Command $execCmd
+    Invoke-Expression "& '$tempScriptLocation' $paramString"
 }
 catch {
     Write-Error "Failed to fetch, validate, or execute artifacts-credprovider install. Error message: $_"
