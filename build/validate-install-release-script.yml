@@ -1,4 +1,60 @@
 jobs:
+- job: TestInstallReleaseScriptPwsh
+  displayName: 'Test installcredproviderrelease.ps1 (PowerShell 7+)'
+  pool:
+    vmImage: windows-latest
+  steps:
+  - checkout: self
+  - task: PowerShell@2
+    displayName: Run tests (pwsh)
+    inputs:
+      targetType: 'inline'
+      pwsh: true
+      script: |
+        ./helpers/test-installcredproviderrelease.ps1
+
+- job: TestInstallReleaseScriptPS5
+  displayName: 'Test installcredproviderrelease.ps1 (PowerShell 5.1)'
+  pool:
+    vmImage: windows-latest
+  steps:
+  - checkout: self
+  - task: PowerShell@2
+    displayName: Run tests (PowerShell 5.1)
+    inputs:
+      targetType: 'inline'
+      pwsh: false
+      script: |
+        ./helpers/test-installcredproviderrelease.ps1
+
+- job: TestInstallReleaseScriptLinux
+  displayName: 'Test installcredproviderrelease.ps1 (Linux)'
+  pool:
+    vmImage: ubuntu-latest
+  steps:
+  - checkout: self
+  - task: PowerShell@2
+    displayName: Run tests (pwsh on Linux)
+    inputs:
+      targetType: 'inline'
+      pwsh: true
+      script: |
+        ./helpers/test-installcredproviderrelease.ps1
+
+- job: TestInstallReleaseScriptMacOS
+  displayName: 'Test installcredproviderrelease.ps1 (macOS)'
+  pool:
+    vmImage: macOS-latest
+  steps:
+  - checkout: self
+  - task: PowerShell@2
+    displayName: Run tests (pwsh on macOS)
+    inputs:
+      targetType: 'inline'
+      pwsh: true
+      script: |
+        ./helpers/test-installcredproviderrelease.ps1
+
 - job: WindowsReleaseInstallDefault
   pool:
     vmImage: windows-latest
