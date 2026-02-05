@@ -19,7 +19,7 @@ param(
     [string]$Version,
 
     [Parameter(Mandatory = $false, ValueFromRemainingArguments = $true)]
-    $AdditionalParams
+    [string[]]$AdditionalParams
 )
 
 $ErrorActionPreference = 'Stop'
