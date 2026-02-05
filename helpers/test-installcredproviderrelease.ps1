@@ -86,6 +86,13 @@ function Test-Parameters {
     try {
         if ($RunLive) {
             Write-Host "  Live test: $TestName" -ForegroundColor Yellow
+            
+            # Clean up credential provider installation directory before each live test
+            $pluginDir = Join-Path $env:USERPROFILE ".nuget" "plugins"
+            if (Test-Path $pluginDir) {
+                Remove-Item $pluginDir -Recurse -Force -ErrorAction SilentlyContinue
+            }
+            
             $cmd = "& '$($script:ScriptUnderTest)' $ArgumentString"
             Invoke-Expression $cmd 2>&1 | Out-Null
             Write-TestResult -TestName $TestName -Passed $true
