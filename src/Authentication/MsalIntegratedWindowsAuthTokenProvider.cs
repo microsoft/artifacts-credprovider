@@ -46,8 +46,6 @@ public class MsalIntegratedWindowsAuthTokenProvider : ITokenProvider
                 .ExecuteAsync(cancellationToken);
             #pragma warning restore CS0618
 
-            #pragma warning restore CS0618
-
             return result;
         }
         catch (MsalClientException ex) when (ex.ErrorCode is MsalError.WsTrustEndpointNotFoundInMetadataDocument or MsalError.IntegratedWindowsAuthNotSupportedForManagedUser)
