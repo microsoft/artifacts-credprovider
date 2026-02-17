@@ -175,19 +175,27 @@ From Azure DevOps Server 2020 RC1 forward, the [NuGetAuthenticate](https://docs.
 
 ## Session Token Cache Locations
 
-The Credential Provider will save session tokens in the following locations:
+The Credential Provider stores two separate caches:
 
--   Windows: `$env:UserProfile\AppData\Local\MicrosoftCredentialProvider`
--   Linux/MAC: `$HOME/.local/share/MicrosoftCredentialProvider/`
+**ADO Session token file cache** (on disk):
+-   Windows: `%LocalAppData%\MicrosoftCredentialProvider\SessionTokenCache.dat`
+-   Linux/macOS: `$HOME/.local/share/MicrosoftCredentialProvider/`
 
-On Linux or Mac, the tokens are additionally saved to the Keyring/Keychain under the collection name `Microsoft.Developer.IdentityService`.
+**MSAL token cache** (secured by the OS):
+-   Windows: `%LocalAppData%\.IdentityService\msal.cache`
+-   macOS: Keychain entry with service name `Microsoft.Developer.IdentityService` and account `MSALCache`
+-   Linux: Keyring with collection `default` and label `MSALCache` (falls back to an unprotected file if no Keyring is available)
 
+Both caches can be disabled via environment variables — see `ARTIFACTS_CREDENTIALPROVIDER_SESSIONTOKENCACHE_ENABLED` and `ARTIFACTS_CREDENTIALPROVIDER_MSAL_FILECACHE_ENABLED` in the [Environment Variables](#environment-variables) section below.
 
 ## Environment Variables
 
 The Credential Provider accepts a set of environment variables. Not all of them we recommend using in production, but these two are considered safe.
 
 > **Note:** When both a new (preferred) environment variable and its legacy equivalent are set, the new variable takes precedence. Legacy variables are supported for backward compatibility only.
+
+-   `ARTIFACTS_CREDENTIALPROVIDER_LOG_PATH` (Preferred)
+    `NUGET_CREDENTIALPROVIDER_LOG_PATH` (Legacy): Path to a log file where the credential provider will write log messages. Useful for diagnosing authentication failures without needing to re-run with verbose output.
 
 -   `ARTIFACTS_CREDENTIALPROVIDER_SESSIONTOKENCACHE_ENABLED` (Preferred) 
     `NUGET_CREDENTIALPROVIDER_SESSIONTOKENCACHE_ENABLED` (legacy): Boolean value that controls whether the session token is saved to disk. If set to `false`, the Credential Provider will prompt for authentication every time.
@@ -372,8 +380,20 @@ Provide MSAL Cache Location
 #### How do I know the credential provider is installed correctly? / I'm still getting username/password prompt after installing
 This means that either nuget.exe was unable to find the credential provider from [NuGet's plugin search path](https://github.com/microsoft/artifacts-credprovider#setup), or the credential provider failed to authenticate so the client defaulted to the username/password prompt. Verify the credential provider is correctly installed by checking it exists in the `nuget/plugins` folder in your user profile (Refer to the [setup docs](https://github.com/microsoft/artifacts-credprovider#setup)). If using nuget.exe and used the [install script](https://github.com/microsoft/artifacts-credprovider#automatic-powershell-script) to install the credential provider, please make sure you ran it with `-AddNetfx`.
 
-#### How do I get better error logs from the credential provider?
+#### How do I get error logs from the credential provider?
 Run the nuget.exe/`dotnet` command with detailed verbosity to see more credential provider logs that may help debugging (`nuget.exe -verbosity detailed`, `dotnet --verbosity detailed`).
+
+Starting with .NET 10, MSBuild enables the [terminal logger](https://learn.microsoft.com/dotnet/core/tools/dotnet-build#--tl-terminallogger) by default. This can suppress credential provider log output that previously appeared with `--verbosity detailed`. If you are not seeing credential provider logs, disable the terminal logger by passing `--tl:off`
+
+You can also capture credential provider logs directly to a file by setting the log path environment variable before running your command:
+
+```shell
+# Windows (PowerShell)
+$env:ARTIFACTS_CREDENTIALPROVIDER_LOG_PATH = "$PWD\credprovider.log"
+
+# Linux/macOS
+export ARTIFACTS_CREDENTIALPROVIDER_LOG_PATH="$PWD/credprovider.log"
+```
 
 #### How do I find out if my issue is a real 401?
 Run the credential provider directly with the following command: `C:\Users\<user>\.nuget\plugins\netfx\CredentialProvider.Microsoft\CredentialProvider.Microsoft.exe  -I -V Verbose -U "https://pkgs.dev.azure.com/{organization}/{project-if-feed-is-project-scoped}/_packaging/{feed}/nuget/v3/index.json"`. Check you have the right permissions from the [feed permissions](https://docs.microsoft.com/en-us/azure/devops/artifacts/feeds/feed-permissions?view=azure-devops).
