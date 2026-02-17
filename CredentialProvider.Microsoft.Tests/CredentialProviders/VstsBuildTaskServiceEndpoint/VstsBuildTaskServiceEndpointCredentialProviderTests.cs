@@ -1,4 +1,4 @@
-﻿// Copyright (c) Microsoft. All rights reserved.
+// Copyright (c) Microsoft. All rights reserved.
 //
 // Licensed under the MIT license.
 
@@ -204,7 +204,7 @@ public class VstsBuildTaskServiceEndpointCredentialProviderTests
 
         mockTokenProviderFactory.Setup(x =>
             x.GetAsync(It.IsAny<Uri>()))
-                .ReturnsAsync(new List<ITokenProvider>() { 
+                .ReturnsAsync(new List<ITokenProvider>() {
                     SetUpMockManagedIdentityTokenProvider(null).Object });
 
         var result = await vstsCredentialProvider.HandleRequestAsync(new GetAuthenticationCredentialsRequest(sourceUri, false, false, false), CancellationToken.None);

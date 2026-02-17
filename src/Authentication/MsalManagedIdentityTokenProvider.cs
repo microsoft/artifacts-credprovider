@@ -1,4 +1,4 @@
-﻿using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging;
 using Microsoft.Identity.Client;
 using Microsoft.Identity.Client.AppConfig;
 
@@ -19,7 +19,7 @@ public class MsalManagedIdentityTokenProvider : ITokenProvider
 
     public bool IsInteractive => false;
 
-    public bool CanGetToken(TokenRequest tokenRequest) => 
+    public bool CanGetToken(TokenRequest tokenRequest) =>
         !string.IsNullOrWhiteSpace(tokenRequest.ClientId);
 
     public async Task<AuthenticationResult?> GetTokenAsync(TokenRequest tokenRequest, CancellationToken cancellationToken = default)
@@ -42,7 +42,7 @@ public class MsalManagedIdentityTokenProvider : ITokenProvider
                 .ConfigureAwait(false);
 
             return result;
-        } 
+        }
         catch (MsalServiceException ex) when (ex.ErrorCode is MsalError.ManagedIdentityRequestFailed)
         {
             logger.LogTrace(ex.Message);

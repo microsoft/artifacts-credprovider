@@ -1,4 +1,4 @@
-﻿// Copyright (c) Microsoft. All rights reserved.
+// Copyright (c) Microsoft. All rights reserved.
 //
 // Licensed under the MIT license.
 
@@ -14,7 +14,7 @@ using NuGetCredentialProvider.Logging;
 using NuGetCredentialProvider.Util;
 
 namespace CredentialProvider.Microsoft.Tests.CredentialProviders.VstsBuildTask
-{ 
+{
     [TestClass]
     public class VstsBuildTaskCredentialProviderTests
     {

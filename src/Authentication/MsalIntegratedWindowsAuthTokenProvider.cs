@@ -44,7 +44,6 @@ public class MsalIntegratedWindowsAuthTokenProvider : ITokenProvider
             var result = await app.AcquireTokenByIntegratedWindowsAuth(MsalConstants.AzureDevOpsScopes)
                 .WithUsername(upn)
                 .ExecuteAsync(cancellationToken);
-
             #pragma warning restore CS0618
 
             return result;

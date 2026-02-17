@@ -1,4 +1,4 @@
-﻿// Copyright (c) Microsoft. All rights reserved.
+// Copyright (c) Microsoft. All rights reserved.
 //
 // Licensed under the MIT license.
 
@@ -104,22 +104,36 @@ namespace NuGetCredentialProvider
                         string.Format(
                             Resources.EnvironmentVariableHelp,
                             EnvUtil.LogPathEnvVar,
+                            EnvUtil.LegacyLogPathEnvVar,
                             EnvUtil.SessionTokenCacheEnvVar,
+                            EnvUtil.LegacySessionTokenCacheEnvVar,
                             EnvUtil.SupportedHostsEnvVar,
+                            EnvUtil.LegacySupportedHostsEnvVar,
                             EnvUtil.SessionTimeEnvVar,
+                            EnvUtil.LegacySessionTimeEnvVar,
                             EnvUtil.TokenTypeEnvVar,
+                            EnvUtil.LegacyTokenTypeEnvVar,
                             EnvUtil.BuildTaskUriPrefixes,
+                            EnvUtil.LegacyBuildTaskUriPrefixes,
                             EnvUtil.BuildTaskAccessToken,
+                            EnvUtil.LegacyBuildTaskAccessToken,
                             EnvUtil.BuildTaskExternalEndpoints,
+                            EnvUtil.LegacyBuildTaskExternalEndpoints,
                             EnvUtil.EndpointCredentials,
                             EnvUtil.DefaultMsalCacheLocation,
                             EnvUtil.SessionTokenCacheLocation,
                             EnvUtil.WindowsIntegratedAuthenticationEnvVar,
+                            EnvUtil.LegacyWindowsIntegratedAuthenticationEnvVar,
                             EnvUtil.DeviceFlowTimeoutEnvVar,
+                            EnvUtil.LegacyDeviceFlowTimeoutEnvVar,
                             EnvUtil.ForceCanShowDialogEnvVar,
+                            EnvUtil.LegacyForceCanShowDialogEnvVar,
                             EnvUtil.MsalAuthorityEnvVar,
+                            EnvUtil.LegacyMsalAuthorityEnvVar,
                             EnvUtil.MsalFileCacheEnvVar,
-                            EnvUtil.MsalFileCacheLocationEnvVar
+                            EnvUtil.LegacyMsalFileCacheEnvVar,
+                            EnvUtil.MsalFileCacheLocationEnvVar,
+                            EnvUtil.LegacyMsalFileCacheLocationEnvVar
                         ));
                     return 0;
                 }
@@ -146,7 +160,7 @@ namespace NuGetCredentialProvider
 
                         // This is probably more confusing than interesting to users, but may be helpful in debugging,
                         // so log the exception but not to the console.
-                        multiLogger.Log(LogLevel.Verbose, allowOnConsole:false, ex.ToString());
+                        multiLogger.Log(LogLevel.Verbose, allowOnConsole: false, ex.ToString());
                     }
 
                     return 0;
