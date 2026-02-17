@@ -21,10 +21,12 @@ if (Test-Path $env:NUGET_CREDENTIALPROVIDER_MSAL_FILECACHE_LOCATION) {
 }
 
 function Test-Frameworks {
-    param([string]$TestFeedUrl)
+    param(
+        [string]$TestFeedUrl
+    )
     
     if ($IsWindows) {
-        $frameworks = @("netcoreapp3.1", "net461", "net481", "net6.0", "net8.0")
+        $frameworks = @("net481", "net6.0", "net8.0")
     } else {
         $frameworks = @("net6.0", "net8.0")
     }

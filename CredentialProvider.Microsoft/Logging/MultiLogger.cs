@@ -1,4 +1,4 @@
-﻿// Copyright (c) Microsoft. All rights reserved.
+// Copyright (c) Microsoft. All rights reserved.
 //
 // Licensed under the MIT license.
 
@@ -10,10 +10,17 @@ namespace NuGetCredentialProvider.Logging
     internal class MultiLogger : List<ILogger>, ILogger
     {
         private LogLevel? minLogLevel = null;
+        private readonly object logLock = new();
 
         public void Log(LogLevel level, bool allowOnConsole, string message)
         {
-            foreach (var logger in this)
+            ILogger[] loggers;
+            lock (logLock)
+            {
+                loggers = this.ToArray();
+            }
+
+            foreach (var logger in loggers)
             {
                 logger.Log(level, allowOnConsole, message);
             }
@@ -21,9 +28,14 @@ namespace NuGetCredentialProvider.Logging
 
         public void SetLogLevel(LogLevel newLogLevel)
         {
-            minLogLevel = newLogLevel;
+            ILogger[] loggers;
+            lock (logLock)
+            {
+                minLogLevel = newLogLevel;
+                loggers = this.ToArray();
+            }
 
-            foreach (var logger in this)
+            foreach (var logger in loggers)
             {
                 logger.SetLogLevel(newLogLevel);
             }
@@ -31,12 +43,15 @@ namespace NuGetCredentialProvider.Logging
 
         public new void Add(ILogger logger)
         {
-            if (minLogLevel.HasValue)
+            lock (logLock)
             {
-                logger.SetLogLevel(minLogLevel.Value);
-            }
+                if (minLogLevel.HasValue)
+                {
+                    logger.SetLogLevel(minLogLevel.Value);
+                }
 
-            base.Add(logger);
+                base.Add(logger);
+            }
         }
     }
 }
