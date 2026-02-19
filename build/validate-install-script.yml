@@ -80,6 +80,42 @@ jobs:
       repo: self
       scriptInputs: ' -AddNetfx48'
       expectedCredentialProviderVersion: 'Microsoft.NetFx48.NuGet.CredentialProvider'
+- job: WindowsInstallNet8winx86
+  pool:
+    vmImage: windows-latest
+  steps:
+  - template: validate-install-script-powershell.yml@self
+    parameters:
+      repo: self
+      scriptInputs: '-InstallNet8 -RuntimeIdentifier win-x86'
+      expectedCredentialProviderVersion: 'Microsoft.win-x86.NuGet.CredentialProvider'
+- job: WindowsInstallNet8winx86NoParams
+  pool:
+    vmImage: windows-latest
+  steps:
+  - template: validate-install-script-powershell.yml@self
+    parameters:
+      repo: self
+      scriptInputs: '-RuntimeIdentifier win-x86'
+      expectedCredentialProviderVersion: 'Microsoft.win-x86.NuGet.CredentialProvider'
+- job: WindowsInstallNet8winarm64
+  pool:
+    vmImage: windows-latest
+  steps:
+  - template: validate-install-script-powershell.yml@self
+    parameters:
+      repo: self
+      scriptInputs: '-InstallNet8 -RuntimeIdentifier win-arm64'
+      expectedCredentialProviderVersion: 'Microsoft.win-arm64.NuGet.CredentialProvider'
+- job: WindowsInstallNet8winarm64NoParams
+  pool:
+    vmImage: windows-latest
+  steps:
+  - template: validate-install-script-powershell.yml@self
+    parameters:
+      repo: self
+      scriptInputs: '-RuntimeIdentifier win-arm64'
+      expectedCredentialProviderVersion: 'Microsoft.win-arm64.NuGet.CredentialProvider'
 - job: LinuxInstallDefault
   pool:
     vmImage: ubuntu-latest
