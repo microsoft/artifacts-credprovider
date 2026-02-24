@@ -9,6 +9,7 @@ Any time you want to restore or install packages from an Azure Artifacts feed, 
 -   [Prerequisites](#prerequisites)
 -   [Setup](#setup)
 -   [Use](#use)
+    -   [Dev Containers](#dev-containers)
 -   [Session Token Cache Locations](#session-token-cache-locations)
 -   [Environment Variables](#environment-variables)
 -   [Release version 1.0.0](#release-version-100)
@@ -167,6 +168,63 @@ If you're running the command as part of an automated build on an unattended bui
 
 ### Docker containers
 [Managing NuGet credentials in Docker scenarios](https://github.com/dotnet/dotnet-docker/blob/master/documentation/scenarios/nuget-credentials.md#using-the-azure-artifact-credential-provider)
+
+### Dev Containers
+
+Dev containers provide a fully configured development environment running inside a container. The credential provider can be set up in a dev container using either **browser-based interactive authentication** or the **artifacts-helper dev container feature**.
+
+#### Option 1: artifacts-helper dev container feature
+
+You can use the [`artifacts-helper`](https://github.com/microsoft/codespace-features) dev container feature. This feature automatically configures authentication for Azure Artifacts feeds without requiring browser-based interactive login. It is well suited for GitHub Codespaces and other environments where browser auth may not be available.
+
+```jsonc
+{
+    "image": "mcr.microsoft.com/devcontainers/dotnet:10.0",
+    "features": {
+        "ghcr.io/microsoft/codespace-features/artifacts-helper": {}
+    }
+}
+```
+
+The `artifacts-helper` feature handles credential provider installation and configuration automatically. No `--network host`, `xdg-utils`, or `--interactive` flag is needed — authentication is managed through the Codespaces token or the signed-in identity in your environment.
+
+#### Option 2: Browser-based interactive authentication
+
+Alternatively, you can install the credential provider via the install script and use `--network host` so the MSAL localhost redirect URL is reachable from the host browser during interactive auth.
+
+A sample [devcontainer.json](samples/devcontainer-sample.json) is provided in the `samples/` directory:
+
+```jsonc
+{
+    "name": "Azure Artifacts NuGet Auth Sample",
+    "image": "mcr.microsoft.com/devcontainers/dotnet:10.0",
+    // Use --network host to allow the credential provider's localhost redirect URL
+    // to be reachable from the browser on the host machine during interactive auth.
+    // See : https://github.com/AzureAD/microsoft-authentication-library-for-dotnet/issues/5003
+    "runArgs": [
+        "--network",
+        "host"
+    ],
+    // linux container package dependencies:
+    // libsecret-1-0: required for persisting the MSAL cache securely.
+    // xdg-utils: required to open the browser for interactive authentication
+    "postCreateCommand": {
+        "apt": "sudo apt-get update -qq && sudo apt-get install -y -qq libsecret-1-0 xdg-utils",
+        "credprovider": "wget -qO- https://aka.ms/install-artifacts-credprovider.sh | bash"
+    },
+    "remoteUser": "vscode"
+}
+```
+
+After building the dev container, run an interactive restore to trigger browser-based login:
+
+```shell
+dotnet restore --interactive
+```
+
+**Key details:**
+- `--network host` is required so that MSAL's localhost redirect URL is accessible from the host machine's browser. See [MSAL issue #5003](https://github.com/AzureAD/microsoft-authentication-library-for-dotnet/issues/5003) for context.
+- `libsecret-1-0` and `xdg-utils` are only required for Linux-based dev containers. `libsecret-1-0` is needed to persist the MSAL token cache securely via the system keyring, and `xdg-utils` provides `xdg-open`, which the credential provider uses to launch the browser for interactive authentication.
 
 ### Azure DevOps Server
 The Azure Artifacts Credential Provider may not be necessary for an on-premises Azure DevOps Server on Windows. If the credential provider is needed, it cannot acquire credentials interactively, therefore, the `ARTIFACTS_CREDENTIALPROVIDER_EXTERNAL_FEED_ENDPOINTS` environment variable must be used as an alternative. Supply a [Personal Access Token](https://docs.microsoft.com/en-us/azure/devops/organizations/accounts/use-personal-access-tokens-to-authenticate?view=azure-devops) directly using the `ARTIFACTS_CREDENTIALPROVIDER_EXTERNAL_FEED_ENDPOINTS` [environment variable](#environment-variables).

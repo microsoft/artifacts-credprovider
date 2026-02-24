@@ -1,0 +1,19 @@
+{
+    "name": "Azure Artifacts NuGet Auth Sample",
+    "image": "mcr.microsoft.com/devcontainers/dotnet:10.0",
+    // Use --network host to allow the credential provider's localhost redirect URL
+    // to be reachable from the browser on the host machine during interactive auth.
+    // See : https://github.com/AzureAD/microsoft-authentication-library-for-dotnet/issues/5003
+    "runArgs": [
+        "--network",
+        "host"
+    ],
+    // linux container package dependencies:
+    // libsecret-1-0: required for persisting the MSAL cache securely. 
+    // xdg-utils: required to open the browser for interactive authentication
+    "postCreateCommand": {
+        "apt": "sudo apt-get update -qq && sudo apt-get install -y -qq libsecret-1-0 xdg-utils",
+        "credprovider": "wget -qO- https://aka.ms/install-artifacts-credprovider.sh | bash"
+    },
+    "remoteUser": "vscode"
+}
