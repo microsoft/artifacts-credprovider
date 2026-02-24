@@ -9,7 +9,6 @@ Any time you want to restore or install packages from an Azure Artifacts feed, 
 -   [Prerequisites](#prerequisites)
 -   [Setup](#setup)
 -   [Use](#use)
-    -   [Dev Containers](#dev-containers)
 -   [Session Token Cache Locations](#session-token-cache-locations)
 -   [Environment Variables](#environment-variables)
 -   [Release version 1.0.0](#release-version-100)
