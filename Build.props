@@ -6,7 +6,7 @@
     <TargetFrameworks>net481;net6.0;net8.0</TargetFrameworks>
   </PropertyGroup>
 
-  <PropertyGroup Condition="'$(RuntimeIdentifier)' == 'osx-arm64'">
+  <PropertyGroup Condition="'$(RuntimeIdentifier)' == 'osx-arm64' or '$(RuntimeIdentifier)' == 'win-arm64'">
     <TargetFrameworks>net8.0</TargetFrameworks>
   </PropertyGroup>
 
