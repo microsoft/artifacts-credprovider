@@ -33,6 +33,11 @@ namespace NuGetCredentialProvider
         {
             var scheduler = MacMainThreadScheduler.Instance();
 
+            if (!scheduler.IsCurrentlyOnMainThread())
+            {
+                return BackgroundWork(args).GetAwaiter().GetResult();
+            }
+
             int returnCode = -1;
             _ = Task.Run(async () => {
                 try
@@ -59,6 +64,10 @@ namespace NuGetCredentialProvider
             if (fileLogger != null)
             {
                 fileLogger.Log(LogLevel.Verbose, allowOnConsole: false, string.Join(" ", MsalHttpClientFactory.UserAgent));
+
+                var scheduler = MacMainThreadScheduler.Instance();
+                fileLogger.Log(LogLevel.Verbose, allowOnConsole: false,
+                    $"MacMainThreadScheduler: IsRunning={scheduler.IsRunning()}, IsMainThread={scheduler.IsCurrentlyOnMainThread()}, ManagedThreadId={Environment.CurrentManagedThreadId}");
 
                 multiLogger.Add(fileLogger);
             }

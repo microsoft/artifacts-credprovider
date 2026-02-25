@@ -4,10 +4,15 @@
 
 using Microsoft.Extensions.Logging;
 using Microsoft.Identity.Client;
-using Microsoft.Identity.Client.Utils;
 
 namespace Microsoft.Artifacts.Authentication;
 
+/// <summary>
+/// Interactive token provider that uses the system browser for authentication.
+/// Does not use the MSAL broker or the <see cref="Microsoft.Identity.Client.Utils.MacMainThreadScheduler"/>.
+/// System browser auth (<see cref="AbstractAcquireTokenParameterBuilder{T}.WithUseEmbeddedWebView(bool)"/> = false)
+/// does not require the macOS main thread.
+/// </summary>
 public class MsalInteractiveTokenProvider : ITokenProvider
 {
     private readonly IPublicClientApplication app;
@@ -44,14 +49,10 @@ public class MsalInteractiveTokenProvider : ITokenProvider
         {
             logger.LogInformation(Resources.MsalInteractivePrompt);
 
-            AuthenticationResult? result = null;
-            await MacMainThreadScheduler.Instance().RunOnMainThreadAsync(async () =>
-            {
-                result = await app.AcquireTokenInteractive(MsalConstants.AzureDevOpsScopes)
-                    .WithPrompt(Prompt.SelectAccount)
-                    .WithUseEmbeddedWebView(false)
-                    .ExecuteAsync(cts.Token);
-            });
+            var result = await app.AcquireTokenInteractive(MsalConstants.AzureDevOpsScopes)
+                .WithPrompt(Prompt.SelectAccount)
+                .WithUseEmbeddedWebView(false)
+                .ExecuteAsync(cts.Token);
 
             return result;
         }

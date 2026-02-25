@@ -535,4 +535,7 @@ Provide MSAL Cache Location
   <data name="UsingTenant" xml:space="preserve">
     <value>Using Entra tenant: {0}.</value>
   </data>
+  <data name="MainThreadSchedulerNotOnMainThread" xml:space="preserve">
+    <value>MacMainThreadScheduler message loop not started: current ManagedThreadId is {0}, expected 1. Broker authentication on macOS will fall back to system browser.</value>
+  </data>
 </root>

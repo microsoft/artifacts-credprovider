@@ -159,4 +159,10 @@
   <data name="MsalWindowsIntegratedAuthObsoleteWarning" xml:space="preserve">
     <value>Warning: Windows Integrated Auth is obsolete. For scenarios requiring SSO with the Windows OS's default account, please transition to using WAM.</value>
   </data>
+  <data name="MacSchedulerNotRunningFallback" xml:space="preserve">
+    <value>MacMainThreadScheduler is not running; executing interactive auth directly without main thread dispatch.</value>
+  </data>
+  <data name="MacSchedulerNotRunningBrokerSkipped" xml:space="preserve">
+    <value>MacMainThreadScheduler is not running and broker is enabled; skipping broker interactive auth as it requires the macOS main thread. Non-broker interactive auth will be used instead.</value>
+  </data>
 </root>
