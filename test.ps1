@@ -60,12 +60,12 @@ function Test-Frameworks {
         $env:ARTIFACTS_CREDENTIALPROVIDER_LOG_PATH = (Join-Path $PSScriptRoot $logFile)
         
         $projectPath = Join-Path "CredentialProvider.Microsoft" "CredentialProvider.Microsoft.csproj"
-        $command = "dotnet run --no-restore --no-build -f $framework --project $projectPath -- -C -U $TestFeedUrl -V Debug"
+        $command = "dotnet run --no-restore --no-build -f $framework --project $projectPath -- -C -U $TestFeedUrl -V Debug -R"
         Write-Host $command -ForegroundColor Gray
         
         # Execute the command (file logger captures full diagnostics via ARTIFACTS_CREDENTIALPROVIDER_LOG_PATH)
         try {
-            & dotnet run --no-restore --no-build -f $framework --project $projectPath -- -C -U $TestFeedUrl -V Debug
+            & dotnet run --no-restore --no-build -f $framework --project $projectPath -- -C -U $TestFeedUrl -V Debug -R | Out-Null
             $exitCode = $LASTEXITCODE
         }
         catch {
