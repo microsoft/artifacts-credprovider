@@ -165,10 +165,4 @@
   <data name="MacSchedulerNotRunningBrokerSkipped" xml:space="preserve">
     <value>MacMainThreadScheduler is not running and broker is enabled; skipping broker interactive auth as it requires the macOS main thread. Non-broker interactive auth will be used instead.</value>
   </data>
-  <data name="MacBrokerCFRunLoopStop" xml:space="preserve">
-    <value>Cancellation triggered while the macOS broker is active; stopping the CFRunLoop to prevent a hang. This commonly occurs when the device is not Intune-joined or MDM-enrolled. Falling back to system browser authentication.</value>
-  </data>
-  <data name="MacBrokerServiceError" xml:space="preserve">
-    <value>The macOS broker returned an error (code: {0}): {1}. This may indicate the device is not Intune-joined. Falling back to system browser authentication.</value>
-  </data>
 </root>

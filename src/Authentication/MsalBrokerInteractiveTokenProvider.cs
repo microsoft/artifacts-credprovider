@@ -30,23 +30,6 @@ public class MsalBrokerInteractiveTokenProvider : ITokenProvider
 
     public bool IsInteractive => true;
 
-    #region macOS CFRunLoop P/Invoke
-    // MSAL's NativeInterop calls MSALRUNTIME_Runloop_run() (i.e. CFRunLoopRun) on the main
-    // thread and only registers the CancellationToken callback AFTER that blocking call
-    // returns.  On non-Intune-joined devices the macOS SSO Extension never responds, so
-    // CFRunLoopRun blocks forever and the cancellation is never wired up.
-    //
-    // To break this deadlock we register our own cancellation callback BEFORE invoking MSAL,
-    // calling CFRunLoopStop(CFRunLoopGetMain()) directly.  This unblocks MSALRUNTIME_Runloop_run
-    // so MSAL's code can unwind and surface the cancellation/error.
-
-    [DllImport("/System/Library/Frameworks/CoreFoundation.framework/CoreFoundation")]
-    private static extern IntPtr CFRunLoopGetMain();
-
-    [DllImport("/System/Library/Frameworks/CoreFoundation.framework/CoreFoundation")]
-    private static extern void CFRunLoopStop(IntPtr runLoop);
-    #endregion
-
     public bool CanGetToken(TokenRequest tokenRequest)
     {
         if (!tokenRequest.IsInteractive || !tokenRequest.CanShowDialog)
@@ -83,33 +66,6 @@ public class MsalBrokerInteractiveTokenProvider : ITokenProvider
         using CancellationTokenSource cts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
         cts.CancelAfter(tokenRequest.InteractiveTimeout);
 
-        // On macOS, register a safety callback that stops the Core Foundation run loop if
-        // cancellation fires.  The MSAL NativeInterop layer calls CFRunLoopRun() on the
-        // main thread but only registers its own CancellationToken handler after the
-        // blocking RunloopRun returns — creating a deadlock when the macOS SSO Extension
-        // never responds (e.g. non-Intune-joined devices).  By stopping the run loop
-        // ourselves, MSAL's code can unwind normally.
-        CancellationTokenRegistration? cfRunLoopGuard = null;
-        if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
-        {
-            try
-            {
-                IntPtr mainRunLoop = CFRunLoopGetMain();
-                cfRunLoopGuard = cts.Token.Register(() =>
-                {
-                    logger.LogDebug(Resources.MacBrokerCFRunLoopStop);
-                    CFRunLoopStop(mainRunLoop);
-                });
-            }
-            catch (Exception ex)
-            {
-                // If the P/Invoke fails (e.g. running on a non-macOS .NET build
-                // that still reports OSPlatform.OSX), log and continue — the
-                // worst case is the pre-existing hang behaviour.
-                logger.LogTrace("CFRunLoopGetMain P/Invoke failed: {Message}", ex.Message);
-            }
-        }
-
         try
         {
             logger.LogInformation(Resources.MsalInteractivePrompt);
@@ -144,26 +100,10 @@ public class MsalBrokerInteractiveTokenProvider : ITokenProvider
             logger.LogWarning(ex.Message);
             return null;
         }
-        catch (MsalServiceException ex)
-        {
-            // After breaking the CFRunLoop on macOS, the broker may surface device-compliance
-            // or registration errors.  Treat these as non-fatal so the system-browser fallback
-            // provider can handle authentication.
-            logger.LogWarning(Resources.MacBrokerServiceError, ex.ErrorCode, ex.Message);
-            return null;
-        }
         catch (OperationCanceledException ex) when (cts.IsCancellationRequested)
         {
             logger.LogWarning(ex.Message);
             return null;
-        }
-        finally
-        {
-            // Dispose the CFRunLoop cancellation guard so it doesn't fire after we leave.
-            if (cfRunLoopGuard.HasValue)
-            {
-                cfRunLoopGuard.Value.Dispose();
-            }
         }
     }
 }
