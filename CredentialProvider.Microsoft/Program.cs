@@ -29,6 +29,8 @@ namespace NuGetCredentialProvider
         private static bool shuttingDown = false;
         public static bool IsShuttingDown => Volatile.Read(ref shuttingDown);
 
+        internal static int MainThreadId;
+
         public static int Main(string[] args)
         {
             var scheduler = MacMainThreadScheduler.Instance();
@@ -37,6 +39,8 @@ namespace NuGetCredentialProvider
             {
                 return BackgroundWork(args).GetAwaiter().GetResult();
             }
+
+            MainThreadId = Environment.CurrentManagedThreadId;
 
             int returnCode = -1;
             _ = Task.Run(async () => {
@@ -67,7 +71,7 @@ namespace NuGetCredentialProvider
 
                 var scheduler = MacMainThreadScheduler.Instance();
                 fileLogger.Log(LogLevel.Verbose, allowOnConsole: false,
-                    $"MacMainThreadScheduler: IsRunning={scheduler.IsRunning()}, IsMainThread={scheduler.IsCurrentlyOnMainThread()}, ManagedThreadId={Environment.CurrentManagedThreadId}");
+                    $"MacMainThreadScheduler: IsRunning={scheduler.IsRunning()}, MainThreadId={MainThreadId}, BackgroundThreadId={Environment.CurrentManagedThreadId}");
 
                 multiLogger.Add(fileLogger);
             }
