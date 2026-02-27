@@ -53,18 +53,16 @@ set_runtime_identifier() {
     aarch64 | arm64)
       OS_ARCH="-arm64"
       ;;
+    i386 | i686 | x86)
+      OS_ARCH="-x86"
+      ;;
     *)
       echo "WARNING: Unable to automatically detect a supported CPU architecture from '$arch'. The .NET 8 version will be installed by default. Please set the ARTIFACTS_CREDENTIAL_PROVIDER_RID environment variable to specify a runtime version." >&2
       return
       ;;
   esac
 
-  # Windows on ARM64 runs x64 binaries (similar to PowerShell logic)
-  if [ "$OS_ARCH" = "-arm64" ] && [ "$RUNTIME_ID" = "win" ]; then
-    RUNTIME_ID="${RUNTIME_ID}-x64"
-  else
-    RUNTIME_ID="${RUNTIME_ID}${OS_ARCH}"
-  fi
+  RUNTIME_ID="${RUNTIME_ID}${OS_ARCH}"
 
   echo "INFO: Calculated artifacts-credprovider RuntimeIdentifier: $RUNTIME_ID"
 }

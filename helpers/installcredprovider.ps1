@@ -128,6 +128,7 @@ function Get-RuntimeIdentifier {
     switch ($osArch) {
         "x64"    { $osArch = "-x64" }
         "amd64"  { $osArch = "-x64" }
+        "x86"    { $osArch = "-x86" }
         "arm64"  { $osArch = "-arm64" }
         "aarch64"{ $osArch = "-arm64" }
         default {
@@ -136,13 +137,7 @@ function Get-RuntimeIdentifier {
         }
     }
 
-    # Windows on ARM64 runs x64 binaries (use $runtimeId check since $IsWindows is not available in Windows PowerShell 5.1)
-    if ($osArch -eq "-arm64" -and $runtimeId -eq "win") {
-        $runtimeId += "-x64"  
-    }
-    else {
-        $runtimeId += $osArch
-    }
+    $runtimeId += $osArch
 
     Write-Host "Calculated artifacts-credprovider RuntimeIdentifier: $runtimeId"
     return $runtimeId
