@@ -134,6 +134,7 @@ function Get-RuntimeIdentifier {
                 $osArch = "-x86"
             }
             else {
+                Write-Host "x86 self-contained assets are only supported on Windows. The .NET 8 version will be installed by default."
                 return ""
             }
         }
