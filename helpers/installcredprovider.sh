@@ -54,7 +54,13 @@ set_runtime_identifier() {
       OS_ARCH="-arm64"
       ;;
     i386 | i686 | x86)
-      OS_ARCH="-x86"
+      # x86 self-contained builds are only supported on Windows.
+      if [ "$RUNTIME_ID" = "win" ]; then
+        OS_ARCH="-x86"
+      else
+        echo "INFO: x86 self-contained assets are only supported on Windows. The .NET 8 version will be installed by default."
+        return
+      fi
       ;;
     *)
       echo "WARNING: Unable to automatically detect a supported CPU architecture from '$arch'. The .NET 8 version will be installed by default. Please set the ARTIFACTS_CREDENTIAL_PROVIDER_RID environment variable to specify a runtime version." >&2
