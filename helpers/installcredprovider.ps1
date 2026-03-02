@@ -128,7 +128,15 @@ function Get-RuntimeIdentifier {
     switch ($osArch) {
         "x64"    { $osArch = "-x64" }
         "amd64"  { $osArch = "-x64" }
-        "x86"    { $osArch = "-x86" }
+        "x86"    {
+            # x86 self-contained builds are only supported on Windows.
+            if ($runtimeId -eq "win") {
+                $osArch = "-x86"
+            }
+            else {
+                return ""
+            }
+        }
         "arm64"  { $osArch = "-arm64" }
         "aarch64"{ $osArch = "-arm64" }
         default {
@@ -285,7 +293,14 @@ if ($NonSelfContained -eq $True) {
     $releaseRidPart = ""
 }
 elseif ([string]::IsNullOrEmpty($RuntimeIdentifier)) {
-    $releaseRidPart = "$(Get-RuntimeIdentifier)."
+    $detectedRuntimeIdentifier = Get-RuntimeIdentifier
+    # Only append a trailing '.' when a RID was detected; empty means use runtime-dependent fallback.
+    if ([string]::IsNullOrEmpty($detectedRuntimeIdentifier)) {
+        $releaseRidPart = ""
+    }
+    else {
+        $releaseRidPart = "$detectedRuntimeIdentifier."
+    }
 }
 else {
     $releaseRidPart = "$RuntimeIdentifier."
