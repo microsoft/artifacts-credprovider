@@ -5,7 +5,9 @@
 using System.Runtime.InteropServices;
 using Microsoft.Extensions.Logging;
 using Microsoft.Identity.Client;
+#if INCLUDE_BROKER
 using Microsoft.Identity.Client.Broker;
+#endif
 
 namespace Microsoft.Artifacts.Authentication;
 
@@ -46,6 +48,7 @@ public static class AzureArtifacts
         };
     }
 
+#if INCLUDE_BROKER
     public static PublicClientApplicationBuilder WithBroker(this PublicClientApplicationBuilder builder, bool enableBroker, IntPtr? parentWindowHandle, ILogger logger)
     {
         // Eventually will be rolled into CreateDefaultBuilder as using the brokers is desirable
@@ -72,6 +75,22 @@ public static class AzureArtifacts
     {
         return builder.WithBroker(enableBroker, null, logger);
     }
+#else
+    public static PublicClientApplicationBuilder WithBroker(this PublicClientApplicationBuilder builder, bool enableBroker, IntPtr? parentWindowHandle, ILogger logger)
+    {
+        // Broker support not included in this build
+        if (enableBroker)
+        {
+            logger.LogWarning("Broker support is not available in this build. Using non-broker authentication.");
+        }
+        return builder;
+    }
+
+    public static PublicClientApplicationBuilder WithBroker(this PublicClientApplicationBuilder builder, bool enableBroker, ILogger logger)
+    {
+        return builder.WithBroker(enableBroker, null, logger);
+    }
+#endif
 
     public static PublicClientApplicationBuilder WithHttpClient(this PublicClientApplicationBuilder builder, HttpClient? httpClient = null)
     {

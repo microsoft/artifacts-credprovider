@@ -7,6 +7,9 @@
     <LangVersion>latest</LangVersion>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
+    <!-- IncludeMsalBroker: Set to false to exclude Microsoft.Identity.Client.Broker (removes libmsalruntime.so dependency) -->
+    <IncludeMsalBroker Condition="'$(IncludeMsalBroker)' == ''">true</IncludeMsalBroker>
+    <DefineConstants Condition="'$(IncludeMsalBroker)' == 'true'">$(DefineConstants);INCLUDE_BROKER</DefineConstants>
     <VersionPrefix>0.2.5</VersionPrefix>
     <Authors>Microsoft</Authors>
     <Owners>Microsoft</Owners>
@@ -20,7 +23,7 @@
   <ItemGroup>
     <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" />
     <PackageReference Include="Microsoft.Identity.Client" />
-    <PackageReference Include="Microsoft.Identity.Client.Broker" />
+    <PackageReference Include="Microsoft.Identity.Client.Broker" Condition="'$(IncludeMsalBroker)' == 'true'" />
     <PackageReference Include="Microsoft.Identity.Client.Extensions.Msal" />
     <PackageReference Include="Microsoft.VisualStudioEng.MicroBuild.Core" PrivateAssets="All" />
   </ItemGroup>

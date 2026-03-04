@@ -50,10 +50,12 @@ public class MsalSilentTokenProvider : ITokenProvider
 
         var applicableAccounts = MsalExtensions.GetApplicableAccounts(accounts, authorityTenantId, tokenRequest.LoginHint);
 
+#if INCLUDE_BROKER
         if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows) && app.AppConfig.IsBrokerEnabled)
         {
             applicableAccounts.Add((PublicClientApplication.OperatingSystemAccount, PublicClientApplication.OperatingSystemAccount.HomeAccountId.Identifier));
         }
+#endif
 
         foreach ((IAccount account, string canonicalName) in applicableAccounts)
         {
