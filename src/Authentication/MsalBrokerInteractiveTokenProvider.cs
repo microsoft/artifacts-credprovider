@@ -37,12 +37,6 @@ public class MsalBrokerInteractiveTokenProvider : ITokenProvider
             return false;
         }
 
-        // Guard: this provider is only meaningful with a broker-enabled app.
-        if (!app.AppConfig.IsBrokerEnabled)
-        {
-            return false;
-        }
-
         // On macOS, broker auth requires the main thread scheduler to be running.
         // If it's not (e.g. ManagedThreadId != 1 in the dotnet tool shim), decline
         // so the non-broker MsalInteractiveTokenProvider handles it instead.

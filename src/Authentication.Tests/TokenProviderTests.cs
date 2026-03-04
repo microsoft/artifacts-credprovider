@@ -81,10 +81,6 @@ public class TokenProviderTests
     [TestMethod]
     public void MsalBrokerInteractiveContractTest()
     {
-        var appConfigMock = new Mock<IAppConfig>();
-        appConfigMock.Setup(x => x.IsBrokerEnabled).Returns(true);
-        appMock.Setup(x => x.AppConfig).Returns(appConfigMock.Object);
-
         var tokenProvider = new MsalBrokerInteractiveTokenProvider(appMock.Object, loggerMock.Object);
         var tokenRequest = new TokenRequest();
 
@@ -106,22 +102,6 @@ public class TokenProviderTests
         tokenRequest.IsInteractive = true;
         tokenRequest.CanShowDialog = true;
         Assert.IsTrue(tokenProvider.CanGetToken(tokenRequest));
-    }
-
-    [TestMethod]
-    public void MsalBrokerInteractiveContractTest_BrokerDisabled()
-    {
-        var appConfigMock = new Mock<IAppConfig>();
-        appConfigMock.Setup(x => x.IsBrokerEnabled).Returns(false);
-        appMock.Setup(x => x.AppConfig).Returns(appConfigMock.Object);
-
-        var tokenProvider = new MsalBrokerInteractiveTokenProvider(appMock.Object, loggerMock.Object);
-        var tokenRequest = new TokenRequest();
-
-        // Should always return false when broker is not enabled
-        tokenRequest.IsInteractive = true;
-        tokenRequest.CanShowDialog = true;
-        Assert.IsFalse(tokenProvider.CanGetToken(tokenRequest));
     }
 
     [TestMethod]
