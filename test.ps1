@@ -55,14 +55,17 @@ function Test-Frameworks {
             $logFile += ".entratoken"
         }
         $logFile = "$logFile.log"
+
+        # Point the file logger at the same log file so it captures full diagnostics
+        $env:ARTIFACTS_CREDENTIALPROVIDER_LOG_PATH = (Join-Path $PSScriptRoot $logFile)
         
         $projectPath = Join-Path "CredentialProvider.Microsoft" "CredentialProvider.Microsoft.csproj"
-        $command = "dotnet run --no-restore --no-build -f $framework --project $projectPath -- -C -U $TestFeedUrl -V Debug"
+        $command = "dotnet run --no-restore --no-build -f $framework --project $projectPath -- -C -U $TestFeedUrl -V Debug -R"
         Write-Host $command -ForegroundColor Gray
         
-        # Execute the command and redirect output to log file
+        # Execute the command (file logger captures full diagnostics via ARTIFACTS_CREDENTIALPROVIDER_LOG_PATH)
         try {
-            $output = & dotnet run --no-restore --no-build -f $framework --project $projectPath -- -C -U $TestFeedUrl -V Debug 2>&1 | Out-File -FilePath $logFile -Encoding UTF8
+            & dotnet run --no-restore --no-build -f $framework --project $projectPath -- -C -U $TestFeedUrl -V Debug -R | Out-Null
             $exitCode = $LASTEXITCODE
         }
         catch {
@@ -72,8 +75,6 @@ function Test-Frameworks {
         
         if ($exitCode -ne 0) {
             Write-Host "Previous command execution failed: $exitCode" -ForegroundColor Red
-            # Run again without redirection to show output
-            & dotnet run --no-restore --no-build -f $framework --project $projectPath -- -C -U $TestFeedUrl -V Debug
             return $exitCode
         }
     }
