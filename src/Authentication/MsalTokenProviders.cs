@@ -25,10 +25,10 @@ public class MsalTokenProviders
         // Use broker authentication first if enabled
         if (appInteractiveBroker != null)
         {
-            yield return new MsalInteractiveTokenProvider(appInteractiveBroker, logger);
+            yield return new MsalBrokerInteractiveTokenProvider(appInteractiveBroker, logger);
         }
 
-        // Fallback to non-broker interactive browser auth
+        // Fallback to non-broker system browser auth
         yield return new MsalInteractiveTokenProvider(app, logger);
 
         // Fallback to device code flow as last resort

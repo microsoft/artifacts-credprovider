@@ -10,7 +10,7 @@
     <!-- IncludeMsalBroker: Set to false to exclude Microsoft.Identity.Client.Broker (removes libmsalruntime.so dependency) -->
     <IncludeMsalBroker Condition="'$(IncludeMsalBroker)' == ''">true</IncludeMsalBroker>
     <DefineConstants Condition="'$(IncludeMsalBroker)' == 'true'">$(DefineConstants);INCLUDE_BROKER</DefineConstants>
-    <VersionPrefix>0.2.6</VersionPrefix>
+    <VersionPrefix>0.2.7</VersionPrefix>
     <Authors>Microsoft</Authors>
     <Owners>Microsoft</Owners>
     <Description>Azure Artifacts authentication library for credential providers.</Description>
