@@ -128,6 +128,16 @@ function Get-RuntimeIdentifier {
     switch ($osArch) {
         "x64"    { $osArch = "-x64" }
         "amd64"  { $osArch = "-x64" }
+        "x86"    {
+            # x86 self-contained builds are only supported on Windows.
+            if ($runtimeId -eq "win") {
+                $osArch = "-x86"
+            }
+            else {
+                Write-Host "x86 self-contained assets are only supported on Windows. The .NET 8 version will be installed by default."
+                return ""
+            }
+        }
         "arm64"  { $osArch = "-arm64" }
         "aarch64"{ $osArch = "-arm64" }
         default {
@@ -136,13 +146,7 @@ function Get-RuntimeIdentifier {
         }
     }
 
-    # Windows on ARM64 runs x64 binaries (use $runtimeId check since $IsWindows is not available in Windows PowerShell 5.1)
-    if ($osArch -eq "-arm64" -and $runtimeId -eq "win") {
-        $runtimeId += "-x64"  
-    }
-    else {
-        $runtimeId += $osArch
-    }
+    $runtimeId += $osArch
 
     Write-Host "Calculated artifacts-credprovider RuntimeIdentifier: $runtimeId"
     return $runtimeId
@@ -290,7 +294,14 @@ if ($NonSelfContained -eq $True) {
     $releaseRidPart = ""
 }
 elseif ([string]::IsNullOrEmpty($RuntimeIdentifier)) {
-    $releaseRidPart = "$(Get-RuntimeIdentifier)."
+    $detectedRuntimeIdentifier = Get-RuntimeIdentifier
+    # Only append a trailing '.' when a RID was detected; empty means use runtime-dependent fallback.
+    if ([string]::IsNullOrEmpty($detectedRuntimeIdentifier)) {
+        $releaseRidPart = ""
+    }
+    else {
+        $releaseRidPart = "$detectedRuntimeIdentifier."
+    }
 }
 else {
     $releaseRidPart = "$RuntimeIdentifier."
