@@ -21,9 +21,6 @@ COPY ./ .
 # Optional: Sometimes the http client hangs because of a .NET issue. Setting this in dockerfile helps 
 ENV DOTNET_SYSTEM_NET_HTTP_USESOCKETSHTTPHANDLER=0
 
-# Environment variable to enable session token cache. More on this here: https://github.com/Microsoft/artifacts-credprovider#help
-ENV ARTIFACTS_CREDENTIALPROVIDER_SESSIONTOKENCACHE_ENABLED true
-
 # Use a secret mount to pass the PAT securely during restore. The secret is never persisted in any image layer.
 # VSS_NUGET_URI_PREFIXES: semicolon-separated list of feed URI prefixes to authenticate.
 # VSS_NUGET_ACCESSTOKEN: the PAT used for authentication.
