@@ -429,7 +429,7 @@ MSAL Token File Cache Enabled
 Provide MSAL Cache Location
     ARTIFACTS_CREDENTIALPROVIDER_MSAL_FILECACHE_LOCATION (Preferred)
     NUGET_CREDENTIALPROVIDER_MSAL_FILECACHE_LOCATION (Legacy)
-    Provide the loc
+    Provide the location where the MSAL cache should be read and written to.
 
 Provide a default value for verbosity
     ARTIFACTS_CREDENTIALPROVIDER_VERBOSITY_DEFAULT
