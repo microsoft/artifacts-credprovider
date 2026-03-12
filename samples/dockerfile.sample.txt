@@ -1,7 +1,7 @@
 # syntax=docker/dockerfile:1
 
 # This is a sample Dockerfile for using the Artifacts Credential Provider.
-# Build with: $env:PAT="<your-pat>"; docker build --secret id=pat,env=PAT .
+# Build with: $env:TOKEN="<your-token>"; docker build --secret id=token,env=TOKEN .
 
 # downloading the dotnet sdk image. Could be any docker sdk image with sdk > 9.0.2 
 # With nuget plugin dotnet tool install support https://learn.microsoft.com/nuget/release-notes/nuget-6.13#summary-whats-new-in-6130)
@@ -21,18 +21,20 @@ COPY ./ .
 # Optional: Sometimes the http client hangs because of a .NET issue. Setting this in dockerfile helps 
 ENV DOTNET_SYSTEM_NET_HTTP_USESOCKETSHTTPHANDLER=0
 
-# Optional: Disable file caches as a precaution to ensure no token caches persist in the image.
-# When using environment variables (e.g. ARTIFACTS_CREDENTIALPROVIDER_ACCESSTOKEN) the credential provider
-# should not write secrets to these caches, but disabling them provides an extra safeguard.
-ENV ARTIFACTS_CREDENTIALPROVIDER_SESSIONTOKENCACHE_ENABLED=false
-ENV ARTIFACTS_CREDENTIALPROVIDER_MSAL_FILECACHE_ENABLED=false
-
-# Use a secret mount to pass the PAT securely during restore. The secret is never persisted in any image layer.
-# ARTIFACTS_CREDENTIALPROVIDER_URI_PREFIXES: semicolon-separated list of feed URI prefixes to authenticate.
-# ARTIFACTS_CREDENTIALPROVIDER_ACCESSTOKEN: the PAT used for authentication.
-RUN --mount=type=secret,id=pat,env=ARTIFACTS_CREDENTIALPROVIDER_ACCESSTOKEN \
+# Use a secret mount to pass the access token securely during restore.
+# The token can be a PAT, an Entra ID access token, or System.AccessToken from Azure Pipelines.
+#
+# IMPORTANT: --mount=type=secret is scoped to a single RUN instruction, so any command that needs
+# authenticated NuGet restore (dotnet restore, dotnet build, etc.) must be in this same RUN step.
+#
+# All credential provider settings are set via 'export' rather than 'ENV' so they are scoped to this
+# RUN step only and do not persist in the image. This ensures:
+#   - The access token (via secret mount) is never written to any layer.
+#   - Cache-disable settings don't carry over to runtime, so containers using this image still get
+#     normal MSAL and session token caching.
+#   - URI prefixes don't leak build-time feed configuration into running containers.
+RUN --mount=type=secret,id=token,env=ARTIFACTS_CREDENTIALPROVIDER_ACCESSTOKEN \
+  export ARTIFACTS_CREDENTIALPROVIDER_SESSIONTOKENCACHE_ENABLED=false && \
+  export ARTIFACTS_CREDENTIALPROVIDER_MSAL_FILECACHE_ENABLED=false && \
   export ARTIFACTS_CREDENTIALPROVIDER_URI_PREFIXES="https://pkgs.dev.azure.com" && \
   dotnet restore
-
-# Optional: Extended step to build the app using dotnet msbuild. 
-RUN dotnet build dirs.proj
