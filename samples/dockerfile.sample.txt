@@ -30,9 +30,8 @@ ENV ARTIFACTS_CREDENTIALPROVIDER_MSAL_FILECACHE_ENABLED=false
 # Use a secret mount to pass the PAT securely during restore. The secret is never persisted in any image layer.
 # ARTIFACTS_CREDENTIALPROVIDER_URI_PREFIXES: semicolon-separated list of feed URI prefixes to authenticate.
 # ARTIFACTS_CREDENTIALPROVIDER_ACCESSTOKEN: the PAT used for authentication.
-RUN --mount=type=secret,id=pat \
+RUN --mount=type=secret,id=pat,env=ARTIFACTS_CREDENTIALPROVIDER_ACCESSTOKEN \
   export ARTIFACTS_CREDENTIALPROVIDER_URI_PREFIXES="https://pkgs.dev.azure.com" && \
-  export ARTIFACTS_CREDENTIALPROVIDER_ACCESSTOKEN="$(cat /run/secrets/pat)" && \
   dotnet restore
 
 # Optional: Extended step to build the app using dotnet msbuild. 
