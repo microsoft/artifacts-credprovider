@@ -1,4 +1,4 @@
-﻿// Copyright (c) Microsoft. All rights reserved.
+// Copyright (c) Microsoft. All rights reserved.
 //
 // Licensed under the MIT license.
 
@@ -9,6 +9,7 @@ using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Artifacts.Authentication;
+using Microsoft.Identity.Client.Utils;
 using NuGet.Common;
 using NuGet.Protocol.Plugins;
 using NuGetCredentialProvider.CredentialProviders;
@@ -28,7 +29,32 @@ namespace NuGetCredentialProvider
         private static bool shuttingDown = false;
         public static bool IsShuttingDown => Volatile.Read(ref shuttingDown);
 
-        public static async Task<int> Main(string[] args)
+        public static int Main(string[] args)
+        {
+            var scheduler = MacMainThreadScheduler.Instance();
+
+            if (!scheduler.IsCurrentlyOnMainThread())
+            {
+                return BackgroundWork(args).GetAwaiter().GetResult();
+            }
+
+            int returnCode = -1;
+            _ = Task.Run(async () => {
+                try
+                {
+                    returnCode = await BackgroundWork(args);
+                }
+                finally
+                {
+                    scheduler.Stop();
+                }
+            });
+
+            scheduler.StartMessageLoop();
+            return returnCode;
+        }
+
+        public static async Task<int> BackgroundWork(string[] args)
         {
             CancellationTokenSource tokenSource = new CancellationTokenSource();
             var parsedArgs = await Args.ParseAsync<CredentialProviderArgs>(args);
@@ -38,6 +64,10 @@ namespace NuGetCredentialProvider
             if (fileLogger != null)
             {
                 fileLogger.Log(LogLevel.Verbose, allowOnConsole: false, string.Join(" ", MsalHttpClientFactory.UserAgent));
+
+                var scheduler = MacMainThreadScheduler.Instance();
+                fileLogger.Log(LogLevel.Verbose, allowOnConsole: false,
+                    $"MacMainThreadScheduler: IsRunning={scheduler.IsRunning()}, IsMainThread={scheduler.IsCurrentlyOnMainThread()}, ManagedThreadId={Environment.CurrentManagedThreadId}");
 
                 multiLogger.Add(fileLogger);
             }
@@ -83,22 +113,36 @@ namespace NuGetCredentialProvider
                         string.Format(
                             Resources.EnvironmentVariableHelp,
                             EnvUtil.LogPathEnvVar,
+                            EnvUtil.LegacyLogPathEnvVar,
                             EnvUtil.SessionTokenCacheEnvVar,
+                            EnvUtil.LegacySessionTokenCacheEnvVar,
                             EnvUtil.SupportedHostsEnvVar,
+                            EnvUtil.LegacySupportedHostsEnvVar,
                             EnvUtil.SessionTimeEnvVar,
+                            EnvUtil.LegacySessionTimeEnvVar,
                             EnvUtil.TokenTypeEnvVar,
+                            EnvUtil.LegacyTokenTypeEnvVar,
                             EnvUtil.BuildTaskUriPrefixes,
+                            EnvUtil.LegacyBuildTaskUriPrefixes,
                             EnvUtil.BuildTaskAccessToken,
+                            EnvUtil.LegacyBuildTaskAccessToken,
                             EnvUtil.BuildTaskExternalEndpoints,
+                            EnvUtil.LegacyBuildTaskExternalEndpoints,
                             EnvUtil.EndpointCredentials,
                             EnvUtil.DefaultMsalCacheLocation,
                             EnvUtil.SessionTokenCacheLocation,
                             EnvUtil.WindowsIntegratedAuthenticationEnvVar,
+                            EnvUtil.LegacyWindowsIntegratedAuthenticationEnvVar,
                             EnvUtil.DeviceFlowTimeoutEnvVar,
+                            EnvUtil.LegacyDeviceFlowTimeoutEnvVar,
                             EnvUtil.ForceCanShowDialogEnvVar,
+                            EnvUtil.LegacyForceCanShowDialogEnvVar,
                             EnvUtil.MsalAuthorityEnvVar,
+                            EnvUtil.LegacyMsalAuthorityEnvVar,
                             EnvUtil.MsalFileCacheEnvVar,
+                            EnvUtil.LegacyMsalFileCacheEnvVar,
                             EnvUtil.MsalFileCacheLocationEnvVar,
+                            EnvUtil.LegacyMsalFileCacheLocationEnvVar,
                             EnvUtil.VerbosityDefaultEnvVar
                         ));
                     return 0;
@@ -126,7 +170,7 @@ namespace NuGetCredentialProvider
 
                         // This is probably more confusing than interesting to users, but may be helpful in debugging,
                         // so log the exception but not to the console.
-                        multiLogger.Log(LogLevel.Verbose, allowOnConsole:false, ex.ToString());
+                        multiLogger.Log(LogLevel.Verbose, allowOnConsole: false, ex.ToString());
                     }
 
                     return 0;

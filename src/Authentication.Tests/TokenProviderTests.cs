@@ -79,6 +79,32 @@ public class TokenProviderTests
     }
 
     [TestMethod]
+    public void MsalBrokerInteractiveContractTest()
+    {
+        var tokenProvider = new MsalBrokerInteractiveTokenProvider(appMock.Object, loggerMock.Object);
+        var tokenRequest = new TokenRequest();
+
+        Assert.IsNotNull(tokenProvider.Name);
+        Assert.IsTrue(tokenProvider.IsInteractive);
+
+        tokenRequest.IsInteractive = false;
+        tokenRequest.CanShowDialog = false;
+        Assert.IsFalse(tokenProvider.CanGetToken(tokenRequest));
+
+        tokenRequest.IsInteractive = false;
+        tokenRequest.CanShowDialog = true;
+        Assert.IsFalse(tokenProvider.CanGetToken(tokenRequest));
+
+        tokenRequest.IsInteractive = true;
+        tokenRequest.CanShowDialog = false;
+        Assert.IsFalse(tokenProvider.CanGetToken(tokenRequest));
+
+        tokenRequest.IsInteractive = true;
+        tokenRequest.CanShowDialog = true;
+        Assert.IsTrue(tokenProvider.CanGetToken(tokenRequest));
+    }
+
+    [TestMethod]
     public void MsalDeviceCodeFlowContractTest()
     {
         var tokenProvider = new MsalDeviceCodeTokenProvider(appMock.Object, loggerMock.Object);

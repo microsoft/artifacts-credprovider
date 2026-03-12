@@ -1,4 +1,4 @@
-﻿// Copyright (c) Microsoft. All rights reserved.
+// Copyright (c) Microsoft. All rights reserved.
 //
 // Licensed under the MIT license.
 
@@ -218,8 +218,8 @@ namespace NuGetCredentialProvider.Util
             try
             {
                 EncryptedFileWithPermissions.WriteFileBytes(cacheFilePath, bytes, writeUnencrypted: true);
-            } 
-            catch(Exception e)
+            }
+            catch (Exception e)
             {
                 logger.Verbose(string.Format(Resources.SessionTokenCacheWriteFail, e.GetType(), e.Message));
             }

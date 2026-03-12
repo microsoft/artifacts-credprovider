@@ -1,4 +1,4 @@
-﻿// Copyright (c) Microsoft. All rights reserved.
+// Copyright (c) Microsoft. All rights reserved.
 //
 // Licensed under the MIT license.
 
@@ -218,7 +218,7 @@ namespace CredentialProvider.Microsoft.Tests.CredentialProviders.Vsts
 
         private void MockVssResourceTenantHeader(Guid? guid = null)
         {
-            MockResponseHeaders(AuthUtil.VssResourceTenant,(guid ?? Guid.NewGuid()).ToString());
+            MockResponseHeaders(AuthUtil.VssResourceTenant, (guid ?? Guid.NewGuid()).ToString());
         }
 
         private void MockVssAuthorizationEndpointHeader()

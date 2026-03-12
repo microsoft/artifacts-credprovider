@@ -5,7 +5,9 @@
 using System.Runtime.InteropServices;
 using Microsoft.Extensions.Logging;
 using Microsoft.Identity.Client;
+#if INCLUDE_BROKER
 using Microsoft.Identity.Client.Broker;
+#endif
 
 namespace Microsoft.Artifacts.Authentication;
 
@@ -21,6 +23,9 @@ public static class AzureArtifacts
     /// </summary>
     private const string LegacyClientId = "872cd9fa-d31f-45e0-9eab-6e460a02d1f1";
 
+    private const string MacOSXRedirectUri = "msauth.com.microsoft.azureartifacts.credentialprovider://auth";
+    private const string LinuxRedirectUri = "https://login.microsoftonline.com/oauth2/nativeclient";
+
     public static PublicClientApplicationBuilder CreateDefaultBuilder(Uri authority)
     {
         // Azure Artifacts is not yet present in PPE, so revert to the old app in that case
@@ -33,26 +38,59 @@ public static class AzureArtifacts
         return builder;
     }
 
-    public static PublicClientApplicationBuilder WithBroker(this PublicClientApplicationBuilder builder, bool enableBroker, ILogger logger)
+    public static PublicClientApplicationBuilder WithBrokerRedirectUri(this PublicClientApplicationBuilder builder)
+    {
+        return true switch
+        {
+            _ when RuntimeInformation.IsOSPlatform(OSPlatform.OSX)   => builder.WithRedirectUri(MacOSXRedirectUri),
+            _ when RuntimeInformation.IsOSPlatform(OSPlatform.Linux) => builder.WithRedirectUri(LinuxRedirectUri),
+            _                                                        => builder // Windows or other platforms use default
+        };
+    }
+
+#if INCLUDE_BROKER
+    public static PublicClientApplicationBuilder WithBroker(this PublicClientApplicationBuilder builder, bool enableBroker, IntPtr? parentWindowHandle, ILogger logger)
     {
         // Eventually will be rolled into CreateDefaultBuilder as using the brokers is desirable
-        if (!enableBroker || !RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+        if (!enableBroker)
         {
             return builder;
         }
 
-        logger.LogTrace(Resources.MsalUsingWamBroker);
+        logger.LogTrace(Resources.MsalUsingBroker);
 
         return builder
+            .WithBrokerRedirectUri()
             .WithBroker(
-                new BrokerOptions(BrokerOptions.OperatingSystems.Windows)
+                new BrokerOptions(BrokerOptions.OperatingSystems.Windows | BrokerOptions.OperatingSystems.OSX | BrokerOptions.OperatingSystems.Linux)
                 {
                     Title = "Azure DevOps Artifacts",
                     ListOperatingSystemAccounts = true,
                     MsaPassthrough = true
                 })
-            .WithParentActivityOrWindow(() => GetConsoleOrTerminalWindow());
+            .WithParentActivityOrWindow(() => parentWindowHandle ?? GetConsoleOrTerminalWindow());
     }
+
+    public static PublicClientApplicationBuilder WithBroker(this PublicClientApplicationBuilder builder, bool enableBroker, ILogger logger)
+    {
+        return builder.WithBroker(enableBroker, null, logger);
+    }
+#else
+    public static PublicClientApplicationBuilder WithBroker(this PublicClientApplicationBuilder builder, bool enableBroker, IntPtr? parentWindowHandle, ILogger logger)
+    {
+        // Broker support not included in this build
+        if (enableBroker)
+        {
+            logger.LogWarning("Broker support is not available in this build. Using non-broker authentication.");
+        }
+        return builder;
+    }
+
+    public static PublicClientApplicationBuilder WithBroker(this PublicClientApplicationBuilder builder, bool enableBroker, ILogger logger)
+    {
+        return builder.WithBroker(enableBroker, null, logger);
+    }
+#endif
 
     public static PublicClientApplicationBuilder WithHttpClient(this PublicClientApplicationBuilder builder, HttpClient? httpClient = null)
     {
@@ -64,7 +102,7 @@ public static class AzureArtifacts
         })));
     }
 
-#region https://github.com/AzureAD/microsoft-authentication-library-for-dotnet/issues/3590
+    #region https://github.com/AzureAD/microsoft-authentication-library-for-dotnet/issues/3590
     enum GetAncestorFlags
     {
         GetParent = 1,
@@ -88,12 +126,35 @@ public static class AzureArtifacts
     [DllImport("kernel32.dll")]
     static extern IntPtr GetConsoleWindow();
 
+    [DllImport("libX11")]
+    public static extern IntPtr XOpenDisplay(IntPtr display);
+
+    [DllImport("libX11")]
+    public static extern IntPtr XDefaultRootWindow(IntPtr display);
+
+
     private static IntPtr GetConsoleOrTerminalWindow()
     {
+        if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
+        {
+            return IntPtr.Zero;
+        }
+
+        if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
+        {
+            IntPtr display = XOpenDisplay(IntPtr.Zero);
+            if (display == IntPtr.Zero)
+            {
+                return IntPtr.Zero;
+            }
+
+            return XDefaultRootWindow(display);
+        }
+
         IntPtr consoleHandle = GetConsoleWindow();
         IntPtr handle = GetAncestor(consoleHandle, GetAncestorFlags.GetRootOwner);
 
         return handle;
     }
-#endregion
+    #endregion
 }

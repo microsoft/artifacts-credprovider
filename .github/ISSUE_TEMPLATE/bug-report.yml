@@ -1,0 +1,95 @@
+name: Bug report
+description: Report a problem with Azure Artifacts Credential Provider
+title: "[Bug]: "
+labels:
+  - bug
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for filing an issue. Please include as many requested details as possible to help us investigate and resolve the problem.
+
+  - type: textarea
+    id: summary
+    attributes:
+      label: Description
+      description: Describe the problem and what you expected.
+      placeholder: "Example: dotnet restore prompts repeatedly for credentials against Azure Artifacts feed"
+    validations:
+      required: true
+
+  - type: textarea
+    id: environment
+    attributes:
+      label: Environment (OS/platform or image)
+      description: Provide host OS + platform/RID, or the image name:tag + platform.
+      placeholder: "Examples: Windows 11 + win-x64; Ubuntu 22.04 + linux-x64; mcr.microsoft.com/dotnet/sdk:9.0 + linux-x64"
+    validations:
+      required: true
+
+  - type: textarea
+    id: tool_versions
+    attributes:
+      label: Tool versions
+      description: Paste command output for all that apply.
+      placeholder: |
+        dotnet --version
+        dotnet --list-sdks
+        dotnet --list-runtimes
+        msbuild -version     
+    validations:
+      required: true
+
+  - type: dropdown
+    id: protocol
+    attributes:
+      label: Client/protocol path in use
+      description: Choose the path that best matches your setup.
+      options:
+        - NuGet plugin path (nuget/plugins)
+        - Dotnet tool invocation
+        - MSBuild restore
+        - nuget.exe restore/install
+        - artifacts-keyring (python keyring plugin)
+        - Unsure
+    validations:
+      required: false
+
+  - type: textarea
+    id: logs_instructions
+    attributes:
+      label: Credential Provider logs
+      description: Follow the steps below, then paste key excerpts and attach files.
+      value: |
+        1) Set the credential provider log path (preferred env var):
+
+        Windows (PowerShell):
+        $env:ARTIFACTS_CREDENTIALPROVIDER_LOG_PATH = "$PWD\\artifacts-credprovider.log"
+
+        Linux/macOS (bash/zsh):
+        export ARTIFACTS_CREDENTIALPROVIDER_LOG_PATH="$PWD/artifacts-credprovider.log"
+
+        2) Run your failing command with detailed verbosity:
+
+        dotnet:
+        dotnet restore --verbosity detailed 
+
+        nuget.exe:
+        nuget restore -verbosity detailed 
+
+        msbuild:
+        msbuild /t:Restore /v:detailed 
+
+        3) Provide the log output below with any urls or secrets redacted.
+        Note:
+        - Legacy log path variable is NUGET_CREDENTIALPROVIDER_LOG_PATH.
+        - Remove/redact urls before posting logs.
+    validations:
+      required: false
+
+  - type: textarea
+    id: additional
+    attributes:
+      label: Additional context
+      description: Include feed URL shape (redacted), auth flow details, recent changes, and anything else relevant.
+      placeholder: "Example: started after upgrading from .NET 8.0.3xx to 9.0.2xx"

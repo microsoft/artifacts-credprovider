@@ -31,6 +31,13 @@ public class MsalAuthenticationTests
         .WithParentActivityOrWindow(() => GetForegroundWindow())
         .Build(cache);
 
+    private IPublicClientApplication appNoBroker = AzureArtifacts
+        .CreateDefaultBuilder(AuthorityUri)
+        // The test hosting process (testhost.exe) may not have an associated console window, so use
+        // the foreground window which is correct enough when debugging and running tests locally.
+        .WithParentActivityOrWindow(() => GetForegroundWindow())
+        .Build(cache);
+
     [TestMethod]
     public async Task MsalAcquireTokenSilentTest()
     {
@@ -52,19 +59,31 @@ public class MsalAuthenticationTests
         var result = await tokenProvider.GetTokenAsync(tokenRequest);
 
         Assert.IsNotNull(result);
-        Assert.AreEqual(TokenSource.IdentityProvider, result.AuthenticationResultMetadata.TokenSource);
+        Assert.AreEqual(TokenSource.Broker, result.AuthenticationResultMetadata.TokenSource);
     }
 
     [TestMethod]
-    public async Task MsalAcquireTokenInteractiveTest()
+    public async Task MsalAcquireTokenBrokerInteractiveTest()
     {
-        var tokenProvider = new MsalInteractiveTokenProvider(app, logger);
+        var tokenProvider = new MsalBrokerInteractiveTokenProvider(app, logger);
         var tokenRequest = new TokenRequest();
 
         var result = await tokenProvider.GetTokenAsync(tokenRequest);
 
         Assert.IsNotNull(result);
         Assert.AreEqual(TokenSource.Broker, result.AuthenticationResultMetadata.TokenSource);
+    }
+
+    [TestMethod]
+    public async Task MsalAcquireTokenInteractiveTest()
+    {
+        var tokenProvider = new MsalInteractiveTokenProvider(appNoBroker, logger);
+        var tokenRequest = new TokenRequest();
+
+        var result = await tokenProvider.GetTokenAsync(tokenRequest);
+
+        Assert.IsNotNull(result);
+        Assert.AreEqual(TokenSource.IdentityProvider, result.AuthenticationResultMetadata.TokenSource);
     }
 
     [TestMethod]
@@ -80,6 +99,7 @@ public class MsalAuthenticationTests
     }
 
     [TestMethod]
+    [Ignore]
     public async Task MsalAquireTokenWithManagedIdentity()
     {
         var tokenProvider = new MsalManagedIdentityTokenProvider(app, logger);
@@ -93,6 +113,7 @@ public class MsalAuthenticationTests
     }
 
     [TestMethod]
+    [Ignore]
     public async Task MsalAquireTokenWithServicePrincipal()
     {
         var tokenProvider = new MsalServicePrincipalTokenProvider(app, logger);

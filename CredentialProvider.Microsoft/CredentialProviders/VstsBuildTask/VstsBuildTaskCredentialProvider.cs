@@ -1,4 +1,4 @@
-﻿// Copyright (c) Microsoft. All rights reserved.
+// Copyright (c) Microsoft. All rights reserved.
 //
 // Licensed under the MIT license.
 
@@ -29,8 +29,8 @@ namespace NuGetCredentialProvider.CredentialProviders.VstsBuildTask
 
         public override Task<bool> CanProvideCredentialsAsync(Uri uri)
         {
-            string uriPrefixesString = Environment.GetEnvironmentVariable(EnvUtil.BuildTaskUriPrefixes);
-            string accessToken = Environment.GetEnvironmentVariable(EnvUtil.BuildTaskAccessToken);
+            string uriPrefixesString = EnvUtil.GetEnvironmentVariable(EnvUtil.BuildTaskUriPrefixes);
+            string accessToken = EnvUtil.GetEnvironmentVariable(EnvUtil.BuildTaskAccessToken);
 
             bool useBuildTaskCredProvider = string.IsNullOrWhiteSpace(uriPrefixesString) == false && string.IsNullOrWhiteSpace(accessToken) == false;
             if (useBuildTaskCredProvider == true)
@@ -46,8 +46,8 @@ namespace NuGetCredentialProvider.CredentialProviders.VstsBuildTask
         {
             cancellationToken.ThrowIfCancellationRequested();
 
-            string uriPrefixesString = Environment.GetEnvironmentVariable(EnvUtil.BuildTaskUriPrefixes);
-            string accessToken = Environment.GetEnvironmentVariable(EnvUtil.BuildTaskAccessToken);
+            string uriPrefixesString = EnvUtil.GetEnvironmentVariable(EnvUtil.BuildTaskUriPrefixes);
+            string accessToken = EnvUtil.GetEnvironmentVariable(EnvUtil.BuildTaskAccessToken);
 
             Verbose(string.Format(Resources.IsRetry, request.IsRetry));
 
@@ -60,7 +60,7 @@ namespace NuGetCredentialProvider.CredentialProviders.VstsBuildTask
 
             string uriString = request.Uri.AbsoluteUri;
             string matchedPrefix = uriPrefixes.FirstOrDefault(prefix => uriString.StartsWith(prefix, StringComparison.OrdinalIgnoreCase));
-            Verbose(string.Format(Resources.BuildTaskMatchedPrefix, matchedPrefix != null  ? matchedPrefix : Resources.BuildTaskNoMatchingPrefixes));
+            Verbose(string.Format(Resources.BuildTaskMatchedPrefix, matchedPrefix != null ? matchedPrefix : Resources.BuildTaskNoMatchingPrefixes));
 
             if (matchedPrefix == null)
             {

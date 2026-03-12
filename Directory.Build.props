@@ -8,6 +8,11 @@
     <NoWarn>$(NoWarn);CS1574;CS1591</NoWarn>
   </PropertyGroup>
 
+  <!-- Set IncludeMsalBroker to true by default; pass /p:IncludeMsalBroker=false to exclude Microsoft.Identity.Client.Broker -->
+  <PropertyGroup Condition="'$(IncludeMsalBroker)' == ''">
+    <IncludeMsalBroker>true</IncludeMsalBroker>
+  </PropertyGroup>
+
   <PropertyGroup Condition=" '$(SignType)' != '' ">
     <SignAssembly>true</SignAssembly>
     <DelaySign>true</DelaySign>

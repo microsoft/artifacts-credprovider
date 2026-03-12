@@ -1,4 +1,4 @@
-﻿// Copyright (c) Microsoft. All rights reserved.
+// Copyright (c) Microsoft. All rights reserved.
 //
 // Licensed under the MIT license.
 
@@ -88,7 +88,7 @@ namespace NuGetCredentialProvider.CredentialProviders.Vsts
 
                     logger.Log(NuGet.Common.LogLevel.Verbose, true, "Re-trying with service-defined valid-time.");
                     using (var request2 = CreateRequest(uriBuilder.Uri, validTo: null))
-                    using(var response2 = await httpClient.SendAsync(request2, cancellationToken))
+                    using (var response2 = await httpClient.SendAsync(request2, cancellationToken))
                     {
                         response2.EnsureSuccessStatusCode();
                         logger.LogResponse(NuGet.Common.LogLevel.Verbose, true, response2);

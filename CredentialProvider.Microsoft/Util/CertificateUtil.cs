@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.IO;
 using System.Security.Cryptography.X509Certificates;
 using ILogger = NuGetCredentialProvider.Logging.ILogger;
@@ -15,14 +15,14 @@ internal static class CertificateUtil
             return null;
         }
 
-        var locations = new []{ StoreLocation.CurrentUser, StoreLocation.LocalMachine };
+        var locations = new[] { StoreLocation.CurrentUser, StoreLocation.LocalMachine };
         foreach (var location in locations)
         {
             var store = new X509Store(StoreName.My, location);
             try
             {
                 store.Open(OpenFlags.ReadOnly);
-                var cert = store.Certificates.Find(X509FindType.FindBySubjectDistinguishedName , subjectName, false);
+                var cert = store.Certificates.Find(X509FindType.FindBySubjectDistinguishedName, subjectName, false);
 
                 if (cert.Count > 0)
                 {
