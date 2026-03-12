@@ -168,6 +168,8 @@ If you're running the command as part of an automated build on an unattended bui
 ### Docker containers
 [Managing NuGet credentials in Docker scenarios](https://github.com/dotnet/dotnet-docker/blob/master/documentation/scenarios/nuget-credentials.md#using-the-azure-artifact-credential-provider)
 
+A sample [Dockerfile](samples/dockerfile.sample.txt) is provided in the `samples/` directory.
+
 ### Dev Containers
 
 Dev containers provide a fully configured development environment running inside a container. The credential provider can be set up in a dev container using either **browser-based interactive authentication** or the **artifacts-helper dev container feature**.

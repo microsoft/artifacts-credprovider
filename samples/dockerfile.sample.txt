@@ -21,12 +21,18 @@ COPY ./ .
 # Optional: Sometimes the http client hangs because of a .NET issue. Setting this in dockerfile helps 
 ENV DOTNET_SYSTEM_NET_HTTP_USESOCKETSHTTPHANDLER=0
 
+# Optional: Disable file caches as a precaution to ensure no token caches persist in the image.
+# When using environment variables (e.g. ARTIFACTS_CREDENTIALPROVIDER_ACCESSTOKEN) the credential provider
+# should not write secrets to these caches, but disabling them provides an extra safeguard.
+ENV ARTIFACTS_CREDENTIALPROVIDER_SESSIONTOKENCACHE_ENABLED=false
+ENV ARTIFACTS_CREDENTIALPROVIDER_MSAL_FILECACHE_ENABLED=false
+
 # Use a secret mount to pass the PAT securely during restore. The secret is never persisted in any image layer.
-# VSS_NUGET_URI_PREFIXES: semicolon-separated list of feed URI prefixes to authenticate.
-# VSS_NUGET_ACCESSTOKEN: the PAT used for authentication.
+# ARTIFACTS_CREDENTIALPROVIDER_URI_PREFIXES: semicolon-separated list of feed URI prefixes to authenticate.
+# ARTIFACTS_CREDENTIALPROVIDER_ACCESSTOKEN: the PAT used for authentication.
 RUN --mount=type=secret,id=pat \
-  export VSS_NUGET_URI_PREFIXES="https://pkgs.dev.azure.com" && \
-  export VSS_NUGET_ACCESSTOKEN="$(cat /run/secrets/pat)" && \
+  export ARTIFACTS_CREDENTIALPROVIDER_URI_PREFIXES="https://pkgs.dev.azure.com" && \
+  export ARTIFACTS_CREDENTIALPROVIDER_ACCESSTOKEN="$(cat /run/secrets/pat)" && \
   dotnet restore
 
 # Optional: Extended step to build the app using dotnet msbuild. 
