@@ -59,7 +59,7 @@ dotnet tool install --global  Microsoft.Artifacts.CredentialProvider.NuGet.Tool 
 ```
 
 Most users will not require further install steps. Some containers or manual dotnet install scenarios require adding the dotnet tools directory to your PATH 
-(e.g., `ENV PATH="$PATH:/root/.dotnet/tools"`). See [samples/dockerfile.sample.txt](samples/dockerfile.sample.txt) for an example.
+(e.g., `ENV PATH="$PATH:/root/.dotnet/tools"`). See [samples/dockerfile.sample](samples/dockerfile.sample) for an example.
 
 ### nuget.exe or MSBuild
 
@@ -168,7 +168,7 @@ If you're running the command as part of an automated build on an unattended bui
 ### Docker containers
 [Managing NuGet credentials in Docker scenarios](https://github.com/dotnet/dotnet-docker/blob/master/documentation/scenarios/nuget-credentials.md#using-the-azure-artifact-credential-provider)
 
-A sample [Dockerfile](samples/dockerfile.sample.txt) is provided in the `samples/` directory.
+A sample [Dockerfile](samples/dockerfile.sample) is provided in the `samples/` directory.
 
 ### Dev Containers
 
