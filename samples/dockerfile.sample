@@ -1,0 +1,40 @@
+# syntax=docker/dockerfile:1
+
+# This is a sample Dockerfile for using the Artifacts Credential Provider.
+# Build with: $env:TOKEN="<your-token>"; docker build --secret id=token,env=TOKEN .
+
+# downloading the dotnet sdk image. Could be any docker sdk image with sdk > 9.0.2 
+# With nuget plugin dotnet tool install support https://learn.microsoft.com/nuget/release-notes/nuget-6.13#summary-whats-new-in-6130)
+FROM mcr.microsoft.com/dotnet/sdk:10.0 AS dotnet-builder
+
+# Add dotnet tools to path
+ENV PATH="$PATH:/root/.dotnet/tools"
+
+# download and install latest credential provider.
+# use --version X.* to pin to a specific major version.
+RUN dotnet tool install --global  Microsoft.Artifacts.CredentialProvider.NuGet.Tool --source https://api.nuget.org/v3/index.json
+
+# Optional
+WORKDIR /workdir
+COPY ./ .
+
+# Optional: Sometimes the http client hangs because of a .NET issue. Setting this in dockerfile helps 
+ENV DOTNET_SYSTEM_NET_HTTP_USESOCKETSHTTPHANDLER=0
+
+# Use a secret mount to pass the access token securely during restore.
+# The token can be a PAT, an Entra ID access token, or System.AccessToken from Azure Pipelines.
+#
+# IMPORTANT: --mount=type=secret is scoped to a single RUN instruction, so any command that needs
+# authenticated NuGet restore (dotnet restore, dotnet build, etc.) must be in this same RUN step.
+#
+# All credential provider settings are set via 'export' rather than 'ENV' so they are scoped to this
+# RUN step only and do not persist in the image. This ensures:
+#   - The access token (via secret mount) is never written to any layer.
+#   - Cache-disable settings don't carry over to runtime, so containers using this image still get
+#     normal MSAL and session token caching.
+#   - URI prefixes don't leak build-time feed configuration into running containers.
+RUN --mount=type=secret,id=token,env=ARTIFACTS_CREDENTIALPROVIDER_ACCESSTOKEN \
+  export ARTIFACTS_CREDENTIALPROVIDER_SESSIONTOKENCACHE_ENABLED=false && \
+  export ARTIFACTS_CREDENTIALPROVIDER_MSAL_FILECACHE_ENABLED=false && \
+  export ARTIFACTS_CREDENTIALPROVIDER_URI_PREFIXES="https://pkgs.dev.azure.com" && \
+  dotnet restore
