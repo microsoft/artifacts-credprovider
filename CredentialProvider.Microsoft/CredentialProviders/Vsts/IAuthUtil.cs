@@ -102,7 +102,7 @@ namespace NuGetCredentialProvider.CredentialProviders.Vsts
                 logger.Warning(e.StackTrace);
             }
 
-            logger.Warning(string.Format(Resources.SPSAuthEndpointNotFound, uri.ToString()));
+            logger.Warning(string.Format(Resources.SPSAuthEndpointNotFound, RedactionUtil.RedactFeedUrl(uri.ToString())));
             return null;
         }
 
@@ -117,7 +117,7 @@ namespace NuGetCredentialProvider.CredentialProviders.Vsts
 
             using (var request = new HttpRequestMessage(HttpMethod.Get, uri))
             {
-                logger.Verbose($"GET {uri}");
+                logger.Verbose($"GET {RedactionUtil.RedactFeedUrl(uri)}");
                 using (var response = await httpClient.SendAsync(request, HttpCompletionOption.ResponseHeadersRead, cancellationToken))
                 {
                     cache[uri] = response.Headers;

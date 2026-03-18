@@ -116,7 +116,7 @@ namespace NuGetCredentialProvider.CredentialProviders.Vsts
                 InteractiveTimeout = TimeSpan.FromSeconds(EnvUtil.GetDeviceFlowTimeoutFromEnvironmentInSeconds(Logger)),
                 DeviceCodeResultCallback = (DeviceCodeResult deviceCodeResult) =>
                 {
-                    Logger.Minimal(string.Format(Resources.DeviceFlowRequestedResource, request.Uri.ToString()));
+                    Logger.Minimal(string.Format(Resources.DeviceFlowRequestedResource, RedactionUtil.RedactFeedUrl(request.Uri.ToString())));
                     Logger.Minimal(string.Format(Resources.DeviceFlowMessage, deviceCodeResult.VerificationUrl, deviceCodeResult.UserCode));
 
                     return Task.CompletedTask;
@@ -172,7 +172,7 @@ namespace NuGetCredentialProvider.CredentialProviders.Vsts
 
                     if (!string.IsNullOrWhiteSpace(sessionToken))
                     {
-                        Verbose(string.Format(Resources.VSTSSessionTokenCreated, request.Uri.AbsoluteUri));
+                        Verbose(string.Format(Resources.VSTSSessionTokenCreated, RedactionUtil.RedactFeedUrl(request.Uri)));
                         return new GetAuthenticationCredentialsResponse(
                             Username,
                             sessionToken,
@@ -183,11 +183,11 @@ namespace NuGetCredentialProvider.CredentialProviders.Vsts
                 }
                 catch (Exception e)
                 {
-                    Verbose(string.Format(Resources.VSTSCreateSessionException, request.Uri.AbsoluteUri, e.Message, e.StackTrace));
+                    Verbose(string.Format(Resources.VSTSCreateSessionException, RedactionUtil.RedactFeedUrl(request.Uri), e.Message, e.StackTrace));
                 }
             }
 
-            Verbose(string.Format(Resources.VSTSCredentialsNotFound, request.Uri.AbsoluteUri));
+            Verbose(string.Format(Resources.VSTSCredentialsNotFound, RedactionUtil.RedactFeedUrl(request.Uri)));
             return null;
         }
     }
