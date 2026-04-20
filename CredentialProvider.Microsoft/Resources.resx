@@ -214,6 +214,9 @@
   <data name="Redacted" xml:space="preserve">
     <value>[REDACTED]</value>
   </data>
+  <data name="RedactedFeedUrl" xml:space="preserve">
+    <value>[REDACTED_FEED_URL]</value>
+  </data>
   <data name="RequestUriNull" xml:space="preserve">
     <value>Request uri cannot be null</value>
   </data>
@@ -376,7 +379,13 @@ MSAL Token File Cache Enabled
 Provide MSAL Cache Location
     {29} (Preferred)
     {30} (Legacy)
-    Provide the location where the MSAL cache should be read and written to.</value>
+    Provide the location where the MSAL cache should be read and written to.
+
+Redact Enabled
+    {31}
+        Boolean to enable redaction of passwords/tokens and feed URLs in output.
+        This is a best-effort feature. Always review logs before sharing.
+        Default is false. Can also be controlled via the -R command-line flag.</value>
   </data>
   <data name="CredentialParseFailure" xml:space="preserve">
     <value>Failed to parse credentials</value>

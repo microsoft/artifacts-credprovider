@@ -65,9 +65,11 @@ body:
 
         Windows (PowerShell):
         $env:ARTIFACTS_CREDENTIALPROVIDER_LOG_PATH = "$PWD\\artifacts-credprovider.log"
+        $env:ARTIFACTS_CREDENTIALPROVIDER_REDACT_ENABLED = "true"  # Optional: redact sensitive info
 
         Linux/macOS (bash/zsh):
         export ARTIFACTS_CREDENTIALPROVIDER_LOG_PATH="$PWD/artifacts-credprovider.log"
+        export ARTIFACTS_CREDENTIALPROVIDER_REDACT_ENABLED="true"  # Optional: redact sensitive info
 
         2) Run your failing command with detailed verbosity:
 
@@ -83,7 +85,8 @@ body:
         3) Provide the log output below with any urls or secrets redacted.
         Note:
         - Legacy log path variable is NUGET_CREDENTIALPROVIDER_LOG_PATH.
-        - Remove/redact urls before posting logs.
+        - Setting ARTIFACTS_CREDENTIALPROVIDER_REDACT_ENABLED=true provides best-effort automatic redaction.
+        - Redaction is not guaranteed to catch everything. ALWAYS review logs before posting to ensure no sensitive data is exposed.
     validations:
       required: false
 

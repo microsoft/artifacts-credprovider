@@ -59,6 +59,9 @@ namespace NuGetCredentialProvider
             CancellationTokenSource tokenSource = new CancellationTokenSource();
             var parsedArgs = await Args.ParseAsync<CredentialProviderArgs>(args);
 
+            // Set redaction flag: command-line arg takes precedence, then env var
+            RedactionUtil.ShouldRedact = parsedArgs.RedactPassword || EnvUtil.GetRedactionEnabledFromEnvironment();
+
             var multiLogger = new MultiLogger();
             var fileLogger = GetFileLogger();
             if (fileLogger != null)
@@ -142,7 +145,8 @@ namespace NuGetCredentialProvider
                             EnvUtil.MsalFileCacheEnvVar,
                             EnvUtil.LegacyMsalFileCacheEnvVar,
                             EnvUtil.MsalFileCacheLocationEnvVar,
-                            EnvUtil.LegacyMsalFileCacheLocationEnvVar
+                            EnvUtil.LegacyMsalFileCacheLocationEnvVar,
+                            EnvUtil.RedactEnabledEnvVar
                         ));
                     return 0;
                 }
@@ -208,7 +212,7 @@ namespace NuGetCredentialProvider
                     }
 
                     string resultUsername = response?.Username;
-                    string resultPassword = parsedArgs.RedactPassword ? Resources.Redacted : response?.Password;
+                    string resultPassword = RedactionUtil.RedactPassword(response?.Password);
                     if (parsedArgs.OutputFormat == OutputFormat.Json)
                     {
                         // Manually write the JSON output, since we don't use ConsoleLogger in JSON mode (see above)
