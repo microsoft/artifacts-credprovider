@@ -175,4 +175,59 @@ public class TokenProviderTests
         tokenRequest.ClientId = null;
         Assert.IsFalse(tokenProvider.CanGetToken(tokenRequest));
     }
+
+    [TestMethod]
+    public async Task MsalTokenProviders_SilentProvider_UsesBrokerApp_WhenProvided()
+    {
+        // Arrange: create two distinct app mocks (Loose so other providers in the iterator don't fail)
+        var nonBrokerApp = new Mock<IPublicClientApplication>();
+        var brokerApp = new Mock<IPublicClientApplication>();
+
+        // broker app should be the one called for silent auth
+        brokerApp.Setup(x => x.GetAccountsAsync())
+            .ReturnsAsync(Array.Empty<IAccount>());
+        brokerApp.Setup(x => x.Authority)
+            .Returns("https://login.microsoftonline.com/common");
+        var brokerAppConfig = new Mock<IAppConfig>();
+        brokerAppConfig.Setup(x => x.IsBrokerEnabled).Returns(false);
+        brokerApp.Setup(x => x.AppConfig).Returns(brokerAppConfig.Object);
+
+        // non-broker app should NOT be called for silent auth
+        nonBrokerApp.Setup(x => x.GetAccountsAsync())
+            .ReturnsAsync(Array.Empty<IAccount>());
+
+        var providers = MsalTokenProviders.Get(nonBrokerApp.Object, loggerMock.Object, appInteractiveBroker: brokerApp.Object).ToList();
+        var silentProvider = providers.First(p => p.Name == "MSAL Silent");
+
+        // Act
+        await silentProvider.GetTokenAsync(new TokenRequest());
+
+        // Assert: broker app was used, not the non-broker app
+        brokerApp.Verify(x => x.GetAccountsAsync(), Times.Once);
+        nonBrokerApp.Verify(x => x.GetAccountsAsync(), Times.Never);
+    }
+
+    [TestMethod]
+    public async Task MsalTokenProviders_SilentProvider_UsesNonBrokerApp_WhenNoBrokerProvided()
+    {
+        // Arrange (Loose so other providers in the iterator don't fail)
+        var nonBrokerApp = new Mock<IPublicClientApplication>();
+
+        nonBrokerApp.Setup(x => x.GetAccountsAsync())
+            .ReturnsAsync(Array.Empty<IAccount>());
+        nonBrokerApp.Setup(x => x.Authority)
+            .Returns("https://login.microsoftonline.com/common");
+        var nonBrokerAppConfig = new Mock<IAppConfig>();
+        nonBrokerAppConfig.Setup(x => x.IsBrokerEnabled).Returns(false);
+        nonBrokerApp.Setup(x => x.AppConfig).Returns(nonBrokerAppConfig.Object);
+
+        var providers = MsalTokenProviders.Get(nonBrokerApp.Object, loggerMock.Object).ToList();
+        var silentProvider = providers.First(p => p.Name == "MSAL Silent");
+
+        // Act
+        await silentProvider.GetTokenAsync(new TokenRequest());
+
+        // Assert: non-broker app was used
+        nonBrokerApp.Verify(x => x.GetAccountsAsync(), Times.Once);
+    }
 }
