@@ -40,11 +40,15 @@ public class MsalIntegratedWindowsAuthTokenProvider : ITokenProvider
             }
 
             #pragma warning disable CS0618 
-            logger.LogWarning(Resources.MsalWindowsIntegratedAuthObsoleteWarning);
             var result = await app.AcquireTokenByIntegratedWindowsAuth(MsalConstants.AzureDevOpsScopes)
                 .WithUsername(upn)
                 .ExecuteAsync(cancellationToken);
             #pragma warning restore CS0618
+
+            if (result != null)
+            {
+                logger.LogWarning(Resources.MsalWindowsIntegratedAuthObsoleteWarning);
+            }
 
             return result;
         }
