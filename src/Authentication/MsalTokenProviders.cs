@@ -15,7 +15,8 @@ public class MsalTokenProviders
         yield return new MsalManagedIdentityTokenProvider(app, logger);
 
         // TODO: Would be more useful if MsalSilentTokenProvider enumerated over each account from the outside
-        yield return new MsalSilentTokenProvider(app, logger);
+        // Use the broker app for silent auth when available so WAM cache can be queried
+        yield return new MsalSilentTokenProvider(appInteractiveBroker ?? app, logger);
 
         if (WindowsIntegratedAuth.IsSupported())
         {
