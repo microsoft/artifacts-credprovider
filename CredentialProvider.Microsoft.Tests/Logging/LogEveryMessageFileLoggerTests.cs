@@ -45,7 +45,7 @@ namespace CredentialProvider.Microsoft.Tests.Logging
             var message = "Test message";
 
             // Act
-            logger.Log(LogLevel.Info, allowOnConsole: false, message);
+            logger.Log(LogLevel.Information, allowOnConsole: false, message);
 
             // Assert
             var logContent = File.ReadAllText(tempLogFile);
@@ -60,7 +60,7 @@ namespace CredentialProvider.Microsoft.Tests.Logging
             var message = "Successfully authenticated to service";
 
             // Act
-            logger.Log(LogLevel.Info, allowOnConsole: false, message);
+            logger.Log(LogLevel.Information, allowOnConsole: false, message);
 
             // Assert
             var logContent = File.ReadAllText(tempLogFile);
