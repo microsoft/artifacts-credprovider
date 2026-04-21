@@ -3,6 +3,7 @@
 // Licensed under the MIT license.
 
 using System.Runtime.InteropServices;
+using System.Threading;
 using Microsoft.Extensions.Logging;
 using Microsoft.Identity.Client;
 using Microsoft.Identity.Client.Utils;
@@ -71,10 +72,25 @@ public class MsalBrokerInteractiveTokenProvider : ITokenProvider
             {
                 await scheduler.RunOnMainThreadAsync(async () =>
                 {
-                    result = await app.AcquireTokenInteractive(MsalConstants.AzureDevOpsScopes)
-                        .WithPrompt(Prompt.SelectAccount)
-                        .WithUseEmbeddedWebView(false)
-                        .ExecuteAsync(cts.Token);
+                    // Clear the SynchronizationContext so that if the macOS broker fails
+                    // (e.g. FallbackToNativeMsal on non-Intune devices) and MSAL internally
+                    // retries with system browser auth, the async continuations run on the
+                    // thread pool instead of trying to post back to the main thread. Without
+                    // this, the browser fallback's continuations deadlock waiting for the
+                    // main thread which is blocked inside RunOnMainThreadAsync.
+                    var savedContext = SynchronizationContext.Current;
+                    SynchronizationContext.SetSynchronizationContext(null);
+                    try
+                    {
+                        result = await app.AcquireTokenInteractive(MsalConstants.AzureDevOpsScopes)
+                            .WithPrompt(Prompt.SelectAccount)
+                            .WithUseEmbeddedWebView(false)
+                            .ExecuteAsync(cts.Token);
+                    }
+                    finally
+                    {
+                        SynchronizationContext.SetSynchronizationContext(savedContext);
+                    }
                 });
             }
             else
@@ -92,6 +108,11 @@ public class MsalBrokerInteractiveTokenProvider : ITokenProvider
         catch (MsalClientException ex) when (ex.ErrorCode == MsalError.AuthenticationCanceledError)
         {
             logger.LogWarning(ex.Message);
+            return null;
+        }
+        catch (MsalException ex)
+        {
+            logger.LogWarning(Resources.MsalBrokerInteractiveFailed, ex.ErrorCode, ex.Message);
             return null;
         }
         catch (OperationCanceledException ex) when (cts.IsCancellationRequested)

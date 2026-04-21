@@ -165,4 +165,7 @@
   <data name="MacSchedulerNotRunningBrokerSkipped" xml:space="preserve">
     <value>MacMainThreadScheduler is not running and broker is enabled; skipping broker interactive auth as it requires the macOS main thread. Non-broker interactive auth will be used instead.</value>
   </data>
+  <data name="MsalBrokerInteractiveFailed" xml:space="preserve">
+    <value>Broker interactive auth failed (ErrorCode: {0}): {1}. Falling back to non-broker interactive auth.</value>
+  </data>
 </root>
