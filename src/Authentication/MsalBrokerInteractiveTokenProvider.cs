@@ -62,7 +62,7 @@ public class MsalBrokerInteractiveTokenProvider : ITokenProvider
             // inside a synchronous GCD dispatch when FallbackToNativeMsal is triggered.
             if (!s_isMacSsoExtensionAvailable.Value)
             {
-                logger.LogTrace("No Microsoft SSO extension detected; skipping broker interactive auth to avoid native deadlock.");
+                logger.LogTrace(Resources.MacSsoExtensionNotDetected);
                 return false;
             }
         }
@@ -99,6 +99,8 @@ public class MsalBrokerInteractiveTokenProvider : ITokenProvider
         }
     }
 
+    // Guard against native broker deadlocks on macOS (e.g. SSO detection was wrong).
+    // Uses TokenRequest.InteractiveTimeout to prevent the process from hanging forever.
     public async Task<AuthenticationResult?> GetTokenAsync(TokenRequest tokenRequest, CancellationToken cancellationToken = default)
     {
         if (!app.IsUserInteractive())
@@ -119,13 +121,24 @@ public class MsalBrokerInteractiveTokenProvider : ITokenProvider
 
             if (scheduler.IsRunning())
             {
-                await scheduler.RunOnMainThreadAsync(async () =>
+                var brokerTask = scheduler.RunOnMainThreadAsync(async () =>
                 {
                     result = await app.AcquireTokenInteractive(MsalConstants.AzureDevOpsScopes)
                         .WithPrompt(Prompt.SelectAccount)
                         .WithUseEmbeddedWebView(false)
                         .ExecuteAsync(cts.Token);
                 });
+
+                // Guard against native broker deadlocks that ignore cancellation tokens.
+                // If the broker doesn't respond within the timeout, abandon it and return null
+                // so the next provider (system browser) can handle authentication.
+                if (await Task.WhenAny(brokerTask, Task.Delay(tokenRequest.InteractiveTimeout, cts.Token)) != brokerTask)
+                {
+                    logger.LogWarning(Resources.MsalBrokerInteractiveTimedOut, tokenRequest.InteractiveTimeout.TotalSeconds);
+                    return null;
+                }
+
+                await brokerTask;
             }
             else
             {
