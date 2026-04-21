@@ -24,6 +24,8 @@ namespace Microsoft.Artifacts.Authentication;
 /// </summary>
 public class MsalBrokerInteractiveTokenProvider : ITokenProvider
 {
+    private static readonly Lazy<bool> s_isMacSsoExtensionAvailable = new Lazy<bool>(DetectMacSsoExtension);
+
     private readonly IPublicClientApplication app;
     private readonly ILogger logger;
 
@@ -58,7 +60,7 @@ public class MsalBrokerInteractiveTokenProvider : ITokenProvider
             // On macOS, skip broker auth if no Microsoft SSO extension is installed.
             // Without an SSO extension, the MSAL native broker runtime deadlocks
             // inside a synchronous GCD dispatch when FallbackToNativeMsal is triggered.
-            if (!IsMacSsoExtensionAvailable())
+            if (!s_isMacSsoExtensionAvailable.Value)
             {
                 logger.LogTrace("No Microsoft SSO extension detected; skipping broker interactive auth to avoid native deadlock.");
                 return false;
@@ -70,8 +72,10 @@ public class MsalBrokerInteractiveTokenProvider : ITokenProvider
 
     /// <summary>
     /// Checks whether a Microsoft SSO extension is available on macOS by querying pluginkit.
+    /// Result is cached for the lifetime of the process via <see cref="s_isMacSsoExtensionAvailable"/>.
+    /// Workaround for https://github.com/AzureAD/microsoft-authentication-library-for-dotnet/issues/5940
     /// </summary>
-    private static bool IsMacSsoExtensionAvailable()
+    private static bool DetectMacSsoExtension()
     {
         try
         {
