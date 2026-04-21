@@ -142,7 +142,8 @@ namespace NuGetCredentialProvider
                             EnvUtil.MsalFileCacheEnvVar,
                             EnvUtil.LegacyMsalFileCacheEnvVar,
                             EnvUtil.MsalFileCacheLocationEnvVar,
-                            EnvUtil.LegacyMsalFileCacheLocationEnvVar
+                            EnvUtil.LegacyMsalFileCacheLocationEnvVar,
+                            EnvUtil.VerbosityDefaultEnvVar
                         ));
                     return 0;
                 }
