@@ -3,6 +3,7 @@
 // Licensed under the MIT license.
 
 using System;
+using System.Linq;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Text;
@@ -17,6 +18,19 @@ namespace NuGetCredentialProvider.CredentialProviders.Vsts
     public class VstsSessionTokenClient : IVstsSessionTokenClient
     {
         private const string TokenScope = "vso.packaging_write vso.drop_write";
+
+        // Known Azure DevOps SPS hostnames that are trusted to receive bearer tokens.
+        // This prevents token exfiltration via a malicious X-VSS-AuthorizationEndpoint header.
+        public static readonly string[] AllowedSpsHosts = new[]
+        {
+            "app.vssps.visualstudio.com",          // Azure DevOps production
+            ".vssps.visualstudio.com",             // Azure DevOps production (suffix)
+            "vssps.dev.azure.com",                 // Azure DevOps production
+            "app.vssps.dev.azure.com",             // Azure DevOps production
+            ".vssps.codeapp.ms",                   // AppFabric
+            ".vssps.codedev.ms",                   // DevFabric
+            ".vssps.vsts.me",                      // DevFabric
+        };
 
         private static readonly JsonSerializerOptions options = new JsonSerializerOptions
         {
@@ -66,6 +80,14 @@ namespace NuGetCredentialProvider.CredentialProviders.Vsts
                 return null;
             }
 
+            if (!IsAllowedSpsEndpoint(spsEndpoint))
+            {
+                logger.Log(NuGet.Common.LogLevel.Error, true,
+                    $"SPS authorization endpoint '{spsEndpoint}' is not a known Azure DevOps host. " +
+                    "Aborting session token exchange to prevent bearer token exfiltration.");
+                return null;
+            }
+
             var uriBuilder = new UriBuilder(spsEndpoint)
             {
                 Query = $"tokenType={tokenType}&api-version=5.0-preview.1"
@@ -111,6 +133,18 @@ namespace NuGetCredentialProvider.CredentialProviders.Vsts
 
                 return responseToken.Token;
             }
+        }
+
+        public static bool IsAllowedSpsEndpoint(Uri endpoint)
+        {
+            if (!string.Equals(endpoint.Scheme, Uri.UriSchemeHttps, StringComparison.OrdinalIgnoreCase))
+            {
+                return false;
+            }
+
+            return AllowedSpsHosts.Any(host => host.StartsWith(".")
+                ? endpoint.Host.EndsWith(host, StringComparison.OrdinalIgnoreCase)
+                : endpoint.Host.Equals(host, StringComparison.OrdinalIgnoreCase));
         }
     }
 

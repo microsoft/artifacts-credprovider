@@ -125,13 +125,31 @@ namespace CredentialProvider.Microsoft.Tests.CredentialProviders.Vsts
         }
 
         [TestMethod]
-        public async Task CanProvideCredentials_CallsGetFeedUriSourceWhenSourcesAreInvalid()
+        public async Task CanProvideCredentials_ReturnsFalseForUnknownHttpHostsWithoutProbing()
         {
             var sources = new[]
             {
                 new Uri(@"http://example.overrideOne.com/_packaging/TestFeed/nuget/v3/index.json"),
+                new Uri(@"http://example.overrideTwo.com/_packaging/TestFeed/nuget/v3/index.json"),
+            };
+
+            foreach (var source in sources)
+            {
+                var canProvideCredentials = await vstsCredentialProvider.CanProvideCredentialsAsync(source);
+                canProvideCredentials.Should().BeFalse($"because {source} is not a valid host over HTTP");
+            }
+
+            mockAuthUtil
+                .Verify(x => x.GetAzDevDeploymentType(It.IsAny<Uri>()), Times.Never, "because HTTP hosts should be rejected without probing");
+        }
+
+        [TestMethod]
+        public async Task CanProvideCredentials_ProbesUnknownHttpsHosts()
+        {
+            var sources = new[]
+            {
+                new Uri(@"https://example.overrideOne.com/_packaging/TestFeed/nuget/v3/index.json"),
                 new Uri(@"https://example.overrideTwo.com/_packaging/TestFeed/nuget/v3/index.json"),
-                new Uri(@"https://example.overrideThre.com/_packaging/TestFeed/nuget/v3/index.json"),
             };
 
             foreach (var source in sources)
@@ -141,7 +159,7 @@ namespace CredentialProvider.Microsoft.Tests.CredentialProviders.Vsts
             }
 
             mockAuthUtil
-                .Verify(x => x.GetAzDevDeploymentType(It.IsAny<Uri>()), Times.Exactly(3), "because sources were unknown");
+                .Verify(x => x.GetAzDevDeploymentType(It.IsAny<Uri>()), Times.Exactly(2), "because unknown HTTPS hosts should be probed safely");
         }
 
         [TestMethod]

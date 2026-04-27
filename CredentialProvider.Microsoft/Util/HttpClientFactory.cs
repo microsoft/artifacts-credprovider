@@ -11,8 +11,16 @@ namespace NuGetCredentialProvider.Util
     public class HttpClientFactory : MsalHttpClientFactory
     {
         private static readonly HttpClientFactory httpClientFactory;
+        private static readonly HttpClientFactory probeHttpClientFactory;
 
         public static HttpClientFactory Default => httpClientFactory;
+
+        /// <summary>
+        /// HttpClient without UseDefaultCredentials. Use for discovery/probe
+        /// requests to avoid leaking Windows IWA credentials (Kerberos/NTLM) to
+        /// untrusted endpoints.
+        /// </summary>
+        public static HttpClientFactory Probe => probeHttpClientFactory;
 
         public HttpClientFactory(HttpClient httpClient) : base(httpClient)
         {
@@ -27,13 +35,17 @@ namespace NuGetCredentialProvider.Util
                 UseDefaultCredentials = true
             });
 
+            var probeHttpClient = new HttpClient();
+
             // Add program context to headers if available
             if (ProgramContext != null)
             {
                 httpClient.DefaultRequestHeaders.UserAgent.Add(ProgramContext);
+                probeHttpClient.DefaultRequestHeaders.UserAgent.Add(ProgramContext);
             }
 
             httpClientFactory = new(httpClient);
+            probeHttpClientFactory = new(probeHttpClient);
         }
 
         private static ProductInfoHeaderValue ProgramContext

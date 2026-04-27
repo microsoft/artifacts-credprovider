@@ -73,6 +73,13 @@ namespace NuGetCredentialProvider.CredentialProviders.Vsts
                 return true;
             }
 
+            // Only probe unknown hosts over HTTPS.
+            if (!string.Equals(uri.Scheme, Uri.UriSchemeHttps, StringComparison.OrdinalIgnoreCase))
+            {
+                Verbose(string.Format(Resources.ExternalUri, uri));
+                return false;
+            }
+
             var azDevOpsType = await authUtil.GetAzDevDeploymentType(uri);
             if (azDevOpsType == AzDevDeploymentType.Hosted)
             {
