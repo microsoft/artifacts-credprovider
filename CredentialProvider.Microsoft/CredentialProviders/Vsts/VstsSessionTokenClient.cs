@@ -23,10 +23,8 @@ namespace NuGetCredentialProvider.CredentialProviders.Vsts
         // This prevents token exfiltration via a malicious X-VSS-AuthorizationEndpoint header.
         public static readonly string[] AllowedSpsHosts = new[]
         {
-            "app.vssps.visualstudio.com",          // Azure DevOps production
             ".vssps.visualstudio.com",             // Azure DevOps production (suffix)
             "vssps.dev.azure.com",                 // Azure DevOps production
-            "app.vssps.dev.azure.com",             // Azure DevOps production
             ".vssps.codeapp.ms",                   // AppFabric
             ".vssps.codedev.ms",                   // DevFabric
             ".vssps.vsts.me",                      // DevFabric
