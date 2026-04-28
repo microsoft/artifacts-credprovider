@@ -25,6 +25,7 @@ namespace NuGetCredentialProvider.CredentialProviders.Vsts
         {
             ".vssps.visualstudio.com",             // Azure DevOps production (suffix)
             "vssps.dev.azure.com",                 // Azure DevOps production
+            ".vssps.dev.azure.com",                // Azure DevOps production (suffix)
             ".vssps.codeapp.ms",                   // AppFabric
             ".vssps.codedev.ms",                   // DevFabric
             ".vssps.vsts.me",                      // DevFabric
