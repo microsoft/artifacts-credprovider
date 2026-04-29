@@ -13,6 +13,7 @@ namespace CredentialProvider.Microsoft.Tests.CredentialProviders.Vsts
     public class VstsSessionTokenClientTests
     {
         [TestMethod]
+        [DataRow("https://vssps.visualstudio.com")]
         [DataRow("https://app.vssps.visualstudio.com")]
         [DataRow("https://app.vssps.visualstudio.com/")]
         [DataRow("https://APP.VSSPS.VISUALSTUDIO.COM")]
