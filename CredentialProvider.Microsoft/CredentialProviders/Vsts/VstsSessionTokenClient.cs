@@ -27,6 +27,7 @@ namespace NuGetCredentialProvider.CredentialProviders.Vsts
             "vssps.dev.azure.com",                 // Azure DevOps production
             ".vssps.dev.azure.com",                // Azure DevOps production (suffix)
             ".vssps.codeapp.ms",                   // AppFabric
+            "vssps.codedev.ms",                    // DevFabric
             ".vssps.codedev.ms",                   // DevFabric
             ".vssps.vsts.me",                      // DevFabric
         };
@@ -81,10 +82,12 @@ namespace NuGetCredentialProvider.CredentialProviders.Vsts
 
             if (!IsAllowedSpsEndpoint(spsEndpoint))
             {
-                logger.Log(NuGet.Common.LogLevel.Error, true,
+                var message =
                     $"SPS authorization endpoint '{spsEndpoint}' is not a known Azure DevOps host. " +
-                    "Aborting session token exchange to prevent bearer token exfiltration.");
-                return null;
+                    "Aborting session token exchange to prevent bearer token exfiltration.";
+
+                logger.Log(NuGet.Common.LogLevel.Error, true, message);
+                throw new UntrustedSpsEndpointException(message);
             }
 
             var uriBuilder = new UriBuilder(spsEndpoint)
@@ -151,5 +154,13 @@ namespace NuGetCredentialProvider.CredentialProviders.Vsts
     {
         Compact, // Personal Access Token (PAT)
         SelfDescribing // Session Token (JWT)
+    }
+
+    public sealed class UntrustedSpsEndpointException : Exception
+    {
+        public UntrustedSpsEndpointException(string message)
+            : base(message)
+        {
+        }
     }
 }

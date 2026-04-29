@@ -188,6 +188,11 @@ namespace NuGetCredentialProvider.CredentialProviders.Vsts
                             responseCode: MessageResponseCode.Success);
                     }
                 }
+                catch (UntrustedSpsEndpointException e)
+                {
+                    Error(e.Message);
+                    return null;
+                }
                 catch (Exception e)
                 {
                     Verbose(string.Format(Resources.VSTSCreateSessionException, request.Uri.AbsoluteUri, e.Message, e.StackTrace));

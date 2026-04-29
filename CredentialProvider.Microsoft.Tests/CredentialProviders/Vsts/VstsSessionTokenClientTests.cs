@@ -22,6 +22,7 @@ namespace CredentialProvider.Microsoft.Tests.CredentialProviders.Vsts
         [DataRow("https://wcus0.app.vssps.dev.azure.com")]
         [DataRow("https://org.vssps.visualstudio.com")]
         [DataRow("https://test.vssps.codeapp.ms")]
+        [DataRow("https://vssps.codedev.ms")]
         [DataRow("https://test.vssps.codedev.ms")]
         [DataRow("https://test.vssps.vsts.me")]
         public void IsAllowedSpsEndpoint_KnownHosts_ReturnsTrue(string url)

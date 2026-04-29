@@ -247,6 +247,22 @@ namespace CredentialProvider.Microsoft.Tests.CredentialProviders.Vsts
             response.Should().BeNull();
         }
 
+        [TestMethod]
+        public async Task HandleRequestAsync_DoesNotTryNextProvider_WhenSpsEndpointIsUntrusted()
+        {
+            var token1 = GetToken("aadtoken1");
+            mockBearerTokenProvider1.Setup(x => x.GetTokenAsync(It.IsAny<TokenRequest>(), It.IsAny<CancellationToken>())).ReturnsAsync(token1);
+            mockVstsSessionTokenFromBearerTokenProvider
+                .Setup(x => x.GetAzureDevOpsSessionTokenFromBearerToken(It.IsAny<GetAuthenticationCredentialsRequest>(), token1.AccessToken, It.IsAny<bool>(), It.IsAny<CancellationToken>()))
+                .ThrowsAsync(new UntrustedSpsEndpointException("untrusted sps endpoint"));
+
+            var response = await vstsCredentialProvider.HandleRequestAsync(new GetAuthenticationCredentialsRequest(testUri, false, false, false), CancellationToken.None);
+
+            mockBearerTokenProvider1.Verify(x => x.GetTokenAsync(It.IsAny<TokenRequest>(), It.IsAny<CancellationToken>()), Times.Once);
+            mockBearerTokenProvider2.Verify(x => x.GetTokenAsync(It.IsAny<TokenRequest>(), It.IsAny<CancellationToken>()), Times.Never);
+            response.Should().BeNull();
+        }
+
         private AuthenticationResult GetToken(string token)
         {
             return new AuthenticationResult(token, false, null, DateTimeOffset.MinValue, DateTimeOffset.MinValue, null, null, null, null, Guid.Empty);
