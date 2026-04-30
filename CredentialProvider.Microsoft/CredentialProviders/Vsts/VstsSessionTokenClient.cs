@@ -92,7 +92,7 @@ namespace NuGetCredentialProvider.CredentialProviders.Vsts
             {
                 var message =
                     $"SPS authorization endpoint '{spsEndpoint}' is not a known Azure DevOps host. " +
-                    "Aborting session token exchange to prevent bearer token exfiltration.";
+                    "Aborting session token exchange.";
 
                 logger.Log(NuGet.Common.LogLevel.Error, true, message);
                 throw new UntrustedSpsEndpointException(message);
