@@ -125,13 +125,31 @@ namespace CredentialProvider.Microsoft.Tests.CredentialProviders.Vsts
         }
 
         [TestMethod]
-        public async Task CanProvideCredentials_CallsGetFeedUriSourceWhenSourcesAreInvalid()
+        public async Task CanProvideCredentials_ReturnsFalseForUnknownHttpHostsWithoutProbing()
         {
             var sources = new[]
             {
                 new Uri(@"http://example.overrideOne.com/_packaging/TestFeed/nuget/v3/index.json"),
+                new Uri(@"http://example.overrideTwo.com/_packaging/TestFeed/nuget/v3/index.json"),
+            };
+
+            foreach (var source in sources)
+            {
+                var canProvideCredentials = await vstsCredentialProvider.CanProvideCredentialsAsync(source);
+                canProvideCredentials.Should().BeFalse($"because {source} is not a valid host over HTTP");
+            }
+
+            mockAuthUtil
+                .Verify(x => x.GetAzDevDeploymentType(It.IsAny<Uri>()), Times.Never, "because HTTP hosts should be rejected without probing");
+        }
+
+        [TestMethod]
+        public async Task CanProvideCredentials_ProbesUnknownHttpsHosts()
+        {
+            var sources = new[]
+            {
+                new Uri(@"https://example.overrideOne.com/_packaging/TestFeed/nuget/v3/index.json"),
                 new Uri(@"https://example.overrideTwo.com/_packaging/TestFeed/nuget/v3/index.json"),
-                new Uri(@"https://example.overrideThre.com/_packaging/TestFeed/nuget/v3/index.json"),
             };
 
             foreach (var source in sources)
@@ -141,7 +159,7 @@ namespace CredentialProvider.Microsoft.Tests.CredentialProviders.Vsts
             }
 
             mockAuthUtil
-                .Verify(x => x.GetAzDevDeploymentType(It.IsAny<Uri>()), Times.Exactly(3), "because sources were unknown");
+                .Verify(x => x.GetAzDevDeploymentType(It.IsAny<Uri>()), Times.Exactly(2), "because unknown HTTPS hosts should be probed safely");
         }
 
         [TestMethod]
@@ -226,6 +244,22 @@ namespace CredentialProvider.Microsoft.Tests.CredentialProviders.Vsts
             mockBearerTokenProvider2.Verify(x => x.GetTokenAsync(It.IsAny<TokenRequest>(), It.IsAny<CancellationToken>()), Times.Once);
             mockVstsSessionTokenFromBearerTokenProvider.Verify(x => x.GetAzureDevOpsSessionTokenFromBearerToken(It.IsAny<GetAuthenticationCredentialsRequest>(), token1.AccessToken, It.IsAny<bool>(), It.IsAny<CancellationToken>()), Times.Once);
             mockVstsSessionTokenFromBearerTokenProvider.Verify(x => x.GetAzureDevOpsSessionTokenFromBearerToken(It.IsAny<GetAuthenticationCredentialsRequest>(), token2.AccessToken, It.IsAny<bool>(), It.IsAny<CancellationToken>()), Times.Once);
+            response.Should().BeNull();
+        }
+
+        [TestMethod]
+        public async Task HandleRequestAsync_DoesNotTryNextProvider_WhenSpsEndpointIsUntrusted()
+        {
+            var token1 = GetToken("aadtoken1");
+            mockBearerTokenProvider1.Setup(x => x.GetTokenAsync(It.IsAny<TokenRequest>(), It.IsAny<CancellationToken>())).ReturnsAsync(token1);
+            mockVstsSessionTokenFromBearerTokenProvider
+                .Setup(x => x.GetAzureDevOpsSessionTokenFromBearerToken(It.IsAny<GetAuthenticationCredentialsRequest>(), token1.AccessToken, It.IsAny<bool>(), It.IsAny<CancellationToken>()))
+                .ThrowsAsync(new UntrustedSpsEndpointException("untrusted sps endpoint"));
+
+            var response = await vstsCredentialProvider.HandleRequestAsync(new GetAuthenticationCredentialsRequest(testUri, false, false, false), CancellationToken.None);
+
+            mockBearerTokenProvider1.Verify(x => x.GetTokenAsync(It.IsAny<TokenRequest>(), It.IsAny<CancellationToken>()), Times.Once);
+            mockBearerTokenProvider2.Verify(x => x.GetTokenAsync(It.IsAny<TokenRequest>(), It.IsAny<CancellationToken>()), Times.Never);
             response.Should().BeNull();
         }
 

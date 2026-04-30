@@ -113,7 +113,8 @@ namespace NuGetCredentialProvider.CredentialProviders.Vsts
                 return headers;
             }
 
-            var httpClient = HttpClientFactory.Default.GetHttpClient();
+            // Use Probe client to avoid sending Windows credentials to unknown hosts.
+            var httpClient = HttpClientFactory.Probe.GetHttpClient();
 
             using (var request = new HttpRequestMessage(HttpMethod.Get, uri))
             {
