@@ -27,7 +27,14 @@ namespace NuGetCredentialProvider.CredentialProviders.Vsts
             ".vssps.visualstudio.com",             // Azure DevOps production (suffix)
             "vssps.dev.azure.com",                 // Azure DevOps production
             ".vssps.dev.azure.com",                // Azure DevOps production (suffix)
+            "vsspsext.visualstudio.com",            // Extended SPS services
+            "vsspsext.dev.azure.com",              // Extended SPS services
+            "vssps.devppe.azure.com",              // PPE environment
+            ".vssps.devppe.azure.com",             // PPE environment (suffix)
+            "vssps.vsallin.net",                   // PPE/staging
+            ".vssps.vsallin.net",                  // PPE/staging (suffix)
             ".vssps.codeapp.ms",                   // AppFabric
+            ".vssps.vsts.io",                      // AppFabric API
             "vssps.codedev.ms",                    // DevFabric
             ".vssps.codedev.ms",                   // DevFabric
             ".vssps.vsts.me",                      // DevFabric
