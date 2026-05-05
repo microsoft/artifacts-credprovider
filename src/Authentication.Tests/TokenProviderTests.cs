@@ -177,8 +177,14 @@ public class TokenProviderTests
     }
 
     [TestMethod]
-    public async Task MsalTokenProviders_SilentProvider_UsesBrokerApp_WhenProvided()
+    public async Task MsalTokenProviders_SilentProvider_UsesBrokerApp_WhenProvided_NonWSL()
     {
+        if (PlatformInformation.IsWSL())
+        {
+            // On WSL the broker app is intentionally skipped for silent auth; see the WSL test below.
+            Assert.Inconclusive("Skipped on WSL — broker silent auth is disabled there by design.");
+        }
+
         // Arrange: create two distinct app mocks (Loose so other providers in the iterator don't fail)
         var nonBrokerApp = new Mock<IPublicClientApplication>();
         var brokerApp = new Mock<IPublicClientApplication>();
@@ -205,6 +211,43 @@ public class TokenProviderTests
         // Assert: broker app was used, not the non-broker app
         brokerApp.Verify(x => x.GetAccountsAsync(), Times.Once);
         nonBrokerApp.Verify(x => x.GetAccountsAsync(), Times.Never);
+    }
+
+    [TestMethod]
+    public async Task MsalTokenProviders_SilentProvider_UsesNonBrokerApp_OnWSL()
+    {
+        if (!PlatformInformation.IsWSL())
+        {
+            Assert.Inconclusive("Skipped on non-WSL — this test validates WSL-specific broker bypass behavior.");
+        }
+
+        // Arrange: on WSL the silent provider should use the non-broker app even when a broker app is provided,
+        // because the Linux broker daemon does not exist in WSL.
+        // See: https://github.com/microsoft/artifacts-credprovider/issues/TODO
+        var nonBrokerApp = new Mock<IPublicClientApplication>();
+        var brokerApp = new Mock<IPublicClientApplication>();
+
+        nonBrokerApp.Setup(x => x.GetAccountsAsync())
+            .ReturnsAsync(Array.Empty<IAccount>());
+        nonBrokerApp.Setup(x => x.Authority)
+            .Returns("https://login.microsoftonline.com/common");
+        var nonBrokerAppConfig = new Mock<IAppConfig>();
+        nonBrokerAppConfig.Setup(x => x.IsBrokerEnabled).Returns(false);
+        nonBrokerApp.Setup(x => x.AppConfig).Returns(nonBrokerAppConfig.Object);
+
+        // broker app should NOT be called on WSL
+        brokerApp.Setup(x => x.GetAccountsAsync())
+            .ReturnsAsync(Array.Empty<IAccount>());
+
+        var providers = MsalTokenProviders.Get(nonBrokerApp.Object, loggerMock.Object, appInteractiveBroker: brokerApp.Object).ToList();
+        var silentProvider = providers.First(p => p.Name == "MSAL Silent");
+
+        // Act
+        await silentProvider.GetTokenAsync(new TokenRequest());
+
+        // Assert: non-broker app was used on WSL, broker app was not called
+        nonBrokerApp.Verify(x => x.GetAccountsAsync(), Times.Once);
+        brokerApp.Verify(x => x.GetAccountsAsync(), Times.Never);
     }
 
     [TestMethod]
