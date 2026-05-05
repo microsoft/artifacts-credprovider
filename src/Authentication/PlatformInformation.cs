@@ -79,4 +79,14 @@ public static class PlatformInformation
     {
         return RuntimeInformation.FrameworkDescription;
     }
+
+    /// <summary>
+    /// Returns true when running inside Windows Subsystem for Linux (WSL).
+    /// WSL always sets the WSL_DISTRO_NAME environment variable.
+    /// </summary>
+    public static bool IsWSL()
+    {
+        return RuntimeInformation.IsOSPlatform(OSPlatform.Linux)
+            && !string.IsNullOrEmpty(Environment.GetEnvironmentVariable("WSL_DISTRO_NAME"));
+    }
 }
