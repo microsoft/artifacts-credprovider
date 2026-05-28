@@ -11,6 +11,7 @@
     <PackageVersion Include="Microsoft.Identity.Client" Version="4.77.1" />
     <PackageVersion Include="Microsoft.Identity.Client.Broker" Version="4.77.1" />
     <PackageVersion Include="Microsoft.Identity.Client.Extensions.Msal" Version="4.77.1" />
+    <PackageVersion Include="Microsoft.Identity.Client.NativeInterop" Version="0.20.6" />
     <PackageVersion Include="Microsoft.VisualStudioEng.MicroBuild.Core" Version="1.0.0" />
     <PackageVersion Include="Moq" Version="4.18.4" />
     <PackageVersion Include="MSTest" Version="3.8.2" />

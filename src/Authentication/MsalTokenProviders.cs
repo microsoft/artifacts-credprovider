@@ -16,10 +16,8 @@ public class MsalTokenProviders
 
         // TODO: Would be more useful if MsalSilentTokenProvider enumerated over each account from the outside
 
-        // Use the broker app for silent auth on Windows and macOS so the broker cache can be queried.
-        // WSL reports as Linux but has no broker daemon, so fall back to the non-broker app there.
-        // See: https://github.com/AzureAD/microsoft-authentication-library-for-dotnet/issues/5979
-        yield return new MsalSilentTokenProvider(PlatformInformation.IsWSL() ? app : appInteractiveBroker ?? app, logger);
+        // Use the broker app for silent auth so the broker cache can be queried.
+        yield return new MsalSilentTokenProvider(appInteractiveBroker ?? app, logger);
 
         if (WindowsIntegratedAuth.IsSupported())
         {
