@@ -44,6 +44,14 @@ namespace NuGetCredentialProvider.CredentialProviders.Vsts
                 )
                 .WithBrokerSupport(brokerEnabled, EnvUtil.GetMsalBrokerWindowHandle(), logger);
 
+            // If broker is available on this machine, switch to the broker redirect URI.
+            // Otherwise keep http://localhost so system browser auth works (e.g. non-enrolled Mac).
+            if (brokerEnabled && builder.IsBrokerAvailable())
+            {
+                logger.LogTrace("Broker is available; using broker redirect URI.");
+                builder.WithBrokerRedirectUri();
+            }
+
             var app = builder.Build();
 
             cache?.RegisterCache(app.UserTokenCache);
