@@ -71,12 +71,47 @@ public static class AzureArtifacts
             .WithParentActivityOrWindow(() => parentWindowHandle ?? GetConsoleOrTerminalWindow());
     }
 
+    /// <summary>
+    /// Configures the broker without overriding the redirect URI.
+    /// Use this when building a single PCA that can fall back to system browser
+    /// (which requires http://localhost) if the broker is not available.
+    /// </summary>
+    public static PublicClientApplicationBuilder WithBrokerSupport(this PublicClientApplicationBuilder builder, bool enableBroker, IntPtr? parentWindowHandle, ILogger logger)
+    {
+        if (!enableBroker)
+        {
+            return builder;
+        }
+
+        logger.LogTrace(Resources.MsalUsingBroker);
+
+        return builder
+            .WithBroker(
+                new BrokerOptions(BrokerOptions.OperatingSystems.Windows | BrokerOptions.OperatingSystems.OSX | BrokerOptions.OperatingSystems.Linux)
+                {
+                    Title = "Azure DevOps Artifacts",
+                    ListOperatingSystemAccounts = true,
+                    MsaPassthrough = true
+                })
+            .WithParentActivityOrWindow(() => parentWindowHandle ?? GetConsoleOrTerminalWindow());
+    }
+
     public static PublicClientApplicationBuilder WithBroker(this PublicClientApplicationBuilder builder, bool enableBroker, ILogger logger)
     {
         return builder.WithBroker(enableBroker, null, logger);
     }
 #else
     public static PublicClientApplicationBuilder WithBroker(this PublicClientApplicationBuilder builder, bool enableBroker, IntPtr? parentWindowHandle, ILogger logger)
+    {
+        // Broker support not included in this build
+        if (enableBroker)
+        {
+            logger.LogWarning("Broker support is not available in this build. Using non-broker authentication.");
+        }
+        return builder;
+    }
+
+    public static PublicClientApplicationBuilder WithBrokerSupport(this PublicClientApplicationBuilder builder, bool enableBroker, IntPtr? parentWindowHandle, ILogger logger)
     {
         // Broker support not included in this build
         if (enableBroker)

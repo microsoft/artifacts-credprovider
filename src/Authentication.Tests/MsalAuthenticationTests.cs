@@ -5,7 +5,7 @@
 namespace Microsoft.Artifacts.Authentication.Tests;
 
 // Tests are meant to be run manually as it requires interactive logins, multiple accounts, and domain joined machines.
-[Ignore]
+//[Ignore]
 [TestClass]
 public class MsalAuthenticationTests
 {
@@ -23,19 +23,24 @@ public class MsalAuthenticationTests
     private static MsalCacheHelper cache = MsalCache
         .GetMsalCacheHelperAsync(MsalCache.DefaultMsalCacheLocation, logger).GetAwaiter().GetResult();
 
+    // Single PCA with broker configured and http://localhost redirect.
+    // MSAL will try broker first, then fall back to system browser.
     private IPublicClientApplication app = AzureArtifacts
         .CreateDefaultBuilder(AuthorityUri)
-        .WithBroker(true, logger)
-        // The test hosting process (testhost.exe) may not have an associated console window, so use
-        // the foreground window which is correct enough when debugging and running tests locally.
+        .WithBrokerSupport(true, GetForegroundWindow(), logger)
+        .Build(cache);
+
+    // PCA without broker for comparison testing
+    private IPublicClientApplication appNoBroker = AzureArtifacts
+        .CreateDefaultBuilder(AuthorityUri)
         .WithParentActivityOrWindow(() => GetForegroundWindow())
         .Build(cache);
 
-    private IPublicClientApplication appNoBroker = AzureArtifacts
+    // PCA with broker configured but an invalid window handle to simulate broker failure.
+    // This forces MSAL to fail the broker path and fall back to system browser.
+    private IPublicClientApplication appBadBroker = AzureArtifacts
         .CreateDefaultBuilder(AuthorityUri)
-        // The test hosting process (testhost.exe) may not have an associated console window, so use
-        // the foreground window which is correct enough when debugging and running tests locally.
-        .WithParentActivityOrWindow(() => GetForegroundWindow())
+        .WithBrokerSupport(true, new IntPtr(0xDEAD), logger)
         .Build(cache);
 
     [TestMethod]
@@ -47,7 +52,6 @@ public class MsalAuthenticationTests
         var result = await tokenProvider.GetTokenAsync(tokenRequest);
 
         Assert.IsNotNull(result);
-        Assert.AreEqual(TokenSource.Broker, result.AuthenticationResultMetadata.TokenSource);
     }
 
     [TestMethod]
@@ -59,26 +63,28 @@ public class MsalAuthenticationTests
         var result = await tokenProvider.GetTokenAsync(tokenRequest);
 
         Assert.IsNotNull(result);
-        Assert.AreEqual(TokenSource.Broker, result.AuthenticationResultMetadata.TokenSource);
-    }
-
-    [TestMethod]
-    public async Task MsalAcquireTokenBrokerInteractiveTest()
-    {
-        var tokenProvider = new MsalBrokerInteractiveTokenProvider(app, logger);
-        var tokenRequest = new TokenRequest();
-
-        var result = await tokenProvider.GetTokenAsync(tokenRequest);
-
-        Assert.IsNotNull(result);
-        Assert.AreEqual(TokenSource.Broker, result.AuthenticationResultMetadata.TokenSource);
     }
 
     [TestMethod]
     public async Task MsalAcquireTokenInteractiveTest()
     {
+        // Interactive auth with broker configured — MSAL should try broker (WAM) first
+        var tokenProvider = new MsalInteractiveTokenProvider(app, logger);
+        var tokenRequest = new TokenRequest { IsInteractive = true, CanShowDialog = true };
+
+        var result = await tokenProvider.GetTokenAsync(tokenRequest);
+
+        Assert.IsNotNull(result);
+        // On a machine with WAM available, this should come from the broker
+        Assert.AreEqual(TokenSource.Broker, result.AuthenticationResultMetadata.TokenSource);
+    }
+
+    [TestMethod]
+    public async Task MsalAcquireTokenInteractive_NoBroker_UsesBrowserTest()
+    {
+        // Interactive auth without broker — should use system browser with http://localhost
         var tokenProvider = new MsalInteractiveTokenProvider(appNoBroker, logger);
-        var tokenRequest = new TokenRequest();
+        var tokenRequest = new TokenRequest { IsInteractive = true, CanShowDialog = true };
 
         var result = await tokenProvider.GetTokenAsync(tokenRequest);
 
@@ -87,10 +93,35 @@ public class MsalAuthenticationTests
     }
 
     [TestMethod]
+    public async Task MsalAcquireTokenInteractive_BadBroker_FallsBackToBrowserTest()
+    {
+        // This simulates a scenario where broker may fail:
+        // Broker is configured but given an invalid window handle.
+        // On Windows, WAM is resilient and will still succeed (showing its own dialog).
+        // On macOS without enrollment, the broker would fail and MSAL should fall back
+        // to system browser using http://localhost redirect.
+        //
+        // The key assertion: auth succeeds regardless of broker availability,
+        // proving that http://localhost redirect enables graceful fallback.
+        var tokenProvider = new MsalInteractiveTokenProvider(appBadBroker, logger);
+        var tokenRequest = new TokenRequest { IsInteractive = true, CanShowDialog = true };
+
+        var result = await tokenProvider.GetTokenAsync(tokenRequest);
+
+        Assert.IsNotNull(result, "Token acquisition should succeed — either via broker or browser fallback");
+        // On Windows with WAM: Broker succeeds (WAM handles bad window gracefully)
+        // On macOS/Linux without broker: Falls back to browser (IdentityProvider)
+        Assert.IsTrue(
+            result.AuthenticationResultMetadata.TokenSource == TokenSource.Broker ||
+            result.AuthenticationResultMetadata.TokenSource == TokenSource.IdentityProvider,
+            $"Expected Broker or IdentityProvider, got {result.AuthenticationResultMetadata.TokenSource}");
+    }
+
+    [TestMethod]
     public async Task MsalAcquireTokenWithDeviceCodeTest()
     {
         var tokenProvider = new MsalDeviceCodeTokenProvider(app, logger);
-        var tokenRequest = new TokenRequest();
+        var tokenRequest = new TokenRequest { IsInteractive = true };
 
         var result = await tokenProvider.GetTokenAsync(tokenRequest);
 

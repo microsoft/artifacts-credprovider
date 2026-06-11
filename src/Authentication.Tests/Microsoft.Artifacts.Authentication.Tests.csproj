@@ -3,7 +3,7 @@
   <PropertyGroup>
     <AssemblyName>Microsoft.Artifacts.Authentication.Tests</AssemblyName>
     <RootNamespace>Microsoft.Artifacts.Authentication.Tests</RootNamespace>
-    <TargetFramework>net6.0</TargetFramework>
+    <TargetFrameworks>net10.0</TargetFrameworks>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
 

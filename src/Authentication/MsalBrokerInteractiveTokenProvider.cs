@@ -2,19 +2,18 @@
 //
 // Licensed under the MIT license.
 
-using System.Runtime.InteropServices;
 using Microsoft.Extensions.Logging;
 using Microsoft.Identity.Client;
-using Microsoft.Identity.Client.Utils;
 
 namespace Microsoft.Artifacts.Authentication;
 
+// TODO: Remove this class once all consumers have migrated to the single-PCA pattern
+// where MsalInteractiveTokenProvider handles broker-to-browser fallback internally.
+
 /// <summary>
 /// Interactive token provider that uses the MSAL broker (e.g. WAM on Windows, broker on macOS).
-/// On macOS, broker auth requires the main thread via <see cref="MacMainThreadScheduler"/>.
-/// If the scheduler is not running (e.g. ManagedThreadId != 1), this provider declines so the
-/// non-broker <see cref="MsalInteractiveTokenProvider"/> can handle it via system browser instead.
 /// </summary>
+[Obsolete("Use MsalInteractiveTokenProvider with a broker-configured PCA instead. Broker-to-browser fallback is now handled internally by MSAL.")]
 public class MsalBrokerInteractiveTokenProvider : ITokenProvider
 {
     private readonly IPublicClientApplication app;
@@ -37,15 +36,6 @@ public class MsalBrokerInteractiveTokenProvider : ITokenProvider
             return false;
         }
 
-        // On macOS, broker auth requires the main thread scheduler to be running.
-        // If it's not (e.g. ManagedThreadId != 1 in the dotnet tool shim), decline
-        // so the non-broker MsalInteractiveTokenProvider handles it instead.
-        if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX) && !MacMainThreadScheduler.Instance().IsRunning())
-        {
-            logger.LogTrace(Resources.MacSchedulerNotRunningBrokerSkipped);
-            return false;
-        }
-
         return true;
     }
 
@@ -64,28 +54,10 @@ public class MsalBrokerInteractiveTokenProvider : ITokenProvider
         {
             logger.LogInformation(Resources.MsalInteractivePrompt);
 
-            AuthenticationResult? result = null;
-            var scheduler = MacMainThreadScheduler.Instance();
-
-            if (scheduler.IsRunning())
-            {
-                await scheduler.RunOnMainThreadAsync(async () =>
-                {
-                    result = await app.AcquireTokenInteractive(MsalConstants.AzureDevOpsScopes)
-                        .WithPrompt(Prompt.SelectAccount)
-                        .WithUseEmbeddedWebView(false)
-                        .ExecuteAsync(cts.Token);
-                });
-            }
-            else
-            {
-                // Scheduler is not running but CanGetToken allowed us through (non-macOS).
-                // Execute directly — WAM on Windows and broker on Linux don't need the macOS main thread.
-                result = await app.AcquireTokenInteractive(MsalConstants.AzureDevOpsScopes)
-                    .WithPrompt(Prompt.SelectAccount)
-                    .WithUseEmbeddedWebView(false)
-                    .ExecuteAsync(cts.Token);
-            }
+            var result = await app.AcquireTokenInteractive(MsalConstants.AzureDevOpsScopes)
+                .WithPrompt(Prompt.SelectAccount)
+                .WithUseEmbeddedWebView(false)
+                .ExecuteAsync(cts.Token);
 
             return result;
         }
