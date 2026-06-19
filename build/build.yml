@@ -16,11 +16,6 @@ steps:
 - task: NuGetAuthenticate@1
   displayName: NuGet Authenticate
 
-- ${{ if eq(parameters.sign, 'true') }}:
-  - script: nuget restore packages.config -PackagesDirectory packages
-    displayName: NuGet restore VSIX packages
-    workingDirectory: CredentialProvider.Microsoft.VSIX
-
 - script: dotnet restore CredentialProvider.Microsoft/CredentialProvider.Microsoft.csproj
   displayName: dotnet restore
 
