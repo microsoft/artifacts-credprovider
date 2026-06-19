@@ -17,8 +17,9 @@ steps:
   displayName: NuGet Authenticate
 
 - ${{ if eq(parameters.sign, 'true') }}:
-  - script: nuget restore CredentialProvider.Microsoft.VSIX/packages.config -PackagesDirectory packages
+  - script: nuget restore packages.config -PackagesDirectory packages
     displayName: NuGet restore VSIX packages
+    workingDirectory: CredentialProvider.Microsoft.VSIX
 
 - script: dotnet restore CredentialProvider.Microsoft/CredentialProvider.Microsoft.csproj
   displayName: dotnet restore
@@ -32,6 +33,21 @@ steps:
 
 - script: dotnet publish CredentialProvider.Microsoft/CredentialProvider.Microsoft.csproj --no-build --framework netcoreapp2.1 --configuration $(BuildConfiguration)
   displayName: dotnet publish netcoreapp2.1
+
+- ${{ if eq(parameters.sign, 'true') }}:
+  - task: MSBuild@1
+    displayName: Build swixproj
+    inputs:
+      solution: 'CredentialProvider.Microsoft.VSIX/Microsoft.CredentialProvider.swixproj'
+      configuration: '$(BuildConfiguration)'
+      msbuildArguments: '/p:OutputPath=$(Build.ArtifactStagingDirectory)\$(BuildConfiguration)\vsix\'
+
+  - task: MSBuild@1
+    displayName: Build vsmanproj
+    inputs:
+      solution: 'CredentialProvider.Microsoft.VSIX/Microsoft.CredentialProvider.vsmanproj'
+      configuration: '$(BuildConfiguration)'
+      msbuildArguments: '/p:OutputPath=$(Build.ArtifactStagingDirectory)\$(BuildConfiguration)\vsix\'
 
 - ${{ if ne(parameters.sign, 'true') }}:
   - script: dotnet test CredentialProvider.Microsoft.Tests/CredentialProvider.Microsoft.Tests.csproj --logger trx --results-directory $(Agent.TempDirectory)
