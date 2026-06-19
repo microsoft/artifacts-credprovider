@@ -11,7 +11,7 @@ namespace NuGetCredentialProvider.CredentialProviders.Vsts
 {
     public class AdalTokenProvider : IAdalTokenProvider
     {
-        private const string NativeClientRedirect = "urn:ietf:wg:oauth:2.0:oob";
+        private const string NativeClientRedirect = "https://login.microsoftonline.com/common/oauth2/nativeclient";
         private readonly string resource;
         private readonly string clientId;
 
