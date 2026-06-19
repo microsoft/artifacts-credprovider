@@ -1,16 +1,25 @@
 resources:
 - repo: self
 
-queue:
-  demands: msbuild
+pool:
+  vmImage: windows-latest
 
 trigger: none
+
+pr:
+- master
+- releases/*
 
 variables:
   BuildConfiguration: 'Debug'
   TeamName: 'Package Experience'
 
-steps:
-- template: build/build.yml
-  parameters:
-    nuspecProperties: 'VersionSuffix=-PR-$(Build.BuildNumber)'
+stages:
+- stage: Build
+  dependsOn: []
+  jobs:
+  - job: build
+    steps:
+    - template: build/build.yml
+      parameters:
+        nuspecProperties: 'VersionSuffix=PR-$(Build.BuildNumber)'
