@@ -1,43 +1,38 @@
 parameters:
   sign: false
   nuspecProperties: ''
+  publish: false
 
 steps:
-- task: DotNetCoreInstaller@0
-  displayName: Use .NET Core sdk 2.1.0
+- task: UseDotNet@2
+  displayName: Use .NET Core 2.1 SDK
   inputs:
-    version: 2.1.300
+    packageType: sdk
+    version: 2.1.x
+
+- task: NuGetToolInstaller@1
+  displayName: NuGet Install
+
+- task: NuGetAuthenticate@1
+  displayName: NuGet Authenticate
 
 - ${{ if eq(parameters.sign, 'true') }}:
-  - task: ms-vseng.MicroBuildTasks.30666190-6959-11e5-9f96-f56098202fef.MicroBuildSigningPlugin@1
-    displayName: Install Signing Plugin
-    inputs:
-      signType: '$(SignType)'
+  - script: nuget restore packages.config -PackagesDirectory packages
+    displayName: NuGet restore VSIX packages
+    workingDirectory: CredentialProvider.Microsoft.VSIX
 
-  - task: ms-vseng.MicroBuildTasks.32f78468-e895-4f47-962c-58a699361df8.MicroBuildSwixPlugin@1
-    displayName: Install Swix Plugin
+- script: dotnet restore CredentialProvider.Microsoft/CredentialProvider.Microsoft.csproj
+  displayName: dotnet restore
 
-  - task: NuGetCommand@2
-    displayName: NuGet restore
-    inputs:
-      restoreSolution: 'CredentialProvider.Microsoft.VSIX/packages.config'
-      restoreDirectory: 'packages'
-      vstsFeed: '6a2d6fd3-0b16-40f0-b309-7175c4e86490'
-
-- task: DotNetCoreCLI@2
-  displayName: dotnet restore NuGet.config
-  inputs:
-    command: restore
-    projects: 'CredentialProvider.Microsoft/CredentialProvider.Microsoft.csproj'
-    feedsToUse: config
-    nugetConfigPath: 'CredentialProvider.Microsoft/NuGet.config'
-  
 - task: MSBuild@1
   displayName: Build CredentialProvider
   inputs:
     solution: 'CredentialProvider.Microsoft/CredentialProvider.Microsoft.csproj'
     configuration: '$(BuildConfiguration)'
     msbuildArguments: '/t:rebuild'
+
+- script: dotnet publish CredentialProvider.Microsoft/CredentialProvider.Microsoft.csproj --no-build --framework netcoreapp2.1 --configuration $(BuildConfiguration)
+  displayName: dotnet publish netcoreapp2.1
 
 - ${{ if eq(parameters.sign, 'true') }}:
   - task: MSBuild@1
@@ -54,27 +49,9 @@ steps:
       configuration: '$(BuildConfiguration)'
       msbuildArguments: '/p:OutputPath=$(Build.ArtifactStagingDirectory)\$(BuildConfiguration)\vsix\'
 
-  - task: ms-vseng.MicroBuildTasks.4305a8de-ba66-4d8b-b2d1-0dc4ecbbf5e8.MicroBuildUploadVstsDropFolder@1
-    displayName: Upload VSTS Drop
-    inputs:
-      DropFolder: '$(Build.ArtifactStagingDirectory)\$(BuildConfiguration)\vsix\'
-
-- task: DotNetCoreCLI@2
-  displayName: dotnet publish netcoreapp2.1
-  inputs:
-    command: publish
-    publishWebProjects: false
-    projects: 'CredentialProvider.Microsoft/CredentialProvider.Microsoft.csproj'
-    arguments: '--no-build --framework netcoreapp2.1 --configuration $(BuildConfiguration)'
-    zipAfterPublish: false
-    modifyOutputPath: false
-
 - ${{ if ne(parameters.sign, 'true') }}:
-  - task: DotNetCoreCLI@2
+  - script: dotnet test CredentialProvider.Microsoft.Tests/CredentialProvider.Microsoft.Tests.csproj --logger trx --results-directory $(Agent.TempDirectory)
     displayName: dotnet test
-    inputs:
-      command: test
-      projects: 'CredentialProvider.Microsoft.Tests/CredentialProvider.Microsoft.Tests.csproj'
 
 - task: CopyFiles@2
   displayName: Copy netcore files into tarball
@@ -151,46 +128,12 @@ steps:
       **\CredentialProvider.Microsoft.pdb
     TargetFolder: '$(Build.ArtifactStagingDirectory)\symbols'
 
-- task: PublishSymbols@2
-  inputs:
-    SymbolsFolder: '$(Build.ArtifactStagingDirectory)\symbols'
-    SearchPattern:  '**\*.pdb'
-    IndexSources: true
-    PublishSymbols: ${{ eq(parameters.sign, 'true') }}
-    SymbolServerType: TeamServices
-    SymbolsProduct: 'artifacts-credprovider'
-  env:
-    ArtifactServices.Symbol.AccountName: 'microsoft'
-    ArtifactServices.Symbol.UseAAD: 'true'
-
-- task: PublishPipelineArtifact@1
-  displayName: 'Upload symbols'
-  inputs:
-    artifact: "Symbols"
-    targetPath: '$(Build.ArtifactStagingDirectory)\symbols'
-
-
-- powershell: 'Write-Output ("##vso[task.setvariable variable=SignType;]")' 
-  displayName: Clear SignType
-
-- task: DotNetCoreCLI@2
+- script: dotnet pack CredentialProvider.Microsoft/CredentialProvider.Microsoft.csproj --no-build -c $(BuildConfiguration) -o $(Build.ArtifactStagingDirectory)\$(BuildConfiguration) -p:${{ parameters.nuspecProperties }}
   displayName: dotnet pack
-  inputs:
-    command: pack
-    packagesToPack: 'CredentialProvider.Microsoft/CredentialProvider.Microsoft.csproj'
-    packDirectory: '$(Build.ArtifactStagingDirectory)\$(BuildConfiguration)'
-    buildProperties: '${{ parameters.nuspecProperties }}'
 
-- task: DotNetCoreCLI@2
-  displayName: dotnet push
-  inputs:
-    command: push
-    packagesToPush: '$(Build.ArtifactStagingDirectory)/$(BuildConfiguration)/*.nupkg'
-    publishVstsFeed: '54754426-96db-4f6e-8a3a-64265d1cc147'
-  condition: eq(variables['PushNupkg'], 'true')
-
-- task: PublishBuildArtifacts@1
-  displayName: Publish Artifact $(Build.BuildNumber)
-  inputs:
-    PathtoPublish: '$(Build.ArtifactStagingDirectory)\$(BuildConfiguration)\'
-    ArtifactName: '$(Build.BuildNumber)'
+- ${{ if eq(parameters.publish, 'true') }}:
+  - task: PublishPipelineArtifact@1
+    displayName: Publish Artifact $(Build.BuildNumber)
+    inputs:
+      artifact: '$(Build.BuildNumber)'
+      targetPath: '$(Build.ArtifactStagingDirectory)\$(BuildConfiguration)\'

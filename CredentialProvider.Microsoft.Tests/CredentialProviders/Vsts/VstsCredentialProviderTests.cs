@@ -35,6 +35,11 @@ namespace CredentialProvider.Microsoft.Tests.CredentialProviders.Vsts
         [TestInitialize]
         public void TestInitialize()
         {
+            // Clear pipeline env vars that would short-circuit CanProvideCredentialsAsync
+            Environment.SetEnvironmentVariable(EnvUtil.BuildTaskExternalEndpoints, null);
+            Environment.SetEnvironmentVariable(EnvUtil.BuildTaskUriPrefixes, null);
+            Environment.SetEnvironmentVariable(EnvUtil.BuildTaskAccessToken, null);
+
             mockLogger = new Mock<ILogger>();
 
             mockBearerTokenProvider1 = new Mock<IBearerTokenProvider>();
