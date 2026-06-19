@@ -22,4 +22,4 @@ stages:
     steps:
     - template: build/build.yml
       parameters:
-        nuspecProperties: 'VersionSuffix=PR-$(Build.BuildNumber)'
+        nuspecProperties: 'VersionSuffix=-PR-$(Build.BuildNumber)'
