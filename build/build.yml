@@ -37,6 +37,11 @@ steps:
     msbuildArguments: '/t:rebuild /p:TreatWarningsAsErrors=true /p:${{ parameters.nuspecProperties }}'
 
 - ${{ if eq(parameters.sign, 'true') }}:
+  - task: AzureArtifacts.manifest-generator-task.manifest-generator-task.ManifestGeneratorTask@0
+    displayName: 'Generate SBOM For VS Insertion'
+    inputs:
+      BuildDropPath: '$(Build.SourcesDirectory)\CredentialProvider.Microsoft\bin\$(BuildConfiguration)\net481'
+
   - task: MSBuild@1
     displayName: Build swixproj
     inputs:
@@ -49,7 +54,7 @@ steps:
     inputs:
       solution: 'CredentialProvider.Microsoft.VSIX/Microsoft.CredentialProvider.vsmanproj'
       configuration: '$(BuildConfiguration)'
-      msbuildArguments: '/p:OutputPath=$(Build.ArtifactStagingDirectory)\$(BuildConfiguration)\vsix\ /p:TreatWarningsAsErrors=true'
+      msbuildArguments: '/p:OutputPath=$(Build.ArtifactStagingDirectory)\$(BuildConfiguration)\vsix\ /p:TreatWarningsAsErrors=true /p:SBOMFilePath=$(Build.SourcesDirectory)\CredentialProvider.Microsoft\bin\$(BuildConfiguration)\net481\_manifest\spdx_2.2\manifest.spdx.json'
 
 - ${{ if ne(parameters.sign, 'true') }}:
   - script: dotnet test MicrosoftCredentialProvider.sln --logger trx --results-directory $(Agent.TempDirectory)
