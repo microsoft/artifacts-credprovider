@@ -8,9 +8,9 @@
     <PackageVersion Include="Microsoft.Extensions.Logging.Abstractions" Version="6.0.3" />
     <PackageVersion Include="Microsoft.Extensions.Logging.Console" Version="6.0.0" />
     <PackageVersion Include="Microsoft.Extensions.Logging.Debug" Version="6.0.0" />
-    <PackageVersion Include="Microsoft.Identity.Client" Version="4.77.1" />
-    <PackageVersion Include="Microsoft.Identity.Client.Broker" Version="4.77.1" />
-    <PackageVersion Include="Microsoft.Identity.Client.Extensions.Msal" Version="4.77.1" />
+    <PackageVersion Include="Microsoft.Identity.Client" Version="4.85.1" />
+    <PackageVersion Include="Microsoft.Identity.Client.Broker" Version="4.85.1" />
+    <PackageVersion Include="Microsoft.Identity.Client.Extensions.Msal" Version="4.85.1" />
     <PackageVersion Include="Microsoft.Identity.Client.NativeInterop" Version="0.20.6" />
     <PackageVersion Include="Microsoft.VisualStudioEng.MicroBuild.Core" Version="1.0.0" />
     <PackageVersion Include="Moq" Version="4.18.4" />
@@ -18,7 +18,7 @@
     <PackageVersion Include="Newtonsoft.Json" Version="13.0.3" />
     <PackageVersion Include="NuGet.Protocol" Version="6.7.1" />
     <PackageVersion Include="PowerArgs" Version="3.6.0" />
-    <PackageVersion Include="System.Formats.Asn1" Version="6.0.1" />
+    <PackageVersion Include="System.Formats.Asn1" Version="8.0.1" />
     <PackageVersion Include="System.Text.Json" Version="6.0.10" />
     <PackageVersion Include="System.Configuration.ConfigurationManager" Version="6.0.0" />
   </ItemGroup>
