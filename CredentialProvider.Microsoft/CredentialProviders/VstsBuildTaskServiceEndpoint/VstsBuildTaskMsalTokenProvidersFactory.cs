@@ -41,6 +41,7 @@ internal class VstsBuildTaskMsalTokenProvidersFactory : ITokenProvidersFactory
 
     private IEnumerable<ITokenProvider> ConstructTokenProvidersList(IPublicClientApplication app)
     {
+        yield return new MsalFederatedIdentityTokenProvider(app, logger);
         yield return new MsalServicePrincipalTokenProvider(app, logger);
         yield return new MsalManagedIdentityTokenProvider(app, logger);
     }
