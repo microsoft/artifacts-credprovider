@@ -31,7 +31,7 @@ namespace NuGetCredentialProvider
         [ArgDescription("Display this amount of detail in the output")]
         public LogLevel Verbosity { get; set; }
 
-        [ArgDescription("Prevents writing the password to standard output (for troubleshooting purposes)")]
+        [ArgDescription("Redacts sensitive information from output: passwords/tokens and feed URLs. This is a best-effort feature. Always review logs before sharing.")]
         public bool RedactPassword { get; set; }
 
         [ArgShortcut("?")]
