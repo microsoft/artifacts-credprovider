@@ -102,6 +102,14 @@ Examples:
 - `wget -qO- https://aka.ms/install-artifacts-credprovider.sh | bash`
 - `sh -c "$(curl -fsSL https://aka.ms/install-artifacts-credprovider.sh)"`
 
+Script requirements:
+- A POSIX-compatible shell, `curl` with HTTPS certificates, and a gzip-capable `tar`.
+- Linux uses `ldd` and `grep` to detect musl. If either is unavailable, set `ARTIFACTS_CREDENTIAL_PROVIDER_NON_SC=true`.
+- macOS should have `mktemp` and `unzip` to preserve the self-contained apphost's executable bit; otherwise, it may require `chmod +x`.
+- Alpine and other musl systems require the .NET 8 runtime because the script selects the runtime-dependent archive. Do not force a `linux-x64` or `linux-arm64` RID; those assets require glibc.
+
+Microsoft-hosted Ubuntu and macOS images include these tools. Minimal Ubuntu or Alpine containers may need `ca-certificates` and `curl` installed first.
+
 > Note: this script only installs the netcore version of the plugin. If you need to have it working with mono MSBuild, you will need to download the version with both netcore and netfx binaries following the steps in [Manual installation on Linux and Mac](#installation-on-linux-and-mac)
 
 > **Note:** The scripts install the latest, self-contained versions by default. For installs on Linux, see [prerequisites for Linux self-contained installs](#for-linux-self-contained-installs) for additional dependencies or use the `ARTIFACTS_CREDENTIAL_PROVIDER_NON_SC` variable to use the non-self-contained version that requires the .NET runtime.

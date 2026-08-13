@@ -174,15 +174,48 @@ if [ -d "${NUGET_PLUGIN_DIR}/netcore/CredentialProvider.Microsoft" ]; then
 fi
 
 echo "INFO: Downloading from $URI"
-# Extract netcore from the .tar.gz into the plugin directory
 
-# Fetch the file
-if ! curl -H "Accept: application/octet-stream" \
-  -s \
-  -S \
-  -L \
-  "$URI" | tar xz -C "$HOME/.nuget/" "plugins/netcore"; then
-  exit 1
+# Stream the archive straight into tar. This is the original behavior and works for every
+# asset: .tar.gz always, and on macOS tar can also read a .zip. The one gap is that tar
+# does not restore the +x bit stored in a .zip, which the unzip path below handles.
+extract_with_tar() {
+  curl -H "Accept: application/octet-stream" \
+    -s \
+    -S \
+    -L \
+    "$URI" | tar xz -C "$HOME/.nuget/" "plugins/netcore"
+}
+
+extracted=""
+# macOS (osx-*) assets ship as .zip. Prefer unzip for these because, unlike tar, it
+# preserves the executable (+x) bit stored in the archive. This branch only affects .zip
+# assets, treats unzip as optional (guarded by command -v), and falls back to the original
+# tar behavior if unzip is unavailable or fails for any reason.
+case "$FILE" in
+*.zip)
+  if command -v unzip >/dev/null 2>&1; then
+    # unzip cannot read from a pipe, so download to a temp file first.
+    TMP_ZIP=$(mktemp "${TMPDIR:-/tmp}/credprovider.XXXXXX" 2>/dev/null) || TMP_ZIP=""
+    if [ -n "${TMP_ZIP}" ]; then
+      # Clean up the temp file even if extraction is interrupted.
+      trap 'rm -f "${TMP_ZIP}"' EXIT
+      if curl -H "Accept: application/octet-stream" -s -S -L "$URI" -o "${TMP_ZIP}" \
+        && unzip -o -q "${TMP_ZIP}" "plugins/netcore/*" -d "$HOME/.nuget/"; then
+        extracted="true"
+      else
+        echo "WARNING: unzip extraction failed; falling back to tar (the credential provider may need 'chmod +x')."
+      fi
+      rm -f "${TMP_ZIP}"
+      trap - EXIT
+    fi
+  fi
+  ;;
+esac
+
+if [ -z "${extracted}" ]; then
+  if ! extract_with_tar; then
+    exit 1
+  fi
 fi
 
 echo "INFO: credential provider netcore plugin extracted to $HOME/.nuget/"
