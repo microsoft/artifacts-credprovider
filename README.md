@@ -267,12 +267,14 @@ The Credential Provider accepts a set of environment variables. Not all of them 
     ```
 -   `ARTIFACTS_CREDENTIALPROVIDER_FEED_ENDPOINTS` (Preferred): JSON that contains an array of endpoints, usernames and azure service principal information needed to authenticate to Azure Artifacts feed endpoints. Example:
     ```javascript
-    {"endpointCredentials": [{"endpoint":"http://example.index.json", "clientId":"required", "clientCertificateSubjectName":"optional", "clientCertificateFilePath":"optional"}]}
+    {"endpointCredentials": [{"endpoint":"http://example.index.json", "clientId":"required", "tenantId":"optional", "clientCertificateSubjectName":"optional", "clientCertificateFilePath":"optional", "clientAssertionFilePath":"optional"}]}
     ```
     - `endpoint`: Required. Feed URL to authenticate.
-    - `clientId`: Required for both Azure Managed Identities and Service Principals. For user assigned managed identities enter the Entra client id. For system assigned managed identities set the value to `system`.
+    - `clientId`: Required for Managed Identities, Service Principals, and Workload Identity Federation. For user-assigned managed identities enter the Entra client id. For system-assigned managed identities set the value to `system`. For Service Principals and Workload Identity Federation enter the App Registration's application (client) id.
+    - `tenantId`: Optional. The Entra tenant id that hosts the App Registration. Only used for Service Principal and Workload Identity Federation authentication; if omitted, the tenant is discovered from the feed's authority.
     - `clientCertificateSubjectName`: Subject Name of the certificate located in the CurrentUser or LocalMachine certificate store. Optional field. Only used for service principal authentication.
-    - `clientCertificateFilePath`: File path location of the certificate on the machine. Optional field. Only used for service principal authentication. 
+    - `clientCertificateFilePath`: File path location of the certificate on the machine. Optional field. Only used for service principal authentication.
+    - `clientAssertionFilePath`: File path to a file containing a signed JWT client assertion (Workload Identity Federation). Optional field. When set together with `clientId`, enables federated-identity authentication via MSAL's confidential-client flow. The file is re-read on every token acquisition, so external refreshers (kubelet, scheduled tasks, Azure Pipelines OIDC re-signing, etc.) take effect without restarting the caller. See [Azure Workload Identity Federation](https://learn.microsoft.com/entra/workload-id/workload-identity-federation). Because federated identity authenticates as a service principal, users should combine this with `ARTIFACTS_CREDENTIALPROVIDER_RETURN_ENTRA_TOKENS=true` so the Entra bearer is returned directly (service principals cannot mint Azure DevOps session tokens).
 
 ## Release version 1.0.0
 
