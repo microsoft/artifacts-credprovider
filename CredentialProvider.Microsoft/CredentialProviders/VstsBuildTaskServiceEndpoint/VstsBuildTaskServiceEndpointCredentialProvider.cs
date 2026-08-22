@@ -69,7 +69,7 @@ namespace NuGetCredentialProvider.CredentialProviders.VstsBuildTaskServiceEndpoi
             bool externalEndpointFound = ExternalCredentials.TryGetValue(uriString, out ExternalEndpointCredentials matchingExternalEndpoint);
             if (externalEndpointFound && !string.IsNullOrWhiteSpace(matchingExternalEndpoint.Password))
             {
-                Verbose(string.Format(Resources.BuildTaskEndpointMatchingUrlFound, uriString));
+                Verbose(string.Format(Resources.BuildTaskEndpointMatchingUrlFound, RedactionUtil.RedactFeedUrl(uriString)));
                 return GetResponse(
                     matchingExternalEndpoint.Username,
                     matchingExternalEndpoint.Password,
@@ -142,11 +142,11 @@ namespace NuGetCredentialProvider.CredentialProviders.VstsBuildTaskServiceEndpoi
                 }
             }
 
-            Verbose(string.Format(Resources.BuildTaskEndpointNoMatchingUrl, uriString));
+            Verbose(string.Format(Resources.BuildTaskEndpointNoMatchingUrl, RedactionUtil.RedactFeedUrl(uriString)));
             return GetResponse(
                 null,
                 null,
-                string.Format(Resources.BuildTaskFailedToAuthenticate, uriString),
+                string.Format(Resources.BuildTaskFailedToAuthenticate, RedactionUtil.RedactFeedUrl(uriString)),
                 MessageResponseCode.Error);
         }
 

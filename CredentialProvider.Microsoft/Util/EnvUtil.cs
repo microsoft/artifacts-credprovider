@@ -56,6 +56,7 @@ namespace NuGetCredentialProvider.Util
         public const string ProgramContext = "ARTIFACTS_CREDENTIALPROVIDER_PROGRAM_CONTEXT";
         public const string MsalBrokerWindowEnvVar = "ARTIFACTS_CREDENTIALPROVIDER_MSAL_BROKER_WINDOW";
         public const string EntraTokenOptInEnvVar = "ARTIFACTS_CREDENTIALPROVIDER_RETURN_ENTRA_TOKENS";
+        public const string RedactEnabledEnvVar = "ARTIFACTS_CREDENTIALPROVIDER_REDACT_ENABLED";
 
         // Map of new environment variables to their legacy equivalents
         private static readonly Dictionary<string, string> EnvVarLegacyMap = new Dictionary<string, string>
@@ -257,6 +258,16 @@ namespace NuGetCredentialProvider.Util
         public static void SetProgramContextInEnvironment(Context context)
         {
             Environment.SetEnvironmentVariable(ProgramContext, context.ToString());
+        }
+
+        public static bool GetRedactionEnabledFromEnvironment()
+        {
+            var val = GetEnvironmentVariable(RedactEnabledEnvVar);
+            if (bool.TryParse(val, out bool result))
+            {
+                return result;
+            }
+            return false;
         }
 
         private static bool GetEnabledFromEnvironment(string artifactsVar, bool defaultValue = true)

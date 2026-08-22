@@ -321,7 +321,8 @@ Verbosity (-V)        Display this amount of detail in the output [Default='Info
                       Minimal
                       Warning
                       Error
-RedactPassword (-R)   Prevents writing the password to standard output (for troubleshooting purposes)
+RedactPassword (-R)   Redacts sensitive information from output: passwords/tokens and feed URLs. This is a best-effort
+                      feature. Always review logs before sharing.
 Help (-?, -h)         Prints this help message
 CanShowDialog (-C)    If true, user can be prompted with credentials through UI, if false, device flow must be used [Default='True']
 OutputFormat (-F)     In standalone mode, format the results for human readability or as JSON. If JSON is selected, then logging (which may include Device
@@ -449,10 +450,14 @@ You can also capture credential provider logs directly to a file by setting the 
 ```shell
 # Windows (PowerShell)
 $env:ARTIFACTS_CREDENTIALPROVIDER_LOG_PATH = "$PWD\credprovider.log"
+$env:ARTIFACTS_CREDENTIALPROVIDER_REDACT_ENABLED = "true"  # Optional: redact sensitive info
 
 # Linux/macOS
 export ARTIFACTS_CREDENTIALPROVIDER_LOG_PATH="$PWD/credprovider.log"
+export ARTIFACTS_CREDENTIALPROVIDER_REDACT_ENABLED="true"  # Optional: redact sensitive info
 ```
+
+> **Tip:** Set `ARTIFACTS_CREDENTIALPROVIDER_REDACT_ENABLED=true` to automatically redact passwords, tokens, and feed URLs from logs. This is a best-effort feature—always review logs before sharing to ensure no sensitive data is exposed.
 
 #### How do I find out if my issue is a real 401?
 Run the credential provider directly with the following command: `C:\Users\<user>\.nuget\plugins\netfx\CredentialProvider.Microsoft\CredentialProvider.Microsoft.exe  -I -V Verbose -U "https://pkgs.dev.azure.com/{organization}/{project-if-feed-is-project-scoped}/_packaging/{feed}/nuget/v3/index.json"`. Check you have the right permissions from the [feed permissions](https://docs.microsoft.com/en-us/azure/devops/artifacts/feeds/feed-permissions?view=azure-devops).
