@@ -29,10 +29,14 @@ public class EndpointCredentials
     public string Endpoint { get; set; }
     [JsonPropertyName("clientId")]
     public string ClientId { get; set; }
+    [JsonPropertyName("tenantId")]
+    public string TenantId { get; set; }
     [JsonPropertyName("clientCertificateFilePath")]
     public string CertificateFilePath { get; set; }
     [JsonPropertyName("clientCertificateSubjectName")]
     public string CertificateSubjectName { get; set; }
+    [JsonPropertyName("clientAssertionFilePath")]
+    public string ClientAssertionFilePath { get; set; }
 }
 
 public class EndpointCredentialsContainer

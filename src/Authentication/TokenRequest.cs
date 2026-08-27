@@ -40,4 +40,12 @@ public class TokenRequest
     public string? TenantId { get; set; } = null;
 
     public X509Certificate2? ClientCertificate { get; set; } = null;
+
+    /// <summary>
+    /// Path to a file containing a signed JWT client assertion (federated
+    /// workload identity). When set together with ClientId + TenantId,
+    /// enables MsalFederatedIdentityTokenProvider to exchange the assertion
+    /// for an ADO-audience access token via the confidential-client flow.
+    /// </summary>
+    public string? ClientAssertionFilePath { get; set; } = null;
 }
