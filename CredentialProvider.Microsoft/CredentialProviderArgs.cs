@@ -6,8 +6,37 @@ using System;
 using NuGet.Common;
 using PowerArgs;
 
+using NuGetCredentialProvider.Util;
+
 namespace NuGetCredentialProvider
 {
+    /// <summary>
+    /// A PowerArgs.ArgHook implementation which will set a default value from an environment variable.
+    /// </summary>
+    /// <param name="envVar">The name of the environment variable to look for.  If set, this supplies the default value.</param>
+    /// <param name="defaultValue">The default value to use if the environment variable is not set.</param>
+    internal class EnvironmentDefaultHook(string envVar, object defaultValue) : ArgHook
+    {
+        private readonly string _envVar = envVar;
+        private readonly object _defaultValue = defaultValue;
+
+        public override void BeforePopulateProperty(HookContext context)
+        {
+            if (context.ArgumentValue == null)
+            {
+                var value = Environment.GetEnvironmentVariable(_envVar);
+                if (!string.IsNullOrWhiteSpace(value))
+                {
+                    context.ArgumentValue = value;
+                }
+                else if (_defaultValue != null)
+                {
+                    context.ArgumentValue = _defaultValue.ToString();
+                }
+            }
+        }
+    }
+
     [ArgDescription("The Azure Artifacts credential provider can be used to acquire credentials for Azure Artifacts.\n" +
                     "\n" +
                     "Note: The Azure Artifacts Credential Provider is mainly intended for use via integrations with development tools such as .NET Core and nuget.exe.\n" +
@@ -27,8 +56,8 @@ namespace NuGetCredentialProvider
         [ArgDescription("If false / unset, INVALID CREDENTIALS MAY BE RETURNED. The caller is required to validate returned credentials themselves, and if invalid, should call the credential provider again with -IsRetry set. If true, the credential provider will obtain new credentials instead of returning potentially invalid credentials from the cache.")]
         public bool IsRetry { get; set; }
 
-        [ArgDefaultValue(LogLevel.Information)]
-        [ArgDescription("Display this amount of detail in the output")]
+        [EnvironmentDefaultHook(EnvUtil.VerbosityDefaultEnvVar, LogLevel.Information)]
+        [ArgDescription("Display this amount of detail in the output [Default='Information']")]
         public LogLevel Verbosity { get; set; }
 
         [ArgDescription("Prevents writing the password to standard output (for troubleshooting purposes)")]

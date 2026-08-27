@@ -91,6 +91,8 @@ namespace NuGetCredentialProvider.Util
             return null;
         }
 
+        public const string VerbosityDefaultEnvVar = "ARTIFACTS_CREDENTIALPROVIDER_VERBOSITY_DEFAULT";
+
         public static bool GetLogPIIEnabled()
         {
             return GetEnabledFromEnvironment(LogPIIEnvVar, defaultValue: false);
