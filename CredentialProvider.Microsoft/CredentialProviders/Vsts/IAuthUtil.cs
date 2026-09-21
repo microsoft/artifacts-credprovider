@@ -66,8 +66,11 @@ namespace NuGetCredentialProvider.CredentialProviders.Vsts
             // Ping the url to see from headers whether it's an Azure Artifacts feed or external
             var responseHeaders = await GetResponseHeadersAsync(uri, cancellationToken: default);
 
-            // Hosted only allows https
-            if (IsHttpsScheme(uri) && responseHeaders.Contains(VssResourceTenant) && responseHeaders.Contains(VssAuthorizationEndpoint))
+            // Hosted endpoints must identify a known Microsoft-owned SPS authorization endpoint.
+            var authorizationEndpoint = GetAuthorizationEndpoint(uri, responseHeaders);
+            if (VstsSessionTokenClient.IsAllowedFeedEndpoint(uri)
+                && GetTenantId(responseHeaders) != null
+                && VstsSessionTokenClient.IsAllowedSpsEndpoint(authorizationEndpoint))
             {
                 return AzDevDeploymentType.Hosted;
             }
@@ -85,15 +88,18 @@ namespace NuGetCredentialProvider.CredentialProviders.Vsts
         public async Task<Uri> GetAuthorizationEndpoint(Uri uri, CancellationToken cancellationToken)
         {
             var headers = await GetResponseHeadersAsync(uri, cancellationToken);
+            return GetAuthorizationEndpoint(uri, headers);
+        }
 
+        private Uri GetAuthorizationEndpoint(Uri uri, HttpResponseHeaders headers)
+        {
             try
             {
-                foreach (var endpoint in headers.GetValues(VssAuthorizationEndpoint))
+                var endpoints = headers.GetValues(VssAuthorizationEndpoint).ToArray();
+                if (endpoints.Length == 1
+                    && Uri.TryCreate(endpoints[0], UriKind.Absolute, out var parsedEndpoint))
                 {
-                    if (Uri.TryCreate(endpoint, UriKind.Absolute, out var parsedEndpoint))
-                    {
-                        return parsedEndpoint;
-                    }
+                    return parsedEndpoint;
                 }
             }
             catch (Exception e)
@@ -171,10 +177,13 @@ namespace NuGetCredentialProvider.CredentialProviders.Vsts
 
         private string GetTenantId(HttpResponseHeaders responseHeaders)
         {
-            if (responseHeaders.Contains(VssResourceTenant))
+            if (responseHeaders.TryGetValues(VssResourceTenant, out var tenantIds))
             {
-                responseHeaders.TryGetValues(VssResourceTenant, out var tenantId);
-                return tenantId.FirstOrDefault();
+                var tenantId = tenantIds.FirstOrDefault();
+                if (Guid.TryParse(tenantId, out _))
+                {
+                    return tenantId;
+                }
             }
 
             return null;
