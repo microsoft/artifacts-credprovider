@@ -40,6 +40,15 @@ namespace NuGetCredentialProvider.CredentialProviders.Vsts
             ".vssps.vsts.me",                      // DevFabric
         };
 
+        public static readonly string[] AllowedFeedHosts = new[]
+        {
+            ".pkgs.vsts.me",
+            "pkgs.codedev.ms",
+            "pkgs.codeapp.ms",
+            ".pkgs.visualstudio.com",
+            "pkgs.dev.azure.com",
+        };
+
         private static readonly JsonSerializerOptions options = new JsonSerializerOptions
         {
             PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
@@ -147,14 +156,20 @@ namespace NuGetCredentialProvider.CredentialProviders.Vsts
 
         public static bool IsAllowedSpsEndpoint(Uri endpoint)
         {
-            if (!string.Equals(endpoint.Scheme, Uri.UriSchemeHttps, StringComparison.OrdinalIgnoreCase))
-            {
-                return false;
-            }
+            return endpoint != null
+                && string.Equals(endpoint.Scheme, Uri.UriSchemeHttps, StringComparison.OrdinalIgnoreCase)
+                && AllowedSpsHosts.Any(host => host.StartsWith(".")
+                    ? endpoint.Host.EndsWith(host, StringComparison.OrdinalIgnoreCase)
+                    : endpoint.Host.Equals(host, StringComparison.OrdinalIgnoreCase));
+        }
 
-            return AllowedSpsHosts.Any(host => host.StartsWith(".")
-                ? endpoint.Host.EndsWith(host, StringComparison.OrdinalIgnoreCase)
-                : endpoint.Host.Equals(host, StringComparison.OrdinalIgnoreCase));
+        public static bool IsAllowedFeedEndpoint(Uri endpoint)
+        {
+            return endpoint != null
+                && string.Equals(endpoint.Scheme, Uri.UriSchemeHttps, StringComparison.OrdinalIgnoreCase)
+                && AllowedFeedHosts.Any(host => host.StartsWith(".")
+                    ? endpoint.Host.EndsWith(host, StringComparison.OrdinalIgnoreCase)
+                    : endpoint.Host.Equals(host, StringComparison.OrdinalIgnoreCase));
         }
     }
 

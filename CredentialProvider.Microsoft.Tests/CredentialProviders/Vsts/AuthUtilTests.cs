@@ -22,7 +22,7 @@ namespace CredentialProvider.Microsoft.Tests.CredentialProviders.Vsts
     {
         private readonly CancellationToken cancellationToken = default(CancellationToken);
         private readonly Uri organizationsAuthority = new Uri("https://login.microsoftonline.com/organizations");
-        private readonly Uri testAuthority = new Uri("https://example.aad.authority.com");
+        private readonly Uri testAuthority = new Uri("https://login.microsoftonline.com/organizations");
 
         private Mock<ILogger> mockLogger;
 
@@ -98,6 +98,30 @@ namespace CredentialProvider.Microsoft.Tests.CredentialProviders.Vsts
         }
 
         [TestMethod]
+        public async Task GetAuthorizationInfoAsync_WithUntrustedAuthenticateAuthority_ReturnsDefaultAuthority()
+        {
+            var requestUri = new Uri("https://example.pkgs.visualstudio.com/_packaging/feed/nuget/v3/index.json");
+            MockAadAuthorityHeaders(new Uri("https://attacker.example.com/organizations"));
+
+            var authInfo = await authUtil.GetAuthorizationInfoAsync(requestUri, cancellationToken);
+
+            authInfo.EntraAuthorityUri.Should().Be(organizationsAuthority);
+        }
+
+        [TestMethod]
+        [DataRow("http://login.microsoftonline.com/organizations")]
+        [DataRow("https://login.microsoftonline.com.attacker.example/organizations")]
+        public async Task GetAuthorizationInfoAsync_WithInvalidAuthenticateAuthority_ReturnsDefaultAuthority(string authority)
+        {
+            var requestUri = new Uri("https://example.pkgs.visualstudio.com/_packaging/feed/nuget/v3/index.json");
+            MockAadAuthorityHeaders(new Uri(authority));
+
+            var authInfo = await authUtil.GetAuthorizationInfoAsync(requestUri, cancellationToken);
+
+            authInfo.EntraAuthorityUri.Should().Be(organizationsAuthority);
+        }
+
+        [TestMethod]
         public async Task GetAuthorizationInfoAsync_WithAuthenticateHeadersAndEnvironmentOverride_ReturnsOverrideAuthority()
         {
             var requestUri = new Uri("https://example.pkgs.visualstudio.com/_packaging/feed/nuget/v3/index.json");
@@ -168,6 +192,56 @@ namespace CredentialProvider.Microsoft.Tests.CredentialProviders.Vsts
         }
 
         [TestMethod]
+        public async Task GetFeedUriSource_UntrustedAuthorizationEndpoint_ReturnsExternal()
+        {
+            var requestUri = new Uri("https://example.pkgs.visualstudio.com/_packaging/feed/nuget/v3/index.json");
+
+            MockVssResourceTenantHeader();
+            MockResponseHeaders(AuthUtil.VssAuthorizationEndpoint, "https://attacker.example.com");
+
+            var feedSource = await authUtil.GetAzDevDeploymentType(requestUri);
+
+            feedSource.Should().Be(AzDevDeploymentType.External);
+        }
+
+        [TestMethod]
+        public async Task GetFeedUriSource_InvalidTenantId_ReturnsExternal()
+        {
+            var requestUri = new Uri("https://example.pkgs.visualstudio.com/_packaging/feed/nuget/v3/index.json");
+            MockResponseHeaders(AuthUtil.VssResourceTenant, "not-a-guid");
+            MockVssAuthorizationEndpointHeader();
+
+            var feedSource = await authUtil.GetAzDevDeploymentType(requestUri);
+
+            feedSource.Should().Be(AzDevDeploymentType.External);
+        }
+
+        [TestMethod]
+        public async Task GetFeedUriSource_MultipleTenantIds_ReturnsExternal()
+        {
+            var requestUri = new Uri("https://example.pkgs.visualstudio.com/_packaging/feed/nuget/v3/index.json");
+            MockVssResourceTenantHeader();
+            MockVssResourceTenantHeader();
+            MockVssAuthorizationEndpointHeader();
+
+            var feedSource = await authUtil.GetAzDevDeploymentType(requestUri);
+
+            feedSource.Should().Be(AzDevDeploymentType.External);
+        }
+
+        [TestMethod]
+        public async Task GetFeedUriSource_UnknownFeedHostWithValidHeaders_ReturnsExternal()
+        {
+            var requestUri = new Uri("https://attacker.example.com/_packaging/feed/nuget/v3/index.json");
+            MockVssResourceTenantHeader();
+            MockVssAuthorizationEndpointHeader();
+
+            var feedSource = await authUtil.GetAzDevDeploymentType(requestUri);
+
+            feedSource.Should().Be(AzDevDeploymentType.External);
+        }
+
+        [TestMethod]
         public async Task GetFeedUriSource_NoHttps_ReturnsExternal()
         {
             var requestUri = new Uri("http://example.pkgs.visualstudio.com/_packaging/feed/nuget/v3/index.json");
@@ -209,6 +283,18 @@ namespace CredentialProvider.Microsoft.Tests.CredentialProviders.Vsts
             var authorizationEndpoint = await authUtil.GetAuthorizationEndpoint(requestUri, cancellationToken);
             authorizationEndpoint.Should().NotBeNull();
             string.IsNullOrWhiteSpace(authorizationEndpoint.ToString()).Should().BeFalse();
+        }
+
+        [TestMethod]
+        public async Task GetAuthorizationEndpoint_MultipleHeaders_ReturnsNull()
+        {
+            var requestUri = new Uri("https://example.pkgs.visualstudio.com/_packaging/feed/nuget/v3/index.json");
+            MockVssAuthorizationEndpointHeader();
+            MockResponseHeaders(AuthUtil.VssAuthorizationEndpoint, "https://vssps.dev.azure.com");
+
+            var authorizationEndpoint = await authUtil.GetAuthorizationEndpoint(requestUri, cancellationToken);
+
+            authorizationEndpoint.Should().BeNull();
         }
 
         private void MockResponseHeaders(string key, string value)

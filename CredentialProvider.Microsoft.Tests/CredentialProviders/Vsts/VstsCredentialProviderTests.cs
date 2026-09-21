@@ -55,6 +55,9 @@ namespace CredentialProvider.Microsoft.Tests.CredentialProviders.Vsts
             mockAuthUtil
                 .Setup(x => x.GetAuthorizationInfoAsync(It.IsAny<Uri>(), It.IsAny<CancellationToken>()))
                 .Returns(Task.FromResult(new AuthorizationInfo() { EntraAuthorityUri = testAuthority }));
+            mockAuthUtil
+                .Setup(x => x.GetAuthorizationEndpoint(It.IsAny<Uri>(), It.IsAny<CancellationToken>()))
+                .ReturnsAsync(new Uri("https://test.vssps.vsts.me"));
 
             vstsCredentialProvider = new VstsCredentialProvider(
                 mockLogger.Object,
@@ -75,6 +78,7 @@ namespace CredentialProvider.Microsoft.Tests.CredentialProviders.Vsts
         private void ResetEnvVars()
         {
             Environment.SetEnvironmentVariable(EnvUtil.SupportedHostsEnvVar, null);
+            Environment.SetEnvironmentVariable(EnvUtil.EntraTokenOptInEnvVar, null);
         }
 
         [TestMethod]
@@ -82,7 +86,6 @@ namespace CredentialProvider.Microsoft.Tests.CredentialProviders.Vsts
         {
             var sources = new[]
             {
-                @"http://example.pkgs.vsts.me/_packaging/TestFeed/nuget/v3/index.json",
                 @"https://example.pkgs.vsts.me/_packaging/TestFeed/nuget/v3/index.json",
                 @"https://pkgs.codedev.ms/example/_packaging/TestFeed/nuget/v3/index.json",
                 @"https://pkgs.codeapp.ms/example/_packaging/TestFeed/nuget/v3/index.json",
@@ -102,11 +105,22 @@ namespace CredentialProvider.Microsoft.Tests.CredentialProviders.Vsts
         }
 
         [TestMethod]
+        public async Task CanProvideCredentials_ReturnsTrueForKnownHttpSource()
+        {
+            var source = new Uri("http://example.pkgs.vsts.me/_packaging/TestFeed/nuget/v3/index.json");
+
+            var canProvideCredentials = await vstsCredentialProvider.CanProvideCredentialsAsync(source);
+
+            canProvideCredentials.Should().BeTrue();
+            mockAuthUtil.Verify(x => x.GetAzDevDeploymentType(It.IsAny<Uri>()), Times.Never);
+        }
+
+        [TestMethod]
         public async Task CanProvideCredentials_ReturnsTrueForOverriddenSources()
         {
             var sources = new[]
             {
-                new Uri(@"http://example.overrideOne.com/_packaging/TestFeed/nuget/v3/index.json"),
+                new Uri(@"https://example.overrideOne.com/_packaging/TestFeed/nuget/v3/index.json"),
                 new Uri(@"https://example.overrideTwo.com/_packaging/TestFeed/nuget/v3/index.json"),
                 new Uri(@"https://example.overrideThre.com/_packaging/TestFeed/nuget/v3/index.json"),
             };
@@ -122,6 +136,17 @@ namespace CredentialProvider.Microsoft.Tests.CredentialProviders.Vsts
                 .Verify(x => x.GetAzDevDeploymentType(It.IsAny<Uri>()), Times.Never, "because we shouldn't probe for known sources");
 
             Environment.SetEnvironmentVariable(EnvUtil.SupportedHostsEnvVar, string.Empty);
+        }
+
+        [TestMethod]
+        public async Task CanProvideCredentials_ReturnsTrueForOverriddenHttpSource()
+        {
+            var source = new Uri("http://packages.example.com/_packaging/TestFeed/nuget/v3/index.json");
+            Environment.SetEnvironmentVariable(EnvUtil.SupportedHostsEnvVar, source.Host);
+
+            var canProvideCredentials = await vstsCredentialProvider.CanProvideCredentialsAsync(source);
+
+            canProvideCredentials.Should().BeTrue();
         }
 
         [TestMethod]
@@ -144,7 +169,7 @@ namespace CredentialProvider.Microsoft.Tests.CredentialProviders.Vsts
         }
 
         [TestMethod]
-        public async Task CanProvideCredentials_ProbesUnknownHttpsHosts()
+        public async Task CanProvideCredentials_RejectsUnknownHttpsHostsAfterDiagnosticProbe()
         {
             var sources = new[]
             {
@@ -159,7 +184,19 @@ namespace CredentialProvider.Microsoft.Tests.CredentialProviders.Vsts
             }
 
             mockAuthUtil
-                .Verify(x => x.GetAzDevDeploymentType(It.IsAny<Uri>()), Times.Exactly(2), "because unknown HTTPS hosts should be probed safely");
+                .Verify(x => x.GetAzDevDeploymentType(It.IsAny<Uri>()), Times.Exactly(2), "because unknown HTTPS hosts are probed only for diagnostics");
+        }
+
+        [TestMethod]
+        public async Task CanProvideCredentials_RejectsUnknownHostEvenWhenProbeWouldReturnHosted()
+        {
+            mockAuthUtil.Setup(x => x.GetAzDevDeploymentType(It.IsAny<Uri>())).ReturnsAsync(AzDevDeploymentType.Hosted);
+
+            var canProvideCredentials = await vstsCredentialProvider.CanProvideCredentialsAsync(
+                new Uri("https://attacker.example.com/_packaging/TestFeed/nuget/v3/index.json"));
+
+            canProvideCredentials.Should().BeFalse();
+            mockAuthUtil.Verify(x => x.GetAzDevDeploymentType(It.IsAny<Uri>()), Times.Once);
         }
 
         [TestMethod]
@@ -168,6 +205,82 @@ namespace CredentialProvider.Microsoft.Tests.CredentialProviders.Vsts
             mockBearerTokenProvider1.Setup(x => x.CanGetToken(It.IsAny<TokenRequest>())).Returns(false);
             await vstsCredentialProvider.HandleRequestAsync(new GetAuthenticationCredentialsRequest(testUri, false, false, false), CancellationToken.None);
             mockBearerTokenProvider1.Verify(x => x.GetTokenAsync(It.IsAny<TokenRequest>(), It.IsAny<CancellationToken>()), Times.Never);
+        }
+
+        [TestMethod]
+        public async Task HandleRequestAsync_DoesNotAcquireTokenForUntrustedCredentialDestination()
+        {
+            var requestUri = new Uri("https://attacker.example.com/_packaging/TestFeed/nuget/v3/index.json");
+            mockBearerTokenProvider1.Setup(x => x.IsInteractive).Returns(true);
+
+            var response = await vstsCredentialProvider.HandleRequestAsync(new GetAuthenticationCredentialsRequest(requestUri, false, false, false), CancellationToken.None);
+
+            response.Should().BeNull();
+            mockAuthUtil.Verify(x => x.GetAuthorizationEndpoint(It.IsAny<Uri>(), It.IsAny<CancellationToken>()), Times.Never);
+            mockBearerTokenProvider1.Verify(x => x.GetTokenAsync(It.IsAny<TokenRequest>(), It.IsAny<CancellationToken>()), Times.Never);
+            mockVstsSessionTokenFromBearerTokenProvider.Verify(
+                x => x.GetAzureDevOpsSessionTokenFromBearerToken(It.IsAny<GetAuthenticationCredentialsRequest>(), It.IsAny<string>(), true, It.IsAny<CancellationToken>()),
+                Times.Never,
+                "because an interactive Compact token must not be minted for an untrusted destination");
+        }
+
+        [TestMethod]
+        public async Task HandleRequestAsync_ReturnsSessionTokenToKnownHttpHost()
+        {
+            var requestUri = new Uri("http://example.pkgs.vsts.me/_packaging/TestFeed/nuget/v3/index.json");
+            var token = GetToken("aadtoken");
+            mockBearerTokenProvider1.Setup(x => x.GetTokenAsync(It.IsAny<TokenRequest>(), It.IsAny<CancellationToken>())).ReturnsAsync(token);
+            mockVstsSessionTokenFromBearerTokenProvider
+                .Setup(x => x.GetAzureDevOpsSessionTokenFromBearerToken(It.IsAny<GetAuthenticationCredentialsRequest>(), token.AccessToken, It.IsAny<bool>(), It.IsAny<CancellationToken>()))
+                .ReturnsAsync("sessiontoken");
+
+            var response = await vstsCredentialProvider.HandleRequestAsync(new GetAuthenticationCredentialsRequest(requestUri, false, false, false), CancellationToken.None);
+
+            response.Password.Should().Be("sessiontoken");
+        }
+
+        [TestMethod]
+        public async Task HandleRequestAsync_DoesNotAcquireEntraTokenForUntrustedCredentialDestination()
+        {
+            var requestUri = new Uri("https://attacker.example.com/_packaging/TestFeed/nuget/v3/index.json");
+            Environment.SetEnvironmentVariable(EnvUtil.EntraTokenOptInEnvVar, "true");
+
+            var response = await vstsCredentialProvider.HandleRequestAsync(new GetAuthenticationCredentialsRequest(requestUri, false, false, false), CancellationToken.None);
+
+            response.Should().BeNull();
+            mockBearerTokenProvider1.Verify(x => x.GetTokenAsync(It.IsAny<TokenRequest>(), It.IsAny<CancellationToken>()), Times.Never);
+        }
+
+        [TestMethod]
+        public async Task HandleRequestAsync_DoesNotAcquireEntraTokenForUntrustedAuthorizationEndpoint()
+        {
+            Environment.SetEnvironmentVariable(EnvUtil.EntraTokenOptInEnvVar, "true");
+            mockAuthUtil
+                .Setup(x => x.GetAuthorizationEndpoint(It.IsAny<Uri>(), It.IsAny<CancellationToken>()))
+                .ReturnsAsync(new Uri("https://attacker.example.com"));
+
+            var response = await vstsCredentialProvider.HandleRequestAsync(new GetAuthenticationCredentialsRequest(testUri, false, false, false), CancellationToken.None);
+
+            response.Should().BeNull();
+            mockBearerTokenProvider1.Verify(x => x.GetTokenAsync(It.IsAny<TokenRequest>(), It.IsAny<CancellationToken>()), Times.Never);
+        }
+
+        [TestMethod]
+        public async Task HandleRequestAsync_ReturnsEntraTokenToConfiguredCustomHost()
+        {
+            var requestUri = new Uri("https://packages.example.com/_packaging/TestFeed/nuget/v3/index.json");
+            var token = GetToken("aadtoken");
+            Environment.SetEnvironmentVariable(EnvUtil.SupportedHostsEnvVar, requestUri.Host);
+            Environment.SetEnvironmentVariable(EnvUtil.EntraTokenOptInEnvVar, "true");
+            mockBearerTokenProvider1.Setup(x => x.GetTokenAsync(It.IsAny<TokenRequest>(), It.IsAny<CancellationToken>())).ReturnsAsync(token);
+
+            var response = await vstsCredentialProvider.HandleRequestAsync(new GetAuthenticationCredentialsRequest(requestUri, false, false, false), CancellationToken.None);
+
+            response.Username.Should().Be("EntraToken");
+            response.Password.Should().Be(token.AccessToken);
+            mockVstsSessionTokenFromBearerTokenProvider.Verify(
+                x => x.GetAzureDevOpsSessionTokenFromBearerToken(It.IsAny<GetAuthenticationCredentialsRequest>(), It.IsAny<string>(), It.IsAny<bool>(), It.IsAny<CancellationToken>()),
+                Times.Never);
         }
 
         [TestMethod]

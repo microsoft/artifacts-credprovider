@@ -18,7 +18,6 @@ namespace NuGetCredentialProvider.CredentialProviders.Vsts
     public sealed class VstsCredentialProvider : CredentialProviderBase
     {
         private const string Username = "VssSessionToken";
-
         private readonly IAuthUtil authUtil;
         private readonly ITokenProvidersFactory tokenProvidersFactory;
         private readonly IAzureDevOpsSessionTokenFromBearerTokenProvider vstsSessionTokenProvider;
@@ -55,25 +54,12 @@ namespace NuGetCredentialProvider.CredentialProviders.Vsts
                 return false;
             }
 
-            var validHosts = EnvUtil.GetHostsFromEnvironment(Logger, EnvUtil.SupportedHostsEnvVar, new[]
-            {
-                ".pkgs.vsts.me", // DevFabric
-                "pkgs.codedev.ms", // DevFabric
-                "pkgs.codeapp.ms", // AppFabric
-                ".pkgs.visualstudio.com", // Prod
-                "pkgs.dev.azure.com" // Prod
-            });
-
-            bool isValidHost = validHosts.Any(host => host.StartsWith(".") ?
-                uri.Host.EndsWith(host, StringComparison.OrdinalIgnoreCase) :
-                uri.Host.Equals(host, StringComparison.OrdinalIgnoreCase));
-            if (isValidHost)
+            if (IsValidHost(uri, GetValidHosts()))
             {
                 Verbose(string.Format(Resources.HostAccepted, uri.Host));
                 return true;
             }
 
-            // Only probe unknown hosts over HTTPS.
             if (!string.Equals(uri.Scheme, Uri.UriSchemeHttps, StringComparison.OrdinalIgnoreCase))
             {
                 Verbose(string.Format(Resources.ExternalUri, uri));
@@ -81,24 +67,33 @@ namespace NuGetCredentialProvider.CredentialProviders.Vsts
             }
 
             var azDevOpsType = await authUtil.GetAzDevDeploymentType(uri);
-            if (azDevOpsType == AzDevDeploymentType.Hosted)
-            {
-                Verbose(Resources.ValidHeaders);
-                return true;
-            }
-
             if (azDevOpsType == AzDevDeploymentType.OnPrem)
             {
                 Verbose(Resources.OnPremDetected);
-                return false;
+            }
+            else
+            {
+                Verbose(string.Format(Resources.ExternalUri, uri));
             }
 
-            Verbose(string.Format(Resources.ExternalUri, uri));
             return false;
         }
 
         public override async Task<GetAuthenticationCredentialsResponse> HandleRequestAsync(GetAuthenticationCredentialsRequest request, CancellationToken cancellationToken)
         {
+            if (!IsValidHost(request.Uri, GetValidHosts()))
+            {
+                Error(string.Format(Resources.UntrustedCredentialEndpoint, request.Uri));
+                return null;
+            }
+
+            var authorizationEndpoint = await authUtil.GetAuthorizationEndpoint(request.Uri, cancellationToken);
+            if (!VstsSessionTokenClient.IsAllowedSpsEndpoint(authorizationEndpoint))
+            {
+                Error(string.Format(Resources.UntrustedCredentialEndpoint, request.Uri));
+                return null;
+            }
+
             var forceCanShowDialogTo = EnvUtil.ForceCanShowDialogTo();
             var canShowDialog = request.CanShowDialog;
             if (forceCanShowDialogTo.HasValue)
@@ -201,6 +196,18 @@ namespace NuGetCredentialProvider.CredentialProviders.Vsts
 
             Verbose(string.Format(Resources.VSTSCredentialsNotFound, request.Uri.AbsoluteUri));
             return null;
+        }
+
+        private IEnumerable<string> GetValidHosts()
+        {
+            return EnvUtil.GetHostsFromEnvironment(Logger, EnvUtil.SupportedHostsEnvVar, VstsSessionTokenClient.AllowedFeedHosts);
+        }
+
+        private static bool IsValidHost(Uri uri, IEnumerable<string> validHosts)
+        {
+            return validHosts.Any(host => host.StartsWith(".")
+                ? uri.Host.EndsWith(host, StringComparison.OrdinalIgnoreCase)
+                : uri.Host.Equals(host, StringComparison.OrdinalIgnoreCase));
         }
     }
 }
