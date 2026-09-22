@@ -4,7 +4,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Artifacts.Authentication;
@@ -54,7 +53,7 @@ namespace NuGetCredentialProvider.CredentialProviders.Vsts
                 return false;
             }
 
-            if (IsValidHost(uri, GetValidHosts()))
+            if (VstsSessionTokenClient.IsAllowedEndpoint(uri, GetValidHosts()))
             {
                 Verbose(string.Format(Resources.HostAccepted, uri.Host));
                 return true;
@@ -81,14 +80,14 @@ namespace NuGetCredentialProvider.CredentialProviders.Vsts
 
         public override async Task<GetAuthenticationCredentialsResponse> HandleRequestAsync(GetAuthenticationCredentialsRequest request, CancellationToken cancellationToken)
         {
-            if (!IsValidHost(request.Uri, GetValidHosts()))
+            if (!VstsSessionTokenClient.IsAllowedEndpoint(request.Uri, GetValidHosts()))
             {
                 Error(string.Format(Resources.UntrustedCredentialEndpoint, request.Uri));
                 return null;
             }
 
             var authorizationEndpoint = await authUtil.GetAuthorizationEndpoint(request.Uri, cancellationToken);
-            if (!VstsSessionTokenClient.IsAllowedSpsEndpoint(authorizationEndpoint))
+            if (authorizationEndpoint == null)
             {
                 Error(string.Format(Resources.UntrustedCredentialEndpoint, request.Uri));
                 return null;
@@ -201,13 +200,6 @@ namespace NuGetCredentialProvider.CredentialProviders.Vsts
         private IEnumerable<string> GetValidHosts()
         {
             return EnvUtil.GetHostsFromEnvironment(Logger, EnvUtil.SupportedHostsEnvVar, VstsSessionTokenClient.AllowedFeedHosts);
-        }
-
-        private static bool IsValidHost(Uri uri, IEnumerable<string> validHosts)
-        {
-            return validHosts.Any(host => host.StartsWith(".")
-                ? uri.Host.EndsWith(host, StringComparison.OrdinalIgnoreCase)
-                : uri.Host.Equals(host, StringComparison.OrdinalIgnoreCase));
         }
     }
 }

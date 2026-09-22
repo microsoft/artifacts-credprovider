@@ -66,11 +66,9 @@ namespace NuGetCredentialProvider.CredentialProviders.Vsts
             // Ping the url to see from headers whether it's an Azure Artifacts feed or external
             var responseHeaders = await GetResponseHeadersAsync(uri, cancellationToken: default);
 
-            // Hosted endpoints must identify a known Microsoft-owned SPS authorization endpoint.
-            var authorizationEndpoint = GetAuthorizationEndpoint(uri, responseHeaders);
-            if (VstsSessionTokenClient.IsAllowedFeedEndpoint(uri)
+            if (VstsSessionTokenClient.IsAllowedEndpoint(uri, VstsSessionTokenClient.AllowedFeedHosts)
                 && GetTenantId(responseHeaders) != null
-                && VstsSessionTokenClient.IsAllowedSpsEndpoint(authorizationEndpoint))
+                && GetAuthorizationEndpoint(uri, responseHeaders) != null)
             {
                 return AzDevDeploymentType.Hosted;
             }
@@ -97,7 +95,8 @@ namespace NuGetCredentialProvider.CredentialProviders.Vsts
             {
                 var endpoints = headers.GetValues(VssAuthorizationEndpoint).ToArray();
                 if (endpoints.Length == 1
-                    && Uri.TryCreate(endpoints[0], UriKind.Absolute, out var parsedEndpoint))
+                    && Uri.TryCreate(endpoints[0], UriKind.Absolute, out var parsedEndpoint)
+                    && VstsSessionTokenClient.IsAllowedSpsEndpoint(parsedEndpoint))
                 {
                     return parsedEndpoint;
                 }
@@ -199,18 +198,6 @@ namespace NuGetCredentialProvider.CredentialProviders.Vsts
             });
 
             return ppeHosts.Any(host => uri.Host.EndsWith(host, StringComparison.OrdinalIgnoreCase));
-        }
-
-        private bool IsHttpsScheme(Uri uri)
-        {
-            try
-            {
-                return uri.Scheme.ToLowerInvariant() == "https";
-            }
-            catch (InvalidOperationException)
-            {
-                return false;
-            }
         }
     }
 }

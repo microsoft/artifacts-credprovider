@@ -249,6 +249,19 @@ namespace CredentialProvider.Microsoft.Tests.CredentialProviders.Vsts
         }
 
         [TestMethod]
+        [DataRow("https://attacker.example.com")]
+        [DataRow("http://app.vssps.visualstudio.com")]
+        public async Task GetAuthorizationEndpoint_UntrustedEndpoint_ReturnsNull(string endpoint)
+        {
+            var requestUri = new Uri("https://example.pkgs.visualstudio.com/_packaging/feed/nuget/v3/index.json");
+            MockResponseHeaders(AuthUtil.VssAuthorizationEndpoint, endpoint);
+
+            var authorizationEndpoint = await authUtil.GetAuthorizationEndpoint(requestUri, cancellationToken);
+
+            authorizationEndpoint.Should().BeNull();
+        }
+
+        [TestMethod]
         public async Task GetAuthorizationEndpoint_MultipleHeaders_ReturnsNull()
         {
             var requestUri = new Uri("https://example.pkgs.visualstudio.com/_packaging/feed/nuget/v3/index.json");

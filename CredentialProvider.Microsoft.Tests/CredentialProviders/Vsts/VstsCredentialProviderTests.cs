@@ -105,13 +105,13 @@ namespace CredentialProvider.Microsoft.Tests.CredentialProviders.Vsts
         }
 
         [TestMethod]
-        public async Task CanProvideCredentials_ReturnsTrueForKnownHttpSource()
+        public async Task CanProvideCredentials_ReturnsFalseForKnownHttpSource()
         {
             var source = new Uri("http://example.pkgs.vsts.me/_packaging/TestFeed/nuget/v3/index.json");
 
             var canProvideCredentials = await vstsCredentialProvider.CanProvideCredentialsAsync(source);
 
-            canProvideCredentials.Should().BeTrue();
+            canProvideCredentials.Should().BeFalse();
             mockAuthUtil.Verify(x => x.GetAzDevDeploymentType(It.IsAny<Uri>()), Times.Never);
         }
 
@@ -139,14 +139,15 @@ namespace CredentialProvider.Microsoft.Tests.CredentialProviders.Vsts
         }
 
         [TestMethod]
-        public async Task CanProvideCredentials_ReturnsTrueForOverriddenHttpSource()
+        public async Task CanProvideCredentials_ReturnsFalseForOverriddenHttpSource()
         {
             var source = new Uri("http://packages.example.com/_packaging/TestFeed/nuget/v3/index.json");
             Environment.SetEnvironmentVariable(EnvUtil.SupportedHostsEnvVar, source.Host);
 
             var canProvideCredentials = await vstsCredentialProvider.CanProvideCredentialsAsync(source);
 
-            canProvideCredentials.Should().BeTrue();
+            canProvideCredentials.Should().BeFalse();
+            mockAuthUtil.Verify(x => x.GetAzDevDeploymentType(It.IsAny<Uri>()), Times.Never);
         }
 
         [TestMethod]
@@ -225,18 +226,18 @@ namespace CredentialProvider.Microsoft.Tests.CredentialProviders.Vsts
         }
 
         [TestMethod]
-        public async Task HandleRequestAsync_ReturnsSessionTokenToKnownHttpHost()
+        public async Task HandleRequestAsync_DoesNotAcquireTokenForKnownHttpHost()
         {
             var requestUri = new Uri("http://example.pkgs.vsts.me/_packaging/TestFeed/nuget/v3/index.json");
-            var token = GetToken("aadtoken");
-            mockBearerTokenProvider1.Setup(x => x.GetTokenAsync(It.IsAny<TokenRequest>(), It.IsAny<CancellationToken>())).ReturnsAsync(token);
-            mockVstsSessionTokenFromBearerTokenProvider
-                .Setup(x => x.GetAzureDevOpsSessionTokenFromBearerToken(It.IsAny<GetAuthenticationCredentialsRequest>(), token.AccessToken, It.IsAny<bool>(), It.IsAny<CancellationToken>()))
-                .ReturnsAsync("sessiontoken");
 
             var response = await vstsCredentialProvider.HandleRequestAsync(new GetAuthenticationCredentialsRequest(requestUri, false, false, false), CancellationToken.None);
 
-            response.Password.Should().Be("sessiontoken");
+            response.Should().BeNull();
+            mockAuthUtil.Verify(x => x.GetAuthorizationEndpoint(It.IsAny<Uri>(), It.IsAny<CancellationToken>()), Times.Never);
+            mockBearerTokenProvider1.Verify(x => x.GetTokenAsync(It.IsAny<TokenRequest>(), It.IsAny<CancellationToken>()), Times.Never);
+            mockVstsSessionTokenFromBearerTokenProvider.Verify(
+                x => x.GetAzureDevOpsSessionTokenFromBearerToken(It.IsAny<GetAuthenticationCredentialsRequest>(), It.IsAny<string>(), It.IsAny<bool>(), It.IsAny<CancellationToken>()),
+                Times.Never);
         }
 
         [TestMethod]
@@ -252,12 +253,12 @@ namespace CredentialProvider.Microsoft.Tests.CredentialProviders.Vsts
         }
 
         [TestMethod]
-        public async Task HandleRequestAsync_DoesNotAcquireEntraTokenForUntrustedAuthorizationEndpoint()
+        public async Task HandleRequestAsync_DoesNotAcquireEntraTokenWithoutAuthorizationEndpoint()
         {
             Environment.SetEnvironmentVariable(EnvUtil.EntraTokenOptInEnvVar, "true");
             mockAuthUtil
                 .Setup(x => x.GetAuthorizationEndpoint(It.IsAny<Uri>(), It.IsAny<CancellationToken>()))
-                .ReturnsAsync(new Uri("https://attacker.example.com"));
+            .ReturnsAsync((Uri)null);
 
             var response = await vstsCredentialProvider.HandleRequestAsync(new GetAuthenticationCredentialsRequest(testUri, false, false, false), CancellationToken.None);
 

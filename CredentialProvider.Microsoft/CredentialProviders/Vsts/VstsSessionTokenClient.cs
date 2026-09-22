@@ -3,6 +3,7 @@
 // Licensed under the MIT license.
 
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
 using System.Net.Http.Headers;
@@ -97,16 +98,6 @@ namespace NuGetCredentialProvider.CredentialProviders.Vsts
                 return null;
             }
 
-            if (!IsAllowedSpsEndpoint(spsEndpoint))
-            {
-                var message =
-                    $"SPS authorization endpoint '{spsEndpoint}' is not a known Azure DevOps host. " +
-                    "Aborting session token exchange.";
-
-                logger.Log(NuGet.Common.LogLevel.Error, true, message);
-                throw new UntrustedSpsEndpointException(message);
-            }
-
             var uriBuilder = new UriBuilder(spsEndpoint)
             {
                 Query = $"tokenType={tokenType}&api-version=5.0-preview.1"
@@ -154,20 +145,17 @@ namespace NuGetCredentialProvider.CredentialProviders.Vsts
             }
         }
 
+
         public static bool IsAllowedSpsEndpoint(Uri endpoint)
         {
-            return endpoint != null
-                && string.Equals(endpoint.Scheme, Uri.UriSchemeHttps, StringComparison.OrdinalIgnoreCase)
-                && AllowedSpsHosts.Any(host => host.StartsWith(".")
-                    ? endpoint.Host.EndsWith(host, StringComparison.OrdinalIgnoreCase)
-                    : endpoint.Host.Equals(host, StringComparison.OrdinalIgnoreCase));
+            return IsAllowedEndpoint(endpoint, AllowedSpsHosts);
         }
 
-        public static bool IsAllowedFeedEndpoint(Uri endpoint)
+        internal static bool IsAllowedEndpoint(Uri endpoint, IEnumerable<string> allowedHosts)
         {
             return endpoint != null
-                && string.Equals(endpoint.Scheme, Uri.UriSchemeHttps, StringComparison.OrdinalIgnoreCase)
-                && AllowedFeedHosts.Any(host => host.StartsWith(".")
+            && string.Equals(endpoint.Scheme, Uri.UriSchemeHttps, StringComparison.OrdinalIgnoreCase)
+                && allowedHosts.Any(host => host.StartsWith(".")
                     ? endpoint.Host.EndsWith(host, StringComparison.OrdinalIgnoreCase)
                     : endpoint.Host.Equals(host, StringComparison.OrdinalIgnoreCase));
         }
