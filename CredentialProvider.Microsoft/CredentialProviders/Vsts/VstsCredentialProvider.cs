@@ -199,6 +199,11 @@ namespace NuGetCredentialProvider.CredentialProviders.Vsts
 
         private bool IsAllowedConfiguredFeedEndpoint(Uri endpoint)
         {
+            if (EnvUtil.EntraTokenOptInEnabled())
+            {
+                return VstsEndpointPolicy.IsTrustedFeedEndpoint(endpoint);
+            }
+
             var additionalHosts = EnvUtil.GetHostsFromEnvironment(Logger, EnvUtil.SupportedHostsEnvVar, Array.Empty<string>());
             return VstsEndpointPolicy.IsTrustedFeedEndpoint(endpoint, additionalHosts);
         }

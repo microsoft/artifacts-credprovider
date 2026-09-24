@@ -267,7 +267,7 @@ namespace CredentialProvider.Microsoft.Tests.CredentialProviders.Vsts
         }
 
         [TestMethod]
-        public async Task HandleRequestAsync_ReturnsEntraTokenToConfiguredCustomHost()
+        public async Task HandleRequestAsync_DoesNotReturnEntraTokenToConfiguredCustomHost()
         {
             var requestUri = new Uri("https://packages.example.com/_packaging/TestFeed/nuget/v3/index.json");
             var token = GetToken("aadtoken");
@@ -277,8 +277,8 @@ namespace CredentialProvider.Microsoft.Tests.CredentialProviders.Vsts
 
             var response = await vstsCredentialProvider.HandleRequestAsync(new GetAuthenticationCredentialsRequest(requestUri, false, false, false), CancellationToken.None);
 
-            response.Username.Should().Be("EntraToken");
-            response.Password.Should().Be(token.AccessToken);
+            response.Should().BeNull();
+            mockBearerTokenProvider1.Verify(x => x.GetTokenAsync(It.IsAny<TokenRequest>(), It.IsAny<CancellationToken>()), Times.Never);
             mockVstsSessionTokenFromBearerTokenProvider.Verify(
                 x => x.GetAzureDevOpsSessionTokenFromBearerToken(It.IsAny<GetAuthenticationCredentialsRequest>(), It.IsAny<string>(), It.IsAny<bool>(), It.IsAny<CancellationToken>()),
                 Times.Never);
