@@ -483,6 +483,10 @@ Provide MSAL Cache Location
   <data name="HostAccepted" xml:space="preserve">
     <value>Matched well-known Azure DevOps Service hostname: {0}</value>
   </data>
+  <data name="UntrustedCredentialEndpoint" xml:space="preserve">
+    <value>Credentials will not be returned to untrusted endpoint '{0}'.</value>
+    <comment>{0} - credential endpoint Uri</comment>
+  </data>
   <data name="OnPremDetected" xml:space="preserve">
     <value>Detected an on premise Azure DevOps Server.</value>
   </data>

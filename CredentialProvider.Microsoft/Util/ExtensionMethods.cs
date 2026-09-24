@@ -3,6 +3,8 @@
 // Licensed under the MIT license.
 
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 using NuGet.Common;
 using ILogger = NuGetCredentialProvider.Logging.ILogger;
@@ -85,6 +87,15 @@ namespace NuGetCredentialProvider.Util
             return uri.Segments.Length > 1
                 ? new Uri($"{uri.Scheme}://{uri.Host}")
                 : uri;
+        }
+
+        public static bool IsHttpsHostAllowed(this Uri uri, IEnumerable<string> allowedHosts)
+        {
+            return uri != null
+                && string.Equals(uri.Scheme, Uri.UriSchemeHttps, StringComparison.OrdinalIgnoreCase)
+                && allowedHosts.Any(host => host.StartsWith(".")
+                    ? uri.Host.EndsWith(host, StringComparison.OrdinalIgnoreCase)
+                    : uri.Host.Equals(host, StringComparison.OrdinalIgnoreCase));
         }
 
         /// <summary>
