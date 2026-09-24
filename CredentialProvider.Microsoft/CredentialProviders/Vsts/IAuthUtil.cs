@@ -66,7 +66,7 @@ namespace NuGetCredentialProvider.CredentialProviders.Vsts
             // Ping the url to see from headers whether it's an Azure Artifacts feed or external
             var responseHeaders = await GetResponseHeadersAsync(uri, cancellationToken: default);
 
-            if (VstsSessionTokenClient.IsAllowedEndpoint(uri, VstsSessionTokenClient.AllowedFeedHosts)
+            if (VstsEndpointPolicy.IsTrustedFeedEndpoint(uri)
                 && GetTenantId(responseHeaders) != null
                 && GetAuthorizationEndpoint(uri, responseHeaders) != null)
             {
@@ -96,7 +96,7 @@ namespace NuGetCredentialProvider.CredentialProviders.Vsts
                 var endpoints = headers.GetValues(VssAuthorizationEndpoint).ToArray();
                 if (endpoints.Length == 1
                     && Uri.TryCreate(endpoints[0], UriKind.Absolute, out var parsedEndpoint)
-                    && VstsSessionTokenClient.IsAllowedSpsEndpoint(parsedEndpoint))
+                    && VstsEndpointPolicy.IsTrustedSpsEndpoint(parsedEndpoint))
                 {
                     return parsedEndpoint;
                 }

@@ -3,8 +3,6 @@
 // Licensed under the MIT license.
 
 using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Text;
@@ -19,36 +17,6 @@ namespace NuGetCredentialProvider.CredentialProviders.Vsts
     public class VstsSessionTokenClient : IVstsSessionTokenClient
     {
         private const string TokenScope = "vso.packaging_write vso.drop_write";
-
-        // Known Azure DevOps SPS hostnames that are trusted to receive bearer tokens.
-        // This prevents token exfiltration via a malicious X-VSS-AuthorizationEndpoint header.
-        public static readonly string[] AllowedSpsHosts = new[]
-        {
-            "vssps.visualstudio.com",              // Azure DevOps production
-            ".vssps.visualstudio.com",             // Azure DevOps production (suffix)
-            "vssps.dev.azure.com",                 // Azure DevOps production
-            ".vssps.dev.azure.com",                // Azure DevOps production (suffix)
-            "vsspsext.visualstudio.com",            // Extended SPS services
-            "vsspsext.dev.azure.com",              // Extended SPS services
-            "vssps.devppe.azure.com",              // PPE environment
-            ".vssps.devppe.azure.com",             // PPE environment (suffix)
-            "vssps.vsallin.net",                   // PPE/staging
-            ".vssps.vsallin.net",                  // PPE/staging (suffix)
-            ".vssps.codeapp.ms",                   // AppFabric
-            ".vssps.vsts.io",                      // AppFabric API
-            "vssps.codedev.ms",                    // DevFabric
-            ".vssps.codedev.ms",                   // DevFabric
-            ".vssps.vsts.me",                      // DevFabric
-        };
-
-        public static readonly string[] AllowedFeedHosts = new[]
-        {
-            ".pkgs.vsts.me",
-            "pkgs.codedev.ms",
-            "pkgs.codeapp.ms",
-            ".pkgs.visualstudio.com",
-            "pkgs.dev.azure.com",
-        };
 
         private static readonly JsonSerializerOptions options = new JsonSerializerOptions
         {
@@ -145,20 +113,6 @@ namespace NuGetCredentialProvider.CredentialProviders.Vsts
             }
         }
 
-
-        public static bool IsAllowedSpsEndpoint(Uri endpoint)
-        {
-            return IsAllowedEndpoint(endpoint, AllowedSpsHosts);
-        }
-
-        internal static bool IsAllowedEndpoint(Uri endpoint, IEnumerable<string> allowedHosts)
-        {
-            return endpoint != null
-            && string.Equals(endpoint.Scheme, Uri.UriSchemeHttps, StringComparison.OrdinalIgnoreCase)
-                && allowedHosts.Any(host => host.StartsWith(".")
-                    ? endpoint.Host.EndsWith(host, StringComparison.OrdinalIgnoreCase)
-                    : endpoint.Host.Equals(host, StringComparison.OrdinalIgnoreCase));
-        }
     }
 
     public enum VstsTokenType

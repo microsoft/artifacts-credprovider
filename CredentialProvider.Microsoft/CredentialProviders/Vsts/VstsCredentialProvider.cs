@@ -53,7 +53,7 @@ namespace NuGetCredentialProvider.CredentialProviders.Vsts
                 return false;
             }
 
-            if (VstsSessionTokenClient.IsAllowedEndpoint(uri, GetValidHosts()))
+            if (IsAllowedConfiguredFeedEndpoint(uri))
             {
                 Verbose(string.Format(Resources.HostAccepted, uri.Host));
                 return true;
@@ -80,7 +80,7 @@ namespace NuGetCredentialProvider.CredentialProviders.Vsts
 
         public override async Task<GetAuthenticationCredentialsResponse> HandleRequestAsync(GetAuthenticationCredentialsRequest request, CancellationToken cancellationToken)
         {
-            if (!VstsSessionTokenClient.IsAllowedEndpoint(request.Uri, GetValidHosts()))
+            if (!IsAllowedConfiguredFeedEndpoint(request.Uri))
             {
                 Error(string.Format(Resources.UntrustedCredentialEndpoint, request.Uri));
                 return null;
@@ -197,9 +197,10 @@ namespace NuGetCredentialProvider.CredentialProviders.Vsts
             return null;
         }
 
-        private IEnumerable<string> GetValidHosts()
+        private bool IsAllowedConfiguredFeedEndpoint(Uri endpoint)
         {
-            return EnvUtil.GetHostsFromEnvironment(Logger, EnvUtil.SupportedHostsEnvVar, VstsSessionTokenClient.AllowedFeedHosts);
+            var additionalHosts = EnvUtil.GetHostsFromEnvironment(Logger, EnvUtil.SupportedHostsEnvVar, Array.Empty<string>());
+            return VstsEndpointPolicy.IsTrustedFeedEndpoint(endpoint, additionalHosts);
         }
     }
 }
