@@ -104,7 +104,7 @@ Examples:
 
 Script requirements:
 - A POSIX-compatible shell, `curl` with HTTPS certificates, and `tar` capable of extracting the selected release archive (`.tar.gz` on Linux or `.zip` on macOS).
-- Linux uses `ldd` and `grep` to detect musl. If either is unavailable, set `ARTIFACTS_CREDENTIAL_PROVIDER_NON_SC=true`.
+- Linux uses `ldd` and `grep` to detect musl. If either is unavailable, set `ARTIFACTS_CREDENTIAL_PROVIDER_NON_SC=true` and ensure the .NET runtime is installed.
 - The script marks the self-contained credential provider executable after extraction when one is present.
 - Alpine and other musl systems require the .NET 8 runtime because the script selects the runtime-dependent archive. Do not force a `linux-x64` or `linux-arm64` RID; those assets require glibc.
 
