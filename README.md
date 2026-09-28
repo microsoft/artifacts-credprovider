@@ -102,6 +102,14 @@ Examples:
 - `wget -qO- https://aka.ms/install-artifacts-credprovider.sh | bash`
 - `sh -c "$(curl -fsSL https://aka.ms/install-artifacts-credprovider.sh)"`
 
+Script requirements:
+- A POSIX-compatible shell, `curl` with HTTPS certificates, and `tar` capable of extracting the selected release archive (`.tar.gz` on Linux or `.zip` on macOS).
+- Linux uses `ldd` and `grep` to detect musl. If either is unavailable, set `ARTIFACTS_CREDENTIAL_PROVIDER_NON_SC=true` and ensure the .NET runtime is installed.
+- The script marks the self-contained credential provider executable after extraction when one is present.
+- Alpine and other musl systems require the .NET 8 runtime because the script selects the runtime-dependent archive. Do not force a `linux-x64` or `linux-arm64` RID; those assets require glibc.
+
+Microsoft-hosted Ubuntu and macOS images include these tools. Minimal Ubuntu or Alpine containers may need `ca-certificates` and `curl` installed first.
+
 > Note: this script only installs the netcore version of the plugin. If you need to have it working with mono MSBuild, you will need to download the version with both netcore and netfx binaries following the steps in [Manual installation on Linux and Mac](#installation-on-linux-and-mac)
 
 > **Note:** The scripts install the latest, self-contained versions by default. For installs on Linux, see [prerequisites for Linux self-contained installs](#for-linux-self-contained-installs) for additional dependencies or use the `ARTIFACTS_CREDENTIAL_PROVIDER_NON_SC` variable to use the non-self-contained version that requires the .NET runtime.
@@ -111,6 +119,7 @@ Examples:
 1. Download the latest release of [Microsoft.NuGet.CredentialProvider.tar.gz](https://github.com/Microsoft/artifacts-credprovider/releases)
 2. Untar the file
 3. Copy the `netcore` (and `netfx` for `msbuild /t:restore`) directory from the extracted archive to `$HOME/.nuget/plugins`
+4. If you extract a self-contained `.zip` asset with `tar`, run `chmod +x "$HOME/.nuget/plugins/netcore/CredentialProvider.Microsoft/CredentialProvider.Microsoft"`.
 
 Using the above is recommended, but as per [NuGet's plugin discovery rules](https://github.com/NuGet/Home/wiki/NuGet-cross-plat-authentication-plugin#plugin-installation-and-discovery), alternatively you can install the credential provider to a location you prefer, and then set the environment variable NUGET_PLUGIN_PATHS to the .dll of the credential provider found in plugins\netcore\CredentialProvider.Microsoft\CredentialProvider.Microsoft.dll. For example, $env:NUGET_PLUGIN_PATHS="my-alternative-location\CredentialProvider.Microsoft.dll".
 

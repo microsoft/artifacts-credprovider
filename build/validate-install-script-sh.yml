@@ -21,6 +21,18 @@ steps:
       echo "Credential provider plugin directory not found"
       exit 1
     fi
+
+    # For self-contained (RID-specific) installs, verify the native apphost is executable.
+    # This is skipped for runtime-dependent installs, which ship only a managed .dll.
+    CREDENTIAL_PROVIDER_APPHOST="$HOME/.nuget/plugins/netcore/CredentialProvider.Microsoft/CredentialProvider.Microsoft"
+    if [ -f "$CREDENTIAL_PROVIDER_APPHOST" ]; then
+      if [ ! -x "$CREDENTIAL_PROVIDER_APPHOST" ]; then
+        echo "Credential provider apphost is missing the executable (+x) bit: $CREDENTIAL_PROVIDER_APPHOST"
+        ls -l "$CREDENTIAL_PROVIDER_APPHOST"
+        exit 1
+      fi
+      echo "Verified credential provider apphost has the executable (+x) bit set"
+    fi
     
     echo "Credential provider installed successfully with sh"
   workingDirectory: $(Build.SourcesDirectory)

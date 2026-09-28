@@ -174,15 +174,21 @@ if [ -d "${NUGET_PLUGIN_DIR}/netcore/CredentialProvider.Microsoft" ]; then
 fi
 
 echo "INFO: Downloading from $URI"
-# Extract netcore from the .tar.gz into the plugin directory
 
-# Fetch the file
 if ! curl -H "Accept: application/octet-stream" \
   -s \
   -S \
   -L \
   "$URI" | tar xz -C "$HOME/.nuget/" "plugins/netcore"; then
   exit 1
+fi
+
+CREDENTIAL_PROVIDER_APPHOST="${NUGET_PLUGIN_DIR}/netcore/CredentialProvider.Microsoft/CredentialProvider.Microsoft"
+if [ -f "${CREDENTIAL_PROVIDER_APPHOST}" ]; then
+  if ! chmod +x "${CREDENTIAL_PROVIDER_APPHOST}"; then
+    echo "ERROR: Unable to make credential provider executable (i.e. ${CREDENTIAL_PROVIDER_APPHOST})."
+    exit 1
+  fi
 fi
 
 echo "INFO: credential provider netcore plugin extracted to $HOME/.nuget/"
