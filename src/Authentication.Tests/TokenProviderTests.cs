@@ -177,6 +177,56 @@ public class TokenProviderTests
     }
 
     [TestMethod]
+    public void MsalFederatedIdentityContractTest()
+    {
+        appMock.Setup(x => x.AppConfig)
+            .Returns(new Mock<IAppConfig>().Object);
+
+        var tokenProvider = new MsalFederatedIdentityTokenProvider(appMock.Object, loggerMock.Object);
+        var tokenRequest = new TokenRequest();
+
+        Assert.IsNotNull(tokenProvider.Name);
+        Assert.IsFalse(tokenProvider.IsInteractive);
+
+        // no inputs at all -> cannot get token
+        Assert.IsFalse(tokenProvider.CanGetToken(tokenRequest));
+
+        // create a real, existing assertion file to satisfy File.Exists()
+        var assertionFile = Path.Combine(Path.GetTempPath(), $"cp-fed-{Guid.NewGuid():N}.jwt");
+        File.WriteAllText(assertionFile, "fake.jwt.assertion");
+        try
+        {
+            // all three set + file exists -> true
+            tokenRequest.ClientId = "clientId";
+            tokenRequest.TenantId = "tenantId";
+            tokenRequest.ClientAssertionFilePath = assertionFile;
+            Assert.IsTrue(tokenProvider.CanGetToken(tokenRequest));
+
+            // missing ClientId -> false
+            tokenRequest.ClientId = null;
+            Assert.IsFalse(tokenProvider.CanGetToken(tokenRequest));
+            tokenRequest.ClientId = "clientId";
+
+            // missing TenantId -> false
+            tokenRequest.TenantId = null;
+            Assert.IsFalse(tokenProvider.CanGetToken(tokenRequest));
+            tokenRequest.TenantId = "tenantId";
+
+            // missing ClientAssertionFilePath -> false
+            tokenRequest.ClientAssertionFilePath = null;
+            Assert.IsFalse(tokenProvider.CanGetToken(tokenRequest));
+
+            // path set but file does not exist -> false
+            tokenRequest.ClientAssertionFilePath = Path.Combine(Path.GetTempPath(), $"cp-fed-missing-{Guid.NewGuid():N}.jwt");
+            Assert.IsFalse(tokenProvider.CanGetToken(tokenRequest));
+        }
+        finally
+        {
+            if (File.Exists(assertionFile)) File.Delete(assertionFile);
+        }
+    }
+
+    [TestMethod]
     public async Task MsalTokenProviders_SilentProvider_UsesBrokerApp_WhenProvided()
     {
         // Arrange: create two distinct app mocks (Loose so other providers in the iterator don't fail)
