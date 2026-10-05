@@ -60,7 +60,7 @@ namespace NuGetCredentialProvider.CredentialProviders.VstsBuildTask
 
             string uriString = request.Uri.AbsoluteUri;
             string matchedPrefix = uriPrefixes.FirstOrDefault(prefix => uriString.StartsWith(prefix, StringComparison.OrdinalIgnoreCase));
-            Verbose(string.Format(Resources.BuildTaskMatchedPrefix, matchedPrefix != null ? matchedPrefix : Resources.BuildTaskNoMatchingPrefixes));
+            Verbose(string.Format(Resources.BuildTaskMatchedPrefix, matchedPrefix != null ? RedactionUtil.RedactFeedUrl(matchedPrefix) : Resources.BuildTaskNoMatchingPrefixes));
 
             if (matchedPrefix == null)
             {
@@ -72,7 +72,7 @@ namespace NuGetCredentialProvider.CredentialProviders.VstsBuildTask
                     MessageResponseCode.Error);
             }
 
-            Verbose(string.Format(Resources.BuildTaskEndpointMatchingUrlFound, uriString));
+            Verbose(string.Format(Resources.BuildTaskEndpointMatchingUrlFound, RedactionUtil.RedactFeedUrl(uriString)));
             return this.GetResponse(
                     Username,
                     accessToken,
