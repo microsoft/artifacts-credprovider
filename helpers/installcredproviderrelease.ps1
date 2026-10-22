@@ -123,7 +123,7 @@ try {
         $client.DownloadFile($installUrl, $tempScriptLocation)
     }
     catch {
-        Write-Error "Unable to download $packageSourceUrl to the location $pluginZip"
+        throw "Unable to download $installScriptName from $installUrl to $tempScriptLocation. Error: $($_.Exception.Message)"
     }
 
     if ($null -ne $expectedHash) {
